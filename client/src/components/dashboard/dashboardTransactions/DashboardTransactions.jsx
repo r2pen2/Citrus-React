@@ -97,7 +97,7 @@ function createTransactionCards( transactions, numDisplayed ) {
                             alt={t.user}
                             src={t.user === "Oliver Risch" ? OliverPic : LeoPic}
                         />
-                        <Stack direction="column" alignItems="center" align="left">
+                        <Stack direction="column" alignItems="left" align="left">
                             <Typography variant="h6" component="div">{t.title}</Typography>
                             <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{formatDate(t.date)}</Typography>
                         </Stack>

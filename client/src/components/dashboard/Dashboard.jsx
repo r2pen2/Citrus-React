@@ -4,7 +4,12 @@ import DashboardOweCard from "./dashboardOweCard/DashboardOweCard"
 import DashboardTransactions from "./dashboardTransactions/DashboardTransactions"
 import DashboardAnalytics from "./dashboardAnalytics/DashboardAnalytics"
 
-export default function Dashboard() {
+export default function Dashboard({ user }) {
+
+  if (!user) {
+    window.location = "/login"
+  }
+
   return (
     <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px">
       <Box> 
