@@ -1,7 +1,21 @@
-import "./dashboard.sass"
-import { Stack } from "@mui/material"
+import "./dashboard.scss"
+import { Stack, Box } from "@mui/material"
 import DashboardOweCard from "./dashboardOweCard/DashboardOweCard"
 import DashboardTransactions from "./dashboardTransactions/DashboardTransactions"
+import DashboardAnalytics from "./dashboardAnalytics/DashboardAnalytics"
+
+export default function Dashboard() {
+  return (
+    <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px">
+      <Box> 
+        <DashboardOweCard credit={{ positive: true, amount: 250, numPeople: 6 }} />
+        <DashboardOweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
+      </Box>
+      <DashboardTransactions recentTransactions={recentTransactionsExample} numDisplayed={2}/>
+      <DashboardAnalytics chartData={analyticsExample}/>
+    </Stack>
+  )
+}
 
 const recentTransactionsExample = [
   {
@@ -24,12 +38,35 @@ const recentTransactionsExample = [
   },
 ]
 
-export default function Dashboard() {
-  return (
-    <Stack spacing={2} marginTop="50px" marginLeft="75px" marginRight="75px">
-      <DashboardOweCard credit={{ positive: true, amount: 250, numPeople: 6 }} />
-      <DashboardOweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
-      <DashboardTransactions recentTransactions={recentTransactionsExample} numDisplayed={2}/>
-    </Stack>
-  )
-}
+const analyticsExample = [
+  {
+    id: 1,
+    month: "January",
+    amount: 500,
+  },
+  {
+    id: 2,
+    month: "February",
+    amount: 750,
+  },
+  {
+    id: 3,
+    month: "March",
+    amount: 300,
+  },
+  {
+    id: 4,
+    month: "April",
+    amount: 500,
+  },
+  {
+    id: 5,
+    month: "May",
+    amount: 750,
+  },
+  {
+    id: 6,
+    month: "June",
+    amount: 300,
+  },
+]
