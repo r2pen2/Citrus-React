@@ -10,7 +10,7 @@ function App() {
   return (
   <ThemeProvider theme={theme}>
     <Topbar name="Joseph Dobbelaar"/>
-    <Dashboard name="Joseph Dobbelaar"/>
+    <Dashboard />
     <BottomNav />
   </ThemeProvider>
   )
