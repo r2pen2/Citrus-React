@@ -2,8 +2,8 @@ import "./dashboardtransactions.scss"
 
 import { Card, CardContent, CardActionArea, Typography, Stack, Avatar } from '@mui/material';
 
-import OliverPic from "../../../assets/images/Oliver.png"
-import LeoPic from "../../../assets/images/Leo.png"
+import OliverPic from "../../../assets/images/pfp/Oliver.png"
+import LeoPic from "../../../assets/images/pfp/Leo.png"
 
 var formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',

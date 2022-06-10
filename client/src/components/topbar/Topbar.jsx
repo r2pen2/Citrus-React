@@ -1,6 +1,6 @@
 import "./topbar.scss"
-import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, Box } from "@mui/material"
-import profilePic from "../../assets/images/testProfilePic.png"
+import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar } from "@mui/material"
+import profilePic from "../../assets/images/pfp/testProfilePic.png"
 import logo from "../../assets/images/LogoBlack.png"
 
 import NotificationsIcon from "@mui/icons-material/Notifications"
@@ -19,7 +19,7 @@ export default function Topbar( { user }) {
                 <IconButton size="large" edge="start" color="inherit" aria-label="logo">
                     <img src={logo} alt="logo" style={{width: "40px"}}></img>
                 </IconButton>
-                <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
+                <Typography variant="h4" component="div" fontFamily="FredokaOne" sx={{ flexGrow: 1 }}>
                     Citrus
                 </Typography>
                 <Stack direction="row" spacing={2}>
@@ -38,12 +38,12 @@ export default function Topbar( { user }) {
     } else {
         return (
         <AppBar position="static" >
-            <div className="logo-container">
+            <div className="topbar-logo-container">
                 <Toolbar>
                         <IconButton size="large" edge="start" color="inherit" aria-label="logo">
                             <img src={logo} alt="logo" style={{width: "40px"}}></img>
                         </IconButton>
-                        <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
+                        <Typography variant="h4" component="div" fontFamily="FredokaOne" sx={{ flexGrow: 1 }}>
                             Citrus
                         </Typography>
                 </Toolbar>

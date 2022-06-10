@@ -6,6 +6,8 @@ import DashboardAnalytics from "./dashboardAnalytics/DashboardAnalytics"
 
 export default function Dashboard({ user }) {
 
+  document.title = "Citrus | Dashboard"
+
   if (!user) {
     window.location = "/login"
   }

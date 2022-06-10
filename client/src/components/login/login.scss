@@ -1,0 +1,23 @@
+@import url('../../assets/style/global.scss');
+
+.login-text {
+    font-family: 'FredokaOne', sans-serif;
+    font-size: 36px;
+}
+
+.login-logo-container {
+    padding-top: 40px;
+    display: flex;
+    justify-content: center;
+    
+    .logo {
+        width: 256px;
+        height: auto;
+    }
+}
+
+.login-next-button-container {
+    justify-content: center;
+    margin-top: 40px;
+    display: flex;
+}
