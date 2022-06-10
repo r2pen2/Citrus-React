@@ -21,7 +21,7 @@ export default function Login() {
       case 0:
         return <LoginHome setPage={setPage} />;
       case 1:
-        return <PhoneInput setPage={setPage} setPhoneNumber={setPhoneNumber} />;
+        return <PhoneInput setPage={setPage} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber}/>;
       case 2:
         return <div>{phoneNumber}</div>;
       case 3:
