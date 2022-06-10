@@ -1,12 +1,18 @@
+import { ThemeProvider } from "@mui/material"
+
 import Dashboard from "./components/dashboard/Dashboard"
-import Navbar from "./components/navbar/Navbar"
+import Topbar from "./components/topbar/Topbar"
+import BottomNav from "./components/bottomnav/BottomNav"
+
+import theme from "./assets/style/theme"
 
 function App() {
   return (
-  <div>
-    <Navbar name="Joseph Dobbelaar"/>
+  <ThemeProvider theme={theme}>
+    <Topbar name="Joseph Dobbelaar"/>
     <Dashboard name="Joseph Dobbelaar"/>
-  </div>
+    <BottomNav />
+  </ThemeProvider>
   )
 }
 
