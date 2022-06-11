@@ -2,14 +2,17 @@ import "./phoneinput.scss"
 import * as React from 'react';
 import { useState } from 'react';
 import MuiPhoneNumber from 'material-ui-phone-number';
-import CloseIcon from '@mui/icons-material/Close';
-import { Typography, Button, Stack, Snackbar, IconButton, Alert } from "@mui/material"
-import DeviceInfo from 'react-native-device-info'
+import { Typography, Button, Stack, Snackbar } from "@mui/material"
 import axios from "axios";
+import MuiAlert from '@mui/material/Alert';
 
 function formatPhoneNumber(num) {
     return "+" + num.replace(/\D/g, '');
 }
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
 
@@ -19,13 +22,13 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
         setPhoneNumber(formatPhoneNumber(value));
     }
 
-    function textMe() {
-        console.log("Texting: " + phoneNumber);
-        axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'sms'})
+    function textMe(num) {
+        console.log("Texting: " + num);
+        axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: num, channel: 'sms'})
         .then(setPage(2));
     }
 
-    function callMe() {
+    function callMe(num) {
         //console.log("Calling: " + phoneNumber);
         //axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'call'})
         //.then(setPage(2));
@@ -42,7 +45,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
 
     return (
     <div>  
-        <Typography variant="h4" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
+        <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
             Enter your phone number:
         </Typography>
         <div className="phone-input-container">
@@ -50,9 +53,9 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
         </div>
         <div className="login-next-button-container">
             <Stack direction="column">
-                <Button variant="contained" component="div" onClick={() => textMe()}>Text Me</Button>
+                <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)}>Text Me</Button>
                 <div className="call-me-button-container">
-                    <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe()}>Or receive a phone call instead</Button>
+                    <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)}>Or receive a phone call instead</Button>
                 </div>
             </Stack>
         </div>

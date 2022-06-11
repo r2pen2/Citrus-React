@@ -6,6 +6,7 @@ import logo from "../../assets/images/Logo256.png"
 
 import LoginHome from "./loginHome/LoginHome"
 import PhoneInput from "./phoneInput/PhoneInput"
+import AuthCodeInput from "./authCodeInput/AuthCodeInput"
 
 
 
@@ -23,7 +24,7 @@ export default function Login() {
       case 1:
         return <PhoneInput setPage={setPage} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber}/>;
       case 2:
-        return <div>{phoneNumber}</div>;
+        return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber}/>;
       case 3:
         return <div>Account creation</div>;
       default:
