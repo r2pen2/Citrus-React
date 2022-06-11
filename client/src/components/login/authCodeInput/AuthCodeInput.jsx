@@ -9,7 +9,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function AuthCodeInput({ setPage, phoneNumber, setAuthenticated }) {
+export default function AuthCodeInput({ setPage, phoneNumber, findUser }) {
 
     const [resendMessageOpen, setResendMessageOpen] = useState(false);
     const [formatMessageOpen, setFormatMessageOpen] = useState(false);
@@ -56,7 +56,7 @@ export default function AuthCodeInput({ setPage, phoneNumber, setAuthenticated }
           const authStatus = res.data.status;
           if (authStatus === "approved") {
             setPage(3);
-            setAuthenticated(true);
+            findUser();
           } else {
             setErrorMessageOpen(true);
           }

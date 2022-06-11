@@ -1,16 +1,21 @@
 import "./login.scss"
 
-import { useState, useEffect } from 'react'
-import { Stack, Typography, Button } from "@mui/material"
-import logo from "../../assets/images/Logo256.png"
+import { useState, useEffect, useContext } from 'react';
+import AuthContext from "../../context/AuthProvider";
+import { Stack, Typography, Button } from "@mui/material";
+import logo from "../../assets/images/Logo256.png";
 
-import LoginHome from "./loginHome/LoginHome"
-import PhoneInput from "./phoneInput/PhoneInput"
-import AuthCodeInput from "./authCodeInput/AuthCodeInput"
+import axios from 'axios'
+
+import LoginHome from "./loginHome/LoginHome";
+import PhoneInput from "./phoneInput/PhoneInput";
+import AuthCodeInput from "./authCodeInput/AuthCodeInput";
 
 
 
 export default function Login({ signedIn }) {
+
+  const { setAuth } = useContext(AuthContext);
 
   // Redirect to dashboard if we're signed in
   if (signedIn) {
@@ -19,21 +24,18 @@ export default function Login({ signedIn }) {
 
   const [page, setPage] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState({});
 
-  useEffect(() => {
-    if (authenticated) {
-      console.log("Checking if user is in database...")
-      const testUser = {
-        firstName: "Joseph",
-        lastName: "Dobbelaar",
-        phoneNumber: "+17818799058",
-        password: "password"
+  function findUser() {
+    console.log("Checking if user is in database...");
+      try {
+        axios.post("http://localhost:3001/database/get-user-by-number", { phoneNumber: phoneNumber }).then((res) => {
+          console.log(res)
+        });
+      } catch (err) {
+        console.log(err);
       }
-      setUser(testUser);
-    }
-  }, [authenticated])
+  }
 
   document.title = "Citrus | Login";
 
@@ -44,13 +46,9 @@ export default function Login({ signedIn }) {
       case 1:
         return <PhoneInput setPage={setPage} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber}/>;
       case 2:
-        return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber} setAuthenticated={setAuthenticated}/>;
+        return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber} findUser={findUser}/>;
       case 3:
-        if (user) {
-          localStorage.setItem("user", user);
-        } else {
-          return <div>Account creation</div>;
-        }
+        return <div>Account creation</div>;
       default:
         return <div>Page not found</div>;
     }
