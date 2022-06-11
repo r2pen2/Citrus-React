@@ -54,6 +54,7 @@ export default function AuthCodeInput({ setPage, phoneNumber, findUser }) {
           authCode: authCode
         }).then((res) => {
           const authStatus = res.data.status;
+          console.log(authStatus);
           if (authStatus === "approved") {
             setPage(3);
             findUser();

@@ -21,8 +21,9 @@ function findAllUsersBy(searchCondition, value) {
   console.log("QueryString: " + queryString);
   client.query(queryString, (err, res) => {
     if (err) {
-      console.log("Error: " + err);
+      console.log(err);
     }
+    console.log(res)
     return(res.rows)
   });
   client.end();
@@ -31,7 +32,7 @@ function findAllUsersBy(searchCondition, value) {
 router.post("/get-user-by-number", (req, res) => {
   const num = req.body.phoneNumber;
   console.log("Searching DB for a user with number [" + num + "]...");
-  const data = findAllUsersBy("phone_number", num)[0];
+  const data = findAllUsersBy("phone_number", num);
   const jsonContent = JSON.stringify(data);
   res.end(jsonContent);
 });

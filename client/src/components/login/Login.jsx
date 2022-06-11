@@ -2,7 +2,7 @@ import "./login.scss"
 
 import { useState, useEffect, useContext } from 'react';
 import AuthContext from "../../context/AuthProvider";
-import { Stack, Typography, Button } from "@mui/material";
+import { Stack, Box, Stepper, Step, StepLabel } from "@mui/material";
 import logo from "../../assets/images/Logo256.png";
 
 import axios from 'axios'
@@ -10,6 +10,7 @@ import axios from 'axios'
 import LoginHome from "./loginHome/LoginHome";
 import PhoneInput from "./phoneInput/PhoneInput";
 import AuthCodeInput from "./authCodeInput/AuthCodeInput";
+import AccountCreation from "./accountCreation/AccountCreation";
 
 
 
@@ -48,18 +49,48 @@ export default function Login({ signedIn }) {
       case 2:
         return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber} findUser={findUser}/>;
       case 3:
-        return <div>Account creation</div>;
+        if (user) {
+          return <div>Password Entry</div>;
+        } else {
+          return <AccountCreation setPage={setPage} phoneNumber={phoneNumber}/>;
+        }
       default:
         return <div>Page not found</div>;
     }
   }
 
+  const steps = [
+    'Enter your phone number',
+    'Verify your phone number',
+    'Sign in',
+    'Start splitting payments'
+  ];
+
+  function displaySteps(p) {
+    if (p > 0) {
+      return (
+        <Box sx={{ width: '100%' }}>
+          <Stepper activeStep={p-1} alternativeLabel>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+      );
+    }
+  }
+
   return (
-    <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px">
+    <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px" alignItems="center" justifyContent="center">
       <div className="login-logo-container"> 
         <img src={logo} alt="logo" className="logo"></img>
       </div>
       { getLoginPage(page) }
+      <div className="stepper-wrapper">
+        { displaySteps(page) }
+      </div>
     </Stack>
   )
 }
