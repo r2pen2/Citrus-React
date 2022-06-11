@@ -10,7 +10,7 @@ import axios from 'axios'
 import LoginHome from "./loginHome/LoginHome";
 import PhoneInput from "./phoneInput/PhoneInput";
 import AuthCodeInput from "./authCodeInput/AuthCodeInput";
-import AccountCreation from "./accountCreation/AccountCreation";
+import PasswordEntry from "./passwordEntry/PasswordEntry";
 
 
 
@@ -25,7 +25,8 @@ export default function Login({ signedIn }) {
 
   const [page, setPage] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [user, setUser] = useState({});
+  const [phoneString, setPhoneString] = useState("");
+  const [user, setUser] = useState();
 
   function findUser() {
     console.log("Checking if user is in database...");
@@ -45,15 +46,11 @@ export default function Login({ signedIn }) {
       case 0:
         return <LoginHome setPage={setPage} />;
       case 1:
-        return <PhoneInput setPage={setPage} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber}/>;
+        return <PhoneInput setPage={setPage} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} setPhoneString={setPhoneString}/>;
       case 2:
         return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber} findUser={findUser}/>;
       case 3:
-        if (user) {
-          return <div>Password Entry</div>;
-        } else {
-          return <AccountCreation setPage={setPage} phoneNumber={phoneNumber}/>;
-        }
+        return <PasswordEntry setPage={setPage} user={user} phoneNumber={phoneNumber} phoneString={phoneString}/>;
       default:
         return <div>Page not found</div>;
     }

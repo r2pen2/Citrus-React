@@ -14,12 +14,14 @@ const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
+export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber, setPhoneString }) {
 
     const [callErrorOpen, setCallErrorOpen] = useState(false);
     const [invalidNumberErrorOpen, setInvalidNumberErrorOpen] = useState(false);
+    const [submitEnable, setSubmitEnable] = useState(false);
 
     function handleOnChange(value) {
+        setPhoneString(value)
         setPhoneNumber(formatPhoneNumber(value));
     }
 
@@ -66,19 +68,23 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
         }
     }
 
+    function enableSubmit() {
+        setSubmitEnable(numberValid(phoneNumber));
+    }
+
     return (
     <div>  
         <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
             Enter your phone number:
         </Typography>
         <div className="phone-input-container">
-            <MuiPhoneNumber defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}}/>
+            <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit}/>
         </div>
         <div className="login-next-button-container">
             <Stack direction="column">
-                <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)}>Text Me</Button>
+                <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)} disabled={!submitEnable}>Text Me</Button>
                 <div className="call-me-button-container">
-                    <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)}>Or receive a phone call instead</Button>
+                    <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)} disabled={!submitEnable}>Or receive a phone call instead</Button>
                 </div>
             </Stack>
         </div>

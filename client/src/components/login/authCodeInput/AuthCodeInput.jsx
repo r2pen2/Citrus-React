@@ -15,11 +15,16 @@ export default function AuthCodeInput({ setPage, phoneNumber, findUser }) {
     const [formatMessageOpen, setFormatMessageOpen] = useState(false);
     const [errorMessageOpen, setErrorMessageOpen] = useState(false);
     const [authCode, setAuthCode] = useState("");
+    const [submitEnable, setSubmitEnable] = useState(false);
 
     function resendCode(num) {
         console.log("Texting: " + num);
         axios.post('http://localhost:3001/login/send-auth', { phoneNumber: num, channel: 'sms'})
         .then(setResendMessageOpen(true));
+    }
+
+    function enableSubmit() {
+      setSubmitEnable(authCode.length === 6);
     }
 
     const handleResendMessageClose = (event, reason) => {
@@ -79,14 +84,14 @@ export default function AuthCodeInput({ setPage, phoneNumber, findUser }) {
             Enter your 6 digit authentication code:
         </Typography>
         <div className="auth-input-container">
-            <TextField id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}}/>
+            <TextField autoFocus id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit}/>
         </div>
         <div className="try-again-button-container">
                     <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => resendCode(phoneNumber)}>Didn't receive your verification code?</Button>
                 </div>
         <div className="login-next-button-container">
             <Stack direction="column">
-                <Button variant="contained" component="div" onClick={checkAuthCode}>Submit</Button>
+                <Button variant="contained" component="div" onClick={checkAuthCode} disabled={!submitEnable}>Submit</Button>
             </Stack>
         </div>
         <Snackbar open={resendMessageOpen} autoHideDuration={6000} onClose={handleResendMessageClose}>
