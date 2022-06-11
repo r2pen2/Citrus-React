@@ -16,32 +16,55 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
 
-    const [errorOpen, setErrorOpen] = useState(false);
+    const [callErrorOpen, setCallErrorOpen] = useState(false);
+    const [invalidNumberErrorOpen, setInvalidNumberErrorOpen] = useState(false);
 
     function handleOnChange(value) {
         setPhoneNumber(formatPhoneNumber(value));
     }
 
+    function numberValid(num) {
+        return num.length === 12;
+    }
+
     function textMe(num) {
-        console.log("Texting: " + num);
-        axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: num, channel: 'sms'})
-        .then(setPage(2));
+        if (numberValid(num)) {
+            console.log("Texting: " + num);
+            axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: num, channel: 'sms'})
+            .then(setPage(2));
+        } else {
+            setInvalidNumberErrorOpen(true);
+        }
     }
 
     function callMe(num) {
         //console.log("Calling: " + phoneNumber);
         //axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'call'})
         //.then(setPage(2));
-        setErrorOpen(true);
+        setCallErrorOpen(true);
     }
 
-    const handleErrorClose = (event, reason) => {
+    const handleCallErrorClose = (event, reason) => {
         if (reason === 'clickaway') {
           return;
         }
     
-        setErrorOpen(false);
+        setInvalidNumberErrorOpen(false);
     };
+
+    const handleInvalidNumberErrorClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setCallErrorOpen(false);
+    };
+
+    function handleEnter(e) {
+        if (e.key === "Enter") {
+            textMe(phoneNumber)
+        }
+    }
 
     return (
     <div>  
@@ -49,7 +72,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
             Enter your phone number:
         </Typography>
         <div className="phone-input-container">
-            <MuiPhoneNumber defaultCountry={'us'} onChange={handleOnChange}/>
+            <MuiPhoneNumber defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}}/>
         </div>
         <div className="login-next-button-container">
             <Stack direction="column">
@@ -59,8 +82,11 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
                 </div>
             </Stack>
         </div>
-        <Snackbar open={errorOpen} autoHideDuration={6000} onClose={handleErrorClose} >
+        <Snackbar open={callErrorOpen} autoHideDuration={6000} onClose={handleCallErrorClose} >
             <Alert severity="error" sx={{ width: '100%' }}>Calling seems to be broken lmao</Alert>
+        </Snackbar>
+        <Snackbar open={invalidNumberErrorOpen} autoHideDuration={6000} onClose={handleInvalidNumberErrorClose} >
+            <Alert severity="error" sx={{ width: '100%' }}>The phone number entered is not a valid length.</Alert>
         </Snackbar>
     </div>
     )

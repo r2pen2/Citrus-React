@@ -10,35 +10,39 @@ import Topbar from "./components/topbar/Topbar"
 import BottomNav from "./components/bottomnav/BottomNav"
 
 import theme from "./assets/style/theme"
+import axios from "axios";
 
 function App() {
-
   const testUser = {
+    id: 1,
     firstName: "Joseph",
     lastName: "Dobbelaar",
     phoneNumber: "+17818799058",
     password: "password"
-  }
-  const [user, setUser] = useState();
-
-  const [signedIn, setSignedIn] = useState(true);
+}
+  
+  const [userId, setUserId] = useState("")
+  const [user, setUser] = useState(testUser);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     if (user) {
       setSignedIn(true);
+      setUserId(user.id);
     } else {
       setSignedIn(false);
+      setUserId("")
     }
   }, [user]);
 
   return (
     <Router>
     <ThemeProvider theme={theme}>
-      <Topbar user={user}/>
+      <Topbar user={user} setUser={setUser}/>
       <div className="content">
         <Routes>
           <Route path="/" element={<LoginRedirect user={user}/>} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login signedIn={signedIn}/>} />
           <Route path="/dashboard" element={<Dashboard user={user}/>} />
         </Routes>
       </div>

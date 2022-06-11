@@ -1,15 +1,17 @@
 import "./topbar.scss"
-import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar } from "@mui/material"
+import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, Button } from "@mui/material"
 import profilePic from "../../assets/images/pfp/testProfilePic.png"
 import logo from "../../assets/images/LogoBlack.png"
 
+import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from "@mui/icons-material/Notifications"
 
-export default function Topbar( { user }) {
+export default function Topbar( { user, setUser }) {
 
-    
-
-    console.log(user)
+    function logOut() {
+        setUser(null)
+        console.log(user)
+    }
 
     if (user) {
         const fullName = user.firstName + " " + user.lastName
@@ -22,14 +24,18 @@ export default function Topbar( { user }) {
                 <Typography variant="h4" component="div" fontFamily="FredokaOne" sx={{ flexGrow: 1 }}>
                     Citrus
                 </Typography>
-                <Stack direction="row" spacing={2}>
+                <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" display="flex">
+                    <Typography variant="subtitle1" component="div" marginTop="4px">{fullName}</Typography>
                     <Tooltip title={fullName}>
-                        <Avatar alt={fullName} src={profilePic} />
+                        <Avatar alt={fullName} src={profilePic} sx={{ border: "1px solid black"}}/>
                     </Tooltip>
                     <Tooltip title="Notifications">
                         <IconButton size="medium" edge="start" color="inherit" aria-label="notifications-icon">
                             <NotificationsIcon />
                         </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Log-Out">
+                        <IconButton size="medium" color="inherit" aria-label="logout-icon" onClick={() => logOut()}><LogoutIcon/></IconButton>
                     </Tooltip>
                 </Stack>
             </Toolbar>
