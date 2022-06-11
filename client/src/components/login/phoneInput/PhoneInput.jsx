@@ -30,7 +30,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber }) {
     function textMe(num) {
         if (numberValid(num)) {
             console.log("Texting: " + num);
-            axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: num, channel: 'sms'})
+            axios.post('http://localhost:3001/login/send-auth', { phoneNumber: num, channel: 'sms'})
             .then(setPage(2));
         } else {
             setInvalidNumberErrorOpen(true);

@@ -22,7 +22,7 @@ function App() {
 }
   
   const [userId, setUserId] = useState("")
-  const [user, setUser] = useState(testUser);
+  const [user, setUser] = useState();
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {

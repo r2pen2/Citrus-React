@@ -18,7 +18,7 @@ export default function AuthCodeInput({ setPage, phoneNumber, setAuthenticated }
 
     function resendCode(num) {
         console.log("Texting: " + num);
-        axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: num, channel: 'sms'})
+        axios.post('http://localhost:3001/login/send-auth', { phoneNumber: num, channel: 'sms'})
         .then(setResendMessageOpen(true));
     }
 
@@ -49,7 +49,7 @@ export default function AuthCodeInput({ setPage, phoneNumber, setAuthenticated }
 
     function checkAuthCode() {
       if (authCode.length === 6) {
-        axios.post('http://localhost:3001/check-twilio-verification', {
+        axios.post('http://localhost:3001/login/check-auth', {
           phoneNumber: phoneNumber,
           authCode: authCode
         }).then((res) => {
