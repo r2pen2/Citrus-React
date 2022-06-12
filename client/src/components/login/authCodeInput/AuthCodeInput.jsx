@@ -80,7 +80,7 @@ export default function AuthCodeInput({ setPage, phoneNumber, findUser }) {
 
   return (
     <div>  
-        <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
+        <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
             Enter your 6 digit authentication code:
         </Typography>
         <div className="auth-input-container">

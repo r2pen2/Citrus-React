@@ -74,7 +74,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber, setPh
 
     return (
     <div>  
-        <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
+        <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
             Enter your phone number:
         </Typography>
         <div className="phone-input-container">

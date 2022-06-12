@@ -1,6 +1,7 @@
 import "./passwordentry.scss";
-import { Stack, TextField, Typography, Box, Button } from "@mui/material";
+import { Stack, TextField, Typography, Box, Button, List, ListItem, ListItemText, Collapse } from "@mui/material";
 import { useState } from 'react';
+import { TransitionGroup } from 'react-transition-group';
 
 // Please feel free to edit these lol
 const helloMessages = [
@@ -43,14 +44,16 @@ export default function PasswordEntry({ setPage, user, phoneNumber, phoneString 
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [submitEnable, setSubmitEnable] = useState(false);
   const [passwordFailMessages, setPasswordFailMessages] = useState([]);
+  const [submitOpacity, setSubmitOpacity] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
 
   function renderHelloMessage() {
     return (
       <div>
-        <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
+        <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
           {helloMsg.header}
         </Typography>
-        <Typography variant="subtitle2" component="div" align="center" paddingTop="5px" sx={{ flexGrow: 1, color: "gray" }}>
+        <Typography variant="subtitle2" component="div" align="center" paddingTop="5px" paddingBottom="10px" sx={{ flexGrow: 1, color: "gray" }}>
           {helloMsg.sub}
         </Typography>
       </div>
@@ -88,16 +91,30 @@ export default function PasswordEntry({ setPage, user, phoneNumber, phoneString 
 
   function enableSubmit() {
     if ((firstName.length > 0) && (lastName.length > 0) && (password.length > 0) && (passwordConfirm.length > 0) && passwordValid()) {
+      setSubmitOpacity(1);
       setSubmitEnable(true)
     } else {
+      setSubmitOpacity(1 - (passwordFailMessages.length * .5))
       setSubmitEnable(false)
     }
   }
 
   function generateFailMessages() {
-    return passwordFailMessages.map(msg => {
-      return <Typography variant="subtitle2" sx={{color: "red" }} disabled={submitEnable}>{msg}</Typography>
-    })
+    return (
+      <List dense>
+        <TransitionGroup>
+        {passwordFailMessages.map(msg => {
+          return (
+            <Collapse key={msg}>
+              <ListItem>
+                <ListItemText primary={msg} sx={{ color: "red" }}/>
+              </ListItem>
+            </Collapse>
+          )
+        })}
+        </TransitionGroup>
+      </List>
+    )
   }
 
   function makeExistingUserForm() {
@@ -171,11 +188,11 @@ export default function PasswordEntry({ setPage, user, phoneNumber, phoneString 
           />
         </Box>
         <Box>
-          <TextField
+        <TextField
             required
             id="password"
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             onChange={e => setPassword(e.target.value)}
             onKeyUp={enableSubmit}
             onBlur={enableSubmit}
@@ -190,10 +207,13 @@ export default function PasswordEntry({ setPage, user, phoneNumber, phoneString 
             onBlur={enableSubmit}
           />
         </Box>
+        <div className="show-password-button-container">
+          <Button variant="text" tabIndex="-1" sx={{color: "gray" }} size="small" onClick={() => setShowPassword(!showPassword)}>Reveal password</Button>
+        </div>
         { generateFailMessages() }
         <div className="login-next-button-container">
           <Stack direction="column">
-            <Button variant="contained" component="div" onClick={() => handleSubmitNewUser()} disabled={!submitEnable}>Submit</Button>
+            <Button variant="contained" component="div" onClick={() => handleSubmitNewUser()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>Submit</Button>
           </Stack>
         </div>
       </Stack>

@@ -1,6 +1,6 @@
 import "./login.scss"
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import AuthContext from "../../context/AuthProvider";
 import { Stack, Box, Stepper, Step, StepLabel } from "@mui/material";
 import logo from "../../assets/images/Logo256.png";
@@ -11,7 +11,6 @@ import LoginHome from "./loginHome/LoginHome";
 import PhoneInput from "./phoneInput/PhoneInput";
 import AuthCodeInput from "./authCodeInput/AuthCodeInput";
 import PasswordEntry from "./passwordEntry/PasswordEntry";
-
 
 
 export default function Login({ signedIn }) {
