@@ -22,7 +22,7 @@ function App() {
 }
   
   const [userId, setUserId] = useState("")
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(testUser);
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ function App() {
   }, [user]);
 
   return (
-    <Router>
+  <Router>
     <ThemeProvider theme={theme}>
       <Topbar user={user} setUser={setUser}/>
       <div className="content">

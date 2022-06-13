@@ -16,6 +16,18 @@ const twilioServiceSid = "VA10a6ace611ddc51e98ee3aab7ce935e3";
 
 const client = new twilio(twilioAccountSid, twilioAuthToken);
 
+router.post("/hash-password", (req, res) => {
+    const password = req.body.password;
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    bcrypt.genSalt(saltRounds, function(err, salt) {
+        bcrypt.hash(password, salt, function(err, hash) {
+            const jsonContent = JSON.stringify(hash);
+            res.end(jsonContent);
+        });
+    });
+})
+
 router.post("/send-auth", (req, res) => {
     if (doAuth) {
         const phoneNumber = req.body.phoneNumber; 

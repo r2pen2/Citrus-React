@@ -37,6 +37,10 @@ router.post("/get-user-by-number", (req, res) => {
   //res.end(jsonContent);
 });
 
+router.post("/add-user", (req, res) => {
+  console.log(req.body)
+})
+
 router.get("/ping", (req, res) => {
   res.send("Pong!")
 });

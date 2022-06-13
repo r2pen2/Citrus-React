@@ -43,7 +43,7 @@ export default function DashboardAnalytics({ chartData }) {
     console.log(data)
 
     return (
-        <Stack paddingBottom="100px">
+        <Stack >
             <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Analytics ❯</Typography>
             <div className="chart-container">
                 <Bar 

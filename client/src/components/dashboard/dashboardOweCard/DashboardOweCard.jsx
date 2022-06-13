@@ -27,7 +27,7 @@ export default function DashboardOweCard({ credit }) {
                 <CardContent>
                     <Typography variant="h5" component="div" color="white">{formatter.format(credit.amount)}</Typography>
                         <Stack direction="row" alignItems="center">
-                            <GroupsIcon fontSize="large" sx={{ color: "white " }}/>
+                            <GroupsIcon fontSize="large" sx={{ color: "white" }}/>
                             <Typography variant="subtitle1" component="div" marginLeft="5px" marginTop="2px" color="white">To {credit.numPeople} people</Typography>
                         </Stack>
                 </CardContent>

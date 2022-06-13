@@ -13,7 +13,7 @@ export default function Dashboard({ user }) {
   }
 
   return (
-    <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px">
+    <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px" paddingBottom="100px">
       <Box> 
         <DashboardOweCard credit={{ positive: true, amount: 250, numPeople: 6 }} />
         <DashboardOweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
