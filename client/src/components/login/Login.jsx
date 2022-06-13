@@ -13,7 +13,7 @@ import AuthCodeInput from "./authCodeInput/AuthCodeInput";
 import PasswordEntry from "./passwordEntry/PasswordEntry";
 
 
-export default function Login({ signedIn }) {
+export default function Login({ signedIn, user, setUser, userId, setUserId }) {
 
   const { setAuth } = useContext(AuthContext);
 
@@ -25,7 +25,6 @@ export default function Login({ signedIn }) {
   const [page, setPage] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneString, setPhoneString] = useState("");
-  const [user, setUser] = useState();
 
   function findUser() {
     console.log("Checking if user is in database...");
@@ -49,7 +48,7 @@ export default function Login({ signedIn }) {
       case 2:
         return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber} findUser={findUser}/>;
       case 3:
-        return <PasswordEntry setPage={setPage} user={user} phoneNumber={phoneNumber} phoneString={phoneString}/>;
+        return <PasswordEntry setPage={setPage} user={user} setUserId={setUserId} phoneNumber={phoneNumber} phoneString={phoneString}/>;
       default:
         return <div>Page not found</div>;
     }

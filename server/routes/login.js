@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const bodyParser = require('body-parser');
+const axios = require('axios').default;
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.json());
@@ -13,20 +14,7 @@ const twilio = require('twilio');
 const twilioAccountSid = "ACb49af6a1d91d4200ade05590b4df6767";
 const twilioAuthToken = "a69e6526d73159746aee2062c576e9d3";
 const twilioServiceSid = "VA10a6ace611ddc51e98ee3aab7ce935e3";
-
 const client = new twilio(twilioAccountSid, twilioAuthToken);
-
-router.post("/hash-password", (req, res) => {
-    const password = req.body.password;
-    const bcrypt = require('bcrypt');
-    const saltRounds = 10;
-    bcrypt.genSalt(saltRounds, function(err, salt) {
-        bcrypt.hash(password, salt, function(err, hash) {
-            const jsonContent = JSON.stringify(hash);
-            res.end(jsonContent);
-        });
-    });
-})
 
 router.post("/send-auth", (req, res) => {
     if (doAuth) {

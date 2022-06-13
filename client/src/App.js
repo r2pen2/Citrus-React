@@ -21,19 +21,21 @@ function App() {
     password: "password"
 }
   
-  const [userId, setUserId] = useState("")
-  const [user, setUser] = useState(testUser);
+  const [userId, setUserId] = useState();
+  const [user, setUser] = useState();
   const [signedIn, setSignedIn] = useState(false);
 
+  function getUserById(id) { return testUser }
+
   useEffect(() => {
-    if (user) {
+    if (userId) {
       setSignedIn(true);
-      setUserId(user.id);
+      setUser(getUserById(userId));
     } else {
       setSignedIn(false);
-      setUserId("")
+      setUser();
     }
-  }, [user]);
+  }, [userId]);
 
   return (
   <Router>
@@ -42,7 +44,7 @@ function App() {
       <div className="content">
         <Routes>
           <Route path="/" element={<LoginRedirect user={user}/>} />
-          <Route path="/login" element={<Login signedIn={signedIn}/>} />
+          <Route path="/login" element={<Login signedIn={signedIn} user={user} setUser={setUser} userId={userId} setUserId={setUserId}/>} />
           <Route path="/dashboard" element={<Dashboard user={user}/>} />
         </Routes>
       </div>

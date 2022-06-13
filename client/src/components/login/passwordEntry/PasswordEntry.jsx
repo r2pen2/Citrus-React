@@ -37,7 +37,7 @@ const helloMessages = [
 ]
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
-export default function PasswordEntry({ setPage, user, phoneNumber, phoneString }) {
+export default function PasswordEntry({ setPage, user, setUserId, phoneNumber, phoneString }) {
   
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -152,14 +152,9 @@ export default function PasswordEntry({ setPage, user, phoneNumber, phoneString 
   }
 
   function handleSubmitNewUser() {
-    function hashPassword(p) {
-      axios.post("http://localhost:3001/login/hash-password", { password: p }).then((res) => {
-        console.log(res)
-      })
-    }
-
-    hashPassword(password);
-    //axios.post("http://localhost:3001/database/add-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password: hashPassword(password) });
+    axios.post("http://localhost:3001/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {
+      setUserId(res.data.id);
+    })
   }
 
 
