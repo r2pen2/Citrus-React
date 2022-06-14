@@ -37,7 +37,7 @@ const helloMessages = [
 ]
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
-export default function PasswordEntry({ setPage, user, setUserId, phoneNumber, phoneString }) {
+export default function PasswordEntry({ phoneNumber, user, setUserById, phoneNumber }) {
   
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -46,7 +46,6 @@ export default function PasswordEntry({ setPage, user, setUserId, phoneNumber, p
   const [submitEnable, setSubmitEnable] = useState(false);
   const [passwordFailMessages, setPasswordFailMessages] = useState([]);
   const [submitOpacity, setSubmitOpacity] = useState(1);
-  const [showPassword, setShowPassword] = useState(false);
 
   function renderHelloMessage() {
     return (
@@ -153,10 +152,18 @@ export default function PasswordEntry({ setPage, user, setUserId, phoneNumber, p
 
   function handleSubmitNewUser() {
     axios.post("http://localhost:3001/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {
-      setUserId(res.data.id);
+      console.log("Setting userID to " + res.data.id);
+      setUserById(res.data.id);
     })
   }
 
+  function handleNewUserEnter(e) {
+    if (e.key === "Enter") {
+      if (submitEnable) {
+        handleSubmitNewUser();
+      }
+    }
+  }
 
   function makeNewUserForm() {
     return (
@@ -196,10 +203,11 @@ export default function PasswordEntry({ setPage, user, setUserId, phoneNumber, p
             required
             id="password"
             label="Password"
-            type={showPassword ? 'text' : 'password'}
+            type="password"
             onChange={e => setPassword(e.target.value)}
             onKeyUp={enableSubmit}
             onBlur={enableSubmit}
+            onKeyDown={(e) => {handleNewUserEnter(e)}}
           />
           <TextField
             required
@@ -209,11 +217,9 @@ export default function PasswordEntry({ setPage, user, setUserId, phoneNumber, p
             onChange={e => setPasswordConfirm(e.target.value)}
             onKeyUp={enableSubmit}
             onBlur={enableSubmit}
+            onKeyDown={(e) => {handleNewUserEnter(e)}}
           />
         </Box>
-        <div className="show-password-button-container">
-          <Button variant="text" tabIndex="-1" sx={{color: "gray" }} size="small" onClick={() => setShowPassword(!showPassword)}>Reveal password</Button>
-        </div>
         { generateFailMessages() }
         <div className="login-next-button-container">
           <Stack direction="column">

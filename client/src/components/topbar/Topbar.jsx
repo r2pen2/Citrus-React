@@ -6,18 +6,18 @@ import logo from "../../assets/images/LogoBlack.png"
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from "@mui/icons-material/Notifications"
 
-export default function Topbar( { user, setUser }) {
+export default function Topbar( { user, setUser, signedIn }) {
 
     function logOut() {
         setUser(null)
         console.log(user)
     }
 
-    if (user) {
+    if (signedIn) {
         const fullName = user.firstName + " " + user.lastName
         return (
             <AppBar position="static">
-            <Toolbar alignItems="center">
+            <Toolbar>
                 <IconButton size="large" edge="start" color="inherit" aria-label="logo">
                     <img src={logo} alt="logo" style={{width: "40px"}}></img>
                 </IconButton>

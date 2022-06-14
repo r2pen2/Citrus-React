@@ -4,11 +4,12 @@ import DashboardOweCard from "./dashboardOweCard/DashboardOweCard"
 import DashboardTransactions from "./dashboardTransactions/DashboardTransactions"
 import DashboardAnalytics from "./dashboardAnalytics/DashboardAnalytics"
 
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, signedIn }) {
 
   document.title = "Citrus | Dashboard"
 
-  if (!user) {
+  if (!signedIn) {
+    console.log("!DASHBOARD! Not signed in")
     window.location = "/login"
   }
 

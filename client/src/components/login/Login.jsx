@@ -1,7 +1,6 @@
 import "./login.scss"
 
-import { useState, useContext } from 'react';
-import AuthContext from "../../context/AuthProvider";
+import { useState, useEffect, useRef } from 'react';
 import { Stack, Box, Stepper, Step, StepLabel } from "@mui/material";
 import logo from "../../assets/images/Logo256.png";
 
@@ -13,20 +12,27 @@ import AuthCodeInput from "./authCodeInput/AuthCodeInput";
 import PasswordEntry from "./passwordEntry/PasswordEntry";
 
 
-export default function Login({ signedIn, user, setUser, userId, setUserId }) {
-
-  const { setAuth } = useContext(AuthContext);
+export default function Login({ setSignedIn, signedIn, user, setUser }) {
 
   // Redirect to dashboard if we're signed in
   if (signedIn) {
-    window.location = "/dashboard"
+    window.location = "/dashboard";
   }
 
   const [page, setPage] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneString, setPhoneString] = useState("");
 
-  function findUser() {
+  function setUserById(id) {
+    axios.post("http://localhost:3001/database/get-user-by-id", { id: id }).then((res) => {
+      if (res.data) {
+        setSignedIn(true);
+        setUser(res.data);
+      }
+    })
+  }
+
+  function findUserByPhoneNumber() {
     console.log("Checking if user is in database...");
       try {
         axios.post("http://localhost:3001/database/get-user-by-number", { phoneNumber: phoneNumber }).then((res) => {
@@ -46,11 +52,11 @@ export default function Login({ signedIn, user, setUser, userId, setUserId }) {
       case 1:
         return <PhoneInput setPage={setPage} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} setPhoneString={setPhoneString}/>;
       case 2:
-        return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber} findUser={findUser}/>;
+        return <AuthCodeInput setPage={setPage} phoneNumber={phoneNumber} findUser={findUserByPhoneNumber}/>;
       case 3:
-        return <PasswordEntry setPage={setPage} user={user} setUserId={setUserId} phoneNumber={phoneNumber} phoneString={phoneString}/>;
+        return <PasswordEntry phoneNumber={phoneNumber} user={user} setUserById={setUserById}/>;
       default:
-        return <div>Page not found</div>;
+        return <div>Error 404: Page not found</div>;
     }
   }
 

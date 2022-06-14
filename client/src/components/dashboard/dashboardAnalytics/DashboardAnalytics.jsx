@@ -10,9 +10,6 @@ var formatter = new Intl.NumberFormat('en-US', {
 })
 
 export default function DashboardAnalytics({ chartData }) {
-
-    console.log(chartData)
-
     const data = {
         labels: chartData.map((data) => data.month),
         datasets: [{
@@ -39,8 +36,6 @@ export default function DashboardAnalytics({ chartData }) {
             borderWidth: 1
         }],
     }
-
-    console.log(data)
 
     return (
         <Stack >
