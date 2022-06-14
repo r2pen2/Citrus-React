@@ -5,6 +5,18 @@
     justify-content: center;
 }
 
-.appbar {
+.topbar {
+    width: 100%;
     height: 7vh;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    .appbar-container {
+        width: 98vw;
+        
+        .appbar {
+            margin-top: 10px;
+        }
+    }
 }

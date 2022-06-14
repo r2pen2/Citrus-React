@@ -3,6 +3,10 @@
 .landingpage {
     display: flex;
     width: 100%;
+    background-image: url('../../../assets/images/wave.svg');
+    background-size: 100vw;
+    background-repeat: no-repeat;
+    background-position: bottom;
 
     .column {
         flex: 50%;
@@ -30,12 +34,22 @@
 
             .button {
                 width: 200px;
+                align-self: left;
+            }
+
+            .links-container {
+                color: white;
+                align-self: start;
+                position: absolute;
+                margin-left: 50px;
+                margin-top: calc(100vh - 50px);
+                align-items: left;
             }
         }
 
         &.right {
             float: right;
-            background-image: url('../../../assets/images/OrangeSplash.jpg');
+            background-image: url('../../../assets/images/OrangeSplash.png');
             background-size: 100vh;
             background-repeat: no-repeat;
             background-position: center;
@@ -63,5 +77,13 @@
                 }
             }
         }
+    }
+
+    .unselectable {
+        user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
     }
 }

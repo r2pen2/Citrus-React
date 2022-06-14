@@ -21,6 +21,8 @@ export default function Topbar( { user }) {
     if (signedIn) {
         const fullName = user.firstName + " " + user.lastName
         return (
+            <div className="topbar">
+                        <div className="appbar-container">
             <AppBar position="static" className="appbar">
             <Toolbar>
                 <IconButton size="large" edge="start" color="inherit" aria-label="logo">
@@ -45,10 +47,14 @@ export default function Topbar( { user }) {
                 </Stack>
             </Toolbar>
         </AppBar>
+        </div>
+            </div>
         )
     } else {
         return (
-        <AppBar position="static" className="appbar">
+            <div className="topbar">
+                        <div className="appbar-container">
+            <AppBar position="static" className="appbar">
             <div className="topbar-logo-container">
                 <Toolbar>
                         <IconButton size="large" edge="start" color="inherit" aria-label="logo">
@@ -59,7 +65,9 @@ export default function Topbar( { user }) {
                         </Typography>
                 </Toolbar>
             </div>
-        </AppBar>    
+        </AppBar>   
+        </div> 
+        </div>
         )
     }
 }
