@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const bodyParser = require('body-parser');
-const axios = require('axios').default;
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.json());

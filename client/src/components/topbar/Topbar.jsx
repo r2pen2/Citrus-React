@@ -1,16 +1,21 @@
 import "./topbar.scss"
-import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, Button } from "@mui/material"
+import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar } from "@mui/material"
 import profilePic from "../../assets/images/pfp/testProfilePic.png"
 import logo from "../../assets/images/LogoBlack.png"
 
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from "@mui/icons-material/Notifications"
 
-export default function Topbar( { user, setUser, signedIn }) {
+export default function Topbar( { user }) {
+
+    function checkForUser() {
+        return user ? true : false;
+    }
+    const signedIn = checkForUser();
 
     function logOut() {
-        setUser(null)
-        console.log(user)
+        localStorage.removeItem('user');
+        window.location = "/dashboard"
     }
 
     if (signedIn) {

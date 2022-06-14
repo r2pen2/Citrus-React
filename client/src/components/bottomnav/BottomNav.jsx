@@ -4,7 +4,12 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import GroupsIcon from '@mui/icons-material/Groups';
 
-export default function BottomNav({ active }) {
+export default function BottomNav({ user }) {
+
+  function checkForUser() {
+    return user ? true : false;
+  }
+  const active = checkForUser();
 
   const [value, setValue] = useState('home');
 

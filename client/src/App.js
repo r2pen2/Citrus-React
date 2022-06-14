@@ -10,25 +10,30 @@ import Topbar from "./components/topbar/Topbar"
 import BottomNav from "./components/bottomnav/BottomNav"
 
 import theme from "./assets/style/theme"
-import axios from "axios";
+
+
 
 function App() {
-  
-  const [user, setUser] = useState();
-  const [signedIn, setSignedIn] = useState(false);
+
+
+  function getUserFromLS() {
+    return JSON.parse(localStorage.getItem('user'));
+  }
+
+  const user = getUserFromLS();
 
   return (
   <Router>
     <ThemeProvider theme={theme}>
-      <Topbar user={user} setUser={setUser} signedIn={signedIn}/>
+      <Topbar user={user}/>
       <div className="content">
         <Routes>
-          <Route path="/" element={<LoginRedirect signedIn={signedIn} />} />
-          <Route path="/login" element={<Login signedIn={signedIn} setSignedIn={setSignedIn} user={user} setUser={setUser}/>} />
-          <Route path="/dashboard" element={<Dashboard user={user} signedIn={signedIn}/>} />
+          <Route path="/" element={<LoginRedirect user={user} />} />
+          <Route path="/login" element={<Login user={user}/>} />
+          <Route path="/dashboard" element={<Dashboard user={user}/>} />
         </Routes>
       </div>
-      <BottomNav active={signedIn}/>
+      <BottomNav user={user}/>
     </ThemeProvider>
   </Router>
   )

@@ -2,7 +2,7 @@ import "./passwordentry.scss";
 import { Stack, TextField, Typography, Box, Button, List, ListItem, ListItemText, Collapse } from "@mui/material";
 import { useState } from 'react';
 import { TransitionGroup } from 'react-transition-group';
-import axios from 'axios';
+import axios from '../../../api/axios'
 
 // Please feel free to edit these lol
 const helloMessages = [
@@ -151,7 +151,7 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
   }
 
   function handleSubmitNewUser() {
-    axios.post("http://localhost:3001/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {
+    axios.post("/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {
       console.log("Setting userID to " + res.data.id);
       setUserById(res.data.id);
     })

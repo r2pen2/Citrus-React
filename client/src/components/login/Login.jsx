@@ -1,10 +1,10 @@
 import "./login.scss"
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { Stack, Box, Stepper, Step, StepLabel } from "@mui/material";
 import logo from "../../assets/images/Logo256.png";
 
-import axios from 'axios'
+import axios from '../../api/axios'
 
 import LoginHome from "./loginHome/LoginHome";
 import PhoneInput from "./phoneInput/PhoneInput";
@@ -12,11 +12,16 @@ import AuthCodeInput from "./authCodeInput/AuthCodeInput";
 import PasswordEntry from "./passwordEntry/PasswordEntry";
 
 
-export default function Login({ setSignedIn, signedIn, user, setUser }) {
+export default function Login({ user }) {
+
+  function checkForUser() {
+    return user ? true : false;
+  }
+  const signedIn = checkForUser();
 
   // Redirect to dashboard if we're signed in
   if (signedIn) {
-    window.location = "/dashboard";
+   window.location = "/dashboard";
   }
 
   const [page, setPage] = useState(0);
@@ -24,10 +29,10 @@ export default function Login({ setSignedIn, signedIn, user, setUser }) {
   const [phoneString, setPhoneString] = useState("");
 
   function setUserById(id) {
-    axios.post("http://localhost:3001/database/get-user-by-id", { id: id }).then((res) => {
+    axios.post("/database/get-user-by-id", { id: id }).then((res) => {
       if (res.data) {
-        setSignedIn(true);
-        setUser(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data));
+        window.location = "/dashboard"
       }
     })
   }
@@ -35,7 +40,7 @@ export default function Login({ setSignedIn, signedIn, user, setUser }) {
   function findUserByPhoneNumber() {
     console.log("Checking if user is in database...");
       try {
-        axios.post("http://localhost:3001/database/get-user-by-number", { phoneNumber: phoneNumber }).then((res) => {
+        axios.post("/database/get-user-by-number", { phoneNumber: phoneNumber }).then((res) => {
           console.log(res)
         });
       } catch (err) {

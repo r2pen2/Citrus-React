@@ -4,9 +4,14 @@ import DashboardOweCard from "./dashboardOweCard/DashboardOweCard"
 import DashboardTransactions from "./dashboardTransactions/DashboardTransactions"
 import DashboardAnalytics from "./dashboardAnalytics/DashboardAnalytics"
 
-export default function Dashboard({ user, signedIn }) {
+export default function Dashboard({ user }) {
 
   document.title = "Citrus | Dashboard"
+
+  function checkForUser() {
+    return user ? true : false;
+  }
+  const signedIn = checkForUser();
 
   if (!signedIn) {
     console.log("!DASHBOARD! Not signed in")
