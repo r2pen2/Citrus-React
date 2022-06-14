@@ -2,7 +2,7 @@ import "./authcodeinput.scss";
 import * as React from 'react';
 import { useState } from 'react';
 import { Typography, Button, Stack, TextField, Snackbar } from "@mui/material";
-import axios from "axios";
+import axios from '../../../api/axios'
 import MuiAlert from '@mui/material/Alert';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -19,7 +19,7 @@ export default function AuthCodeInput({ setPage, phoneNumber, findUser }) {
 
     function resendCode(num) {
         console.log("Texting: " + num);
-        axios.post('http://localhost:3001/login/send-auth', { phoneNumber: num, channel: 'sms'})
+        axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
         .then(setResendMessageOpen(true));
     }
 
@@ -54,7 +54,7 @@ export default function AuthCodeInput({ setPage, phoneNumber, findUser }) {
 
     function checkAuthCode() {
       if (authCode.length === 6) {
-        axios.post('http://localhost:3001/login/check-auth', {
+        axios.post('/login/check-auth', {
           phoneNumber: phoneNumber,
           authCode: authCode
         }).then((res) => {

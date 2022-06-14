@@ -1,0 +1,21 @@
+.sections {
+    position: relative;
+    overflow: hidden;
+
+    //Gently snap
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    
+    // Disable scrollbar
+    scrollbar-width: none; // For firefox
+    &::-webkit-scrollbar { // For everything else
+        display: none;
+    }
+    
+    // Stuff within sections
+    > *{
+        width: 100vw;
+        height: calc(100vh - 70px);
+        scroll-snap-align: start;
+    }
+}

@@ -1,0 +1,67 @@
+@import url('../../../assets/style/global.scss');
+
+.landingpage {
+    display: flex;
+    width: 100%;
+
+    .column {
+        flex: 50%;
+        height: 93vh; //-7 for topbar
+
+        &.left {
+            float: left;
+
+            .left-wrapper {
+                margin-top: -60px;
+                height: inherit;
+                align-items: center;
+                justify-content: center;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header {
+                font-family: FredokaOne;
+            }
+
+            .paragraph {
+                font-family: Roboto;
+            }
+
+            .button {
+                width: 200px;
+            }
+        }
+
+        &.right {
+            float: right;
+            background-image: url('../../../assets/images/OrangeSplash.jpg');
+            background-size: 100vh;
+            background-repeat: no-repeat;
+            background-position: center;
+
+            a {
+                position: relative;
+                top: 88vh;
+                left: 40%;
+                user-select: none;
+                -moz-user-select: none;
+                -khtml-user-select: none;
+                -webkit-user-select: none;
+                -o-user-select: none;
+                
+                img {
+                    width: 30px;
+                    height: auto;
+                    animation: arrowBlink 2s infinite;
+                }
+        
+                @keyframes arrowBlink {
+                    100% {
+                        opacity: 0;
+                    }
+                }
+            }
+        }
+    }
+}

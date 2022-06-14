@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import { Typography, Button, Stack, Snackbar } from "@mui/material"
-import axios from "axios";
+import axios from '../../../api/axios'
 import MuiAlert from '@mui/material/Alert';
 
 function formatPhoneNumber(num) {
@@ -32,7 +32,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber, setPh
     function textMe(num) {
         if (numberValid(num)) {
             console.log("Texting: " + num);
-            axios.post('http://localhost:3001/login/send-auth', { phoneNumber: num, channel: 'sms'})
+            axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
             .then(setPage(2));
         } else {
             setInvalidNumberErrorOpen(true);
@@ -41,7 +41,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber, setPh
 
     function callMe(num) {
         //console.log("Calling: " + phoneNumber);
-        //axios.post('http://localhost:3001/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'call'})
+        //axios.post('/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'call'})
         //.then(setPage(2));
         setCallErrorOpen(true);
     }
