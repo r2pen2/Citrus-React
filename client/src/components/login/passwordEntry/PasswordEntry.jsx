@@ -37,7 +37,7 @@ const helloMessages = [
 ]
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
-export default function PasswordEntry({ phoneNumber, user, setUserById, phoneNumber }) {
+export default function PasswordEntry({ phoneNumber, user, setUserById }) {
   
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
