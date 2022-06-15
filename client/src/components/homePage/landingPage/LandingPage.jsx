@@ -14,7 +14,8 @@ function generateArrow(b) {
 
 export default function LandingPage() {
   return (
-    <div className="landingpage" id="landingpage">
+    <div className="background-wave">
+      <div className="landingpage" id="landingpage">
     <div className="column left">
       <div className="left-wrapper">
         <Stack marginLeft="40px" alignItems="left" spacing="20px">
@@ -53,5 +54,6 @@ export default function LandingPage() {
       { generateArrow(false) }
     </div>
   </div>
+    </div>
   )
 }
