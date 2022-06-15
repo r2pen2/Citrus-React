@@ -2,7 +2,7 @@
 import "./passwordentry.scss";
 
 // Library imports
-import { Stack, TextField, Typography, Box, Button, List, ListItem, ListItemText, Collapse } from "@mui/material";
+import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";
 import { useState } from 'react';
 import { TransitionGroup } from 'react-transition-group';
 
