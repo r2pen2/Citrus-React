@@ -8,8 +8,8 @@ import Footer from "./footer/Footer"
 export default function Home() {
   return (
     <div className="homepage">
-    <LandingPage />
-    <Footer />
+      <LandingPage />
+      <Footer />
     </div>
   )
 }

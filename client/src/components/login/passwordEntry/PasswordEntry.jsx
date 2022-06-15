@@ -101,7 +101,7 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
 
   function generateFailMessages() {
     return (
-      <List dense>
+<div className="fail-msg-container">
         <TransitionGroup>
         {passwordFailMessages.map(msg => {
           return (
@@ -113,7 +113,7 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
           )
         })}
         </TransitionGroup>
-      </List>
+</div>
     )
   }
 
@@ -221,11 +221,7 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
           />
         </Box>
         { generateFailMessages() }
-        <div className="login-next-button-container">
-          <Stack direction="column">
-            <Button variant="contained" component="div" onClick={() => handleSubmitNewUser()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>Submit</Button>
-          </Stack>
-        </div>
+        <Button variant="contained" component="div" onClick={() => handleSubmitNewUser()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>Create my Account!</Button>
       </Stack>
     )
   }

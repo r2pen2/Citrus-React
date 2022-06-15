@@ -1,30 +1,48 @@
 @import url('../../assets/style/global.scss');
 
-.login-text {
-    font-family: 'FredokaOne', sans-serif;
-    font-size: 36px;
-}
-
-.login-logo-container {
-    padding-top: 40px;
-    display: flex;
+.background-controller {
+    align-items: center;
     justify-content: center;
-    
-    .logo {
-        width: 256px;
-        height: auto;
+    height: 93vh;
+    display: flex;
+    flex-direction: column;
+    background-image: url('../../assets/svg/waveOrange2.svg');
+    background-size: 100vw;
+    background-repeat: no-repeat;
+    background-position: bottom;
+
+    .login-text {
+        font-family: 'FredokaOne', sans-serif;
+        font-size: 36px;
     }
-}
 
-.login-next-button-container {
-    justify-content: center;
-    margin-top: 40px;
-    display: flex;
-}
-
-.stepper-wrapper {
-    display: flex;
-    position: absolute;
-    bottom: 40px;
-    top: auto;
+    .login-content {
+        padding-top: 20px;
+        transform: translate(0, -60px);
+        width: 30vw;
+        height: 70vh;
+    }
+    
+    .login-logo-container {
+        display: flex;
+        justify-content: center;
+        
+        .logo {
+            width: 256px;
+            height: auto;
+        }
+    }
+    
+    .login-next-button-container {
+        justify-content: center;
+        margin-top: 40px;
+        display: flex;
+    }
+    
+    .stepper-wrapper {
+        display: flex;
+        position: absolute;
+        bottom: 40px;
+        top: auto;
+    }
 }

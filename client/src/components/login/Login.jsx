@@ -1,7 +1,11 @@
 import "./login.scss"
 
 import { useState, useEffect, useRef, useContext } from 'react';
-import { Stack, Box, Stepper, Step, StepLabel } from "@mui/material";
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
+import { Stack, Box, Stepper, Step, StepLabel, Paper } from "@mui/material";
+import Check from '@mui/icons-material/Check';
+import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector' 
 import logo from "../../assets/images/Logo256.png";
 
 import axios from '../../api/axios'
@@ -10,6 +14,78 @@ import LoginHome from "./loginHome/LoginHome";
 import PhoneInput from "./phoneInput/PhoneInput";
 import AuthCodeInput from "./authCodeInput/AuthCodeInput";
 import PasswordEntry from "./passwordEntry/PasswordEntry";
+
+const QontoConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 10,
+    left: 'calc(-50% + 16px)',
+    right: 'calc(50% + 16px)',
+  },
+  [`&.${stepConnectorClasses.active}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: '#784af4',
+    },
+  },
+  [`&.${stepConnectorClasses.completed}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: '#784af4',
+    },
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    borderColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#eaeaf0',
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+}));
+
+const QontoStepIconRoot = styled('div')(({ theme, ownerState }) => ({
+  color: theme.palette.mode === 'dark' ? theme.palette.grey[700] : '#eaeaf0',
+  display: 'flex',
+  height: 22,
+  alignItems: 'center',
+  ...(ownerState.active && {
+    color: '#784af4',
+  }),
+  '& .QontoStepIcon-completedIcon': {
+    color: '#784af4',
+    zIndex: 1,
+    fontSize: 18,
+  },
+  '& .QontoStepIcon-circle': {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    backgroundColor: 'currentColor',
+  },
+}));
+
+function QontoStepIcon(props) {
+  const { active, completed, className } = props;
+
+  return (
+    <QontoStepIconRoot ownerState={{ active }} className={className}>
+      {completed ? (
+        <Check className="QontoStepIcon-completedIcon" />
+      ) : (
+        <div className="QontoStepIcon-circle" />
+      )}
+    </QontoStepIconRoot>
+  );
+}
+
+QontoStepIcon.propTypes = {
+  /**
+   * Whether this step is active.
+   * @default false
+   */
+  active: PropTypes.bool,
+  className: PropTypes.string,
+  /**
+   * Mark the step as completed. Is passed to child components.
+   * @default false
+   */
+  completed: PropTypes.bool,
+};
 
 
 export default function Login({ user }) {
@@ -24,7 +100,7 @@ export default function Login({ user }) {
    window.location = "/dashboard";
   }
 
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneString, setPhoneString] = useState("");
 
@@ -76,10 +152,10 @@ export default function Login({ user }) {
     if (p > 0) {
       return (
         <Box sx={{ width: '100%' }}>
-          <Stepper activeStep={p-1} alternativeLabel>
+          <Stepper activeStep={p-1} alternativeLabel connector={<QontoConnector />}>
             {steps.map((label) => (
               <Step key={label}>
-                <StepLabel>{label}</StepLabel>
+                <StepLabel StepIconComponent={QontoStepIcon} >{label}</StepLabel>
               </Step>
             ))}
           </Stepper>
@@ -89,14 +165,18 @@ export default function Login({ user }) {
   }
 
   return (
-    <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px" alignItems="center" justifyContent="center">
-      <div className="login-logo-container"> 
-        <img src={logo} alt="logo" className="logo"></img>
-      </div>
-      { getLoginPage(page) }
+    <div className="background-controller">
+      <Paper className="login-content" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
+        <Stack spacing={3} alignItems="center" justifyContent="center">
+          <div className="login-logo-container"> 
+            <img src={logo} alt="logo" className="logo"></img>
+          </div>
+          { getLoginPage(page) }
+        </Stack>
+      </Paper>
       <div className="stepper-wrapper">
         { displaySteps(page) }
       </div>
-    </Stack>
+    </div>
   )
 }

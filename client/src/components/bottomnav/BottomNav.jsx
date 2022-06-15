@@ -22,8 +22,8 @@ export default function BottomNav({ user }) {
       <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
       <BottomNavigation sx={{ widthi: '100%' }} value={value} onChange={handleChange}>
         <BottomNavigationAction
-          label="Home"
-          value="home"
+          label="Dashboard"
+          value="Dashboard"
           icon={<HomeIcon fontSize="large" sx={{ color: "#F2DF56" }}/>}
         />
         <BottomNavigationAction
