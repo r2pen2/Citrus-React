@@ -1,5 +1,10 @@
+// Style imports
 import "./dashboard.scss"
+
+// Library imports
 import { Stack, Box } from "@mui/material"
+
+// Component imports
 import DashboardOweCard from "./dashboardOweCard/DashboardOweCard"
 import DashboardTransactions from "./dashboardTransactions/DashboardTransactions"
 import DashboardAnalytics from "./dashboardAnalytics/DashboardAnalytics"
