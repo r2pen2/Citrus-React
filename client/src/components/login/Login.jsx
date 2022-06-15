@@ -1,16 +1,20 @@
-// Imports
+// Style imports
 import "./login.scss"
+
+// Library Imports
 import { useState, useEffect, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import { Stack, Box, Stepper, Step, StepLabel, Paper } from "@mui/material";
 import Check from '@mui/icons-material/Check';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector' 
-import logo from "../../assets/images/Logo256.png";
 import axios from '../../api/axios'
+
+// Component Imports
 import PhoneInput from "./phoneInput/PhoneInput";
 import AuthCodeInput from "./authCodeInput/AuthCodeInput";
 import PasswordEntry from "./passwordEntry/PasswordEntry";
+import Logo from "../../assets/images/Logo256.png";
 
 /**
  * Create a styled stepper with the current page selected 
@@ -201,7 +205,7 @@ export default function Login({ user }) {
       <Paper className="login-content" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
         <Stack spacing={3} alignItems="center" justifyContent="center">
           <div className="login-logo-container"> 
-            <img src={logo} alt="logo" className="logo"></img>
+            <img src={Logo} alt="logo" className="logo"></img>
           </div>
           { getLoginPage(page) }
         </Stack>
