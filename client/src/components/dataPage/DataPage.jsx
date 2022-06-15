@@ -1,5 +1,5 @@
 // Style imports
-import "./boringpage.scss"
+import "./datapage.scss"
 
 // Library Imports
 import { Typography, Stack } from '@mui/material'
@@ -46,7 +46,7 @@ function renderPageData(data) {
   )
 }
 
-export default function BoringPage({ data }) {
+export default function DataPage({ data }) {
   console.log(data)
   return (
     <div className="boring-page">

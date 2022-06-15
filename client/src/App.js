@@ -12,7 +12,7 @@ import Dashboard from "./components/dashboard/Dashboard"
 import Topbar from "./components/topbar/Topbar"
 import BottomNav from "./components/bottomNav/BottomNav"
 import HomePage from "./components/homePage/HomePage"
-import BoringPage from "./components/boringPage/BoringPage"
+import DataPage from "./components/dataPage/DataPage"
 
 // Data Imports
 import creditsData from './assets/json/creditsPage'
@@ -40,7 +40,7 @@ function App() {
             <Route path="/home" element={<HomePage/>} />
             <Route path="/login" element={<Login user={user}/>} />
             <Route path="/dashboard" element={<Dashboard user={user}/>} />
-            <Route path="/credits" element={<BoringPage data={creditsData}/>} />
+            <Route path="/credits" element={<DataPage data={creditsData}/>} />
           </Routes>
         </div>
         <BottomNav user={user}/>
