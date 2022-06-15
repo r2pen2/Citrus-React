@@ -14,8 +14,8 @@ import PasswordEntry from "./passwordEntry/PasswordEntry";
 
 /**
  * Create a styled stepper with the current page selected 
- * @param   {Number}      p   The current page 
- * @returns {Component}       A stepper with the correct page selected
+ * @param {Number} p The current page 
+ * @returns {Component} A stepper with the correct page selected
  */
 function displaySteps(p) {
   
@@ -71,6 +71,11 @@ function displaySteps(p) {
     },
   }));
 
+  /**
+   * Renders QontoStepIcon based on style props passed
+   * @param {Object} props props for stepIcon
+   * @returns {QontoStepIconRoot} styled step icon
+   */
   function QontoStepIcon(props) {
     const { active, completed, className } = props;
 
@@ -116,8 +121,8 @@ function displaySteps(p) {
 
 /**
  * Sign-in a user by their ID
- * @param     {Number}  id   userID returned from password input
- * @returns   {State}        user is logged in and redirected to dashboard
+ * @param {Number} id userID returned from password input
+ * @returns {State} user is logged in and redirected to dashboard
  */
 function setUserById(id) {
   axios.post("/database/get-user-by-id", { id: id }).then((res) => {
@@ -132,8 +137,8 @@ function setUserById(id) {
  * If a user with current phone number exists in database,
  * set userID so that they may enter their password rather than
  * being prompted to create an account
- * @param    {Number}   num    user's phone number
- * @returns  {Number}          existing user's ID
+ * @param {Number} num user's phone number
+ * @returns {Number} existing user's ID
  */
 function findUserByPhoneNumber(num) {
   console.log("Checking if user is in database...");
@@ -149,8 +154,8 @@ function findUserByPhoneNumber(num) {
 /**
  * If we're signed in, redirect to dashboard.
  * Othwerwise, set the document title and continue to login.
- * @param   {Object}  user  The current user (if it exists)
- * @returns {State}         Either a redirect or continues with login
+ * @param {Object} user The current user (if it exists)
+ * @returns {State} Either a redirect or continues with login
  */
 function doPageSetup(user) {
   if (user) {
@@ -164,15 +169,14 @@ export default function Login({ user }) {
   // Page setup
   doPageSetup(user)
 
-  // Define constants
   const [page, setPage] = useState(0);                  // The current login page (ex. Phone Input, Auth Code Input...)
   const [phoneNumber, setPhoneNumber] = useState("");   // The current user's phone number
   const [phoneString, setPhoneString] = useState("");   // A stylized string representation of the current user's phone number
   
   /**
   * Get the correct login page component
-  * @param  {Number}     page   The page index
-  * @return {Component}         The login component to be displayed
+  * @param {Number} page The page index
+  * @return {Component} The login component to be displayed
   */
   function getLoginPage(page) {
 
