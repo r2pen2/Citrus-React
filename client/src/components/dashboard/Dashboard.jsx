@@ -4,19 +4,23 @@ import DashboardOweCard from "./dashboardOweCard/DashboardOweCard"
 import DashboardTransactions from "./dashboardTransactions/DashboardTransactions"
 import DashboardAnalytics from "./dashboardAnalytics/DashboardAnalytics"
 
+/**
+ * If we're not signed in, redirect to login.
+ * Othwerwise, set the document title and continue to dashboard.
+ * @param {Object} user The current user (if it exists)
+ * @returns {State} Either a redirect or continues to dashboard
+ */
+ function doPageSetup(user) {
+  if (!user) {
+    window.location = "/login";
+  }
+  document.title = "Citrus | Dashboard";
+}
+
 export default function Dashboard({ user }) {
 
-  document.title = "Citrus | Dashboard"
-
-  function checkForUser() {
-    return user ? true : false;
-  }
-  const signedIn = checkForUser();
-
-  if (!signedIn) {
-    console.log("!DASHBOARD! Not signed in")
-    window.location = "/login"
-  }
+  // Set up page
+  doPageSetup(user)
 
   return (
     <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px" paddingBottom="100px">
@@ -30,6 +34,8 @@ export default function Dashboard({ user }) {
   )
 }
 
+// This is temporary. We'll pull these vals from the DB when they're actually
+// Being stored there.
 const recentTransactionsExample = [
   {
     title: "Halloween Party",
@@ -51,6 +57,8 @@ const recentTransactionsExample = [
   },
 ]
 
+// This is temporary. We'll pull these vals from the DB when they're actually
+// Being stored there.
 const analyticsExample = [
   {
     id: 1,
