@@ -27,6 +27,7 @@ function getUserFromLS() {
 
 function App() {
 
+  // Set current user
   const user = getUserFromLS();
 
   return (
