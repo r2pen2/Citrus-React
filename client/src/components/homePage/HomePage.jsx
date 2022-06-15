@@ -1,9 +1,9 @@
-import "./homepage.scss"
-import { Typography, Button, Stack } from '@mui/material'
-import LandingPage from "./landingPage/LandingPage"
-import Footer from "./footer/Footer"
+// Style imports
+import "./homepage.scss";
 
-//<a href="https://www.freepik.com/vectors/liquid-splash">Liquid splash vector created by pikisuperstar - www.freepik.com</a>
+// Component imports
+import LandingPage from "./landingPage/LandingPage";
+import Footer from "./footer/Footer";
 
 export default function Home() {
   return (
