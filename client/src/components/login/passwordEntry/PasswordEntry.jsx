@@ -213,59 +213,20 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
    */
   function makeNewUserForm() {
     return (
-      <Stack
-      component="form"
-      sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}
-      noValidate
-      autoComplete="off"
-      alignItems="center"
-      display="flex"
-      justifyContent="center"
-      >
+      <Stack component="form" sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }} noValidate autoComplete="off" alignItems="center" display="flex" justifyContent="center">
         { renderHelloMessage() }
         <Box>
-          <TextField
-            autoFocus
-            required
-            id="first-name"
-            label="First Name"
-            onChange={e => setFirstName(e.target.value)}
-            onKeyUp={enableSubmit}
-            onBlur={enableSubmit}
-          />
-          <TextField
-            required
-            id="last-name"
-            label="Last Name"
-            onChange={e => setLastName(e.target.value)}
-            onKeyUp={enableSubmit}
-            onBlur={enableSubmit}
-          />
+          <TextField autoFocus required id="first-name" label="First Name" onChange={e => setFirstName(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} />
+          <TextField required id="last-name" label="Last Name" onChange={e => setLastName(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} />
         </Box>
         <Box>
-        <TextField
-            required
-            id="password"
-            label="Password"
-            type="password"
-            onChange={e => setPassword(e.target.value)}
-            onKeyUp={enableSubmit}
-            onBlur={enableSubmit}
-            onKeyDown={(e) => {handleNewUserEnter(e)}}
-          />
-          <TextField
-            required
-            id="password-confirm"
-            label="Confirm Password"
-            type="password"
-            onChange={e => setPasswordConfirm(e.target.value)}
-            onKeyUp={enableSubmit}
-            onBlur={enableSubmit}
-            onKeyDown={(e) => {handleNewUserEnter(e)}}
-          />
+          <TextField required id="password" label="Password" type="password" onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleNewUserEnter(e)}} />
+          <TextField required id="password-confirm" label="Confirm Password" type="password" onChange={e => setPasswordConfirm(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleNewUserEnter(e)}} />
         </Box>
         { generateFailMessages() }
-        <Button variant="contained" component="div" onClick={() => handleSubmitNewUser()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>Create my Account!</Button>
+        <Button variant="contained" component="div" onClick={() => handleSubmitNewUser()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>
+          Create my Account!
+        </Button>
       </Stack>
     )
   }
