@@ -14,7 +14,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber, setPhoneString }) {
+export default function PhoneInput({ incrementPage, setPhoneNumber, phoneNumber, setPhoneString }) {
 
     const [callErrorOpen, setCallErrorOpen] = useState(false);
     const [invalidNumberErrorOpen, setInvalidNumberErrorOpen] = useState(false);
@@ -33,7 +33,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber, setPh
         if (numberValid(num)) {
             console.log("Texting: " + num);
             axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-            .then(setPage(2));
+            .then(incrementPage());
         } else {
             setInvalidNumberErrorOpen(true);
         }
@@ -42,7 +42,7 @@ export default function PhoneInput({ setPage, setPhoneNumber, phoneNumber, setPh
     function callMe(num) {
         //console.log("Calling: " + phoneNumber);
         //axios.post('/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'call'})
-        //.then(setPage(2));
+        //.then(incrementPage());
         setCallErrorOpen(true);
     }
 
