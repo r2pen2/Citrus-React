@@ -32,21 +32,21 @@ function App() {
 
   return (
     <div className="app">
-    <Router>
-      <ThemeProvider theme={theme}>
-        <Topbar user={user}/>
-        <div className="content">
-          <Routes>
-            <Route path="/" element={<HomePage/>} />
-            <Route path="/home" element={<HomePage/>} />
-            <Route path="/login" element={<Login user={user}/>} />
-            <Route path="/dashboard" element={<Dashboard user={user}/>} />
-            <Route path="/credits" element={<DataPage data={creditsData}/>} />
-          </Routes>
-        </div>
-        <BottomNav user={user}/>
-      </ThemeProvider>
-    </Router>
+      <Router>
+        <ThemeProvider theme={theme}>
+          <Topbar user={user}/>
+            <div className="content">
+              <Routes>
+                <Route path="/" element={<HomePage/>} />
+                <Route path="/home" element={<HomePage/>} />
+                <Route path="/login" element={<Login user={user}/>} />
+                <Route path="/dashboard" element={<Dashboard user={user}/>} />
+                <Route path="/credits" element={<DataPage data={creditsData}/>} />
+              </Routes>
+            </div>
+          <BottomNav user={user}/>
+        </ThemeProvider>
+      </Router>
     </div>
   )
 }

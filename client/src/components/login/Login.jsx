@@ -173,6 +173,7 @@ export default function Login({ user }) {
   // Page setup
   doPageSetup(user)
 
+  // Define constants
   const [page, setPage] = useState(0);                  // The current login page (ex. Phone Input, Auth Code Input...)
   const [phoneNumber, setPhoneNumber] = useState("");   // The current user's phone number
   const [phoneString, setPhoneString] = useState("");   // A stylized string representation of the current user's phone number
@@ -184,6 +185,10 @@ export default function Login({ user }) {
   */
   function getLoginPage(page) {
 
+    /**
+     * Increase page by 1
+     * @returns {State} page incremented by 1
+     */
     function incrementPage() {
       setPage(page + 1);
     }
@@ -214,5 +219,5 @@ export default function Login({ user }) {
         { displaySteps(page) }
       </div>
     </div>
-  )
+  );
 }
