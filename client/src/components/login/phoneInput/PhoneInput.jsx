@@ -28,9 +28,9 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 export default function PhoneInput({ incrementPage, setPhoneNumber, phoneNumber, setPhoneString }) {
 
     // Define constants
-    const [callErrorOpen, setCallErrorOpen] = useState(false);
-    const [invalidNumberErrorOpen, setInvalidNumberErrorOpen] = useState(false);
-    const [submitEnable, setSubmitEnable] = useState(false);
+    const [callErrorOpen, setCallErrorOpen] = useState(false);                      // Whether or not the call error notification is open
+    const [invalidNumberErrorOpen, setInvalidNumberErrorOpen] = useState(false);    // Whether or not the invalid number notification is open
+    const [submitEnable, setSubmitEnable] = useState(false);                        // Whether or not the submit button is enabled
 
     /**
      * Updates state to reflext phone input value

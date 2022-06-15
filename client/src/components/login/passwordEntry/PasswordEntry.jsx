@@ -1,9 +1,15 @@
+// Style imports
 import "./passwordentry.scss";
+
+// Library imports
 import { Stack, TextField, Typography, Box, Button, List, ListItem, ListItemText, Collapse } from "@mui/material";
 import { useState } from 'react';
 import { TransitionGroup } from 'react-transition-group';
+
+// API imports
 import axios from '../../../api/axios'
 
+// A set of welcome messages to be displayed on the account creation page
 // Please feel free to edit these lol
 const helloMessages = [
   {
@@ -35,18 +41,27 @@ const helloMessages = [
     sub: "But I'll go down with my friends, yeah!"
   }
 ]
+
+// Set the hello message to a random one from the array above
+// This has to be kept outside of the main function to stop it from changing every time
+// the page state is updated for any reason
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
 export default function PasswordEntry({ phoneNumber, user, setUserById }) {
   
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [submitEnable, setSubmitEnable] = useState(false);
-  const [passwordFailMessages, setPasswordFailMessages] = useState([]);
-  const [submitOpacity, setSubmitOpacity] = useState(1);
+  // Define constants
+  const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)
+  const [lastName, setLastName] = useState("");                           // The current user's last name (for account creation)
+  const [password, setPassword] = useState("");                           // Current value of password textfield
+  const [passwordConfirm, setPasswordConfirm] = useState("");             // Current value of the password confirmation textfield (for account creation)
+  const [submitEnable, setSubmitEnable] = useState(false);                // Whether or not the submit button is enabled
+  const [passwordFailMessages, setPasswordFailMessages] = useState([]);   // An array of strings describing all of the ways a user fucked up password creation (for account creation)
+  const [submitOpacity, setSubmitOpacity] = useState(1);                  // The opacity value of the submit button (for account creation)
 
+  /**
+   * Renders a message at the top of the screen welcoming new users
+   * @returns {Component} HTML representing the welcome message
+   */
   function renderHelloMessage() {
     return (
       <div>
@@ -60,6 +75,11 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
     )
   }
 
+  /**
+   * Determines whether or not the password is valid and sets fail messages if not
+   * @returns {Boolean} a boolean value indicating whether or not the password is valid
+   * @returns {State} passwordFailMessages will be updated to show password issues
+   */
   function passwordValid() {
     const failMsg = [];
     var passFail = false;
@@ -89,6 +109,11 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
     return true;
   }
 
+  /**
+   * Enables the submit button if passwords are valid
+   * Otherwise sets submit button opacity based on the number of failures
+   * @returns {State} submit button styled according to password data
+   */
   function enableSubmit() {
     if ((firstName.length > 0) && (lastName.length > 0) && (password.length > 0) && (passwordConfirm.length > 0) && passwordValid()) {
       setSubmitOpacity(1);
@@ -99,9 +124,13 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
     }
   }
 
+  /**
+   * Renders a list of warnings from the passwordFailMessages
+   * @returns {Component} HTML representing a list of warnings
+   */
   function generateFailMessages() {
     return (
-<div className="fail-msg-container">
+      <div className="fail-msg-container">
         <TransitionGroup>
         {passwordFailMessages.map(msg => {
           return (
@@ -110,20 +139,22 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
                 <ListItemText primary={msg} sx={{ color: "red" }}/>
               </ListItem>
             </Collapse>
-          )
+          );
         })}
         </TransitionGroup>
-</div>
-    )
+      </div>
+    );
   }
 
+  /**
+   * Render a form for existing users to login with
+   * @returns {Component} A form for existing users to enter their password
+   */
   function makeExistingUserForm() {
     return (
       <Stack
       component="form"
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: '25ch' },
-      }}
+      sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}
       noValidate
       autoComplete="off"
       alignItems="center"
@@ -133,23 +164,30 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
         <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
             Welcome back to Citrus, {user.firstName}!
         </Typography>
-        <TextField
-          required
-          id="password"
-          label="Password"
-        />
+        <TextField required id="password" label="Password" />
         <div className="login-next-button-container">
           <Stack direction="column">
-            <Button variant="contained" component="div" onClick={() => handleSubmitExistingUser()}>Submit</Button>
+            <Button variant="contained" component="div" onClick={() => handleSubmitExistingUser()}>
+              Submit
+            </Button>
           </Stack>
         </div>
       </Stack>
     )
   }
 
+  /**
+   * @todo implement this method
+   * Submit existing user password to server for validation
+   * @returns {State} existing user will be logged in
+   */
   function handleSubmitExistingUser() {
   }
 
+  /**
+   * Submits new user data to server for account creation
+   * @returns {State} user will be created on DB and set in localStorage
+   */
   function handleSubmitNewUser() {
     axios.post("/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {
       console.log("Setting userID to " + res.data.id);
@@ -157,6 +195,10 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
     })
   }
 
+  /**
+   * Handle enter keypress in new user creation textfield. Submit new user if inputs are valid.
+   * @param {Event} e the event that triggered this function
+   */
   function handleNewUserEnter(e) {
     if (e.key === "Enter") {
       if (submitEnable) {
@@ -165,13 +207,15 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
     }
   }
 
+  /**
+   * Render a form for new users to create their account
+   * @returns {Component} A form for new users to create their account
+   */
   function makeNewUserForm() {
     return (
       <Stack
       component="form"
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: '25ch' },
-      }}
+      sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}
       noValidate
       autoComplete="off"
       alignItems="center"
@@ -226,6 +270,8 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
     )
   }
 
+  // If we have a user, display the existing user form.
+  // Otherwise, display the account creation form.
   return (
     user ? makeExistingUserForm() : makeNewUserForm()
   );
