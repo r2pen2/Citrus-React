@@ -1,10 +1,28 @@
+// Style imports
 import "./boringpage.scss"
+
+// Library Imports
 import { Typography, Stack } from '@mui/material'
 
+/**
+ * Renders HTML elements based on page data
+ * @param {Object} data data as JSON
+ * @returns {Component} HTML representing data
+ */
 function renderPageData(data) {
 
+  /**
+   * Renders HTML elements based on a data section
+   * @param {Object} sec current data section
+   * @returns {Component} HTML for current section
+   */
   function renderSectionData(sec) {
     
+    /**
+     * Gets the href from a section item (if it exists)
+     * @param {Object} item current section item
+     * @returns {String} href attached to item
+     */
     function getHref(item) {
       return item.href ? item.href : ("#" + item.title)
     }
