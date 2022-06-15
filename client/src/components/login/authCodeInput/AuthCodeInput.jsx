@@ -11,104 +11,149 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 export default function AuthCodeInput({ incrementPage, phoneNumber, findUser }) {
 
-    const [resendMessageOpen, setResendMessageOpen] = useState(false);
-    const [formatMessageOpen, setFormatMessageOpen] = useState(false);
-    const [errorMessageOpen, setErrorMessageOpen] = useState(false);
-    const [authCode, setAuthCode] = useState("");
-    const [submitEnable, setSubmitEnable] = useState(false);
+  // Define constants
+  const [resendMessageOpen, setResendMessageOpen] = useState(false);    // Whether or not the verification resend notification is open
+  const [formatMessageOpen, setFormatMessageOpen] = useState(false);    // Whether or not the auth code format error notification is open
+  const [errorMessageOpen, setErrorMessageOpen] = useState(false);      // Whether or not the error message is open
+  const [authCode, setAuthCode] = useState("");                         // Current value of the auth code textfield
+  const [submitEnable, setSubmitEnable] = useState(false);              // Whether or not the submit button is enabled
 
-    function resendCode(num) {
-        console.log("Texting: " + num);
-        axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-        .then(setResendMessageOpen(true));
+  /**
+   * Resend auth code to phone number
+   * @param {String} num phone number to send auth code to
+   * @returns {State} user is sent auth code via sms
+   */
+  function resendCode(num) {
+      console.log("Texting: " + num);
+      axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
+      .then(setResendMessageOpen(true));
+  }
+
+  /**
+   * Enable submit button if auth code is long enough
+   * @returns {State} submit button enabled (or not)
+   */
+  function enableSubmit() {
+    setSubmitEnable(authCode.length === 6);
+  }
+
+  /**
+   * Sets resendMessageOpen to false on msg close
+   * @param {Event} event the event that triggered this function
+   * @param {String} reason the reason for closure
+   * @returns {State} resendMessageOpen set to false
+   */
+  const handleResendMessageClose = (event, reason) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+      setResendMessageOpen(false);
+  };
+
+  /**
+  * Sets errorMessageOpen to false on msg close
+  * @param {Event} event the event that triggered this function
+  * @param {String} reason the reason for closure
+  * @returns {State} errorMessageOpen set to false
+  */
+  const handleErrorMessageClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
+    setErrorMessageOpen(false);
+  };
 
-    function enableSubmit() {
-      setSubmitEnable(authCode.length === 6);
+  /**
+  * Sets formatMessageOpen to false on msg close
+  * @param {Event} event the event that triggered this function
+  * @param {String} reason the reason for closure
+  * @returns {State} formatMessageOpen set to false
+  */
+  const handleFormatMessageClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
+    setFormatMessageOpen(false);
+  };
 
-    const handleResendMessageClose = (event, reason) => {
-        if (reason === 'clickaway') {
-          return;
+  /**
+   * Set the value of authCode to textfield value on change
+   * @param {Event} e onChange event from textfield
+   * @returns {State} authCode is updated to match textfield value
+   */
+  function handleOnChange(e) {
+    setAuthCode(e.target.value);
+  }
+
+  /**
+   * Check whether auth code matches the one sent to user's phone
+   * @returns {State} user fetched from database if auth code is valid
+   */
+  function checkAuthCode() {
+    if (authCode.length === 6) {
+      axios.post('/login/check-auth', {
+        phoneNumber: phoneNumber,
+        authCode: authCode
+      }).then((res) => {
+        const authStatus = res.data.status;
+        console.log(authStatus);
+        if (authStatus === "approved") {
+          incrementPage();
+          findUser();
+        } else {
+          setErrorMessageOpen(true);
         }
-        setResendMessageOpen(false);
-    };
-
-    const handleErrorMessageClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-      setErrorMessageOpen(false);
-    };
-
-    const handleFormatMessageClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-      setFormatMessageOpen(false);
-    };
-
-    function handleOnChange(e) {
-      setAuthCode(e.target.value);
+      });
+    } else {
+      setFormatMessageOpen(true);
     }
+  }
 
-    function checkAuthCode() {
-      if (authCode.length === 6) {
-        axios.post('/login/check-auth', {
-          phoneNumber: phoneNumber,
-          authCode: authCode
-        }).then((res) => {
-          const authStatus = res.data.status;
-          console.log(authStatus);
-          if (authStatus === "approved") {
-            incrementPage();
-            findUser();
-          } else {
-            setErrorMessageOpen(true);
-          }
-        });
-      } else {
-        setFormatMessageOpen(true);
-      }
-    }
-
-    function handleEnter(e) {
-      if (e.key === "Enter") {
-          checkAuthCode();
+  /**
+   * Checks auth code on enter keypress in textfield
+   * @param {Event} e the event that triggered this function
+   */
+  function handleEnter(e) {
+    if (e.key === "Enter") {
+        checkAuthCode();
       }
   }
 
   return (
     <div>  
-        <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
-            Enter your 6 digit authentication code:
-        </Typography>
-        <div className="auth-input-container">
-            <TextField autoFocus id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit}/>
-        </div>
-        <div className="try-again-button-container">
-                    <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => resendCode(phoneNumber)}>Didn't receive your verification code?</Button>
-                </div>
-        <div className="login-next-button-container">
-            <Stack direction="column">
-                <Button variant="contained" component="div" onClick={checkAuthCode} disabled={!submitEnable}>Submit</Button>
-            </Stack>
-        </div>
-        <Snackbar open={resendMessageOpen} autoHideDuration={6000} onClose={handleResendMessageClose}>
-          <Alert onClose={handleResendMessageClose} severity="success" sx={{ width: '100%' }}>
-            We've sent another verification code to {phoneNumber}!
-          </Alert>
-        </Snackbar>
-        <Snackbar open={formatMessageOpen} autoHideDuration={6000} onClose={handleFormatMessageClose}>
-          <Alert onClose={handleFormatMessageClose} severity="error" sx={{ width: '100%' }}>
-            Authentication code not formatted correctly!
-          </Alert>
-        </Snackbar>
-        <Snackbar open={errorMessageOpen} autoHideDuration={6000} onClose={handleErrorMessageClose}>
-          <Alert onClose={handleErrorMessageClose} severity="error" sx={{ width: '100%' }}>
-            Authentication code invalid!
-          </Alert>
-        </Snackbar>
+      <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
+          Enter your 6 digit authentication code:
+      </Typography>
+      <div className="auth-input-container">
+          <TextField autoFocus id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit}/>
+      </div>
+      <div className="try-again-button-container">
+        <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => resendCode(phoneNumber)}>
+          Didn't receive your verification code?
+        </Button>
+      </div>
+      <div className="login-next-button-container">
+        <Stack direction="column">
+            <Button variant="contained" component="div" onClick={checkAuthCode} disabled={!submitEnable}>
+              Submit
+            </Button>
+        </Stack>
+      </div>
+      <Snackbar open={resendMessageOpen} autoHideDuration={6000} onClose={handleResendMessageClose}>
+        <Alert onClose={handleResendMessageClose} severity="success" sx={{ width: '100%' }}>
+          We've sent another verification code to {phoneNumber}!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={formatMessageOpen} autoHideDuration={6000} onClose={handleFormatMessageClose}>
+        <Alert onClose={handleFormatMessageClose} severity="error" sx={{ width: '100%' }}>
+          Authentication code not formatted correctly!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={errorMessageOpen} autoHideDuration={6000} onClose={handleErrorMessageClose}>
+        <Alert onClose={handleErrorMessageClose} severity="error" sx={{ width: '100%' }}>
+          Authentication code invalid!
+        </Alert>
+      </Snackbar>
     </div>
   )
 }
