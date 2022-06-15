@@ -1,15 +1,25 @@
+// Style imports
 import "./dashboardanalytics.scss";
+
+// Library imports
 import { Stack, Typography, Box } from "@mui/material"
 import { Bar } from "react-chartjs-2";
 import useState from 'react';
 import Chart from 'chart.js/auto';
 
-var formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-})
+// API imports
+import formatter from "../../../api/formatter";
+
+/**
+ * I honestly don't really know what's going on here.
+ * We can figure something out for the analytics component
+ * once we're actually storing user data. It may also be better
+ * to use a different library to display the chart, becuase
+ * this one doesn't seem to let us display values as currency.
+ */
 
 export default function DashboardAnalytics({ chartData }) {
+    // Data to be represented by the bar chart
     const data = {
         labels: chartData.map((data) => data.month),
         datasets: [{
