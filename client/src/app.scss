@@ -3,6 +3,7 @@
 }
 
 body, ul {
+    // Apparently this needs to be defined OUTSIDE of the app component in order to take effect
     height: 100vh;
     margin: 0;
     padding: 0;

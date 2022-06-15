@@ -1,13 +1,18 @@
+// Style imports
 import "./dashboardowecard.scss"
 
+// Library imports
 import { Card, CardContent, CardActionArea, Typography, Stack } from '@mui/material';
 import GroupsIcon from '@mui/icons-material/Groups';
 
-var formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-})
+// API imports
+import formatter from "../../../api/formatter";
 
+/**
+ * Create styling object based on credit
+ * @param {Object} credit credit that this card is associated with
+ * @returns {Object} styling for a card element
+ */
 function getCardStyle(credit) {
     const bgColor = credit.positive ? 'rgba(176, 200, 86, 0.8)' : 'rgba(234, 66, 54, 0.5)';
     return {

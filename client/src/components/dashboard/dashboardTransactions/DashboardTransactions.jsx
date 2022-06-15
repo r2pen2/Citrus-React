@@ -1,15 +1,20 @@
-import "./dashboardtransactions.scss"
+// Style imports
+import "./dashboardtransactions.scss";
 
+// Library imports
 import { Card, CardContent, CardActionArea, Typography, Stack, Avatar } from '@mui/material';
 
-import OliverPic from "../../../assets/images/pfp/Oliver.png"
-import LeoPic from "../../../assets/images/pfp/Leo.png"
+// Component imports
+import OliverPic from "../../../assets/images/pfp/Oliver.png";
+import LeoPic from "../../../assets/images/pfp/Leo.png";
 
-var formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-})
+// API imports
+import formatter from "../../../api/formatter";
 
+/**
+ * Get style for transaction card
+ * @returns {Object} card style
+ */
 function getCardStyle() {
     return {
         var: "outlined",
@@ -19,6 +24,11 @@ function getCardStyle() {
     }
 }
 
+/**
+ * Sorts a list of transactions by date
+ * @param {[Object]} transactions list of transactions to be sorted
+ * @returns {[Object]} sorted list of transactions
+ */
 function sortByDate( transactions ) {
     transactions.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
@@ -27,6 +37,11 @@ function sortByDate( transactions ) {
     return transactions;
 }
 
+/**
+ * Formats a UTC date string so that it's easier to read
+ * @param {String} date string representing a UTC date
+ * @returns {String} date formatted as a string
+ */
 function formatDate( date ) {
     const d = new Date(date)
     const day = d.getUTCDate();
@@ -79,6 +94,12 @@ function formatDate( date ) {
     return day + " " + monthString + ", " + year;
 }
 
+/**
+ * Creates cards representing a list of transaction
+ * @param {[Object]} transactions list of Transactions
+ * @param {Number} numDisplayed max number of transactions to display
+ * @returns {Component} series of cards with transaction information
+ */
 function createTransactionCards( transactions, numDisplayed ) {
 
     transactions = sortByDate(transactions);
