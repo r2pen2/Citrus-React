@@ -92,6 +92,7 @@ export default function PasswordEntry({ phoneNumber, user, setUserById }) {
       failMsg.push("Password must contain at least one digit.");
       passFail = true;
     }
+    // eslint-disable-next-line no-useless-escape
     const specialChar = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
     if (!specialChar.test(password)) {
       failMsg.push("Password must contain at least one special character.");
