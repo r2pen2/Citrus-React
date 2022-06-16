@@ -33,6 +33,30 @@ async function findUserById(id) {
   });
 }
 
+async function findHashByUserId(id) {
+  return new Promise((resolve, reject) => {
+    console.log("Fetching hash for user where [id] = [" + id + "]");
+  const queryString = "SELECT password FROM " + dbManager.USERTABLE + " WHERE id IN ('" + id + "');";
+  console.log("QueryString: " + queryString);
+  const client = new Client({
+    connectionString: dbManager.CONNECTIONSTRING,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+  client.connect();
+  client.query(queryString, (err, res) => {
+    client.end();
+    if (err) {
+      console.log(err.detail);
+      reject(err.detail);
+    }
+    console.log("Fetch complete.")
+    resolve(res.rows[0]);
+  });
+  });
+}
+
 async function findUserByPhoneNumber(num) {
   return new Promise((resolve, reject) => {
     console.log("Searching DB for all users where [phone_number] = [" + num + "]");
@@ -87,7 +111,32 @@ router.post("/get-user-id-by-number", async (req, res) => {
     res.status = 404;
     res.end();
   }
+});
 
+router.post("/check-password", async (req, res) => {
+  const pass = req.body.password;
+  const id = req.body.userId;
+  let data = await findHashByUserId(id);
+  if (data) {
+    bcrypt.compare(pass, data.password, (err, match) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (match) {
+          // Send true back to client
+          const jsonContent = JSON.stringify({ result: 'accepted' });
+          res.end(jsonContent);
+        } else {
+          // Send false back to client
+          const jsonContent = JSON.stringify({ result: 'denied' });
+          res.end(jsonContent);
+        }
+      }
+    })
+  } else {
+    res.status = 404;
+    res.end();
+  }
 });
 
 router.post("/create-new-user", (req, res) => {

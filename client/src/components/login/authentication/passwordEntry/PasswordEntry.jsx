@@ -48,7 +48,23 @@ export default function PasswordEntry({ setUserById }) {
    * Otherwise, display error.
    */
   function handleSubmit() {
-    
+    // Get localStorage items
+    const id = localStorage.getItem('login:user_id');
+
+    // First find out if the password is valid. 
+    // !!!We want to do this on the server!!!
+    axios.post("database/check-password", { userId: id, password: password }).then((res) => {
+      // Handle server response. Workflow is very similar to Twilio response in AuthCodeInput.jsx
+      if (res.data.result === 'accepted') {
+        // Password was correct
+        console.log("Password accepted!");
+        setUserById(id);
+      } else {
+        // Password was WRONG! You IDIOT!
+        // TODO make it display a notification
+        console.log("Invalid password!");
+      }
+    })
   }
 
   /**
@@ -57,9 +73,7 @@ export default function PasswordEntry({ setUserById }) {
    */
    function handleEnter(e) {
     if (e.key === "Enter") {
-      if (submitEnable) {
-        handleSubmit();
-      }
+      handleSubmit();
     }
   }
 
@@ -83,7 +97,7 @@ export default function PasswordEntry({ setUserById }) {
       <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
           Welcome back to Citrus, {getFirstName()}!
       </Typography>
-      <TextField required id="password" label="Password" autoComplete='off' onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
+      <TextField required type="password" id="password" label="Password" autoComplete='off' onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
       <div className="login-next-button-container">
         <Stack direction="column">
           <Button variant="contained" component="div" onClick={() => handleSubmit()}>
