@@ -6,7 +6,7 @@ import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar } from 
 import profilePic from "../../assets/images/pfp/testProfilePic.png"
 
 // Component Imports
-import BlackLogo from "../../assets/images/LogoBlack.png"
+import BlackLogo from "./assets/LogoBlack.png"
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from "@mui/icons-material/Notifications"
 
