@@ -10,7 +10,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/login/Login"
 import Dashboard from "./components/dashboard/Dashboard"
 import Topbar from "./components/topbar/Topbar"
-import BottomNav from "./components/bottomNav/BottomNav"
 import HomePage from "./components/homePage/HomePage"
 import DataPage from "./components/dataPage/DataPage"
 
@@ -40,11 +39,10 @@ function App() {
                 <Route path="/" element={<HomePage/>} />
                 <Route path="/home" element={<HomePage/>} />
                 <Route path="/login" element={<Login user={user}/>} />
-                <Route path="/dashboard" element={<Dashboard user={user}/>} />
+                <Route path="/dashboard/*" element={<Dashboard user={user}/>} />
                 <Route path="/credits" element={<DataPage data={creditsData}/>} />
               </Routes>
             </div>
-          <BottomNav user={user}/>
         </ThemeProvider>
       </Router>
     </div>

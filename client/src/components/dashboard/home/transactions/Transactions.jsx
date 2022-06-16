@@ -1,15 +1,15 @@
 // Style imports
-import "./dashboardtransactions.scss";
+import "./transactions.scss";
 
 // Library imports
 import { Card, CardContent, CardActionArea, Typography, Stack, Avatar } from '@mui/material';
 
 // Component imports
-import OliverPic from "../../../assets/images/pfp/Oliver.png";
-import LeoPic from "../../../assets/images/pfp/Leo.png";
+import OliverPic from "../../../../assets/images/pfp/Oliver.png";
+import LeoPic from "../../../../assets/images/pfp/Leo.png";
 
 // API imports
-import formatter from "../../../api/formatter";
+import formatter from "../../../../api/formatter";
 
 /**
  * Get style for transaction card
@@ -107,12 +107,12 @@ function createTransactionCards( transactions, numDisplayed ) {
         transactions.splice(numDisplayed)
     }
 
-    return transactions.map((t) => 
+    return transactions.map((t, tIndex) => 
     <Card variant="outlined" sx={getCardStyle()}>
         <CardActionArea>
             <CardContent>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Stack direction="row" alignItems="center">
+                    <Stack direction="row" alignItems="center" component="div" id={tIndex}>
                         <Avatar 
                             sx={{ marginRight: "10px"}} 
                             alt={t.user}
@@ -131,7 +131,7 @@ function createTransactionCards( transactions, numDisplayed ) {
     )
 }
 
-export default function DashboardTransactions({ recentTransactions, numDisplayed }) {
+export default function Transactions({ recentTransactions, numDisplayed }) {
     return (
         <div>
             <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Transactions ❯</Typography>

@@ -2,7 +2,7 @@
 import "./bottomnav.scss"
 
 // Library imports
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AppBar, BottomNavigation, BottomNavigationAction } from "@mui/material"
 import HomeIcon from '@mui/icons-material/Home';
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -14,7 +14,7 @@ export default function BottomNav({ user }) {
   const active = user ? true : false;
 
   // Define constants
-  const [value, setValue] = useState('dashboard'); // Which element on the bottom is highlighted
+  const [value, setValue] = useState('home'); // Which element on the bottom is highlighted
 
   /**
    * Sets active bottomnav element to the one that was just clicked 
@@ -32,18 +32,21 @@ export default function BottomNav({ user }) {
       <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
         <BottomNavigation sx={{ widthi: '100%' }} value={value} onChange={handleChange}>
           <BottomNavigationAction
-            label="Dashboard"
-            value="dashboard"
+            label="Home"
+            value="home"
+            href="/dashboard/home"
             icon={<HomeIcon fontSize="large" sx={{ color: "#F2DF56" }}/>}
           />
           <BottomNavigationAction
             label="New Transaction"
             value="new"
+            href="/dashboard/new-transaction"
             icon={<AddBoxIcon fontSize="large" sx={{ color: "#B0C856" }}/>}
           />
           <BottomNavigationAction
             label="Groups"
             value="groups"
+            href="/dashboard/groups"
             icon={<GroupsIcon fontSize="large" sx={{ color: "#FDB90F" }}/>}
           />
         </BottomNavigation>

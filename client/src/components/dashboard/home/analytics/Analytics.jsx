@@ -1,5 +1,5 @@
 // Style imports
-import "./dashboardanalytics.scss";
+import "./analytics.scss";
 
 // Library imports
 import { Stack, Typography, Box } from "@mui/material"
@@ -8,7 +8,7 @@ import useState from 'react';
 import Chart from 'chart.js/auto';
 
 // API imports
-import formatter from "../../../api/formatter";
+import formatter from "../../../../api/formatter";
 
 /**
  * I honestly don't really know what's going on here.
@@ -18,7 +18,7 @@ import formatter from "../../../api/formatter";
  * this one doesn't seem to let us display values as currency.
  */
 
-export default function DashboardAnalytics({ chartData }) {
+export default function Analytics({ chartData }) {
     // Data to be represented by the bar chart
     const data = {
         labels: chartData.map((data) => data.month),

@@ -1,12 +1,12 @@
 // Style imports
-import "./dashboardowecard.scss"
+import "./owecard.scss"
 
 // Library imports
 import { Card, CardContent, CardActionArea, Typography, Stack } from '@mui/material';
 import GroupsIcon from '@mui/icons-material/Groups';
 
 // API imports
-import formatter from "../../../api/formatter";
+import formatter from "../../../../api/formatter";
 
 /**
  * Create styling object based on credit
@@ -23,7 +23,7 @@ function getCardStyle(credit) {
     }
 }
 
-export default function DashboardOweCard({ credit }) {
+export default function OweCard({ credit }) {
     return (
     <div>
         <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>{credit.positive ? "Owe Me" : "I Owe"} ❯</Typography>
