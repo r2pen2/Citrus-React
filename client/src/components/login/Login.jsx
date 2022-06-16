@@ -7,8 +7,9 @@ import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import { Stack, Box, Stepper, Step, StepLabel, Paper } from "@mui/material";
 import Check from '@mui/icons-material/Check';
-import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector' 
-import axios from '../../api/axios'
+import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector'; 
+import axios from '../../api/axios';
+import { Route, Routes } from "react-router-dom";
 
 // Component Imports
 import PhoneInput from "./phoneInput/PhoneInput";
@@ -148,7 +149,11 @@ function findUserByPhoneNumber(num) {
   console.log("Checking if user is in database...");
     try {
       axios.post("/database/get-user-by-number", { phoneNumber: num }).then((res) => {
-        console.log(res)
+        if (res.status === 200) {
+          localStorage.setItem("user", JSON.stringify(res.data));
+        } else {
+          console.log("Error: " + res.status);
+        }
       });
     } catch (err) {
       console.log(err);
@@ -178,33 +183,6 @@ export default function Login({ user }) {
   const [phoneNumber, setPhoneNumber] = useState("");   // The current user's phone number
   const [phoneString, setPhoneString] = useState("");   // A stylized string representation of the current user's phone number
   
-  /**
-  * Get the correct login page component
-  * @param {Number} page The page index
-  * @return {Component} The login component to be displayed
-  */
-  function getLoginPage(page) {
-
-    /**
-     * Increase page by 1
-     * @returns {State} page incremented by 1
-     */
-    function incrementPage() {
-      setPage(page + 1);
-    }
-
-    switch (page) {
-      case 0:
-        return <PhoneInput incrementPage={incrementPage} phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} setPhoneString={setPhoneString}/>;
-      case 1:
-        return <AuthCodeInput incrementPage={incrementPage} phoneNumber={phoneNumber} findUser={findUserByPhoneNumber}/>;
-      case 2:
-        return <PasswordEntry phoneNumber={phoneNumber} user={user} setUserById={setUserById}/>;
-      default:
-        return <div>Error 404: Page not found</div>;
-    }
-  }
-
   return (
     <div className="background-controller">
       <Paper className="login-content" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
@@ -212,7 +190,13 @@ export default function Login({ user }) {
           <div className="login-logo-container"> 
             <img src={Logo} alt="logo" className="logo"></img>
           </div>
-          { getLoginPage(page) }
+          <Routes>
+            <Route path="/" element={<PhoneInput setPage={setPage}/>}/>
+            <Route path="/phone-number" element={<PhoneInput setPage={setPage}/>}/>
+            <Route path="/authentication" element={<AuthCodeInput setPage={setPage} findUser={findUserByPhoneNumber}/>}/>
+            <Route path="/password-entry" element={<PasswordEntry user={user} setUserById={setUserById}/>}/>
+            <Route path="/account-creation" element={<PasswordEntry user={user} setUserById={setUserById}/>}/>
+          </Routes>
         </Stack>
       </Paper>
       <div className="stepper-wrapper">

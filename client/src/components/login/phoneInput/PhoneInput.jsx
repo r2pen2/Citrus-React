@@ -25,12 +25,25 @@ const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function PhoneInput({ incrementPage, setPhoneNumber, phoneNumber, setPhoneString }) {
+export default function PhoneInput({ setPage }) {
+
+    // Set correct stepper page
+    setPage(0);
 
     // Define constants
     const [callErrorOpen, setCallErrorOpen] = useState(false);                      // Whether or not the call error notification is open
     const [invalidNumberErrorOpen, setInvalidNumberErrorOpen] = useState(false);    // Whether or not the invalid number notification is open
-    const [submitEnable, setSubmitEnable] = useState(false);                        // Whether or not the submit button is enabled
+    const [submitEnable, setSubmitEnable] = useState(true);                         // Whether or not the submit button is enabled
+    const [phoneNumber, setPhoneNumber] = useState(getLsNum());                             // Current value of the phone number textfield
+    const [phoneString, setPhoneString] = useState("");                             // Styled string representation of the current phone number (unused atm)
+
+    /**
+     * sets phone number value on initialize to localStorage
+     * @returns {String} phone number from localStorage
+     */
+    function getLsNum() {
+        return localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : "";
+    }
 
     /**
      * Updates state to reflext phone input value
@@ -38,7 +51,7 @@ export default function PhoneInput({ incrementPage, setPhoneNumber, phoneNumber,
      * @returns {State} phoneString and phoneNumber updated to match input box
      */
     function handleOnChange(value) {
-        setPhoneString(value)
+        setPhoneString(value);
         setPhoneNumber(formatPhoneNumber(value));
     }
 
@@ -56,10 +69,14 @@ export default function PhoneInput({ incrementPage, setPhoneNumber, phoneNumber,
      * @param {String} num phone number to send auth code to
      */
     function textMe(num) {
+
+        // Set val in local storage
+        localStorage.setItem('login:phone_number', formatPhoneNumber(num));
+
         if (numberValid(num)) {
             console.log("Texting: " + num);
             axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-            .then(incrementPage());
+            .then(window.location = "/login/authentication");
         } else {
             setInvalidNumberErrorOpen(true);
         }
@@ -130,7 +147,7 @@ export default function PhoneInput({ incrementPage, setPhoneNumber, phoneNumber,
                 Enter your phone number:
             </Typography>
             <div className="phone-input-container">
-                <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit}/>
+                <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit} value={localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : ""}/>
             </div>
             <div className="login-next-button-container">
                 <Stack direction="column">

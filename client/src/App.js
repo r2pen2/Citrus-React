@@ -38,7 +38,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage/>} />
                 <Route path="/home" element={<HomePage/>} />
-                <Route path="/login" element={<Login user={user}/>} />
+                <Route path="/login/*" element={<Login user={user}/>} />
                 <Route path="/dashboard/*" element={<Dashboard user={user}/>} />
                 <Route path="/credits" element={<DataPage data={creditsData}/>} />
               </Routes>

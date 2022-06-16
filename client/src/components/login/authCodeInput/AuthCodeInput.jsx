@@ -9,7 +9,14 @@ const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function AuthCodeInput({ incrementPage, phoneNumber, findUser }) {
+
+export default function AuthCodeInput({ setPage, findUser }) {
+  
+  // Set correct stepper page
+  setPage(1);
+
+  // Set phone number from localStorage
+  const phoneNumber = localStorage.getItem('login:phone_number');
 
   // Define constants
   const [resendMessageOpen, setResendMessageOpen] = useState(false);    // Whether or not the verification resend notification is open
@@ -90,6 +97,7 @@ export default function AuthCodeInput({ incrementPage, phoneNumber, findUser }) 
    * @returns {State} user fetched from database if auth code is valid
    */
   function checkAuthCode() {
+    console.log('Checking auth code...');
     if (authCode.length === 6) {
       axios.post('/login/check-auth', {
         phoneNumber: phoneNumber,
@@ -98,8 +106,8 @@ export default function AuthCodeInput({ incrementPage, phoneNumber, findUser }) 
         const authStatus = res.data.status;
         console.log(authStatus);
         if (authStatus === "approved") {
-          incrementPage();
-          findUser();
+          window.location = "/login/password-entry";
+          findUser(phoneNumber);
         } else {
           setErrorMessageOpen(true);
         }

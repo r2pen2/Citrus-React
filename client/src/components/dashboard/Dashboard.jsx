@@ -2,7 +2,7 @@
 import "./dashboard.scss";
 
 // Library imports
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 // Component imports
 import BottomNav from "./bottomNav/BottomNav";

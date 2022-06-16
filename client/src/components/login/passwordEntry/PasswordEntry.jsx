@@ -47,8 +47,11 @@ const helloMessages = [
 // the page state is updated for any reason
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
-export default function PasswordEntry({ phoneNumber, user, setUserById }) {
+export default function PasswordEntry({ user, setUserById }) {
   
+  // Set phone number from localStorage
+  const phoneNumber = localStorage.getItem('login:phone_number');
+
   // Define constants
   const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)
   const [lastName, setLastName] = useState("");                           // The current user's last name (for account creation)

@@ -33,6 +33,30 @@ async function findUserById(id) {
   });
 }
 
+async function findUserByPhoneNumber(num) {
+  return new Promise((resolve, reject) => {
+    console.log("Searching DB for all users where [phone_number] = [" + num + "]");
+  const queryString = "SELECT * FROM " + dbManager.USERTABLE + " WHERE phone_number LIKE '" + num + "';";
+  console.log("QueryString: " + queryString);
+  const client = new Client({
+    connectionString: dbManager.CONNECTIONSTRING,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+  client.connect();
+  client.query(queryString, (err, res) => {
+    client.end();
+    if (err) {
+      console.log(err.detail);
+      reject(err.detail);
+    }
+    console.log("Fetch complete.")
+    resolve(res.rows[0]);
+  });
+  });
+}
+
 router.post("/get-user-by-id", async (req, res) => {
   const id = req.body.id;
   console.log("Searching DB for a user with id [" + id + "]...");
@@ -47,12 +71,18 @@ router.post("/get-user-by-id", async (req, res) => {
   res.end(jsonContent);
 });
 
-router.post("/get-user-by-number", (req, res) => {
+router.post("/get-user-by-number", async (req, res) => {
   const num = req.body.phoneNumber;
-  console.log("Searching DB for a user with number [" + num + "]...");
-  //const data = findAllUsersBy("phone_number", num);
-  //const jsonContent = JSON.stringify(data);
-  //res.end(jsonContent);
+  console.log("Searching DB for a user with phone_number [" + num + "]...");
+  let data = await findUserByPhoneNumber(num);
+  const user = {
+    id: data.id,
+    firstName: data.first_name,
+    lastName: data.last_name,
+    phoneNumber: data.phone_number
+  }
+  const jsonContent = JSON.stringify(user);
+  res.end(jsonContent);
 });
 
 router.post("/create-new-user", (req, res) => {
