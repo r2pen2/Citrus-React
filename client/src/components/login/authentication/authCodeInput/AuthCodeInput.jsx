@@ -2,7 +2,7 @@ import "./authcodeinput.scss";
 import * as React from 'react';
 import { useState } from 'react';
 import { Typography, Button, Stack, TextField, Snackbar } from "@mui/material";
-import axios from '../../../api/axios'
+import axios from '../../../../api/axios'
 import MuiAlert from '@mui/material/Alert';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -10,13 +10,14 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 
-export default function AuthCodeInput({ setPage, findUser }) {
-  
-  // Set correct stepper page
-  setPage(1);
+export default function AuthCodeInput() {
 
   // Set phone number from localStorage
   const phoneNumber = localStorage.getItem('login:phone_number');
+
+  // Clear local storage from further on in auth process
+  localStorage.removeItem('login:user_id');
+  localStorage.removeItem('login:first_name');
 
   // Define constants
   const [resendMessageOpen, setResendMessageOpen] = useState(false);    // Whether or not the verification resend notification is open
@@ -90,6 +91,7 @@ export default function AuthCodeInput({ setPage, findUser }) {
    */
   function handleOnChange(e) {
     setAuthCode(e.target.value);
+    enableSubmit();
   }
 
   /**
@@ -106,8 +108,7 @@ export default function AuthCodeInput({ setPage, findUser }) {
         const authStatus = res.data.status;
         console.log(authStatus);
         if (authStatus === "approved") {
-          window.location = "/login/password-entry";
-          findUser(phoneNumber);
+          window.location = "/login/authentication/fetch-user";
         } else {
           setErrorMessageOpen(true);
         }
@@ -133,7 +134,7 @@ export default function AuthCodeInput({ setPage, findUser }) {
           Enter your 6 digit authentication code:
       </Typography>
       <div className="auth-input-container">
-          <TextField autoFocus id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit}/>
+          <TextField autoFocus autoComplete='off' id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={handleOnChange} onBlur={handleOnChange}/>
       </div>
       <div className="try-again-button-container">
         <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => resendCode(phoneNumber)}>

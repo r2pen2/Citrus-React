@@ -13,8 +13,8 @@ import { Route, Routes } from "react-router-dom";
 
 // Component Imports
 import PhoneInput from "./phoneInput/PhoneInput";
-import AuthCodeInput from "./authCodeInput/AuthCodeInput";
-import PasswordEntry from "./passwordEntry/PasswordEntry";
+import NewUserForm from "./newUserForm/NewUserForm";
+import Authentication from "./authentication/Authentication";
 import Logo from "../../assets/images/Logo256.png";
 
 /**
@@ -139,28 +139,6 @@ function setUserById(id) {
 }
 
 /**
- * If a user with current phone number exists in database,
- * set userID so that they may enter their password rather than
- * being prompted to create an account
- * @param {Number} num user's phone number
- * @returns {Number} existing user's ID
- */
-function findUserByPhoneNumber(num) {
-  console.log("Checking if user is in database...");
-    try {
-      axios.post("/database/get-user-by-number", { phoneNumber: num }).then((res) => {
-        if (res.status === 200) {
-          localStorage.setItem("user", JSON.stringify(res.data));
-        } else {
-          console.log("Error: " + res.status);
-        }
-      });
-    } catch (err) {
-      console.log(err);
-    }
-}
-
-/**
  * If we're signed in, redirect to dashboard.
  * Othwerwise, set the document title and continue to login.
  * @param {Object} user The current user (if it exists)
@@ -173,16 +151,31 @@ function doPageSetup(user) {
   document.title = "Citrus | Login";
 }
 
+/**
+ * returns page index based on window.location
+ * @param {String} l window location
+ * @returns {Number} page index
+ */
+function getPageIndex(l) {
+  if (l.includes("/authentication")) {
+    return 1;
+  } else if (l.includes("/password-entry") || l.includes("/account-creation")) {
+    return 2;
+  } else {
+    return 0;
+  }
+}
+
 export default function Login({ user }) {
   
   // Page setup
   doPageSetup(user)
 
   // Define constants
-  const [page, setPage] = useState(0);                  // The current login page (ex. Phone Input, Auth Code Input...)
-  const [phoneNumber, setPhoneNumber] = useState("");   // The current user's phone number
-  const [phoneString, setPhoneString] = useState("");   // A stylized string representation of the current user's phone number
-  
+  const [page, setPage] = useState(getPageIndex(window.location.toString()));   // The current login page (ex. Phone Input, Auth Code Input...)
+  const [phoneNumber, setPhoneNumber] = useState("");                           // The current user's phone number
+  const [phoneString, setPhoneString] = useState("");                           // A stylized string representation of the current user's phone number
+
   return (
     <div className="background-controller">
       <Paper className="login-content" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
@@ -191,11 +184,10 @@ export default function Login({ user }) {
             <img src={Logo} alt="logo" className="logo"></img>
           </div>
           <Routes>
-            <Route path="/" element={<PhoneInput setPage={setPage}/>}/>
-            <Route path="/phone-number" element={<PhoneInput setPage={setPage}/>}/>
-            <Route path="/authentication" element={<AuthCodeInput setPage={setPage} findUser={findUserByPhoneNumber}/>}/>
-            <Route path="/password-entry" element={<PasswordEntry user={user} setUserById={setUserById}/>}/>
-            <Route path="/account-creation" element={<PasswordEntry user={user} setUserById={setUserById}/>}/>
+            <Route path="/" element={<PhoneInput />}/>
+            <Route path="/phone-number" element={<PhoneInput />}/>
+            <Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
+            <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>
           </Routes>
         </Stack>
       </Paper>

@@ -25,10 +25,12 @@ const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function PhoneInput({ setPage }) {
+export default function PhoneInput() {
 
-    // Set correct stepper page
-    setPage(0);
+    
+    // Clear local storage from further on in auth process
+    localStorage.removeItem('login:user_id');
+    localStorage.removeItem('login:first_name');
 
     // Define constants
     const [callErrorOpen, setCallErrorOpen] = useState(false);                      // Whether or not the call error notification is open

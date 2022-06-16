@@ -71,18 +71,23 @@ router.post("/get-user-by-id", async (req, res) => {
   res.end(jsonContent);
 });
 
-router.post("/get-user-by-number", async (req, res) => {
+router.post("/get-user-id-by-number", async (req, res) => {
   const num = req.body.phoneNumber;
   console.log("Searching DB for a user with phone_number [" + num + "]...");
   let data = await findUserByPhoneNumber(num);
-  const user = {
-    id: data.id,
-    firstName: data.first_name,
-    lastName: data.last_name,
-    phoneNumber: data.phone_number
+  if (data) {
+    const user = {
+      id: data.id,
+      firstName: data.first_name,
+    }
+    console.log(user)
+    const jsonContent = JSON.stringify(user);
+    res.end(jsonContent);
+  } else {
+    res.status = 404;
+    res.end();
   }
-  const jsonContent = JSON.stringify(user);
-  res.end(jsonContent);
+
 });
 
 router.post("/create-new-user", (req, res) => {

@@ -1,5 +1,5 @@
 // Style imports
-import "./passwordentry.scss";
+import "./newuserform.scss";
 
 // Library imports
 import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";
@@ -47,10 +47,14 @@ const helloMessages = [
 // the page state is updated for any reason
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
-export default function PasswordEntry({ user, setUserById }) {
+export default function NewUserForm({ setUserById }) {
   
   // Set phone number from localStorage
   const phoneNumber = localStorage.getItem('login:phone_number');
+
+  // Clear unrelated localStorage vals (may exist if there was a redirect)
+  localStorage.removeItem('login:user_id');
+  localStorage.removeItem('login:first_name');
 
   // Define constants
   const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)
@@ -151,48 +155,10 @@ export default function PasswordEntry({ user, setUserById }) {
   }
 
   /**
-   * Render a form for existing users to login with
-   * @returns {Component} A form for existing users to enter their password
-   */
-  function makeExistingUserForm() {
-    return (
-      <Stack
-      component="form"
-      sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}
-      noValidate
-      autoComplete="off"
-      alignItems="center"
-      display="flex"
-      justifyContent="center"
-      >
-        <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
-            Welcome back to Citrus, {user.firstName}!
-        </Typography>
-        <TextField required id="password" label="Password" />
-        <div className="login-next-button-container">
-          <Stack direction="column">
-            <Button variant="contained" component="div" onClick={() => handleSubmitExistingUser()}>
-              Submit
-            </Button>
-          </Stack>
-        </div>
-      </Stack>
-    )
-  }
-
-  /**
-   * @todo implement this method
-   * Submit existing user password to server for validation
-   * @returns {State} existing user will be logged in
-   */
-  function handleSubmitExistingUser() {
-  }
-
-  /**
    * Submits new user data to server for account creation
    * @returns {State} user will be created on DB and set in localStorage
    */
-  function handleSubmitNewUser() {
+  function handleSubmit() {
     axios.post("/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {
       console.log("Setting userID to " + res.data.id);
       setUserById(res.data.id);
@@ -203,20 +169,15 @@ export default function PasswordEntry({ user, setUserById }) {
    * Handle enter keypress in new user creation textfield. Submit new user if inputs are valid.
    * @param {Event} e the event that triggered this function
    */
-  function handleNewUserEnter(e) {
+  function handleEnter(e) {
     if (e.key === "Enter") {
       if (submitEnable) {
-        handleSubmitNewUser();
+        handleSubmit();
       }
     }
   }
 
-  /**
-   * Render a form for new users to create their account
-   * @returns {Component} A form for new users to create their account
-   */
-  function makeNewUserForm() {
-    return (
+  return (
       <Stack component="form" sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }} noValidate autoComplete="off" alignItems="center" display="flex" justifyContent="center">
         { renderHelloMessage() }
         <Box>
@@ -224,20 +185,13 @@ export default function PasswordEntry({ user, setUserById }) {
           <TextField required id="last-name" label="Last Name" onChange={e => setLastName(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} />
         </Box>
         <Box>
-          <TextField required id="password" label="Password" type="password" onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleNewUserEnter(e)}} />
-          <TextField required id="password-confirm" label="Confirm Password" type="password" onChange={e => setPasswordConfirm(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleNewUserEnter(e)}} />
+          <TextField required id="password" label="Password" type="password" onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
+          <TextField required id="password-confirm" label="Confirm Password" type="password" onChange={e => setPasswordConfirm(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
         </Box>
         { generateFailMessages() }
-        <Button variant="contained" component="div" onClick={() => handleSubmitNewUser()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>
+        <Button variant="contained" component="div" onClick={() => handleSubmit()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>
           Create my Account!
         </Button>
       </Stack>
-    )
-  }
-
-  // If we have a user, display the existing user form.
-  // Otherwise, display the account creation form.
-  return (
-    user ? makeExistingUserForm() : makeNewUserForm()
   );
 }

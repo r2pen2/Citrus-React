@@ -9,12 +9,22 @@ import BottomNav from "./bottomNav/BottomNav";
 import Home from "./home/Home";
 
 /**
+ * Removes unnecessary localStorage registers
+ */
+function cleanLs() {
+  localStorage.removeItem('login:phone_number');
+  localStorage.removeItem('login:user_id');
+  localStorage.removeItem('login:first_name');
+}
+
+/**
  * If we're not signed in, redirect to login.
  * Othwerwise, set the document title and continue to dashboard.
  * @param {Object} user The current user (if it exists)
  * @returns {State} Either a redirect or continues to dashboard
  */
  function doPageSetup(user) {
+  cleanLs();
   if (!user) {
     window.location = "/login";
   }
@@ -24,7 +34,7 @@ import Home from "./home/Home";
 export default function Dashboard({ user }) {
 
   // Set up page
-  doPageSetup(user)
+  doPageSetup(user);
 
   return (
     <div>

@@ -6,15 +6,17 @@ import LandingPage from "./landingPage/LandingPage";
 import Footer from "./footer/Footer";
 
 /**
- * Remove unnecessary local storage registries
+ * Removes unnecessary localStorage registers
  */
-function cleanLS() {
+function cleanLs() {
   localStorage.removeItem('login:phone_number');
+  localStorage.removeItem('login:user_id');
+  localStorage.removeItem('login:first_name');
 }
 
 export default function Home() {
 
-  cleanLS();
+  cleanLs();
 
   return (
     <div className="homepage">
