@@ -1,9 +1,14 @@
+// Style imports
 import "./authcodeinput.scss";
+
+// Liibrary Imports
 import * as React from 'react';
 import { useState } from 'react';
 import { Typography, Button, Stack, TextField, Snackbar } from "@mui/material";
-import axios from '../../../../api/axios'
 import MuiAlert from '@mui/material/Alert';
+
+// API imports
+import axios from '../../../../api/axios';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
