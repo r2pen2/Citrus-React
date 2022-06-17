@@ -62,7 +62,7 @@ Also, take note of the name attached to the item. Since phone_number (in this co
 ### Routing
 The best way to write connected pages is to make efficient use of the ReactDOM router, parent components, and the browser's localStorage.
 
-Routes work like a switch statement that returns a component based on the current window.location. Components outside the <Routes> will not be effected by the url.
+Routes work like a switch statement that returns a component based on the current window.location. Components outside the Routes tag will not be effected by the url.
 
 Take a look at how routing works in Login.jsx:
 ```jsx
@@ -79,7 +79,7 @@ Take note of the asterisk after /authentication. This means that there are more 
 ```js
 <Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
 ```
-And inside <Authentication>...
+And inside the Authentication component...
 ```js
 <Routes>
     <Route path="/" element={<AuthCodeInput />} />
