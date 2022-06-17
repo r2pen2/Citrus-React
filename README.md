@@ -177,10 +177,19 @@ router.use(bodyParser.urlencoded({ extended: true })); // Use bodyParser in rout
 router.use(express.json()); // Use the Express JSON API in router
 ```
 
+Then add the router as a module export:
+```js
+module.exports = {
+  router: router,
+  whateverElse: someOtherThing,
+  etc: etc
+}
+```
+
 Now import the route in server.js and "use" it:
 ```js
 const login = require('./routes/login'); // Import login.js
-app.use("/login", login)  // All server calls to /login will now be handled by login.js
+app.use("/login", login.router)  // All server calls to /login will now be handled by login.js
 ``` 
 
 Then just add HTTP Request methods in your new route. Here's a template:
