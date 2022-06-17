@@ -29,7 +29,7 @@ export default function Topbar( { user }) {
         const fullName = user.firstName + " " + user.lastName
         return (
             <div className="topbar" data-testid="topbar-wrapper">
-                <div className="appbar-container">
+                <div className="appbar-container" data-testid="user-topbar">
                     <AppBar position="static" className="appbar">
                         <Toolbar>
                             <IconButton size="large" edge="start" color="inherit" aria-label="logo" href="/home">
@@ -51,7 +51,7 @@ export default function Topbar( { user }) {
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Log-Out">
-                                    <IconButton size="medium" color="inherit" aria-label="logout-icon" onClick={() => logOut()}>
+                                    <IconButton size="medium" color="inherit" aria-label="logout-icon" onClick={() => logOut()} data-testid="topbar-logout-button">
                                         <LogoutIcon/>
                                     </IconButton>
                                 </Tooltip>
@@ -64,8 +64,8 @@ export default function Topbar( { user }) {
     } else {
         // We're not signed in, so make the minimal topbar
         return (
-            <div className="topbar" data-testid="topbar-wrapper-no-user">
-                <div className="appbar-container">
+            <div className="topbar" data-testid="topbar-wrapper">
+                <div className="appbar-container" data-testid="no-user-topbar">
                     <AppBar position="static" className="appbar">
                         <div className="topbar-logo-container">
                             <Toolbar>

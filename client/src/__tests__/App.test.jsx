@@ -13,7 +13,9 @@ describe("App first load tests", () => {
   test('Renders no-user topbar on first load', () => {
     render(<App />);
     const appWrapper = screen.getByTestId("app-wrapper");
-    const topbar = screen.getByTestId("topbar-wrapper-no-user");
-    expect(appWrapper).toContainElement(topbar);
+    const topbarWrapper = screen.getByTestId("topbar-wrapper");
+    const topbar = screen.getByTestId("no-user-topbar");
+    expect(appWrapper).toContainElement(topbarWrapper);
+    expect(topbarWrapper).toContainElement(topbar);
   });
 });

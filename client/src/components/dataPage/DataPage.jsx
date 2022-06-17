@@ -29,17 +29,17 @@ function renderPageData(data) {
 
     return (
       sec.items.map((item, itemIndex) =>
-      <div className="section-item" key={itemIndex}>
-        <Typography variant="h6" component="a" href={getHref(item)}>{item.title}</Typography>
-        <Typography variant="subtitle2">{item.subtitle}</Typography>
+      <div className="section-item" key={itemIndex} data-testid={"section-item-" + item.title}>
+        <Typography variant="h6" component="a" href={getHref(item)} data-testid={"section-item-anchor-" + item.title}>{item.title}</Typography>
+        <Typography variant="subtitle2" data-testid={"section-item-subtitle-" + item.title}>{item.subtitle}</Typography>
       </div>
     ))
   }
 
   return (
     data.sections.map((sec, secIndex) => 
-        <div className="data-section" key={secIndex}>
-        <Typography variant="h4" gutterBottom={true}>{sec.sectionTitle}</Typography>
+        <div className="data-section" key={secIndex} data-testid={"data-section-" + sec.sectionTitle}>
+        <Typography variant="h4" gutterBottom={true} data-testid={"data-section-title-" + sec.sectionTitle}>{sec.sectionTitle}</Typography>
         { renderSectionData(sec) }
       </div>
     )
@@ -49,8 +49,8 @@ function renderPageData(data) {
 export default function DataPage({ data }) {
   console.log(data)
   return (
-    <div className="boring-page" data-testid={data.pageTitle}>
-      <Typography variant="h2" marginTop="50px" gutterBottom={true}>{data.pageTitle}</Typography>
+    <div className="data-page" data-testid={data.pageTitle}>
+      <Typography variant="h2" marginTop="50px" gutterBottom={true} data-testid="data-page-title">{data.pageTitle}</Typography>
       <Stack>
         { renderPageData(data) }
       </Stack>
