@@ -21,7 +21,7 @@ Something about the two of us...
 
 ### Recommended Extensions (VSC)
 Here's a list of extensions that I recommend installing:
-- [tabnine](https://marketplace.visualstudio.com/items?itemName=TabNine.tabnine-vscode) is the shit. AI generated autocomplete that learns from you. This will save you so much time.
+- [Tabnine](https://marketplace.visualstudio.com/items?itemName=TabNine.tabnine-vscode) is the shit. AI generated autocomplete that learns from you. This will save you so much time.
 - [Simple React Snippets](https://marketplace.visualstudio.com/items?itemName=burkeholland.simple-react-snippets) Auto-generate React code with shortcuts.
 - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) Basic code formatter.
 - [Git Graph](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph) View a Git Graph of your repository, and perform Git actions from the graph.
