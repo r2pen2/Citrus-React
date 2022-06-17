@@ -17,7 +17,7 @@
 ### Lead Software Developers ([Joe Dobbelaar](https://github.com/r2pen2)) and ([Oliver Risch](https://github.com/oliver-risch))
 Something about the two of us...
 
-## Developer Manual (Client)
+# Developer Manual
 
 ### Recommended Extensions (VSC)
 Here's a list of extensions that I recommend installing
@@ -25,6 +25,8 @@ Here's a list of extensions that I recommend installing
 ### Best Practices
 
 ##### File Types
+Server files are written as .js.
+
 If you're writing a React component, make it a .jsx file! .js will compile just fine, but the styling is a little less friendly.
 
 HTML styling should be written in SASS, rather than CSS. .scss files are easily importable and more readable.
@@ -51,7 +53,7 @@ function multiplyTwoNumbers(x, y) {
 ##### Document! Document! Document!
 Write out what you're doing in README.md so that anyone else can (hopefully) look up whatever they need.
 
-##### Local Storage Usage
+##### Local Storage Usage (Client only)
 Local storage should only ever have items that are currently relevant. login:phone_number, for example, is only necessary during the login process between entering a user's phone number and getting the userId. Once it has done it's job, it should be removed.
 ```js
 localStorage.removeItem('login:phone_number');
@@ -61,6 +63,8 @@ Also, take note of the name attached to the item. Since phone_number (in this co
 
 ##### Function Scopes
 Try to keep helper functions inside their parents. This makes it more clear what each function is used for and makes it easier to collapse code :)
+
+## Client Manual
 
 ### Routing
 The best way to write connected pages is to make efficient use of the ReactDOM router, parent components, and the browser's localStorage.
