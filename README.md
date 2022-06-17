@@ -20,7 +20,13 @@ Something about the two of us...
 # Developer Manual
 
 ### Recommended Extensions (VSC)
-Here's a list of extensions that I recommend installing
+Here's a list of extensions that I recommend installing:
+- [tabnine](https://marketplace.visualstudio.com/items?itemName=TabNine.tabnine-vscode) is the shit. AI generated autocomplete that learns from you. This will save you so much time.
+- [Simple React Snippets](https://marketplace.visualstudio.com/items?itemName=burkeholland.simple-react-snippets) Auto-generate React code with shortcuts.
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) Basic code formatter.
+- [Git Graph](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph) View a Git Graph of your repository, and perform Git actions from the graph.
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) Integrates ESLint JavaScript into VS Code.
+- [ES7+ React/Redux/React Native Snippets](https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets) React snippets that integrate with Prettier.
 
 ### Best Practices
 
