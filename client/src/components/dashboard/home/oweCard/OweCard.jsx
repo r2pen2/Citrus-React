@@ -25,9 +25,9 @@ function getCardStyle(credit) {
 
 export default function OweCard({ credit }) {
     return (
-    <div>
+    <div data-testid={"owe-card-" + (credit.positive ? "positive" : "negative")}>
         <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>{credit.positive ? "Owe Me" : "I Owe"} ❯</Typography>
-        <Card variant="outlined" sx={getCardStyle(credit)}>
+        <Card variant="outlined" sx={getCardStyle(credit)} data-testid="owe-card-card-element">
             <CardActionArea>
                 <CardContent>
                     <Typography variant="h5" component="div" color="white">{formatter.format(credit.amount)}</Typography>

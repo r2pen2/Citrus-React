@@ -28,7 +28,7 @@ export default function BottomNav({ user }) {
   // Only display if there's a user logged in
   if (active) {
     return(
-      <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
+      <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }} data-testid="bottomnav">
         <BottomNavigation sx={{ widthi: '100%' }} value={value} onChange={handleChange}>
           <BottomNavigationAction
             label="Home"
