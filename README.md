@@ -17,9 +17,24 @@
 ### Lead Software Developers ([Joe Dobbelaar](https://github.com/r2pen2)) and ([Oliver Risch](https://github.com/oliver-risch))
 Something about the two of us...
 
-## Developer Manual
+## Developer Manual (Client)
 
-#### Displaying Notifications
+### The API Folder
+Some custom APIs have been created for to make certain actions more consistent / simpler to implement.
+
+- axios.js just sets the baseUrl for GET/POST requests. 
+```js
+// Don't import from 'axios'! We want our version!
+import axios from '/api/axios'
+```
+
+- formatter.js sets default currency formatter settings
+```js
+import formatter from '/api/formatter'
+formatter.format(200) // Returns "$200.00"
+```
+
+### Displaying Notifications
 Notifications are displayed in the NotificationContainer that lies outside the routes in App.js. Notifications can be created by any component and will display as an overlay on the entire application. 
 
 In order to create a notitification, NotificationManager must be imported.
@@ -41,3 +56,4 @@ The order is as follows: NotificationManager.success(message, title, timeOut, ca
 NotificationManager.warning('Warning message', 'Close after 3000ms', 3000);                         // Closes after 3 seconds
 NotificationManager.error('Error message', 'Click me!', 5000, () => { console.log("Ouch!"); });     // Closes after 5 seconds and has an on-click event
 NotificationManager.error('High priority', 'Title', 1000, () => {}, true);                          // Priority is a boolean— high priority notifications are displayed at the top
+```
