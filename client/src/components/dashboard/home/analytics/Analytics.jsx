@@ -2,13 +2,10 @@
 import "./analytics.scss";
 
 // Library imports
-import { Stack, Typography, Box } from "@mui/material"
+import { Stack, Typography } from "@mui/material"
 import { Bar } from "react-chartjs-2";
-import useState from 'react';
+// eslint-disable-next-line no-unused-vars
 import Chart from 'chart.js/auto';
-
-// API imports
-import formatter from "../../../../api/formatter";
 
 /**
  * I honestly don't really know what's going on here.
