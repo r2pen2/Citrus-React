@@ -144,3 +144,112 @@ NotificationManager.warning('Warning message', 'Close after 3000ms', 3000);     
 NotificationManager.error('Error message', 'Click me!', 5000, () => { console.log("Ouch!"); });     // Closes after 5 seconds and has an on-click event
 NotificationManager.error('High priority', 'Title', 1000, () => {}, true);                          // Priority is a boolean— high priority notifications are displayed at the top
 ```
+
+## Server Manual
+
+### Express
+Express is a Node.js web application framework. Express provides a set of features for web and mobile applications. This is what our entire server is built on.
+
+### CORS
+CORS (Cross-Origin Resource Sharing) is a browser security feature that restricts cross-origin HTTP requests that are initiated from scripts running in the browser. Some external API calls may not be allowed without using CORS on the server.
+
+### Routing
+Our server makes use of the Express Router to organize HTTP request endpoints. For example, database calls are handled by database.js.
+
+Adding a route is easy. Just create a .js file in the /routes directory and add the following imports:
+```js
+const express = require('express') // Define Express in context
+const router = express.Router() // Extract the router element from Express
+const bodyParser = require('body-parser');  // A library for parsing JSON bodies
+
+router.use(bodyParser.urlencoded({ extended: true })); // Use bodyParser in router
+router.use(express.json()); // Use the Express JSON API in router
+```
+
+Now import the route in server.js and "use" it:
+```js
+const login = require('./routes/login'); // Import login.js
+app.use("/login", login)  // All server calls to /login will now be handled by login.js
+``` 
+
+Then just add HTTP Request methods in your new route. Here's a template:
+```js
+// HTTPRequestMethod could be a GET, POST, HEAD, etc.
+router.HTTPRequestMethod("/request-url", (HTTPRequest, HTTPResponse) => {
+  const data = HTTPRequest.body.data; // This is where bodyParser comes in
+  const newData = doSomething(data);
+  const jsonContent = JSON.stringify(newData); // Stringify JSON before sending back to client.
+  HTTPResponse.end(jsonContent); // Send JSON back to client
+});
+```
+
+### Making Database Calls
+Let's dissect this function:
+```js
+/**
+ * Finds a user on the DB by their id and returns the first result.
+ * @param {Number} id userId to be fetched from the database 
+ * @returns {Object} the first user returned from the database (and hopefully only becuase ID is unique)
+ */
+async function findUserById(id) {
+  return new Promise((resolve, reject) => {
+    if (!id) { reject(new Error("No ID provided!")); }
+    console.log("Searching DB for all users where [id] = [" + id + "]");
+    const queryString = "SELECT * FROM " + dbManager.USERTABLE + " WHERE id IN ('" + id + "');";
+    console.log("QueryString: " + queryString);
+    const client = new Client({
+      connectionString: dbManager.CONNECTIONSTRING,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+    client.connect();
+    client.query(queryString, (err, res) => {
+      client.end();
+      if (err) {
+        console.log(err.detail);
+        reject(err.detail);
+      }
+      console.log("Fetch complete.")
+      resolve(res.rows[0]);
+    });
+  });
+}
+```
+
+First, it's asynchronous. This allows us to wait for the return value (a Promise) to be rejected or resolved before moving onto the next line of code when we call it. Without making this an asycn function, we'll move on before the database has had time to fetch whatever we want from it.
+
+All asynchronous functions must return a Promise. Here's how to make one:
+```js
+/**
+ * Creates a new promise and either rejects or resolves based on a boolean value
+ * @param {Boolean} bool Whether or not the promise will be resolved
+ * @returns {String} The result of the promise
+ */
+async function makePromise(bool) {
+  return new Promise((resolve, reject) => { // new Promise takes an arrow function with params that act as returns
+    if (bool) {
+      resolve("Promise resolved!"); // Resolve the promise with a string
+    } else {
+      reject("Promise rejected! >:)"); // Reject the promise with a string
+    }
+  })
+}
+```
+Both resolve() and reject() return a value. We can handle resolved promises different from rejected promises if we want.
+
+Then to call the function, use the await keyword.
+```js
+// Not using await may result in a null value
+const dontDoThis = makePromise(false);
+console.log(dontDoThis) // Prints "undefined" to console.
+
+// Using await will allow the promise to resolve or reject before moving on.
+let resultString = await makePromise(true);
+console.log(resultString); // Prints "Promise resolved!" to console.
+```
+
+The only other thing is that you have to close the database connection after you've made your query.
+```js
+client.end();
+```

@@ -1,7 +1,9 @@
+// Library imports
 const express = require('express')
 const router = express.Router()
 const bodyParser = require('body-parser');
 
+// Set up router
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.json());
 
@@ -15,6 +17,11 @@ const twilioAuthToken = "a69e6526d73159746aee2062c576e9d3";
 const twilioServiceSid = "VA10a6ace611ddc51e98ee3aab7ce935e3";
 const client = new twilio(twilioAccountSid, twilioAuthToken);
 
+/**
+ * Receive a POST request at "/login/send-auth" containing a phone number and a verification channel.
+ * If doAuth is true, send a Twilio authentication code via the specified channel. Currently, SMS is the
+ * only channel that works.
+ */
 router.post("/send-auth", (req, res) => {
     if (doAuth) {
         const phoneNumber = req.body.phoneNumber; 
@@ -28,6 +35,11 @@ router.post("/send-auth", (req, res) => {
     }
 })
 
+/**
+ * Receive a POST request at "/login/check-auth" containing a phone number and an authentication code.
+ * If doAuth is true, ask Twilio if the code matches the one sent to the phone number. Send the response back
+ * to the client, where it will be handled.
+ */
 router.post("/check-auth", (req, res) => {
     if (doAuth) {
         const phoneNumber = req.body.phoneNumber;
