@@ -20,5 +20,5 @@ export default function Authentication({ setUserById }) {
             <Route path="/fetch-user" element={<FetchUser />} />
             <Route path="/password-entry" element={<PasswordEntry setUserById={setUserById}/>}/>
         </Routes>
-  )
+    )
 }

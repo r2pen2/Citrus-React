@@ -85,7 +85,6 @@ export default function NewUserForm({ setUserById }) {
   /**
    * Determines whether or not the password is valid and sets fail messages if not
    * @returns {Boolean} a boolean value indicating whether or not the password is valid
-   * @returns {State} passwordFailMessages will be updated to show password issues
    */
   function passwordValid() {
     const failMsg = [];
@@ -120,7 +119,6 @@ export default function NewUserForm({ setUserById }) {
   /**
    * Enables the submit button if passwords are valid
    * Otherwise sets submit button opacity based on the number of failures
-   * @returns {State} submit button styled according to password data
    */
   function enableSubmit() {
     if ((firstName.length > 0) && (lastName.length > 0) && (password.length > 0) && (passwordConfirm.length > 0) && passwordValid()) {
@@ -156,7 +154,6 @@ export default function NewUserForm({ setUserById }) {
 
   /**
    * Submits new user data to server for account creation
-   * @returns {State} user will be created on DB and set in localStorage
    */
   function handleSubmit() {
     axios.post("/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {

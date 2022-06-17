@@ -24,9 +24,8 @@ export default function AuthCodeInput() {
   const [submitEnable, setSubmitEnable] = useState(false);              // Whether or not the submit button is enabled
 
   /**
-   * Resend auth code to phone number
+   * Resend auth code to phone number and display a notification
    * @param {String} num phone number to send auth code to
-   * @returns {State} user is sent auth code via sms
    */
   function resendCode(num) {
       console.log("Texting: " + num);
@@ -36,7 +35,6 @@ export default function AuthCodeInput() {
 
   /**
    * Enable submit button if auth code is long enough
-   * @returns {State} submit button enabled (or not)
    */
   function enableSubmit() {
     setSubmitEnable(authCode.length === 6);
@@ -45,7 +43,6 @@ export default function AuthCodeInput() {
   /**
    * Set the value of authCode to textfield value on change
    * @param {Event} e onChange event from textfield
-   * @returns {State} authCode is updated to match textfield value
    */
   function handleOnChange(e) {
     setAuthCode(e.target.value);
@@ -53,8 +50,8 @@ export default function AuthCodeInput() {
   }
 
   /**
-   * Check whether auth code matches the one sent to user's phone
-   * @returns {State} user fetched from database if auth code is valid
+   * Check whether auth code matches the one sent to user's phone.
+   * Fetch user if valid.
    */
   function checkAuthCode() {
     console.log('Checking auth code...');

@@ -20,7 +20,6 @@ export default function BottomNav({ user }) {
    * Sets active bottomnav element to the one that was just clicked 
    * @param {Event} event the event that triggered this function call
    * @param {String} newValue the value of the new active element
-   * @returns {State} the active bottomnav element will have updated
    */
   const handleChange = (event, newValue) => {
     setValue(newValue);

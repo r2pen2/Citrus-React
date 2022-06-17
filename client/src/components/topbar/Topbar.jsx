@@ -16,8 +16,7 @@ export default function Topbar( { user }) {
     const signedIn = user ? true : false;
 
     /**
-     * Log user out
-     * @returns {State} user will be signed out and redirected to homepage
+     * Log user out and redirect to homepage
      */
     function logOut() {
         localStorage.removeItem('user');
