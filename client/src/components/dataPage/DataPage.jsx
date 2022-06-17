@@ -49,7 +49,7 @@ function renderPageData(data) {
 export default function DataPage({ data }) {
   console.log(data)
   return (
-    <div className="boring-page">
+    <div className="boring-page" data-testid={data.pageTitle}>
       <Typography variant="h2" marginTop="50px" gutterBottom={true}>{data.pageTitle}</Typography>
       <Stack>
         { renderPageData(data) }

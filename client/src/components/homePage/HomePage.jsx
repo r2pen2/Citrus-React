@@ -19,7 +19,7 @@ export default function Home() {
   cleanLs();
 
   return (
-    <div className="homepage">
+    <div className="homepage" data-testid="homepage">
       <LandingPage />
       <Footer />
     </div>

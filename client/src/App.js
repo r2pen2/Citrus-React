@@ -32,14 +32,14 @@ function App() {
   const user = getUserFromLS();
 
   return (
-    <div className="app">
+    <div className="app" data-testid="app-wrapper">
       <Router>
         <ThemeProvider theme={theme}>
           <Topbar user={user}/>
-            <div className="content">
+            <div className="content" data-testid="app-content">
               <Routes>
-                <Route path="/" element={<HomePage/>} />
-                <Route path="/home" element={<HomePage/>} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/login/*" element={<Login user={user}/>} />
                 <Route path="/dashboard/*" element={<Dashboard user={user}/>} />
                 <Route path="/credits" element={<DataPage data={creditsData}/>} />

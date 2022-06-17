@@ -18,21 +18,21 @@ import down from "../../../assets/images/down.png"
  * @returns {Component} an anchor element that directs the user to the footer
  */
 function generateArrow(show) {
-  return (show ? <a href="#footer"><img src={down} alt="down"></img></a> : <div></div>);
+  return (show ? <a href="#footer" data-testid="landing-page-down-arrow"><img src={down} alt="down"></img></a> : <div></div>);
 }
 
 export default function LandingPage() {
   return (
-    <div className="background-wave">
+    <div className="background-wave" data-testid="landing-page">
       <div className="landingpage" id="landingpage">
         <div className="column left">
-          <div className="left-wrapper">
+          <div className="left-wrapper" data-testid="landing-page-left">
             <Stack marginLeft="40px" alignItems="left" spacing="20px">
-              <Typography variant="h2" className="header">Split payments without the headache.</Typography>
-              <Typography variant="h6" className="paragraph">An app aimed to revolutionize the way you track and split expenses amongst your friends, roommates, and more! Coming soon.</Typography>
+              <Typography variant="h2" className="header" data-testid="landing-page-header">Split payments without the headache.</Typography>
+              <Typography variant="h6" className="paragraph" data-testid="landing-page-subtitle">An app aimed to revolutionize the way you track and split expenses amongst your friends, roommates, and more! Coming soon.</Typography>
               <Button variant="contained" size="large" component="div" className="button" onClick={() => {window.location = "/login"}}>Get Started</Button>
             </Stack>
-            <div className="links-container">
+            <div className="links-container" data-testid="landing-page-socials">
               <Stack direction="row" alignItems="center">
                 <Typography variant="h5" marginRight="20px" className="unselectable">
                   Come visit us:
@@ -61,7 +61,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-        <div className="column right">
+        <div className="column right" data-testid="landing-page-right">
           { generateArrow(false) }
         </div>
       </div>

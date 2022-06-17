@@ -28,7 +28,7 @@ export default function Topbar( { user }) {
         // Signed in, so set user vars and return detail topbar
         const fullName = user.firstName + " " + user.lastName
         return (
-            <div className="topbar">
+            <div className="topbar" data-testid="topbar-wrapper">
                 <div className="appbar-container">
                     <AppBar position="static" className="appbar">
                         <Toolbar>
@@ -64,7 +64,7 @@ export default function Topbar( { user }) {
     } else {
         // We're not signed in, so make the minimal topbar
         return (
-            <div className="topbar">
+            <div className="topbar" data-testid="topbar-wrapper-no-user">
                 <div className="appbar-container">
                     <AppBar position="static" className="appbar">
                         <div className="topbar-logo-container">

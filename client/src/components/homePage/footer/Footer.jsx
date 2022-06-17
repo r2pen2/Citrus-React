@@ -3,8 +3,8 @@ import { Typography } from '@mui/material'
 
 export default function Footer() {
   return (
-    <div className="footer" id="footer">
-        <div className="column">
+    <div className="footer" id="footer" data-testid="footer">
+        <div className="column" data-testid="column1">
           <Typography variant="h4">PRODUCT</Typography>
           <Typography component="a" href="/">Home</Typography>
           <Typography component="a" href="/features">Features</Typography>
@@ -12,7 +12,7 @@ export default function Footer() {
           <Typography component="a" href="/pricing">Pricing</Typography>
           <Typography component="a" href="/faq">FAQs</Typography>
         </div>
-        <div className="column">
+        <div className="column" data-testid="column2">
           <Typography variant="h4">RESOURCES</Typography>
           <Typography component="a" href="/billing">Billing Portal</Typography>
           <Typography component="a" href="/roadmap">Roadmap</Typography>
@@ -20,7 +20,7 @@ export default function Footer() {
           <Typography component="a" href="/support">Support</Typography>
           <Typography component="a" href="/status">Status Page</Typography>
         </div>
-        <div className="column">
+        <div className="column" data-testid="column3">
           <Typography variant="h4">LEGAL</Typography>
           <Typography component="a" href="/privacy">Privacy Policy</Typography>
           <Typography component="a" href="/terms">Terms of Use</Typography>
