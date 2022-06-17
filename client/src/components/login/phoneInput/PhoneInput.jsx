@@ -30,7 +30,6 @@ export default function PhoneInput() {
     // Define constants
     const [submitEnable, setSubmitEnable] = useState(true);                         // Whether or not the submit button is enabled
     const [phoneNumber, setPhoneNumber] = useState(getLsNum());                             // Current value of the phone number textfield
-    const [phoneString, setPhoneString] = useState("");                             // Styled string representation of the current phone number (unused atm)
 
     /**
      * sets phone number value on initialize to localStorage
@@ -43,10 +42,8 @@ export default function PhoneInput() {
     /**
      * Updates state to reflext phone input value
      * @param {String} value phone string value from input box
-     * @returns {State} phoneString and phoneNumber updated to match input box
      */
     function handleOnChange(value) {
-        setPhoneString(value);
         setPhoneNumber(formatPhoneNumber(value));
     }
 
@@ -92,7 +89,6 @@ export default function PhoneInput() {
      * Handles enter keypress in textfields. Sends verification
      * code if number is valid.
      * @param {Event} e event that triggered function
-     * @returns {State} text sent if number is valid
      */
     function handleEnter(e) {
         if (e.key === "Enter") {
@@ -102,7 +98,6 @@ export default function PhoneInput() {
 
     /**
      * Enables submit button if phone number is valid
-     * @returns {State} submit button enabled (or not)
      */
     function enableSubmit() {
         setSubmitEnable(numberValid(phoneNumber));

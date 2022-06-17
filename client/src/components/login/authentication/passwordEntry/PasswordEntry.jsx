@@ -2,9 +2,8 @@
 import "./passwordentry.scss";
 
 // Library imports
-import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";
+import { Stack, TextField, Typography, Button } from "@mui/material";
 import { useState } from 'react';
-import { TransitionGroup } from 'react-transition-group';
 import { NotificationManager } from 'react-notifications';
 
 // API imports
@@ -37,7 +36,6 @@ export default function PasswordEntry({ setUserById }) {
   /**
    * Enables the submit button if passwords are valid
    * Otherwise sets submit button opacity based on the number of failures
-   * @returns {State} submit button styled according to password data
    */
   function enableSubmit() {
     setSubmitEnable(password.length > 0);
@@ -100,7 +98,7 @@ export default function PasswordEntry({ setUserById }) {
       <TextField required type="password" id="password" label="Password" autoComplete='off' onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
       <div className="login-next-button-container">
         <Stack direction="column">
-          <Button variant="contained" component="div" onClick={() => handleSubmit()}>
+          <Button variant="contained" component="div" onClick={() => handleSubmit()} disabled={!submitEnable}>
             Submit
           </Button>
         </Stack>

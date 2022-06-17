@@ -2,7 +2,6 @@
 import "./login.scss"
 
 // Library Imports
-import { useState, useEffect, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import { Stack, Box, Stepper, Step, StepLabel, Paper } from "@mui/material";
@@ -142,9 +141,8 @@ function displaySteps() {
 }
 
 /**
- * Sign-in a user by their ID
+ * Sign-in a user by their ID and redirect to dashboard
  * @param {Number} id userID returned from password input
- * @returns {State} user is logged in and redirected to dashboard
  */
 function setUserById(id) {
   axios.post("/database/get-user-by-id", { id: id }).then((res) => {
@@ -159,7 +157,6 @@ function setUserById(id) {
  * If we're signed in, redirect to dashboard.
  * Othwerwise, set the document title and continue to login.
  * @param {Object} user The current user (if it exists)
- * @returns {State} Either a redirect or continues with login
  */
 function doPageSetup(user) {
   if (user) {
