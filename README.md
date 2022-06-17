@@ -59,6 +59,15 @@ function multiplyTwoNumbers(x, y) {
 ##### Document! Document! Document!
 Write out what you're doing in README.md so that anyone else can (hopefully) look up whatever they need.
 
+### Give Yourself Credit
+Write your name at the top of files and functions that you create. If something is wrong or someone has a question, they'll know who to go to.
+
+##### Write Tests
+Server tests and client tests are written differently, but are both run whenever changes are made to the master branch or a pull request is created into master. Pull requests that pass tests are more likely to be merged.
+
+It's also best to write tests whenever you create a new function (within reason, of course).
+
+
 ##### Local Storage Usage (Client only)
 Local storage should only ever have items that are currently relevant. login:phone_number, for example, is only necessary during the login process between entering a user's phone number and getting the userId. Once it has done it's job, it should be removed.
 ```js
