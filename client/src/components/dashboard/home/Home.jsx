@@ -12,11 +12,13 @@ import Analytics from "./analytics/Analytics";
 export default function Home({ user }) {
   return (
     <Stack spacing={3} marginTop="50px" marginLeft="75px" marginRight="75px" paddingBottom="100px">
-    <Box> 
+    <Box data-testid="owe-cards"> 
       <OweCard credit={{ positive: true, amount: 250, numPeople: 6 }} />
       <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
     </Box>
-    <Transactions recentTransactions={recentTransactionsExample} numDisplayed={2}/>
+    <div data-testid="transactions">
+      <Transactions recentTransactions={recentTransactionsExample} numDisplayed={2}/>
+    </div>
     <Analytics chartData={analyticsExample}/>
   </Stack>
   )
