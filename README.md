@@ -16,3 +16,28 @@
 
 ### Lead Software Developers ([Joe Dobbelaar](https://github.com/r2pen2)) and ([Oliver Risch](https://github.com/oliver-risch))
 Something about the two of us...
+
+## Developer Manual
+
+#### Displaying Notifications
+Notifications are displayed in the NotificationContainer that lies outside the routes in App.js. Notifications can be created by any component and will display as an overlay on the entire application. 
+
+In order to create a notitification, NotificationManager must be imported.
+```js
+import NotificationManager from 'react-notifications';
+```
+
+After it has been imported, notifications can be displayed by calling the following functions.
+```js
+NotificationManager.success("This one is green!", "Notification title...");
+NotificationManager.info("This one is blue!", "It can have a different title, too!");
+NotificationManager.warning("This one is orange.", "Maybe not the worst thing, but we thought we'd let you know.");
+NotificationManager.error("This one is red!", "The sky is falling!");
+```
+
+There are a few other props, but they are currently unused in this application: timeOut, callback, and priority.
+The order is as follows: NotificationManager.success(message, title, timeOut, callback, priority);
+```js
+NotificationManager.warning('Warning message', 'Close after 3000ms', 3000);                         // Closes after 3 seconds
+NotificationManager.error('Error message', 'Click me!', 5000, () => { console.log("Ouch!"); });     // Closes after 5 seconds and has an on-click event
+NotificationManager.error('High priority', 'Title', 1000, () => {}, true);                          // Priority is a boolean— high priority notifications are displayed at the top

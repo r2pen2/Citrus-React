@@ -5,6 +5,7 @@ import "./passwordentry.scss";
 import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";
 import { useState } from 'react';
 import { TransitionGroup } from 'react-transition-group';
+import { NotificationManager } from 'react-notifications';
 
 // API imports
 import axios from '../../../../api/axios'
@@ -61,8 +62,7 @@ export default function PasswordEntry({ setUserById }) {
         setUserById(id);
       } else {
         // Password was WRONG! You IDIOT!
-        // TODO make it display a notification
-        console.log("Invalid password!");
+        NotificationManager.error('Invalid password!', 'Error!');
       }
     })
   }

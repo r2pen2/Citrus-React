@@ -5,8 +5,8 @@ import "./phoneinput.scss";
 import * as React from 'react';
 import { useState } from 'react';
 import MuiPhoneNumber from 'material-ui-phone-number';
-import { Typography, Button, Stack, Snackbar } from "@mui/material";
-import MuiAlert from '@mui/material/Alert';
+import { Typography, Button, Stack } from "@mui/material";
+import { NotificationManager } from 'react-notifications';
 
 // API imports
 import axios from '../../../api/axios';
@@ -20,11 +20,6 @@ function formatPhoneNumber(num) {
     return "+" + num.replace(/\D/g, '');
 }
 
-// MUI alert setup
-const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
 export default function PhoneInput() {
 
     
@@ -33,8 +28,6 @@ export default function PhoneInput() {
     localStorage.removeItem('login:first_name');
 
     // Define constants
-    const [callErrorOpen, setCallErrorOpen] = useState(false);                      // Whether or not the call error notification is open
-    const [invalidNumberErrorOpen, setInvalidNumberErrorOpen] = useState(false);    // Whether or not the invalid number notification is open
     const [submitEnable, setSubmitEnable] = useState(true);                         // Whether or not the submit button is enabled
     const [phoneNumber, setPhoneNumber] = useState(getLsNum());                             // Current value of the phone number textfield
     const [phoneString, setPhoneString] = useState("");                             // Styled string representation of the current phone number (unused atm)
@@ -80,7 +73,7 @@ export default function PhoneInput() {
             axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
             .then(window.location = "/login/authentication");
         } else {
-            setInvalidNumberErrorOpen(true);
+            NotificationManager.error("Invalid phone number!", "Error!");
         }
     }
 
@@ -92,36 +85,8 @@ export default function PhoneInput() {
         //console.log("Calling: " + phoneNumber);
         //axios.post('/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'call'})
         //.then(incrementPage());
-        setCallErrorOpen(true);
+        NotificationManager.info("This feature is currently disabled.", "Sorry!");
     }
-
-    /**
-     * Sets callErrorOpen to false on close
-     * @param {Event} event event that triggered error close
-     * @param {String} reason reason for error close
-     * @returns {State} callErrorOpen set to false
-     */
-    const handleCallErrorClose = (event, reason) => {
-        if (reason === 'clickaway') {
-          return;
-        }
-    
-        setCallErrorOpen(false);
-    };
-
-    /**
-     * Sets invalidNumberErrorOpen to false on close
-     * @param {Event} event event that triggered error close
-     * @param {String} reason reason for error close
-     * @returns {State} invalidNumberErrorOpen set to false
-     */
-    const handleInvalidNumberErrorClose = (event, reason) => {
-        if (reason === 'clickaway') {
-          return;
-        }
-    
-        setInvalidNumberErrorOpen(false);
-    };
 
     /**
      * Handles enter keypress in textfields. Sends verification
@@ -159,12 +124,6 @@ export default function PhoneInput() {
                     </div>
                 </Stack>
             </div>
-            <Snackbar open={callErrorOpen} autoHideDuration={6000} onClose={handleCallErrorClose} >
-                <Alert severity="error" sx={{ width: '100%' }}>Calling seems to be broken lmao</Alert>
-            </Snackbar>
-            <Snackbar open={invalidNumberErrorOpen} autoHideDuration={6000} onClose={handleInvalidNumberErrorClose} >
-                <Alert severity="error" sx={{ width: '100%' }}>The phone number entered is not a valid length.</Alert>
-            </Snackbar>
         </div>
     );
 }

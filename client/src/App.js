@@ -1,10 +1,12 @@
 // Style Imports
-import theme from "./assets/style/theme"
-import "./app.scss"
+import theme from "./assets/style/theme";
+import "./app.scss";
+import "./assets/style/notifications.css";
 
 // Library Imports
-import { ThemeProvider } from "@mui/material"
+import { ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { NotificationContainer } from 'react-notifications';
 
 // Component Imports
 import Login from "./components/login/Login"
@@ -44,6 +46,7 @@ function App() {
               </Routes>
             </div>
         </ThemeProvider>
+        <NotificationContainer />
       </Router>
     </div>
   )
