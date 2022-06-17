@@ -19,6 +19,7 @@
     "react-dom": "^18.1.0",
     "react-native-device-info": "^9.0.2",
     "react-native-web": "^0.18.0",
+    "react-notifications": "^1.7.3",
     "react-phone-input-material-ui": "^2.17.4",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
