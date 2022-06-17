@@ -22,8 +22,8 @@ import Logo from "../../assets/images/Logo256.png";
  * @param {Number} p The current page 
  * @returns {Component} A stepper with the correct page selected
  */
-function displaySteps(p) {
-  
+function displaySteps() {
+
   const steps = [
     'Enter your phone number',
     'Verify your phone number',
@@ -109,6 +109,23 @@ function displaySteps(p) {
     completed: PropTypes.bool,
   };
 
+    /**
+   * returns page index based on window.location
+   * @param {String} l window location
+   * @returns {Number} page index
+   */
+  function getPageIndex() {
+    const l = window.location.toString();
+    if (l.includes("/authentication")) {
+      return 1;
+    } else if (l.includes("/password-entry") || l.includes("/account-creation")) {
+      return 2;
+    } else {
+      return 0;
+    }
+  }
+
+  const p = getPageIndex();
   if (p >= 0) {
     return (
       <Box sx={{ width: '100%' }}>
@@ -151,30 +168,10 @@ function doPageSetup(user) {
   document.title = "Citrus | Login";
 }
 
-/**
- * returns page index based on window.location
- * @param {String} l window location
- * @returns {Number} page index
- */
-function getPageIndex(l) {
-  if (l.includes("/authentication")) {
-    return 1;
-  } else if (l.includes("/password-entry") || l.includes("/account-creation")) {
-    return 2;
-  } else {
-    return 0;
-  }
-}
-
 export default function Login({ user }) {
   
   // Page setup
   doPageSetup(user)
-
-  // Define constants
-  const [page, setPage] = useState(getPageIndex(window.location.toString()));   // The current login page (ex. Phone Input, Auth Code Input...)
-  const [phoneNumber, setPhoneNumber] = useState("");                           // The current user's phone number
-  const [phoneString, setPhoneString] = useState("");                           // A stylized string representation of the current user's phone number
 
   return (
     <div className="background-controller">
@@ -192,7 +189,7 @@ export default function Login({ user }) {
         </Stack>
       </Paper>
       <div className="stepper-wrapper">
-        { displaySteps(page) }
+        { displaySteps() }
       </div>
     </div>
   );
