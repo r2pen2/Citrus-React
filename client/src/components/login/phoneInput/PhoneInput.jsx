@@ -92,6 +92,7 @@ export default function PhoneInput() {
      */
     function handleEnter(e) {
         if (e.key === "Enter") {
+            e.preventDefault();
             textMe(phoneNumber)
         }
     }

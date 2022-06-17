@@ -168,6 +168,7 @@ export default function NewUserForm({ setUserById }) {
    */
   function handleEnter(e) {
     if (e.key === "Enter") {
+      e.preventDefault();
       if (submitEnable) {
         handleSubmit();
       }

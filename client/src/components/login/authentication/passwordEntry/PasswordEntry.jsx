@@ -71,6 +71,7 @@ export default function PasswordEntry({ setUserById }) {
    */
    function handleEnter(e) {
     if (e.key === "Enter") {
+      e.preventDefault();
       handleSubmit();
     }
   }

@@ -79,6 +79,7 @@ export default function AuthCodeInput() {
    */
   function handleEnter(e) {
     if (e.key === "Enter") {
+        e.preventDefault();
         checkAuthCode();
       }
   }
