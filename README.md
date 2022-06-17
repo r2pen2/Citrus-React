@@ -145,6 +145,17 @@ NotificationManager.error('Error message', 'Click me!', 5000, () => { console.lo
 NotificationManager.error('High priority', 'Title', 1000, () => {}, true);                          // Priority is a boolean— high priority notifications are displayed at the top
 ```
 
+### Prevent Default
+Sometimes, you'll see the preventDefault() method called on events. The preventDefault() method of the Event interface tells the user agent that if the event does not get explicitly handled. Its default action should not be taken as it normally would be.
+
+If an event isn't working as intended, try throwing in this line:
+```js
+function handleEvent(event) {
+  event.preventDefault();
+  // Whatever else you want to do with it
+}
+```
+
 ## Server Manual
 
 ### Express
