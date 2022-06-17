@@ -19,7 +19,15 @@ Something about the two of us...
 
 ## Developer Manual (Client)
 
+### Recommended Extensions (VSC)
+Here's a list of extensions that I recommend installing
+
 ### Best Practices
+
+##### File Types
+If you're writing a React component, make it a .jsx file! .js will compile just fine, but the styling is a little less friendly.
+
+HTML styling should be written in SASS, rather than CSS. .scss files are easily importable and more readable.
 
 ##### File System
 As a general rule, the file system should be kept as "modular" as possible. For example, components referenced by App.jsx go in src/components, but components only referenced by Login.jsx are kepy in src/components/login. Assets follow the same rule (src/assets has global assets. src/components/topbar/assets has assets only used by Topbar.jsx).
@@ -54,6 +62,8 @@ Also, take note of the name attached to the item. Since phone_number (in this co
 ### Routing
 The best way to write connected pages is to make efficient use of the ReactDOM router, parent components, and the browser's localStorage.
 
+Routes work like a switch statement that returns a component based on the current window.location. Components outside the <Routes> will not be effected by the url.
+
 Take a look at how routing works in Login.jsx:
 ```jsx
 <Routes>
@@ -63,8 +73,23 @@ Take a look at how routing works in Login.jsx:
   <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>
 </Routes>
 ```
-Notice that, even though we're doing user authentication, the phone number, user id, etc. are not being passed into child component.
-The parent component (Login.jsx) has a function called setUserById that sets exits the login process by setting a user once an id has been declared (whether by database lookup or creating a new user).
+Notice that, even though we're doing user authentication, the phone number, user id, etc. are not being passed into child component. Code looks much cleaner (and is therefore easier to adapt/refactor) when localStorage is used to keep these variables. There's also the added benefit of not losing values on page refresh!
+
+Take note of the asterisk after /authentication. This means that there are more routes contained within /authentication. Forgetting to add the asterisk in the parent route will 
+```js
+<Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
+```
+And inside <Authentication>...
+```js
+<Routes>
+    <Route path="/" element={<AuthCodeInput />} />
+    <Route path="/check-auth" element={<AuthCodeInput />} />
+    <Route path="/fetch-user" element={<FetchUser />} />
+    <Route path="/password-entry" element={<PasswordEntry setUserById={setUserById}/>}/>
+</Routes>
+```
+
+It's also helpful to include an element for the "/" path. This can be the same as some other path, like shown above, or different.
 
 ### The API Folder
 Some custom APIs have been created for to make certain actions more consistent / simpler to implement.
