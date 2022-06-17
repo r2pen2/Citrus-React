@@ -19,16 +19,65 @@ Something about the two of us...
 
 ## Developer Manual (Client)
 
+### Best Practices
+
+##### File System
+As a general rule, the file system should be kept as "modular" as possible. For example, components referenced by App.jsx go in src/components, but components only referenced by Login.jsx are kepy in src/components/login. Assets follow the same rule (src/assets has global assets. src/components/topbar/assets has assets only used by Topbar.jsx).
+
+##### Comment your code!
+Try to make it really clear what it is that you're doing. Even code that you wrote 6 months ago can feel totally foreign without proper documentation.
+Follow this guide to creating function signatures.
+Shortcut: typing "/**" one line above a function and hitting enter will auto-generate a signature template.
+```js
+/**
+* Multiply two numbers together
+* @param x {Number} the first number
+* @param y {Number} the second number
+* @returns {Number} the product of x and y
+*/
+function multiplyTwoNumbers(x, y) {
+    return x * y;
+}
+```
+
+##### Document! Document! Document!
+Write out what you're doing in README.md so that anyone else can (hopefully) look up whatever they need.
+
+##### Local Storage Usage
+Local storage should only ever have items that are currently relevant. login:phone_number, for example, is only necessary during the login process between entering a user's phone number and getting the userId. Once it has done it's job, it should be removed.
+```js
+localStorage.removeItem('login:phone_number');
+``` 
+
+Also, take note of the name attached to the item. Since phone_number (in this context, at least) is only relevant to login, it's prefixed by "login:". This should make it easy to determine which components are leaking local storage items if there's even an issue.
+
+### Routing
+The best way to write connected pages is to make efficient use of the ReactDOM router, parent components, and the browser's localStorage.
+
+Take a look at how routing works in Login.jsx:
+```jsx
+<Routes>
+  <Route path="/" element={<PhoneInput />}/>
+  <Route path="/phone-number" element={<PhoneInput />}/>
+  <Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
+  <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>
+</Routes>
+```
+Notice that, even though we're doing user authentication, the phone number, user id, etc. are not being passed into child component.
+The parent component (Login.jsx) has a function called setUserById that sets exits the login process by setting a user once an id has been declared (whether by database lookup or creating a new user).
+
 ### The API Folder
 Some custom APIs have been created for to make certain actions more consistent / simpler to implement.
 
-- axios.js just sets the baseUrl for GET/POST requests. 
+##### Axios API
+axios.js just sets the baseUrl for GET/POST requests. 
 ```js
 // Don't import from 'axios'! We want our version!
 import axios from '/api/axios'
 ```
 
-- formatter.js sets default currency formatter settings
+##### Formatter API
+formatter.js sets default currency formatter settings
 ```js
 import formatter from '/api/formatter'
 formatter.format(200) // Returns "$200.00"
