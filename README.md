@@ -282,3 +282,10 @@ The only other thing is that you have to close the database connection after you
 ```js
 client.end();
 ```
+
+### Testing
+We use the "Jest" testing framework. You can find the documentation (here)[https://jestjs.io/docs/getting-started].
+
+Server tests are located in the /\__tests__ directory.
+
+Tests should be surrounded by a describe(), and individual tests should have descriptive names.
