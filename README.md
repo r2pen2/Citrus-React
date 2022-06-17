@@ -59,6 +59,9 @@ localStorage.removeItem('login:phone_number');
 
 Also, take note of the name attached to the item. Since phone_number (in this context, at least) is only relevant to login, it's prefixed by "login:". This should make it easy to determine which components are leaking local storage items if there's even an issue.
 
+##### Function Scopes
+Try to keep helper functions inside their parents. This makes it more clear what each function is used for and makes it easier to collapse code :)
+
 ### Routing
 The best way to write connected pages is to make efficient use of the ReactDOM router, parent components, and the browser's localStorage.
 
