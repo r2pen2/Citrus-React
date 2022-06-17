@@ -4,16 +4,11 @@ import "./authcodeinput.scss";
 // Liibrary Imports
 import * as React from 'react';
 import { useState } from 'react';
-import { Typography, Button, Stack, TextField, Snackbar } from "@mui/material";
-import MuiAlert from '@mui/material/Alert';
+import { Typography, Button, Stack, TextField } from "@mui/material";
+import { NotificationManager } from 'react-notifications';
 
 // API imports
 import axios from '../../../../api/axios';
-
-const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
 
 export default function AuthCodeInput() {
 
@@ -25,9 +20,6 @@ export default function AuthCodeInput() {
   localStorage.removeItem('login:first_name');
 
   // Define constants
-  const [resendMessageOpen, setResendMessageOpen] = useState(false);    // Whether or not the verification resend notification is open
-  const [formatMessageOpen, setFormatMessageOpen] = useState(false);    // Whether or not the auth code format error notification is open
-  const [errorMessageOpen, setErrorMessageOpen] = useState(false);      // Whether or not the error message is open
   const [authCode, setAuthCode] = useState("");                         // Current value of the auth code textfield
   const [submitEnable, setSubmitEnable] = useState(false);              // Whether or not the submit button is enabled
 
@@ -39,7 +31,7 @@ export default function AuthCodeInput() {
   function resendCode(num) {
       console.log("Texting: " + num);
       axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-      .then(setResendMessageOpen(true));
+      .then(NotificationManager.success("to " + num, "Code resent!"));
   }
 
   /**
@@ -49,45 +41,6 @@ export default function AuthCodeInput() {
   function enableSubmit() {
     setSubmitEnable(authCode.length === 6);
   }
-
-  /**
-   * Sets resendMessageOpen to false on msg close
-   * @param {Event} event the event that triggered this function
-   * @param {String} reason the reason for closure
-   * @returns {State} resendMessageOpen set to false
-   */
-  const handleResendMessageClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-      setResendMessageOpen(false);
-  };
-
-  /**
-  * Sets errorMessageOpen to false on msg close
-  * @param {Event} event the event that triggered this function
-  * @param {String} reason the reason for closure
-  * @returns {State} errorMessageOpen set to false
-  */
-  const handleErrorMessageClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setErrorMessageOpen(false);
-  };
-
-  /**
-  * Sets formatMessageOpen to false on msg close
-  * @param {Event} event the event that triggered this function
-  * @param {String} reason the reason for closure
-  * @returns {State} formatMessageOpen set to false
-  */
-  const handleFormatMessageClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setFormatMessageOpen(false);
-  };
 
   /**
    * Set the value of authCode to textfield value on change
@@ -115,11 +68,11 @@ export default function AuthCodeInput() {
         if (authStatus === "approved") {
           window.location = "/login/authentication/fetch-user";
         } else {
-          setErrorMessageOpen(true);
+          NotificationManager.error("Authentication code does not match!", "Error!")
         }
       });
     } else {
-      setFormatMessageOpen(true);
+      NotificationManager.error("Invalid format!", "Error!");
     }
   }
 
@@ -153,21 +106,6 @@ export default function AuthCodeInput() {
             </Button>
         </Stack>
       </div>
-      <Snackbar open={resendMessageOpen} autoHideDuration={6000} onClose={handleResendMessageClose}>
-        <Alert onClose={handleResendMessageClose} severity="success" sx={{ width: '100%' }}>
-          We've sent another verification code to {phoneNumber}!
-        </Alert>
-      </Snackbar>
-      <Snackbar open={formatMessageOpen} autoHideDuration={6000} onClose={handleFormatMessageClose}>
-        <Alert onClose={handleFormatMessageClose} severity="error" sx={{ width: '100%' }}>
-          Authentication code not formatted correctly!
-        </Alert>
-      </Snackbar>
-      <Snackbar open={errorMessageOpen} autoHideDuration={6000} onClose={handleErrorMessageClose}>
-        <Alert onClose={handleErrorMessageClose} severity="error" sx={{ width: '100%' }}>
-          Authentication code invalid!
-        </Alert>
-      </Snackbar>
     </div>
   )
 }

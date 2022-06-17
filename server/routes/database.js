@@ -11,73 +11,76 @@ router.use(express.json());
 
 async function findUserById(id) {
   return new Promise((resolve, reject) => {
+    if (!id) { reject(new Error("No ID provided!")); }
     console.log("Searching DB for all users where [id] = [" + id + "]");
-  const queryString = "SELECT * FROM " + dbManager.USERTABLE + " WHERE id IN ('" + id + "');";
-  console.log("QueryString: " + queryString);
-  const client = new Client({
-    connectionString: dbManager.CONNECTIONSTRING,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  });
-  client.connect();
-  client.query(queryString, (err, res) => {
-    client.end();
-    if (err) {
-      console.log(err.detail);
-      reject(err.detail);
-    }
-    console.log("Fetch complete.")
-    resolve(res.rows[0]);
-  });
+    const queryString = "SELECT * FROM " + dbManager.USERTABLE + " WHERE id IN ('" + id + "');";
+    console.log("QueryString: " + queryString);
+    const client = new Client({
+      connectionString: dbManager.CONNECTIONSTRING,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+    client.connect();
+    client.query(queryString, (err, res) => {
+      client.end();
+      if (err) {
+        console.log(err.detail);
+        reject(err.detail);
+      }
+      console.log("Fetch complete.")
+      resolve(res.rows[0]);
+    });
   });
 }
 
 async function findHashByUserId(id) {
   return new Promise((resolve, reject) => {
+    if (!id) { reject(new Error("No ID provided!")); }
     console.log("Fetching hash for user where [id] = [" + id + "]");
-  const queryString = "SELECT password FROM " + dbManager.USERTABLE + " WHERE id IN ('" + id + "');";
-  console.log("QueryString: " + queryString);
-  const client = new Client({
+    const queryString = "SELECT password FROM " + dbManager.USERTABLE + " WHERE id IN ('" + id + "');";
+    console.log("QueryString: " + queryString);
+    const client = new Client({
     connectionString: dbManager.CONNECTIONSTRING,
     ssl: {
       rejectUnauthorized: false
     }
-  });
-  client.connect();
-  client.query(queryString, (err, res) => {
-    client.end();
-    if (err) {
-      console.log(err.detail);
-      reject(err.detail);
-    }
-    console.log("Fetch complete.")
-    resolve(res.rows[0]);
-  });
+    });
+    client.connect();
+    client.query(queryString, (err, res) => {
+      client.end();
+      if (err) {
+        console.log(err.detail);
+        reject(err.detail);
+      }
+      console.log("Fetch complete.")
+      resolve(res.rows[0]);
+    });
   });
 }
 
 async function findUserByPhoneNumber(num) {
   return new Promise((resolve, reject) => {
+    if (!num) { reject(new Error("No phone number provided!")); }
     console.log("Searching DB for all users where [phone_number] = [" + num + "]");
-  const queryString = "SELECT * FROM " + dbManager.USERTABLE + " WHERE phone_number LIKE '" + num + "';";
-  console.log("QueryString: " + queryString);
-  const client = new Client({
-    connectionString: dbManager.CONNECTIONSTRING,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  });
-  client.connect();
-  client.query(queryString, (err, res) => {
-    client.end();
-    if (err) {
-      console.log(err.detail);
-      reject(err.detail);
-    }
-    console.log("Fetch complete.")
-    resolve(res.rows[0]);
-  });
+    const queryString = "SELECT * FROM " + dbManager.USERTABLE + " WHERE phone_number LIKE '" + num + "';";
+    console.log("QueryString: " + queryString);
+    const client = new Client({
+      connectionString: dbManager.CONNECTIONSTRING,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+    client.connect();
+    client.query(queryString, (err, res) => {
+      client.end();
+      if (err) {
+        console.log(err.detail);
+        reject(err.detail);
+      }
+      console.log("Fetch complete.")
+      resolve(res.rows[0]);
+    });
   });
 }
 
