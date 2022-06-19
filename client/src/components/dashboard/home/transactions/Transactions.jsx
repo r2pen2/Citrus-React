@@ -108,26 +108,28 @@ function createTransactionCards( transactions, numDisplayed ) {
     }
 
     return transactions.map((t, tIndex) => 
-    <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title}>
-        <CardActionArea>
-            <CardContent>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Stack direction="row" alignItems="center" component="div" id={tIndex}>
-                        <Avatar 
-                            sx={{ marginRight: "10px"}} 
-                            alt={t.user}
-                            src={t.user === "Oliver Risch" ? OliverPic : LeoPic}
-                        />
-                        <Stack direction="column" alignItems="left" align="left">
-                            <Typography variant="h6" component="div">{t.title}</Typography>
-                            <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{formatDate(t.date)}</Typography>
+    <li key="{tIndex}">
+        <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title}>
+            <CardActionArea>
+                <CardContent>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                        <Stack direction="row" alignItems="center" component="div" id={tIndex}>
+                            <Avatar 
+                                sx={{ marginRight: "10px"}} 
+                                alt={t.user}
+                                src={t.user === "Oliver Risch" ? OliverPic : LeoPic}
+                            />
+                            <Stack direction="column" alignItems="left" align="left">
+                                <Typography variant="h6" component="div">{t.title}</Typography>
+                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{formatDate(t.date)}</Typography>
+                            </Stack>
                         </Stack>
+                        <Typography align="right" variant="h5" component="div">{formatter.format(t.amount)}</Typography>
                     </Stack>
-                    <Typography align="right" variant="h5" component="div">{formatter.format(t.amount)}</Typography>
-                </Stack>
-            </CardContent>
-        </CardActionArea>
-    </Card>
+                </CardContent>
+            </CardActionArea>
+        </Card>
+    </li>
     )
 }
 
@@ -135,7 +137,9 @@ export default function Transactions({ recentTransactions, numDisplayed }) {
     return (
         <div>
             <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Transactions ❯</Typography>
-            { createTransactionCards(recentTransactions, numDisplayed) }
+            <ul>
+                { createTransactionCards(recentTransactions, numDisplayed) }
+            </ul>
         </div>
         );
 }
