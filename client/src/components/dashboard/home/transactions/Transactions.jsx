@@ -108,8 +108,7 @@ function createTransactionCards( transactions, numDisplayed ) {
     }
 
     return transactions.map((t, tIndex) => 
-    <li key="{tIndex}">
-        <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title}>
+        <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title} key="{t.id}"> 
             <CardActionArea>
                 <CardContent>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -129,7 +128,6 @@ function createTransactionCards( transactions, numDisplayed ) {
                 </CardContent>
             </CardActionArea>
         </Card>
-    </li>
     )
 }
 
@@ -137,9 +135,7 @@ export default function Transactions({ recentTransactions, numDisplayed }) {
     return (
         <div>
             <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Transactions ❯</Typography>
-            <ul>
-                { createTransactionCards(recentTransactions, numDisplayed) }
-            </ul>
+            { createTransactionCards(recentTransactions, numDisplayed) }
         </div>
         );
 }
