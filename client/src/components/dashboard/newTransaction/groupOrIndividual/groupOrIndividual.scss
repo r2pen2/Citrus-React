@@ -1,0 +1,8 @@
+.button {
+    padding: 10px;
+    margin-bottom: 10px;
+    &:global(.MuiButton-containedPrimary) {
+        border: 2px solid red;
+        background-color: red;
+      }
+  }
