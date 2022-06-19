@@ -92,14 +92,15 @@ export default function PasswordEntry({ setUserById }) {
     alignItems="center"
     display="flex"
     justifyContent="center"
+    data-testid="password-entry-wrapper"
     >
-      <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }}>
+      <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }} data-testid="password-entry-welcome-text">
           Welcome back to Citrus, {getFirstName()}!
       </Typography>
-      <TextField required type="password" id="password" label="Password" autoComplete='off' onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
+      <TextField required type="password" id="password" label="Password" autoComplete='off' onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} data-testid="password-input"/>
       <div className="login-next-button-container">
         <Stack direction="column">
-          <Button variant="contained" component="div" onClick={() => handleSubmit()} disabled={!submitEnable}>
+          <Button variant="contained" component="div" onClick={() => handleSubmit()} disabled={!submitEnable} data-testid="password-entry-submit-button">
             Submit
           </Button>
         </Stack>
