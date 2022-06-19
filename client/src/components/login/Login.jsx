@@ -161,8 +161,9 @@ function setUserById(id) {
 function doPageSetup(user) {
   if (user) {
     window.location = "/dashboard";
+  } else {
+    document.title = "Citrus | Login";
   }
-  document.title = "Citrus | Login";
 }
 
 export default function Login({ user }) {
@@ -171,11 +172,11 @@ export default function Login({ user }) {
   doPageSetup(user)
 
   return (
-    <div className="background-controller">
+    <div className="background-controller" data-testid="login-background-controller">
       <Paper className="login-content" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
         <Stack spacing={3} alignItems="center" justifyContent="center">
           <div className="login-logo-container"> 
-            <img src={Logo} alt="logo" className="logo"></img>
+            <img src={Logo} alt="logo" className="logo" data-testid="login-logo"></img>
           </div>
           <Routes>
             <Route path="/" element={<PhoneInput />}/>
