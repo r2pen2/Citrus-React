@@ -4,22 +4,25 @@ import Transactions from '../../../components/dashboard/home/transactions/Transa
 
 const testTransactions = [
     {
-      title: "Halloween Party",
-      date: "2021-10-31",
-      amount: 63.45,
-      user: "James Hetfield"
+        id: 1,
+        title: "Halloween Party",
+        date: "2021-10-31",
+        amount: 63.45,
+        user: "James Hetfield"
     },
     {
-      title: "Drinks",
-      date: "2022-03-8",
-      amount: 53.25,
-      user: "Tom Araya"
+        id: 2,
+        title: "Drinks",
+        date: "2022-03-8",
+        amount: 53.25,
+        user: "Tom Araya"
     },
     {
-      title: "Burrito Bowl",
-      date: "2022-03-10",
-      amount: 53.25,
-      user: "Dave Mustaine"
+        id: 3,
+        title: "Burrito Bowl",
+        date: "2022-03-10",
+        amount: 53.25,
+        user: "Dave Mustaine"
     },
   ]
 
