@@ -174,7 +174,7 @@ Testing React components is rather simple. Add a "data-testid" value to the comp
 
 All of the documentation you should need is at (this)[https://github.com/testing-library/react-testing-library] link.
 
-The only little hiccup is that components containing routes must be surrounded by a Router in the test. Here's an example of how to do that:
+Components containing routes must be surrounded by a Router in the test. Here's an example of how to do that:
 ```js
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -187,6 +187,8 @@ test("Authentication wrapper renders", () => {
     expect(authentication).toBeVisible();
 });
 ```
+
+The only little hiccup is that tests run in a simuated browser with some limitations. The window.location cannot actually be changed in the browser, so links will have to be tested a little more creatively.
 
 ## Server Manual
 
