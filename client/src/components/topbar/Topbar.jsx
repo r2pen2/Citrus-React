@@ -43,6 +43,15 @@ export default function Topbar( { user }) {
         setAnchorElement(null);
     }
 
+    /**
+     * Redirect user and close account menu
+     * @param {Strings} destination new url
+     */
+    function redirect(destination) {
+        handleClose();
+        window.location = destination;
+    }
+
     // Choose which topbar to display— signedIn is displays user information
     if (signedIn) {
         // Signed in, so set user vars and return detail topbar
@@ -68,28 +77,28 @@ export default function Topbar( { user }) {
                                 <Menu 
                                 data-testid="account-menu"
                                 id="menu-appbar" 
-                                anchorEl={anchorElement} 
+                                anchorEl={anchorElement}
                                 anchorOrigin={ 
                                     { 
-                                        vertical: "top", 
-                                        horizontal: "right"
+                                        vertical: "bottom", 
+                                        horizontal: "left"
                                     }
                                 }
                                 keepMounted
                                 transformOrigin={
                                     {
-                                        vertical: "top",
-                                        horizontal: "right"
+                                        vertical: "bottom",
+                                        horizontal: "left"
                                     }
                                 }
                                 open={open}
                                 onClose={() => handleClose()}
                                 >
-                                    <MenuItem onClick={() => handleClose()}>
+                                    <MenuItem onClick={() => redirect("/user")}>
                                         My Profile
                                     </MenuItem>
-                                    <MenuItem onClick={() => handleClose()}>
-                                        My Account
+                                    <MenuItem onClick={() => redirect("/user/settings")}>
+                                        Settings
                                     </MenuItem>
                                 </Menu>
                                 <Tooltip title="Notifications">
