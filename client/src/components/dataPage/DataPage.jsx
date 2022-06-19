@@ -47,7 +47,6 @@ function renderPageData(data) {
 }
 
 export default function DataPage({ data }) {
-  console.log(data)
   return (
     <div className="data-page" data-testid={data.pageTitle}>
       <Typography variant="h2" marginTop="50px" gutterBottom={true} data-testid="data-page-title">{data.pageTitle}</Typography>

@@ -32,11 +32,11 @@ export default function FetchUser() {
     }
 
   return (
-    <div className="fetching-container">
-        <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
+    <div className="fetching-container" data-testid="fetch-container">
+        <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }} data-testid="fetch-text">
           Fetching user data...
         </Typography>
-        <CircularProgress color="inherit" marginTop="60px"/>
+        <CircularProgress color="inherit" marginTop="60px" data-testid="fetch-spinner"/>
     </div>
   )
 }
