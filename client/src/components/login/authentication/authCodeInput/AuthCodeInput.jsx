@@ -1,5 +1,5 @@
 // Style imports
-import "./authcodeinput.scss";
+import "./authCodeInput.scss";
 
 // Liibrary Imports
 import * as React from 'react';
@@ -85,21 +85,21 @@ export default function AuthCodeInput() {
   }
 
   return (
-    <div>  
+    <div data-testid="auth-code-input">  
       <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
           Enter your 6 digit authentication code:
       </Typography>
-      <div className="auth-input-container">
+      <div className="auth-input-container" data-testid="auth-input-container">
           <TextField autoFocus autoComplete='off' id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={handleOnChange} onBlur={handleOnChange}/>
       </div>
       <div className="try-again-button-container">
-        <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => resendCode(phoneNumber)}>
+        <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => resendCode(phoneNumber)} data-testid="try-again-button">
           Didn't receive your verification code?
         </Button>
       </div>
       <div className="login-next-button-container">
         <Stack direction="column">
-            <Button variant="contained" component="div" onClick={checkAuthCode} disabled={!submitEnable}>
+            <Button variant="contained" component="div" onClick={checkAuthCode} disabled={!submitEnable} data-testid="login-next-button">
               Submit
             </Button>
         </Stack>

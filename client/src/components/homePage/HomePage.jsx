@@ -1,5 +1,5 @@
 // Style imports
-import "./homepage.scss";
+import "./homePage.scss";
 
 // Component imports
 import LandingPage from "./landingPage/LandingPage";

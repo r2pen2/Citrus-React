@@ -35,4 +35,15 @@ describe("Topbar function tests", () => {
         const userExistsInLS = localStorage.getItem('user') ? true : false;
         expect(userExistsInLS).toBe(false);
     });
+
+    test('Clicking account button opens menu', () => {
+        const testUser = { firstName: "John", lastName: "Doe" }
+        localStorage.setItem('user', JSON.stringify(testUser));
+        render(<Topbar user={testUser} />);
+        const accountButton = screen.getByTestId("account-button");
+        const accoutMenu = screen.queryByTestId("account-menu");
+        expect(accoutMenu).not.toBeVisible();
+        fireEvent.click(accountButton);
+        expect(accoutMenu).toBeVisible();
+    });
 });

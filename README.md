@@ -165,6 +165,31 @@ function handleEvent(event) {
 }
 ```
 
+### Testing
+Client tests are located in the /\__tests__ directory.
+
+Tests should be surrounded by a describe(), and individual tests should have descriptive names.
+
+Testing React components is rather simple. Add a "data-testid" value to the component that you would like to be able to reference from a test (or not, depending on how you want to query your component in testing) and then use one of the various queries to get that component as a constant in your test.
+
+All of the documentation you should need is at (this)[https://github.com/testing-library/react-testing-library] link.
+
+Components containing routes must be surrounded by a Router in the test. Here's an example of how to do that:
+```js
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import Authentication from '../../../components/login/authentication/Authentication';
+import { BrowserRouter as Router } from "react-router-dom";
+
+test("Authentication wrapper renders", () => {
+    render(<Router><Authentication setUserById={() => {}}/></Router>);
+    const authentication = screen.getByTestId("authentication-wrapper");
+    expect(authentication).toBeVisible();
+});
+```
+
+The only little hiccup is that tests run in a simuated browser with some limitations. The window.location cannot actually be changed in the browser, so links will have to be tested a little more creatively.
+
 ## Server Manual
 
 ### Express

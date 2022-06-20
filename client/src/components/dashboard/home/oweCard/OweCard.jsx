@@ -1,5 +1,5 @@
 // Style imports
-import "./owecard.scss";
+import "./oweCard.scss";
 
 // Library imports
 import {
