@@ -2,13 +2,7 @@
 import "./groupOrOneTime.scss";
 
 // Library imports
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 
 // Component imports
 import BinaryChoice from "../binaryChoice/BinaryChoice";
@@ -27,7 +21,7 @@ export default function GroupOrOneTimeBox() {
           <BinaryChoice side="right" text="One-time"></BinaryChoice>
         </Stack>
         <Stack direction="row" spacing={5}>
-          <
+          <Typography>test</Typography>
         </Stack>
       </Stack>
     </div>
