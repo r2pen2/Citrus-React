@@ -1,5 +1,5 @@
 // Style imports
-import "./newuserform.scss";
+import "./newUserForm.scss";
 
 // Library imports
 import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";
@@ -71,7 +71,7 @@ export default function NewUserForm({ setUserById }) {
    */
   function renderHelloMessage() {
     return (
-      <div>
+      <div data-testid="new-user-message">
         <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
           {helloMsg.header}
         </Typography>
@@ -176,18 +176,18 @@ export default function NewUserForm({ setUserById }) {
   }
 
   return (
-      <Stack component="form" sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }} noValidate autoComplete="off" alignItems="center" display="flex" justifyContent="center">
+      <Stack component="form" sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }} noValidate autoComplete="off" alignItems="center" display="flex" justifyContent="center" data-testid="new-user-form-wrapper">
         { renderHelloMessage() }
         <Box>
-          <TextField autoFocus required id="first-name" label="First Name" onChange={e => setFirstName(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} />
-          <TextField required id="last-name" label="Last Name" onChange={e => setLastName(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} />
+          <TextField autoFocus required id="first-name" label="First Name" onChange={e => setFirstName(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} data-testid="first-name-input"/>
+          <TextField required id="last-name" label="Last Name" onChange={e => setLastName(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} data-testid="last-name-input"/>
         </Box>
         <Box>
-          <TextField required id="password" label="Password" type="password" onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
-          <TextField required id="password-confirm" label="Confirm Password" type="password" onChange={e => setPasswordConfirm(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} />
+          <TextField required id="password" label="Password" type="password" onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} data-testid="password-input"/>
+          <TextField required id="password-confirm" label="Confirm Password" type="password" onChange={e => setPasswordConfirm(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} data-testid="password-confirmation-input" />
         </Box>
         { generateFailMessages() }
-        <Button variant="contained" component="div" onClick={() => handleSubmit()} disabled={!submitEnable} sx={{ opacity: submitOpacity }}>
+        <Button variant="contained" component="div" onClick={() => handleSubmit()} disabled={!submitEnable} sx={{ opacity: submitOpacity }} data-testid="submit-button">
           Create my Account!
         </Button>
       </Stack>

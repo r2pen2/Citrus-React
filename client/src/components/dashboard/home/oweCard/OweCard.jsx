@@ -1,5 +1,9 @@
 // Style imports
+<<<<<<< HEAD
 import "./owecard.scss";
+=======
+import "./oweCard.scss"
+>>>>>>> a1f6366396e2398403e6ef643cd1be04465d5929
 
 // Library imports
 import {

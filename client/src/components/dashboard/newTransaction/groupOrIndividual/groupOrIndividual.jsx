@@ -49,7 +49,7 @@ export default function GroupOrIndividualBox() {
 
         <Card
           variant="outlined"
-          sx={getCardStyle("right")}
+          sx={getCardStyle("left")}
           data-testid="group-or-individual-testid"
         >
           <CardActionArea>

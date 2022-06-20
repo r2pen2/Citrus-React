@@ -14,11 +14,13 @@ export default function Authentication({ setUserById }) {
     }
   
     return (
-        <Routes>
-            <Route path="/" element={<AuthCodeInput />} />
-            <Route path="/check-auth" element={<AuthCodeInput />} />
-            <Route path="/fetch-user" element={<FetchUser />} />
-            <Route path="/password-entry" element={<PasswordEntry setUserById={setUserById}/>}/>
-        </Routes>
+        <div className="authentication" data-testid="authentication-wrapper">
+            <Routes>
+                <Route path="/" element={<AuthCodeInput />} />
+                <Route path="/check-auth" element={<AuthCodeInput />} />
+                <Route path="/fetch-user" element={<FetchUser />} />
+                <Route path="/password-entry" element={<PasswordEntry setUserById={setUserById}/>}/>
+            </Routes>
+        </div>
     )
 }

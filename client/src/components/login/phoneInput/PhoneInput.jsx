@@ -1,5 +1,5 @@
 // Style imports
-import "./phoneinput.scss";
+import "./phoneInput.scss";
 
 // Library imports
 import * as React from 'react';
@@ -105,18 +105,18 @@ export default function PhoneInput() {
     }
 
     return (
-        <div>  
+        <div data-testid="phone-input-container">  
             <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
                 Enter your phone number:
             </Typography>
             <div className="phone-input-container">
-                <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit} value={localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : ""}/>
+                <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit} value={localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : ""} data-testid="mui-phone-input"/>
             </div>
             <div className="login-next-button-container">
                 <Stack direction="column">
-                    <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)} disabled={!submitEnable}>Text Me</Button>
+                    <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)} disabled={!submitEnable} data-testid="text-me-button">Text Me</Button>
                     <div className="call-me-button-container">
-                        <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)} disabled={!submitEnable}>Or receive a phone call instead</Button>
+                        <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)} disabled={!submitEnable} data-testid="call-me-button">Or receive a phone call instead</Button>
                     </div>
                 </Stack>
             </div>

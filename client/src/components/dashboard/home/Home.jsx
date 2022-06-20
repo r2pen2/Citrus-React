@@ -29,18 +29,21 @@ export default function Home({ user }) {
 // Being stored there.
 const recentTransactionsExample = [
     {
+      id: 1,
       title: "Halloween Party",
       date: "2021-10-31",
       amount: 63.45,
       user: "Oliver Risch"
     },
     {
+      id: 2,
       title: "Drinks",
       date: "2022-03-8",
       amount: 53.25,
       user: "Oliver Risch"
     },
     {
+      id: 3,
       title: "Burrito Bowl",
       date: "2022-03-10",
       amount: 53.25,

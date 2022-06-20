@@ -1,5 +1,5 @@
 // Style imports
-import "./bottomnav.scss"
+import "./bottomNav.scss"
 
 // Library imports
 import { useState } from 'react';
