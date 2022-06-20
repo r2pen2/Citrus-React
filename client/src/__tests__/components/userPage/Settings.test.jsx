@@ -48,4 +48,22 @@ describe("Settings function tests", () => {
         render(<Settings user={testUser}/>);
         expect(document.title).toEqual("Citrus | Settings");
     });
+
+    test('Active element starts as #account', () => {
+        render(<Settings user={testUser}/>);
+        const account = screen.getByTestId("drawer-item-Account");
+        expect(account).toHaveClass("active");
+    });
+
+    test('Active element changes on click', () => {
+        render(<Settings user={testUser}/>);
+        const account = screen.getByTestId("drawer-item-Account");
+        const appearance = screen.getByTestId("drawer-item-Appearance");
+        fireEvent.click(account);
+        expect(account).toHaveClass("active");
+        expect(appearance).not.toHaveClass("active");
+        fireEvent.click(appearance);
+        expect(appearance).toHaveClass("active");
+        expect(account).not.toHaveClass("active");
+    });
 });

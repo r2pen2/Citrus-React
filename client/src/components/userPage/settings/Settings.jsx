@@ -18,7 +18,20 @@ export default function Settings({ user }) {
         document.title = "Citrus | Settings";
     }
 
-    const [hash, setHash] = useState("");           // The current window.location.hash (for displaying the correct page)
+    /**
+     * Sets hash constant to the hash value or account if none
+     * @returns {String} the hash to initialize page with
+     */
+    function getInitialHash() {
+        if (window.location.hash === "") {
+            window.location.hash = "#account";
+            return window.location.hash;
+        } else {
+            return window.location.hash;
+        }
+    }
+
+    const [hash, setHash] = useState(getInitialHash());           // The current window.location.hash (for displaying the correct page)
 
     /**
      * Set url hash to menu item path
@@ -28,9 +41,19 @@ export default function Settings({ user }) {
         setHash(path);
         window.location.hash = path;
     }
+
+    /**
+     * Checks whether a menu item should be considered active based on the hash
+     * @param {String} text text for menu item
+     * @returns {Boolean} whether or not the item is "selected"
+     */
+    function isElementActive(text) {
+        const formattedHash = hash.toLowerCase().substring(1);
+        const formattedText = text.toLowerCase();
+        return formattedHash === formattedText;
+    }
     
     function getSettingsPageByHash(currentUser) {
-        console.log(hash);
         switch (hash) {
             case "#account":
                 return <div>Account</div>;
@@ -93,7 +116,7 @@ export default function Settings({ user }) {
                     </ListItem>
                     <Divider />
                     {menuItems.map(item => (
-                      <ListItem button key={item.text} onClick={() => handleDrawerClick(item.path)} data-testid={"drawer-item-" + item.text}>
+                      <ListItem button key={item.text} onClick={() => handleDrawerClick(item.path)} data-testid={"drawer-item-" + item.text} className={isElementActive(item.text) ? "active" : ""}>
                         <ListItemIcon>{item.icon}</ListItemIcon>
                         <ListItemText primary={item.text} />
                       </ListItem>  
