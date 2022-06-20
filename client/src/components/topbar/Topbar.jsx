@@ -2,7 +2,8 @@
 import "./topbar.scss"
 
 // Library imports
-import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar } from "@mui/material"
+import { useState } from 'react'
+import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, MenuItem, Menu } from "@mui/material"
 import profilePic from "../../assets/images/pfp/testProfilePic.png"
 
 // Component Imports
@@ -21,6 +22,34 @@ export default function Topbar( { user }) {
     function logOut() {
         localStorage.removeItem('user');
         window.location = "/home"
+    }
+
+    // Element to anchor account menu to
+    const [anchorElement, setAnchorElement] = useState(null);
+    const open = Boolean(anchorElement); // Menu will be open if we've set an anchor element
+
+    /**
+     * Sets anchor element to the clicked element
+     * @param {React.MouseEvent<HTMLElement>} event mouse click event
+     */
+    function handleMenu(event) {
+        setAnchorElement(event.currentTarget);
+    }
+
+    /**
+     * Set anchor element to null on menu close
+     */
+    function handleClose() {
+        setAnchorElement(null);
+    }
+
+    /**
+     * Redirect user and close account menu
+     * @param {Strings} destination new url
+     */
+    function redirect(destination) {
+        handleClose();
+        window.location = destination;
     }
 
     // Choose which topbar to display— signedIn is displays user information
@@ -42,9 +71,36 @@ export default function Topbar( { user }) {
                                 <Typography variant="subtitle1" component="div" marginTop="4px">
                                     {fullName}
                                 </Typography>
-                                <Tooltip title={fullName}>
+                                <IconButton aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={(e) => handleMenu(e)} color="inherit" data-testid="account-button">
                                     <Avatar alt={fullName} src={profilePic} sx={{ border: "1px solid black"}}/>
-                                </Tooltip>
+                                </IconButton>
+                                <Menu 
+                                data-testid="account-menu"
+                                id="menu-appbar" 
+                                anchorEl={anchorElement}
+                                anchorOrigin={ 
+                                    { 
+                                        vertical: "bottom", 
+                                        horizontal: "left"
+                                    }
+                                }
+                                keepMounted
+                                transformOrigin={
+                                    {
+                                        vertical: "bottom",
+                                        horizontal: "left"
+                                    }
+                                }
+                                open={open}
+                                onClose={() => handleClose()}
+                                >
+                                    <MenuItem onClick={() => redirect("/user")}>
+                                        My Profile
+                                    </MenuItem>
+                                    <MenuItem onClick={() => redirect("/user/settings")}>
+                                        Settings
+                                    </MenuItem>
+                                </Menu>
                                 <Tooltip title="Notifications">
                                     <IconButton size="medium" edge="start" color="inherit" aria-label="notifications-icon">
                                         <NotificationsIcon />
