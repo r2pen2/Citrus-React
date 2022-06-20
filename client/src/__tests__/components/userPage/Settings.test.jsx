@@ -22,8 +22,6 @@ describe("Settings render tests", () => {
         render(<Settings user={testUser}/>);
         const drawer = screen.getByTestId("settings-drawer");
         expect(drawer).toBeVisible();
-        const title = screen.getByTestId("settings-drawer-title");
-        expect(drawer).toContainElement(title);
     });
 
     test('All drawer items render', () => {
