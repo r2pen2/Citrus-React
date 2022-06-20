@@ -26,6 +26,10 @@ $drawer-width: 200px;
             .drawer-paper {
                 width: $drawer-width;
             }
+
+            .active {
+                background: #f4f4f4
+            }
         }
     }
 }
