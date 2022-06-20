@@ -1,5 +1,5 @@
 // Style imports
-import "./userpage.scss";
+import "./userPage.scss";
 
 // Library imports
 import { Route, Routes } from "react-router-dom";

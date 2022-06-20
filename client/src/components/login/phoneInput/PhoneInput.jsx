@@ -1,5 +1,5 @@
 // Style imports
-import "./phoneinput.scss";
+import "./phoneInput.scss";
 
 // Library imports
 import * as React from 'react';

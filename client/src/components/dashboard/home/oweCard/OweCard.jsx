@@ -1,5 +1,5 @@
 // Style imports
-import "./owecard.scss"
+import "./oweCard.scss"
 
 // Library imports
 import { Card, CardContent, CardActionArea, Typography, Stack } from '@mui/material';

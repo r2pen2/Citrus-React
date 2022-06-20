@@ -1,5 +1,5 @@
 // Style imports
-import "./newuserform.scss";
+import "./newUserForm.scss";
 
 // Library imports
 import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";

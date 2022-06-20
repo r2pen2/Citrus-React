@@ -1,5 +1,5 @@
 // Style imports
-import "./passwordentry.scss";
+import "./passwordEntry.scss";
 
 // Library imports
 import { Stack, TextField, Typography, Button } from "@mui/material";

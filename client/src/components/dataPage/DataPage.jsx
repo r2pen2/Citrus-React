@@ -1,5 +1,5 @@
 // Style imports
-import "./datapage.scss"
+import "./dataPage.scss"
 
 // Library Imports
 import { Typography, Stack } from '@mui/material'

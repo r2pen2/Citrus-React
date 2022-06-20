@@ -1,5 +1,5 @@
 // Style imports
-import "./landingpage.scss"
+import "./landingPage.scss"
 
 // Library imports
 import React from 'react'

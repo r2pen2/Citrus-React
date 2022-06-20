@@ -1,5 +1,5 @@
 // Style imports
-import "./authcodeinput.scss";
+import "./authCodeInput.scss";
 
 // Liibrary Imports
 import * as React from 'react';

@@ -1,5 +1,5 @@
 // Style imports
-import "./fetchuser.scss";
+import "./fetchUser.scss";
 
 // Library imports
 import { Typography, CircularProgress} from '@mui/material/';
