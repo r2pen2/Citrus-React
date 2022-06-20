@@ -109,17 +109,21 @@ export default function Settings({ user }) {
                 
                 { /* list / links */ }
                 <List>
-                    <ListItem key="title">
-                        <Typography variant="h5" data-testid="settings-drawer-title">
-                            User Settings
-                        </Typography>
-                    </ListItem>
-                    <Divider />
                     {menuItems.map(item => (
-                      <ListItem button key={item.text} onClick={() => handleDrawerClick(item.path)} data-testid={"drawer-item-" + item.text} className={isElementActive(item.text) ? "active" : ""}>
-                        <ListItemIcon>{item.icon}</ListItemIcon>
-                        <ListItemText primary={item.text} />
-                      </ListItem>  
+                    <div>
+                        <ListItem 
+                            button 
+                            key={item.text} 
+                            onClick={() => handleDrawerClick(item.path)} 
+                            data-testid={"drawer-item-" + item.text} 
+                            className={isElementActive(item.text) ? "active" : ""}
+                            display="flex"
+                        >
+                          <ListItemIcon>{item.icon}</ListItemIcon>
+                          <ListItemText primary={item.text} />
+                        </ListItem>  
+                        <Divider variant="middle" />
+                    </div>
                     ))}
                 </List>
 
