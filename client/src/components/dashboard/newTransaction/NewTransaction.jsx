@@ -5,7 +5,7 @@ import "./newtransaction.scss";
 import { Route, Routes } from "react-router-dom";
 
 // Component imports
-import GroupOrOneTimeBox from "./groupOrIndividual/GroupOrOneTime";
+import GroupOrOneTimeBox from "./groupOrOneTime/GroupOrOneTime";
 // import Transactions from "./transactions/Transactions";
 // import Analytics from "./analytics/Analytics";
 
