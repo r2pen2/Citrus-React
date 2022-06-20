@@ -2,7 +2,7 @@
 import "./settings.scss"
 
 // Library imports
-import { ListItem, Typography, Drawer, List, Paper, Divider, ListItemIcon, ListItemText } from "@mui/material";
+import { ListItem, Drawer, List, Paper, Divider, ListItemIcon, ListItemText } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import SecurityIcon from '@mui/icons-material/Security';
