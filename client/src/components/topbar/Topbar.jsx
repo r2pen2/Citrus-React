@@ -1,15 +1,15 @@
 // Style imports
-import "./topbar.scss"
+import "./topbar.scss";
 
 // Library imports
-import { useState } from 'react'
-import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, MenuItem, Menu } from "@mui/material"
-import profilePic from "../../assets/images/pfp/testProfilePic.png"
+import { useState } from 'react';
+import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, MenuItem, Menu } from "@mui/material";
 
 // Component Imports
-import BlackLogo from "./assets/LogoBlack.png"
+import profilePic from "../../assets/images/pfp/testProfilePic.png";
+import BlackLogo from "./assets/LogoBlack.png";
 import LogoutIcon from '@mui/icons-material/Logout';
-import NotificationsIcon from "@mui/icons-material/Notifications"
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 export default function Topbar( { user }) {
 

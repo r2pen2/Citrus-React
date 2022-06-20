@@ -9,6 +9,9 @@ import SecurityIcon from '@mui/icons-material/Security';
 import LinkIcon from '@mui/icons-material/Link';
 import { useState } from 'react';
 
+// Component imports
+import AccountTab from './AccountTab.jsx';
+
 export default function Settings({ user }) {
 
     // Redirect or set document title
@@ -56,7 +59,7 @@ export default function Settings({ user }) {
     function getSettingsPageByHash(currentUser) {
         switch (hash) {
             case "#account":
-                return <div>Account</div>;
+                return <AccountTab user={currentUser} />;
             case "#appearance":
                 return <div>Appearance</div>;
             case "#connections":
