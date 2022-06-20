@@ -1,5 +1,5 @@
 // Style imports
-import "./questionbox.scss";
+import "./questionBox.scss";
 
 // Library imports
 import { Card } from "@mui/material";
