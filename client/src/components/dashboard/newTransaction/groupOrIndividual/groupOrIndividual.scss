@@ -6,3 +6,45 @@
         background-color: red;
       }
   }
+  .binary-block {
+    // variant: "h5";
+    display: block;
+    width: 30%;
+    background-color: #04AA6D;
+    padding: 14px 28px;
+    font-size:36px;
+    background-color: "red";
+    // cursor: pointer;
+    // text-align: center;
+  }
+
+  .binary-text {
+    font-size: 72px;
+  }
+
+//   .MuiCard {
+//     background-color: #20b2aa;
+// }
+
+//   y variant="h5" component="div" color="black"
+
+//   .right-block {
+//     display: block;
+//     width: 30%;
+//     background-color: #EEEEEE;
+//     padding: 14px 28px;
+//     font-size: 36px;
+//     cursor: pointer;
+//     text-align: center;
+//   }
+
+  .block {
+    display: block;
+    width: 50%;
+    border: none;
+    // background-color: #04AA6D;
+    padding: 14px 28px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+  }

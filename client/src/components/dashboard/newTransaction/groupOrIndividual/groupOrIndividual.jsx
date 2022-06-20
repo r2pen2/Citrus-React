@@ -1,8 +1,16 @@
 // Style imports
-import "./grouporindividual.scss";
+// import "./grouporindividual.scss";
 
 // Library imports
-import { Box, Button, Stack } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 // Component imports
 import QuestionBox from "../questionBox/QuestionBox";
@@ -28,35 +36,67 @@ export default function GroupOrIndividualBox() {
     <div>
       <Stack
         direction="row"
-        spacing={3}
+        spacing={5}
         marginTop="50px"
-        marginLeft="75px"
-        marginRight="75px"
-        paddingBottom="10px"
-        alignItems="center"
         justifyContent="center"
       >
-        <Button>Group</Button>
-        <Button>Individual</Button>
+        <Card sx={getLeftCardStyle} variant="outlined">
+          <CardActionArea>
+            <CardContent>
+              <Typography>Indi</Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+        <Card sx={getRightCardStyle()} variant="outlined">
+          <CardActionArea>
+            <CardContent>
+              <Typography>hello</Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
       </Stack>
     </div>
   );
 }
-// <Card>
-//   <CardContent>
-//     <Typography variant="h5" component="div">
-//       be{bull}nev{bull}o{bull}lent
-//     </Typography>
-//     <Typography sx={{ mb: 1.5 }} color="text.secondary">
-//       adjective
-//     </Typography>
-//     <Typography variant="body2">
-//       well meaning and kindly.
-//       <br />
-//       {'"a benevolent smile"'}
-//     </Typography>
-//   </CardContent>
-//   <CardActions>
-//     <Button size="small">Learn More</Button>
-//   </CardActions>
-// </Card>
+
+function getLeftCardStyle() {
+  return {
+    backgroundColor: "rgba(176, 200, 86, 0.8)",
+    width: "40%",
+    borderRadius: "15px",
+    marginBottom: "10px",
+  };
+}
+
+function getRightCardStyle() {
+  return {
+    backgroundColor: "rgba(234, 66, 54, 0.5)",
+    width: "40%",
+    borderRadius: "15px",
+    marginBottom: "10px",
+  };
+}
+
+function getCardStyle() {
+  return {
+    widthi: "60%",
+    borderRadius: "5px",
+    marginBottom: "10px",
+  };
+}
+// {
+/* <div data-testid={"owe-card-" + (credit.positive ? "positive" : "negative")}>
+<Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>{credit.positive ? "Owe Me" : "I Owe"} ❯</Typography>
+<Card variant="outlined" sx={getCardStyle(credit)} data-testid="owe-card-card-element">
+    <CardActionArea>
+        <CardContent>
+            <Typography variant="h5" component="div" color="white">{formatter.format(credit.amount)}</Typography>
+                <Stack direction="row" alignItems="center">
+                    <GroupsIcon fontSize="large" sx={{ color: "white" }}/>
+                    <Typography variant="subtitle1" component="div" marginLeft="5px" marginTop="2px" color="white">To {credit.numPeople} people</Typography>
+                </Stack>
+        </CardContent>
+    </CardActionArea>
+</Card>
+</div> */
+// }
