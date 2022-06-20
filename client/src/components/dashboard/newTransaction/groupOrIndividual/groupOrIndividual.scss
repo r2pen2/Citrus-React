@@ -18,6 +18,20 @@
     // text-align: center;
   }
 
+.binary-choice-button {
+    width: "40%";
+    border-radius: "15px";
+    margin-bottom: "10px";
+    &.left {
+        background-color: "rgba(176, 200, 86, 0.8)";
+    }
+    &.right { 
+        background-color: "rgba(234, 66, 54, 0.5)";
+    }
+}
+
+.binary-block-left
+
   .binary-text {
     font-size: 72px;
   }

@@ -8,28 +8,13 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Divider,
   Stack,
   Typography,
 } from "@mui/material";
 
 // Component imports
 import QuestionBox from "../questionBox/QuestionBox";
-
-// const GroupOrIndividual = (
-//   <div>
-//     <h1>Question text</h1>
-//     <h5>some more text</h5>
-//   </div>
-// );
-
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
-  >
-    •
-  </Box>
-);
 
 export default function GroupOrIndividualBox() {
   return (
@@ -40,23 +25,44 @@ export default function GroupOrIndividualBox() {
         marginTop="50px"
         justifyContent="center"
       >
-        <Card sx={getLeftCardStyle} variant="outlined">
+        <Card
+          variant="outlined"
+          sx={getLeftCardStyle()}
+          data-testid="owe-card-card-element"
+        >
           <CardActionArea>
             <CardContent>
-              <Typography>Indi</Typography>
+              <Stack direction="row" alignItems="center">
+                <Typography
+                  variant="subtitle1"
+                  component="div"
+                  marginLeft="5px"
+                  marginTop="2px"
+                  color="white"
+                >
+                  Group
+                </Typography>
+              </Stack>
             </CardContent>
           </CardActionArea>
         </Card>
-        <Card sx={getRightCardStyle()} variant="outlined">
-          <CardActionArea>
-            <CardContent>
-              <Typography>hello</Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
+
+        <div className="binary-choice-button left">
+          <Typography>Group</Typography>
+        </div>
       </Stack>
     </div>
   );
+}
+
+{
+  /* <Card className="binary-choice-button right" variant="outlined">
+<CardActionArea>
+  <CardContent>
+    <Typography>Individual</Typography>
+  </CardContent>
+</CardActionArea>
+</Card> */
 }
 
 function getLeftCardStyle() {
