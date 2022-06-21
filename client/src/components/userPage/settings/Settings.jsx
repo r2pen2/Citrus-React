@@ -75,22 +75,22 @@ export default function Settings({ user }) {
     const menuItems = [
         {
             text: 'Account',
-            icon: <AccountCircleIcon color="secondary"/>,
+            icon: <AccountCircleIcon color="primary"/>,
             path: '#account'
         },
         {
             text: 'Appearance',
-            icon: <ColorLensIcon color="secondary"/>,
+            icon: <ColorLensIcon color="primary"/>,
             path: '#appearance'
         },
         {
             text: 'Connections',
-            icon: <LinkIcon color="secondary"/>,
+            icon: <LinkIcon color="primary"/>,
             path: '#connections'
         },
         {
             text: 'Security',
-            icon: <SecurityIcon color="secondary"/>,
+            icon: <SecurityIcon color="primary"/>,
             path: '#security'
         },
         
