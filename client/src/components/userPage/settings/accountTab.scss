@@ -6,17 +6,43 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+
+    .page-title {
+        align-self: flex-start;
+    }
 
     .avatar-container {
         margin-top: 10px;
         display: flex;
+        width: 50%;
         flex-direction: row;
         justify-content: center;
+        align-items: center;
+
+        .col {
+            flex: .33;
+        }
 
         .avatar {
             border: 1px solid gray;
             width: 100px;
             height: auto;
+        }
+
+        .edit-pfp {
+
+            .upload-button {
+                margin-left: 10px;
+                height: 30%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+    
+                .upload-text {
+                    margin-left: 5px;
+                }
+            }
         }
     }
 
@@ -62,6 +88,19 @@
             display: flex;
             flex-direction: row;
             justify-content: center;
+        }
+    }
+}
+
+.avatar-button {
+
+    .text {
+        opacity: 0;
+    }
+
+    &:hover {
+        .text {
+            opacity: 1;
         }
     }
 }
