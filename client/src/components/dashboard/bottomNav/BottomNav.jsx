@@ -14,7 +14,14 @@ export default function BottomNav({ user }) {
   const active = user ? true : false;
 
   // Define constants
-  const [value, setValue] = useState('home'); // Which element on the bottom is highlighted
+  const [value, setValue] = useState(getValueFromWindowLocation()); // Which element on the bottom is highlighted
+
+  function getValueFromWindowLocation() {
+    const location = window.location.toString();
+    const lastSlash = location.lastIndexOf('/');
+    const afterSlash = location.substring(lastSlash + 1);
+    return afterSlash;
+  }
 
   /**
    * Sets active bottomnav element to the one that was just clicked 
@@ -38,7 +45,7 @@ export default function BottomNav({ user }) {
           />
           <BottomNavigationAction
             label="New Transaction"
-            value="new"
+            value="new-transaction"
             href="/dashboard/new-transaction"
             icon={<AddBoxIcon fontSize="large" sx={{ color: "#B0C856" }}/>}
           />
