@@ -2,7 +2,7 @@
 import "./groupOrOneTime.scss";
 
 // Library imports
-import { Stack } from "@mui/material";
+import { Fab, Stack } from "@mui/material";
 
 // Component imports
 import MultipleChoiceButton from "../MultipleChoiceButton";
@@ -15,7 +15,6 @@ export default function GroupOrOneTimeBox() {
 
   return (
     <div>
-      <Fap></Fap>
       <Stack spacing={5} marginTop="100px" alignItems="center">
         {/* <Stack
           direction="row"
