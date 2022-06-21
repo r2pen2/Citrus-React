@@ -1,6 +1,5 @@
-import * as React from "react";
-
 // Library imports
+import * as React from "react";
 import {
   Button,
   Card,
@@ -10,6 +9,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
+  Fab,
 } from "@mui/material";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 
@@ -26,18 +26,9 @@ export default function InfoButton({ informationText }) {
 
   return (
     <div>
-      <Card
-        variant="outlined"
-        sx={[getSize(), getCardStyle()]}
-        data-testid="nav-arrow-testid"
-        onClick={handleClickOpen}
-      >
-        <CardActionArea sx={getSize()}>
-          <CardContent>
-            <QuestionMarkIcon></QuestionMarkIcon>
-          </CardContent>
-        </CardActionArea>
-      </Card>
+      <Fab color="" aria-label="help-button" onClick={handleClickOpen}>
+        <QuestionMarkIcon></QuestionMarkIcon>
+      </Fab>
       <Dialog open={open} onClose={handleClose}>
         <DialogContent>
           <DialogContentText>{informationText}</DialogContentText>
@@ -50,16 +41,35 @@ export default function InfoButton({ informationText }) {
   );
 }
 
+//     variant="outlined"
+//     sx={[getSize(), getStyle()]}
+//     data-testid="info-button-testid"
+
 function getSize() {
   return {
-    width: "20vw",
-    height: "10vh",
+    // width: "10vw",
+    // height: "10vh",
   };
 }
-function getCardStyle() {
+
+function getStyle() {
   return {
-    backgroundColor: "grey",
-    borderRadius: "50px",
-    textAlign: "center",
+    // backgroundColor: "grey",
+    // borderRadius: "100px",
+    // textAlign: "center",
   };
 }
+
+<Fab
+  //     variant="outlined"
+  //     sx={[getSize(), getStyle()]}
+  //     data-testid="info-button-testid"
+  aria-label="help-button"
+  //     onClick={handleClickOpen}
+>
+  {/* <CardActionArea sx={getSize()}> */}
+  {/* <CardContent> */}
+  <QuestionMarkIcon></QuestionMarkIcon>
+  {/* </CardContent> */}
+  {/* </CardActionArea> */}
+</Fab>;

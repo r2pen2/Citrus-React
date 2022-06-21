@@ -1,12 +1,12 @@
 // Library imports
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
-export default function BinaryChoice({ side, text }) {
+export default function MultipleChoiceButton({ order, text }) {
   return (
     <div>
       <Card
         variant="outlined"
-        sx={[getSize(), getCardStyle({ side })]}
+        sx={[getSize(), getStyle(), getColor({ order })]}
         data-testid="group-or-individual-testid"
         aria-label="Testing testing"
       >
@@ -17,8 +17,8 @@ export default function BinaryChoice({ side, text }) {
               component="div"
               marginLeft="5px"
               marginTop="2px"
-              color="white"
-              sx={{ fontSize: 36 }}
+              // color="white"
+              sx={{ fontSize: 18 }}
             >
               {text}
             </Typography>
@@ -36,16 +36,22 @@ export default function BinaryChoice({ side, text }) {
 
 function getSize() {
   return {
-    width: "40vw",
-    height: "40vh",
+    width: "50vw",
+    height: "12vh",
   };
 }
-function getCardStyle({ side }) {
-  const bgColor =
-    side === "left" ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)";
+function getColor({ order }) {
+  const yellow = "#F2DF56";
+  const red = "#F4A09A";
+  const green = "#B0C856";
+  const bgColor = order === 1 ? yellow : order === 2 ? red : green;
   return {
     backgroundColor: bgColor,
-    borderRadius: "50px",
+  };
+}
+function getStyle() {
+  return {
+    borderRadius: "20px",
     textAlign: "center",
   };
 }

@@ -2,10 +2,10 @@
 import "./groupOrOneTime.scss";
 
 // Library imports
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 
 // Component imports
-import BinaryChoice from "../BinaryChoice";
+import MultipleChoiceButton from "../MultipleChoiceButton";
 import NavArrow from "../NavArrow";
 import InfoButton from "../InfoButton";
 
@@ -15,16 +15,16 @@ export default function GroupOrOneTimeBox() {
 
   return (
     <div>
-      <Stack spacing={5}>
-        <Stack
+      <Stack spacing={5} marginTop="70px" alignItems="center">
+        {/* <Stack
           direction="row"
           spacing={5}
           marginTop="50px"
           justifyContent="center"
-        >
-          <BinaryChoice side="left" text="Group"></BinaryChoice>
-          <BinaryChoice side="right" text="One-time"></BinaryChoice>
-        </Stack>
+        > */}
+        <MultipleChoiceButton order={1} text="Group"></MultipleChoiceButton>
+        <MultipleChoiceButton order={2} text="One-time"></MultipleChoiceButton>
+        {/* </Stack> */}
         <Stack direction="row" spacing={5} justifyContent="center">
           <NavArrow direction="back"></NavArrow>
           <InfoButton informationText={informationText}></InfoButton>
