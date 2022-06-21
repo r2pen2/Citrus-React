@@ -15,7 +15,8 @@ export default function GroupOrOneTimeBox() {
 
   return (
     <div>
-      <Stack spacing={5} marginTop="70px" alignItems="center">
+      <Fap></Fap>
+      <Stack spacing={5} marginTop="100px" alignItems="center">
         {/* <Stack
           direction="row"
           spacing={5}
@@ -25,11 +26,11 @@ export default function GroupOrOneTimeBox() {
         <MultipleChoiceButton order={1} text="Group"></MultipleChoiceButton>
         <MultipleChoiceButton order={2} text="One-time"></MultipleChoiceButton>
         {/* </Stack> */}
-        <Stack direction="row" spacing={5} justifyContent="center">
-          <NavArrow direction="back"></NavArrow>
-          <InfoButton informationText={informationText}></InfoButton>
-          <NavArrow direction="forward"></NavArrow>
-        </Stack>
+        {/* <Stack direction="row" spacing={5} justifyContent="center"> */}
+        {/* <NavArrow direction="back"></NavArrow> */}
+        <InfoButton informationText={informationText}></InfoButton>
+        {/* <NavArrow direction="forward"></NavArrow> */}
+        {/* </Stack> */}
       </Stack>
     </div>
   );
