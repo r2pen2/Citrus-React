@@ -1,1 +1,10 @@
-// Nothing to see here!
+.owe-card-container {
+    border: 1px solid red;
+
+    .card-wrapper {
+        border: 1px solid green;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+}
