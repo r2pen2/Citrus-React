@@ -3,29 +3,26 @@ import { createTheme } from "@mui/material/styles";
 export default createTheme({
   palette: {
     type: "light",
-    primary: {
+    citrusGreen: {
       main: "#B0C856",
     },
-    asset: {
-      main: "#B0C856",
-    },
-    liability: {
-      main: "#F4A09A",
-    },
-    secondary: {
+    citrusYellow: {
       main: "#F2DF56",
     },
-    error: {
-      main: "#fc240f",
+    citrusOrange: {
+      main: "#FDB90F",
     },
-    success: {
-      main: "#a7ce41",
+    citrusPink: {
+      main: "#F4A09A",
+    },
+    citrusRed: {
+      main: "#EA4236",
+    },
+    citrusTan: {
+      main: "#FDB90F33",
     },
     background: {
       main: "#FFFFFF",
-    },
-    info: {
-      main: "#f2e42d",
     },
   },
 });
