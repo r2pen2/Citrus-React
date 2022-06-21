@@ -18,7 +18,7 @@ export default function MultipleChoiceButton({ order, text }) {
               marginLeft="5px"
               marginTop="2px"
               // color="white"
-              sx={{ fontSize: 18 }}
+              sx={{ fontSize: 24 }}
             >
               {text}
             </Typography>
@@ -36,8 +36,8 @@ export default function MultipleChoiceButton({ order, text }) {
 
 function getSize() {
   return {
-    width: "50vw",
-    height: "12vh",
+    width: "55vw",
+    height: "10vh",
   };
 }
 function getColor({ order }) {

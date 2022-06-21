@@ -6,7 +6,7 @@ import { Fab, Stack } from "@mui/material";
 
 // Component imports
 import MultipleChoiceButton from "../MultipleChoiceButton";
-import NavArrow from "../NavArrow";
+import BackButton from "../BackButton";
 import InfoButton from "../InfoButton";
 
 export default function GroupOrOneTimeBox() {
@@ -15,6 +15,9 @@ export default function GroupOrOneTimeBox() {
 
   return (
     <div>
+      <div style={{ marginLeft: "30px", marginTop: "50px" }}>
+        <BackButton></BackButton>
+      </div>
       <Stack spacing={5} marginTop="100px" alignItems="center">
         {/* <Stack
           direction="row"
@@ -27,6 +30,7 @@ export default function GroupOrOneTimeBox() {
         {/* </Stack> */}
         {/* <Stack direction="row" spacing={5} justifyContent="center"> */}
         {/* <NavArrow direction="back"></NavArrow> */}
+        <div style={{ height: "10px" }}></div>
         <InfoButton informationText={informationText}></InfoButton>
         {/* <NavArrow direction="forward"></NavArrow> */}
         {/* </Stack> */}

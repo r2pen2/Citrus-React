@@ -2,9 +2,6 @@
 import * as React from "react";
 import {
   Button,
-  Card,
-  CardActionArea,
-  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
@@ -44,36 +41,3 @@ export default function InfoButton({ informationText }) {
     </div>
   );
 }
-
-//     variant="outlined"
-//     sx={[getSize(), getStyle()]}
-//     data-testid="info-button-testid"
-
-function getSize() {
-  return {
-    // width: "10vw",
-    // height: "10vh",
-  };
-}
-
-function getStyle() {
-  return {
-    // backgroundColor: "grey",
-    // borderRadius: "100px",
-    // textAlign: "center",
-  };
-}
-
-<Fab
-  //     variant="outlined"
-  //     sx={[getSize(), getStyle()]}
-  //     data-testid="info-button-testid"
-  aria-label="help-button"
-  //     onClick={handleClickOpen}
->
-  {/* <CardActionArea sx={getSize()}> */}
-  {/* <CardContent> */}
-  <QuestionMarkIcon></QuestionMarkIcon>
-  {/* </CardContent> */}
-  {/* </CardActionArea> */}
-</Fab>;
