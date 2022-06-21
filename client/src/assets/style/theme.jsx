@@ -1,22 +1,31 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 export default createTheme({
   palette: {
-    type: 'light',
+    type: "light",
     primary: {
-      main: '#a7ce41',
+      main: "#B0C856",
+    },
+    asset: {
+      main: "#B0C856",
+    },
+    liability: {
+      main: "#F4A09A",
     },
     secondary: {
-      main: '#2196f3',
+      main: "#F2DF56",
     },
     error: {
-      main: '#fc240f',
+      main: "#fc240f",
     },
     success: {
-      main: '#a7ce41',
+      main: "#a7ce41",
+    },
+    background: {
+      main: "#FFFFFF",
     },
     info: {
-      main: '#f2e42d',
+      main: "#f2e42d",
     },
   },
 });

@@ -26,7 +26,11 @@ export default function InfoButton({ informationText }) {
 
   return (
     <div>
-      <Fab color="" aria-label="help-button" onClick={handleClickOpen}>
+      <Fab
+        color="background"
+        aria-label="help-button"
+        onClick={handleClickOpen}
+      >
         <QuestionMarkIcon></QuestionMarkIcon>
       </Fab>
       <Dialog open={open} onClose={handleClose}>
