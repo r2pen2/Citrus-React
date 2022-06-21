@@ -30,12 +30,6 @@
     }
 }
 
-.binary-block-left
-
-  .binary-text {
-    font-size: 72px;
-  }
-
 //   .MuiCard {
 //     background-color: #20b2aa;
 // }
@@ -52,13 +46,20 @@
 //     text-align: center;
 //   }
 
-  .block {
-    display: block;
-    width: 50%;
-    border: none;
-    // background-color: #04AA6D;
-    padding: 14px 28px;
-    font-size: 16px;
-    cursor: pointer;
-    text-align: center;
-  }
+.block {
+  display: block;
+  width: 50%;
+  border: none;
+  // background-color: #04AA6D;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+
+
+.binary-button {
+    width: "40vw";
+    height: "70vh";    
+}
