@@ -2,8 +2,8 @@
 import "./accountTab.scss";
 
 // Library imports
-import { Typography, Badge, TextField, Avatar, Button, IconButton } from "@mui/material";
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import { Typography, TextField, Avatar, Button, IconButton } from "@mui/material";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 // Component imports
 import profilePic from "../../../assets/images/pfp/testProfilePic.png"
@@ -11,31 +11,31 @@ import profilePic from "../../../assets/images/pfp/testProfilePic.png"
 export default function AccountTab({ user }) {
   return (
     <div className="account-content" data-testid="account-content">
-        <Typography variant="h5">
-            Account Settings
+        <Typography variant="h5" className="page-title">
+            Account Settings ❯
         </Typography>
         <div className="avatar-container">
-            <IconButton aria-label="account of current user" data-testid="settings-avatar">
-                <Badge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    badgeContent={<EditRoundedIcon/>}
-                    color="secondary">
-                    <Avatar className="avatar" alt={user.fullName} src={profilePic} size="large"/>
-                </Badge>
+            <div className="col"></div>
+            <IconButton className="col avatar-button" aria-label="account of current user" data-testid="settings-avatar">
+                <Avatar className="avatar" alt={user.fullName} src={profilePic} size="large"/>
             </IconButton>
+            <div className="col edit-pfp">
+                <Button className="upload-button" variant="outlined" color="primary">
+                    <CloudUploadIcon/>
+                </Button>
+            </div>
         </div>
         <div className="fields-container">
             <div className="field two-fields">
                 <div className="left">
-                    <TextField id="first-name" label="First Name" data-testid="first-name-input"/>
+                    <TextField id="first-name" label="First Name" data-testid="first-name-input" value={user.firstName}/>
                 </div>
                 <div className="right">
-                    <TextField id="last-name" label="Last Name" data-testid="last-name-input"/>
+                    <TextField id="last-name" label="Last Name" data-testid="last-name-input" value={user.lastName}/>
                 </div>
             </div>
             <div className="field long-field">
-                <TextField id="phone-number" label="Phone Number" data-testid="phone-number-input"/>
+                <TextField id="phone-number" label="Phone Number" data-testid="phone-number-input" value={user.phoneNumber}/>
             </div>
             <div className="field long-field">
                 <TextField id="address" label="Address" data-testid="address-input"/>
