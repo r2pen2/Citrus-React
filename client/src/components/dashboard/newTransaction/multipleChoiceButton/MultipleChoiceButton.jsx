@@ -1,7 +1,7 @@
 // Library imports
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
-export default function MultipleChoiceButton({ order, text }) {
+export default function MultipleChoiceButton({ order, text, href }) {
   return (
     <div>
       <Card
@@ -10,14 +10,13 @@ export default function MultipleChoiceButton({ order, text }) {
         data-testid="group-or-individual-testid"
         aria-label="Testing testing"
       >
-        <CardActionArea sx={getSize()}>
+        <CardActionArea sx={getSize()} href={href}>
           <CardContent textAlign="center">
             <Typography
               variant="subtitle1"
               component="div"
               marginLeft="5px"
               marginTop="2px"
-              // color="white"
               sx={{ fontSize: 24 }}
             >
               {text}
