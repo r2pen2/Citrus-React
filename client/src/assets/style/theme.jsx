@@ -4,10 +4,10 @@ export default createTheme({
   palette: {
     type: "light",
     citrusGreen: {
-      main: "#B0C856",
+      main: "#B0C856CC",
     },
     citrusYellow: {
-      main: "#F2DF56",
+      main: "#F2DF56CC",
     },
     citrusOrange: {
       main: "#FDB90F",
@@ -22,7 +22,13 @@ export default createTheme({
       main: "#FDB90F33",
     },
     background: {
-      main: "#FFFFFF",
+      main: "#E5E5E5",
+    },
+    primary: {
+      main: "#B0C856CC",
+    },
+    secondary: {
+      main: "#FDB90F",
     },
   },
 });
