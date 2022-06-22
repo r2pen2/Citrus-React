@@ -5,9 +5,9 @@ import "./groupOrOneTime.scss";
 import { Fab, Stack } from "@mui/material";
 
 // Component imports
-import MultipleChoiceButton from "../MultipleChoiceButton";
-import BackButton from "../BackButton";
-import InfoButton from "../InfoButton";
+import MultipleChoiceButton from "../multipleChoiceButton/MultipleChoiceButton";
+import BackButton from "../backButton/BackButton";
+import InfoButton from "../infoButton/InfoButton";
 
 export default function GroupOrOneTimeBox() {
   const informationText =

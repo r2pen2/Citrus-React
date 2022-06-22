@@ -41,7 +41,7 @@ function getSize() {
   };
 }
 function getColor({ order }) {
-  const yellow = "#F2DF56";
+  const yellow = "#EEEEEE";
   const red = "#F4A09A";
   const green = "#B0C856";
   const bgColor = order === 1 ? yellow : order === 2 ? red : green;
