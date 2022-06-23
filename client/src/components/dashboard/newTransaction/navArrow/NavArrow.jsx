@@ -34,7 +34,7 @@ function getSize() {
 }
 function getCardStyle() {
   return {
-    backgroundColor: "grey",
+    backgroundColor: "white",
     borderRadius: "50px",
     textAlign: "center",
   };

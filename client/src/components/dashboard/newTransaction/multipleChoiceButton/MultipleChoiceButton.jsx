@@ -1,5 +1,6 @@
 // Library imports
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
+// import theme from "../../../assets/style/theme";
 
 export default function MultipleChoiceButton({ order, text, href }) {
   return (
@@ -8,7 +9,8 @@ export default function MultipleChoiceButton({ order, text, href }) {
         variant="outlined"
         sx={[getSize(), getStyle(), getColor({ order })]}
         data-testid="group-or-individual-testid"
-        aria-label="Testing testing"
+        // aria-label="Testing testing"
+        backgroundColor="primary.main"
       >
         <CardActionArea sx={getSize()} href={href}>
           <CardContent textAlign="center">
@@ -40,10 +42,10 @@ function getSize() {
   };
 }
 function getColor({ order }) {
-  const yellow = "#EEEEEE";
-  const red = "#F4A09A";
-  const green = "#B0C856";
-  const bgColor = order === 1 ? yellow : order === 2 ? red : green;
+  const yellow = "citrusYellow.main";
+  const pink = "citrusPink.main";
+  const green = "citrusGreen.main";
+  const bgColor = order === 1 ? yellow : order === 2 ? pink : green;
   return {
     backgroundColor: bgColor,
   };
