@@ -13,17 +13,15 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 export default function BackButton({ priorHref }) {
   return (
     <div>
-      <Fab
-        color="background"
+      <Button
         aria-label="back-button"
-        style={{ border: "none" }}
-        // onClick={() => {
-        //   this.props.goBack();
-        // }}
-        href={priorHref}
+        sx={{ backgroundColor: "white", color: "black" }}
+        onClick={() => {
+          this.props.goBack();
+        }}
       >
-        <ArrowBackIosIcon></ArrowBackIosIcon>
-      </Fab>
+        <ArrowBackIosIcon color="black"></ArrowBackIosIcon>
+      </Button>
     </div>
   );
 }

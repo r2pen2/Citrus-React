@@ -23,18 +23,21 @@ export default function InfoButton({ informationText }) {
 
   return (
     <div>
-      <Fab
-        color="background"
+      <Button
+        sx={{ backgroundColor: "white", color: "black" }}
         aria-label="help-button"
         onClick={handleClickOpen}
+        size="large"
       >
         <QuestionMarkIcon></QuestionMarkIcon>
-      </Fab>
+      </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogContent>
           <DialogContentText>{informationText}</DialogContentText>
           <DialogActions>
-            <Button onClick={handleClose}>Close</Button>
+            <Button sx={{ color: "black" }} size="large" onClick={handleClose}>
+              Close
+            </Button>
           </DialogActions>
         </DialogContent>
       </Dialog>
