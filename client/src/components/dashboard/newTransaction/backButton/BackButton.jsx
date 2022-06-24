@@ -16,9 +16,7 @@ export default function BackButton({ priorHref }) {
       <Button
         aria-label="back-button"
         sx={{ backgroundColor: "white", color: "black" }}
-        onClick={() => {
-          this.props.goBack();
-        }}
+        href={priorHref}
       >
         <ArrowBackIosIcon color="black"></ArrowBackIosIcon>
       </Button>

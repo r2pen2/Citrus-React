@@ -17,10 +17,11 @@ export default function GroupOrOneTimeBox() {
 
   return (
     <div>
-      <div style={{ marginLeft: "30px", marginTop: "50px" }}>
+      <div style={{ marginTop: "50px" }}></div>
+      <div style={{ marginLeft: "30px", marginTop: "2vh" }}>
         <BackButton priorHref={priorPage}></BackButton>
       </div>
-      <Stack spacing={5} marginTop="100px" alignItems="center">
+      <Stack spacing={5} marginTop="5vh" alignItems="center">
         <MultipleChoiceButton
           order={1}
           text="Group"
@@ -31,7 +32,7 @@ export default function GroupOrOneTimeBox() {
           text="One-time"
           href={nextPage}
         ></MultipleChoiceButton>
-        <div style={{ height: "10px" }}></div>
+        <div style={{ height: "1vh" }}></div>
         <InfoButton informationText={informationText}></InfoButton>
       </Stack>
     </div>
