@@ -7,8 +7,6 @@ import { Route, Routes } from "react-router-dom";
 // Component imports
 import GroupOrOneTimeBox from "./groupOrOneTime/GroupOrOneTime";
 import TransactionOrIouBox from "./transactionOrIou/TransactionOrIou";
-// import Transactions from "./transactions/Transactions";
-// import Analytics from "./analytics/Analytics";
 
 export default function NewTransaction({ user }) {
   return (
