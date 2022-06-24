@@ -22,16 +22,22 @@ export default function InfoButton({ informationText }) {
   };
 
   return (
-    <div>
+    <div data-testid="info-button-container">
       <Button
         sx={{ backgroundColor: "white", color: "black" }}
         aria-label="help-button"
         onClick={handleClickOpen}
         size="large"
+        data-testid="info-button-button"
       >
         <QuestionMarkIcon></QuestionMarkIcon>
       </Button>
-      <Dialog open={open} onClose={handleClose} maxWidth="xs">
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="xs"
+        data-testid="info-button-dialog"
+      >
         <DialogContent>
           <DialogContentText>{informationText}</DialogContentText>
           <DialogActions sx={{ justifyContent: "center" }}>

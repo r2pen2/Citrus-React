@@ -6,25 +6,15 @@ import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
 export default function MultipleChoiceButton({ order, text, href }) {
   return (
-    <div className="owe-card-container">
+    <div data-testid="multiple-choice-button-container">
       <Card
-        // className="large-choice-card"
         variant="outlined"
         sx={[getSize(), getStyle(), getColor({ order })]}
-        data-testid="multiple-choice-button-testid"
+        data-testid="multiple-choice-button-card"
       >
         <CardActionArea href={href} sx={getActionAreaStyle()}>
           <CardContent sx={{ padding: "0px" }}>
-            <Typography
-              // variant="subtitle1"
-              // component="div"
-              // marginTop="2px"
-              // align="center"
-              // gutterBottom={true}
-              sx={{ fontSize: 24 }}
-            >
-              {text}
-            </Typography>
+            <Typography sx={{ fontSize: 24 }}>{text}</Typography>
           </CardContent>
         </CardActionArea>
       </Card>
