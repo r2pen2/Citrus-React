@@ -10,6 +10,7 @@ import BackButton from "../backButton/BackButton";
 import InfoButton from "../infoButton/InfoButton";
 
 export default function GroupOrOneTimeBox() {
+  const priorPage = "/dashboard";
   const nextPage = "/dashboard/new-transaction/transaction-or-iou";
   const informationText =
     'Select "Group" if this transaction is part of a group. Select "One-time" if not.';
@@ -17,7 +18,7 @@ export default function GroupOrOneTimeBox() {
   return (
     <div>
       <div style={{ marginLeft: "30px", marginTop: "50px" }}>
-        <BackButton priorHref="/dashboard"></BackButton>
+        <BackButton priorHref={priorPage}></BackButton>
       </div>
       <Stack spacing={5} marginTop="100px" alignItems="center">
         <MultipleChoiceButton

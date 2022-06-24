@@ -6,15 +6,18 @@ import { Route, Routes } from "react-router-dom";
 
 // Component imports
 import GroupOrOneTimeBox from "./groupOrOneTime/GroupOrOneTime";
+import TransactionOrIouBox from "./transactionOrIou/TransactionOrIou";
 // import Transactions from "./transactions/Transactions";
 // import Analytics from "./analytics/Analytics";
 
 export default function NewTransaction({ user }) {
   return (
-    <Routes>
-      <Route path="/" element={<GroupOrOneTimeBox />} />
-      <Route path="/group-or-one-time" element={<GroupOrOneTimeBox />} />
-      {/* <Route pate="/transaction-or-iou" element={<TransactionOrIouBox />} /> */}
-    </Routes>
+    <div>
+      <Routes>
+        {/* <Route path="/" element={<GroupOrOneTimeBox />} /> */}
+        <Route path="/group-or-one-time" element={<GroupOrOneTimeBox />} />
+        <Route path="/transaction-or-iou" element={<TransactionOrIouBox />} />
+      </Routes>
+    </div>
   );
 }
