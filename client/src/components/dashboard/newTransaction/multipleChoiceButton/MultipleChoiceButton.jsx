@@ -1,24 +1,26 @@
+// Style imports
+import multipleChoiceButton from "./multipleChoiceButton.scss";
+
 // Library imports
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
-// import theme from "../../../assets/style/theme";
 
 export default function MultipleChoiceButton({ order, text, href }) {
   return (
-    <div>
+    <div className="owe-card-container">
       <Card
+        // className="large-choice-card"
         variant="outlined"
         sx={[getSize(), getStyle(), getColor({ order })]}
-        data-testid="group-or-individual-testid"
-        // aria-label="Testing testing"
-        backgroundColor="primary.main"
+        data-testid="multiple-choice-button-testid"
       >
-        <CardActionArea sx={getSize()} href={href}>
-          <CardContent textAlign="center">
+        <CardActionArea href={href} sx={getActionAreaStyle()}>
+          <CardContent sx={{ padding: "0px" }}>
             <Typography
-              variant="subtitle1"
-              component="div"
-              marginLeft="5px"
-              marginTop="2px"
+              // variant="subtitle1"
+              // component="div"
+              // marginTop="2px"
+              // align="center"
+              // gutterBottom={true}
               sx={{ fontSize: 24 }}
             >
               {text}
@@ -30,15 +32,27 @@ export default function MultipleChoiceButton({ order, text, href }) {
   );
 }
 
-// onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}
-// const handleMouseOver = () => {
-//   set;
-// };
+function getContentStyle() {
+  return {
+    padding: "0px",
+  };
+}
+
+function getActionAreaStyle() {
+  return {
+    textAlign: "center",
+    paddingTop: "4.5vh",
+    paddingBottom: "5vh",
+    width: "50vw",
+    height: "12vh",
+  };
+}
 
 function getSize() {
   return {
-    width: "55vw",
-    height: "10vh",
+    width: "50vw",
+    height: "12vh",
+    // paddingTop: "50px",
   };
 }
 function getColor({ order }) {
@@ -53,6 +67,6 @@ function getColor({ order }) {
 function getStyle() {
   return {
     borderRadius: "20px",
-    textAlign: "center",
+    // textAlign: "center",
   };
 }
