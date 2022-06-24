@@ -31,10 +31,10 @@ export default function InfoButton({ informationText }) {
       >
         <QuestionMarkIcon></QuestionMarkIcon>
       </Button>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} maxWidth="xs">
         <DialogContent>
           <DialogContentText>{informationText}</DialogContentText>
-          <DialogActions>
+          <DialogActions sx={{ justifyContent: "center" }}>
             <Button sx={{ color: "black" }} size="large" onClick={handleClose}>
               Close
             </Button>
