@@ -1,19 +1,19 @@
 // Style imports
-import "./groupOrOneTime.scss";
+import "./transactionOrIou.scss";
 
 // Library imports
-import { Fab, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 
 // Component imports
-import MultipleChoiceButton from "../multipleChoiceButton/MultipleChoiceButton";
-import BackButton from "../backButton/BackButton";
-import InfoButton from "../infoButton/InfoButton";
+import MultipleChoiceButton from "../../templates/multipleChoiceButton/MultipleChoiceButton";
+import BackButton from "../../templates/backButton/BackButton";
+import InfoButton from "../../templates/infoButton/InfoButton";
 
-export default function GroupOrOneTimeBox() {
-  const priorPage = "/dashboard";
+export default function TransactionOrIouBox() {
+  const priorPage = "/dashboard/new-transaction/group-or-one-time";
   const nextPage = "/dashboard/new-transaction/transaction-or-iou";
   const informationText =
-    'Select "Group" if this transaction is part of a group. Select "One-time" if not.';
+    "A transaction involves 3 or more people; an IOU is between you and one other person.";
 
   return (
     <div>
@@ -24,12 +24,12 @@ export default function GroupOrOneTimeBox() {
       <Stack spacing={5} marginTop="5vh" alignItems="center">
         <MultipleChoiceButton
           order={1}
-          text="Group"
+          text="Transaction"
           href={nextPage}
         ></MultipleChoiceButton>
         <MultipleChoiceButton
           order={2}
-          text="One-time"
+          text="IOU"
           href={nextPage}
         ></MultipleChoiceButton>
         <div style={{ height: "1vh" }}></div>
