@@ -59,7 +59,7 @@ export default function Topbar( { user }) {
         return (
             <div className="topbar" data-testid="topbar-wrapper">
                 <div className="appbar-container" data-testid="user-topbar">
-                    <AppBar position="static" className="appbar">
+                    <AppBar className="appbar">
                         <Toolbar>
                             <IconButton size="large" edge="start" color="inherit" aria-label="logo" href="/home">
                                 <img src={BlackLogo} alt="logo" style={{width: "40px"}}></img>
@@ -122,7 +122,7 @@ export default function Topbar( { user }) {
         return (
             <div className="topbar" data-testid="topbar-wrapper">
                 <div className="appbar-container" data-testid="no-user-topbar">
-                    <AppBar position="static" className="appbar">
+                    <AppBar className="appbar">
                         <div className="topbar-logo-container">
                             <Toolbar>
                                 <IconButton size="large" edge="start" color="inherit" aria-label="logo" href="/home">
