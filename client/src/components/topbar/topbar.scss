@@ -7,16 +7,17 @@
 
 .topbar {
     width: 100%;
+    top: 0;
+    bottom: auto;
     height: 7vh;
     align-items: center;
     display: flex;
     justify-content: center;
 
     .appbar-container {
-        width: 98vw;
+        width: 100vw;
         
         .appbar {
-            margin-top: 10px;
         }
     }
 
