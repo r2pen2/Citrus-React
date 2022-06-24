@@ -14,7 +14,7 @@ export default function NewTransaction({ user }) {
   return (
     <div>
       <Routes>
-        {/* <Route path="/" element={<GroupOrOneTimeBox />} /> */}
+        <Route path="/" element={<GroupOrOneTimeBox />} />
         <Route path="/group-or-one-time" element={<GroupOrOneTimeBox />} />
         <Route path="/transaction-or-iou" element={<TransactionOrIouBox />} />
       </Routes>

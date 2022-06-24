@@ -41,7 +41,7 @@ export default function Dashboard({ user }) {
         <Route path="/" element={<Home user={user} />} />
         <Route path="/home" element={<Home user={user} />} />
         <Route
-          path="/new-transaction"
+          path="/new-transaction/*"
           element={<NewTransaction user={user} />}
         />
       </Routes>
