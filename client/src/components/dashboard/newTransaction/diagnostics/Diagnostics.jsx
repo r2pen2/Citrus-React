@@ -5,31 +5,43 @@ import "./diagnostics.scss";
 
 // Component imports
 import AffiliationQuestion from "./affiliationQuestion/AffiliationQuestion";
-import TypeQuestion from "./communalOrIou/CommunalOrIou";
+import TypeQuestion from "./typeQuestion/TypeQuestion";
 
 export default function Diagnostics({ user }) {
-  state = {
+  this.state = {
     step: 1,
     Affiliation: "",
     Type: "",
   };
 
   // go back to the previous step
-  prevStep = () => {
+  function prevStep() {
     const { step } = this.state;
     this.setState({ step: step - 1 });
-  };
+  }
 
   // proceed to the next step
-  nextStep = () => {
+  function nextStep() {
     const { step } = this.state;
     this.setState({ step: step + 1 });
-  };
+  }
 
   // handle input
-  handleChange = (input) => (e) => {
-    this.setState({ [input]: e.target.value });
-  };
+  function handleChange() {
+    (input) => {
+      (e) => {
+        this.setState({ [input]: e.target.value });
+      };
+    };
+  }
+
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  }
+
+  //   handleChange = (input) => (e) => {
+  //     this.setState({ [input]: e.target.value });
+  //   };
 
   //
   const { step } = this.state;

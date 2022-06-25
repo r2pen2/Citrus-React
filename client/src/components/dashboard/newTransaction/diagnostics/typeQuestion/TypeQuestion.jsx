@@ -1,5 +1,5 @@
 // Style imports
-import "./transactionOrIou.scss";
+import "./typeQuestion.scss";
 
 // Library imports
 import { Stack } from "@mui/material";

@@ -4,13 +4,29 @@ import multipleChoiceButton from "./multipleChoiceButton.scss";
 // Library imports
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
-export default function MultipleChoiceButton({ order, text, href }) {
+// order={oIndex}
+// text={option}
+// updateValue={handleChange("affiliation")}
+// nextStep={nextStep()}
+
+export default function MultipleChoiceButton({
+  order,
+  text,
+  updateValue,
+  nextStep,
+}) {
+  function handleClick() {
+    updateValue();
+    nextStep();
+  }
+
   return (
-    <div data-testid="multiple-choice-button-container">
+    <div data-testid="multiple-choice-button-container" onClick={handleClick()}>
       <Card
         variant="outlined"
         sx={[getSize(), getStyle(), getColor({ order })]}
         data-testid="multiple-choice-button-card"
+        onClick
       >
         <CardActionArea href={href} sx={getActionAreaStyle()}>
           <CardContent sx={{ padding: "0px" }}>

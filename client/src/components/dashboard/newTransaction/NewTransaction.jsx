@@ -6,8 +6,8 @@ import { Route, Routes } from "react-router-dom";
 
 // Component imports
 import Diagnostics from "./diagnostics/Diagnostics";
-import Iou from "./iou";
-import Communal from "./communal";
+import Iou from "./iou/Iou";
+import Communal from "./communal/Communal";
 
 export default function NewTransaction({ user }) {
   return (
