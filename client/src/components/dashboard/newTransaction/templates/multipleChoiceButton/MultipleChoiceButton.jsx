@@ -6,31 +6,27 @@ import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
 // order={oIndex}
 // text={option}
-// updateValue={handleChange("affiliation")}
-// nextStep={nextStep()}
+// valueKey="affiliation"
+// updateValue={this.props.updateValue}
+// nextStep={this.props.nextStep}
 
-export default function MultipleChoiceButton({
-  order,
-  text,
-  updateValue,
-  nextStep,
-}) {
+export default function MultipleChoiceButton() {
   function handleClick() {
-    updateValue();
-    nextStep();
+    this.props.updateValue(this.props.valueKey, this.props.text);
+    this.props.nextStep();
   }
 
   return (
     <div data-testid="multiple-choice-button-container" onClick={handleClick()}>
       <Card
         variant="outlined"
-        sx={[getSize(), getStyle(), getColor({ order })]}
+        sx={[getSize(), getStyle(), getColor(this.props.order)]}
         data-testid="multiple-choice-button-card"
         onClick
       >
-        <CardActionArea href={href} sx={getActionAreaStyle()}>
+        <CardActionArea sx={getActionAreaStyle()}>
           <CardContent sx={{ padding: "0px" }}>
-            <Typography sx={{ fontSize: 24 }}>{text}</Typography>
+            <Typography sx={{ fontSize: 24 }}>{this.props.text}</Typography>
           </CardContent>
         </CardActionArea>
       </Card>

@@ -9,11 +9,7 @@ import MultipleChoiceButton from "../../templates/multipleChoiceButton/MultipleC
 import BackButton from "../../templates/backButton/BackButton";
 import InfoButton from "../../templates/infoButton/InfoButton";
 
-export default function AffiliationQuestion({
-  nextStep,
-  handleChange,
-  values,
-}) {
+export default function AffiliationQuestion() {
   // const priorPage = "/dashboard";
   // const nextPage = "/dashboard/new-transaction/transaction-or-iou";
   const informationText =
@@ -40,8 +36,9 @@ export default function AffiliationQuestion({
           <MultipleChoiceButton
             order={oIndex}
             text={option}
-            updateValue={handleChange("affiliation")}
-            nextStep={nextStep()}
+            valueKey="affiliation"
+            updateValue={this.props.updateValue}
+            nextStep={this.props.nextStep}
           />
         ))}
         {/* <MultipleChoiceButton

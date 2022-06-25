@@ -2,69 +2,69 @@
 import "./diagnostics.scss";
 
 // Library imports
+import { Component } from "react";
 
 // Component imports
 import AffiliationQuestion from "./affiliationQuestion/AffiliationQuestion";
 import TypeQuestion from "./typeQuestion/TypeQuestion";
 
-export default function Diagnostics({ user }) {
-  this.state = {
+class Diagnostics extends Component {
+  state = {
     step: 1,
     Affiliation: "",
     Type: "",
   };
 
   // go back to the previous step
-  function prevStep() {
+  prevStep = () => {
     const { step } = this.state;
     this.setState({ step: step - 1 });
-  }
+  };
 
   // proceed to the next step
-  function nextStep() {
+  nextStep = () => {
     const { step } = this.state;
     this.setState({ step: step + 1 });
-  }
+  };
 
   // handle input
-  function handleChange() {
-    (input) => {
-      (e) => {
-        this.setState({ [input]: e.target.value });
-      };
-    };
-  }
+  updateValue = (key, value) => {
+    const items = [...this.state.items];
+    items[key] = value;
+    this.setState({ items });
+  };
 
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  }
-
-  //   handleChange = (input) => (e) => {
-  //     this.setState({ [input]: e.target.value });
-  //   };
-
-  //
-  const { step } = this.state;
-  const { affiliation, type } = this.state;
-  const values = { affiliation, type };
-
-  switch (step) {
-    case 1:
-      return (
-        <AffiliationQuestion
-          nextStep={this.nextStep}
-          handleChange={this.handleChange}
-          values={values}
-        />
-      );
-    case 2:
-      return (
-        <TypeQuestion
-          nextStep={this.nextStep}
-          handleChange={this.handleChange}
-          values={values}
-        />
-      );
-    default:
+  render() {
+    const { step } = this.state;
+    const { affiliation, type } = this.state;
+    const values = { affiliation, type };
+    switch (step) {
+      case 0:
+        window.location = "/dashboard";
+      case 1:
+        return (
+          <AffiliationQuestion
+            nextStep={this.nextStep}
+            updateValue={this.updateValue}
+            values={values}
+          />
+        );
+      case 2:
+        return (
+          <TypeQuestion
+            prevStep={this.prevStep}
+            updateValue={this.updateValue}
+            values={values}
+          />
+        );
+      case 3:
+        const nextPage =
+          "/dashboard/new-transaction/" +
+          (this.state.Type === "Communal" ? "communal" : "iou");
+        window.location = nextPage;
+      default:
+    }
   }
 }
+
+export default Diagnostics;
