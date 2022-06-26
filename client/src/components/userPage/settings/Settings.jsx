@@ -2,7 +2,7 @@
 import "./settings.scss"
 
 // Library imports
-import { ListItem, Drawer, List, Paper, Divider, ListItemIcon, ListItemText } from "@mui/material";
+import { ListItem, Drawer, List, Paper, Divider, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -56,18 +56,32 @@ export default function Settings({ user }) {
         return formattedHash === formattedText;
     }
     
+    function renderUnimplementedPage(name, icon) {
+        return(
+            <div className="unimplemented">
+                {icon}
+                <Typography marginTop="10px">
+                    {name} Settings
+                </Typography>
+                <Typography marginTop="10px">
+                    (Unimplemented)
+                </Typography>
+            </div>
+        )
+      }
+
     function getSettingsPageByHash(currentUser) {
         switch (hash) {
             case "#account":
                 return <AccountTab user={currentUser} />;
             case "#appearance":
-                return <div>Appearance</div>;
+                return renderUnimplementedPage("Appearance", <ColorLensIcon color="primary" fontSize="large"/>);
             case "#connections":
-                return <div>Connections</div>;
+                return renderUnimplementedPage("Connections", <LinkIcon color="primary" fontSize="large"/>);
             case "#security":
-                return <div>Security</div>;
+                return renderUnimplementedPage("Security", <SecurityIcon color="primary" fontSize="large"/>);
             default:
-                return <div>Account</div>
+                return <AccountTab user={currentUser} />;
         }
     }
 
