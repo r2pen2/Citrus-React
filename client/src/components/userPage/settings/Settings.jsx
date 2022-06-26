@@ -56,18 +56,32 @@ export default function Settings({ user }) {
         return formattedHash === formattedText;
     }
     
+    function renderUnimplementedPage(name, icon) {
+        return(
+            <div className="unimplemented">
+                {icon}
+                <Typography marginTop="10px">
+                    {name} Settings
+                </Typography>
+                <Typography marginTop="10px">
+                    (Unimplemented)
+                </Typography>
+            </div>
+        )
+      }
+
     function getSettingsPageByHash(currentUser) {
         switch (hash) {
             case "#account":
                 return <AccountTab user={currentUser} />;
             case "#appearance":
-                return <div className="unimplemented"><Typography>Appearance Settings (Unimplemented)</Typography></div>;
+                return renderUnimplementedPage("Appearance", <ColorLensIcon color="primary" fontSize="large"/>);
             case "#connections":
-                return <div className="unimplemented"><Typography>Connections Settings (Unimplemented)</Typography></div>;
+                return renderUnimplementedPage("Connections", <LinkIcon color="primary" fontSize="large"/>);
             case "#security":
-                return <div className="unimplemented"><Typography>Secutiry Settings (Unimplemented)</Typography></div>;
+                return renderUnimplementedPage("Security", <SecurityIcon color="primary" fontSize="large"/>);
             default:
-                return <div className="unimplemented"><Typography>Account Settings (Unimplemented)</Typography></div>
+                return <AccountTab user={currentUser} />;
         }
     }
 

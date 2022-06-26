@@ -24,7 +24,11 @@ export default function AccountTab({ user }) {
         <div className="avatar-container">
             <div className="col"></div>
             <IconButton className="col avatar-button" aria-label="account of current user" data-testid="settings-avatar">
-                <Avatar className="avatar" alt={user.fullName} size="large">{getInitials(user.firstName, user.lastName)}</Avatar>
+                <Avatar className="avatar" alt={user.fullName} size="large">
+                    <Typography variant="h3">
+                        {getInitials(user.firstName, user.lastName)}
+                    </Typography>
+                </Avatar>
             </IconButton>
             <div className="col edit-pfp">
                 <Button className="upload-button" variant="outlined" color="primary">
