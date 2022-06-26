@@ -45,26 +45,26 @@ export default function AccountTab({ user }) {
                 <TextField id="phone-number" label="Phone Number" data-testid="phone-number-input" value={user.phoneNumber}/>
             </div>
             <div className="field long-field">
-                <TextField id="address" label="Address" data-testid="address-input"/>
+                <TextField id="address" label="Address" data-testid="address-input" value="1600 Pennsylvania Avenue NW"/>
             </div>
             <div className="field two-fields">
                 <div className="left">
-                    <TextField id="city" label="City" data-testid="city-input"/>
+                    <TextField id="city" label="City" data-testid="city-input" value="Washington, DC"/>
                 </div>
                 <div className="right">
-                    <TextField id="state" label="State" data-testid="state-input"/>
+                    <TextField id="state" label="State" data-testid="state-input" value="District of Columbia"/>
                 </div>
             </div>
             <div className="field two-fields">
                 <div className="left">
-                    <TextField id="zip-code" label="Zip Code" data-testid="zip-code-input"/>
+                    <TextField id="zip-code" label="Zip Code" data-testid="zip-code-input" value="20500"/>
                 </div>
                 <div className="right">
-                    <TextField id="country" label="Country" data-testid="country-input"/>
+                    <TextField id="country" label="Country" data-testid="country-input" value="United States"/>
                 </div>
             </div>
             <div className="field long-field">
-                <TextField id="password" label="Password" data-testid="password-input" type="password"/>
+                <TextField id="password" label="Password" data-testid="password-input" type="password" value="Lol you can't see me"/>
             </div>
             <div className="save-button">
                 <Button type="submit-button" variant="contained">Save</Button>
