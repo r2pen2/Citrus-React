@@ -52,6 +52,16 @@ export default function Topbar( { user }) {
         window.location = destination;
     }
 
+    /**
+     * Get a user's initials by first and last name
+     * @param {String} f first name
+     * @param {String} l last name
+     * @returns {String} initials
+     */
+    function getInitials(f, l) {
+        return f.charAt(0) + l.charAt(0);
+    }
+
     // Choose which topbar to display— signedIn is displays user information
     if (signedIn) {
         // Signed in, so set user vars and return detail topbar
@@ -72,7 +82,7 @@ export default function Topbar( { user }) {
                                     {fullName}
                                 </Typography>
                                 <IconButton aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={(e) => handleMenu(e)} color="inherit" data-testid="account-button">
-                                    <Avatar alt={fullName} src={profilePic} sx={{ border: "1px solid black"}}/>
+                                    <Avatar alt={fullName} sx={{ border: "1px solid black"}}>{getInitials(user.firstName, user.lastName)}</Avatar>
                                 </IconButton>
                                 <Menu 
                                 data-testid="account-menu"
