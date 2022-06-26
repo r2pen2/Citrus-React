@@ -2,7 +2,7 @@
 import "./settings.scss"
 
 // Library imports
-import { ListItem, Drawer, List, Paper, Divider, ListItemIcon, ListItemText } from "@mui/material";
+import { ListItem, Drawer, List, Paper, Divider, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -61,13 +61,13 @@ export default function Settings({ user }) {
             case "#account":
                 return <AccountTab user={currentUser} />;
             case "#appearance":
-                return <div>Appearance</div>;
+                return <div className="unimplemented"><Typography>Appearance Settings (Unimplemented)</Typography></div>;
             case "#connections":
-                return <div>Connections</div>;
+                return <div className="unimplemented"><Typography>Connections Settings (Unimplemented)</Typography></div>;
             case "#security":
-                return <div>Security</div>;
+                return <div className="unimplemented"><Typography>Secutiry Settings (Unimplemented)</Typography></div>;
             default:
-                return <div>Account</div>
+                return <div className="unimplemented"><Typography>Account Settings (Unimplemented)</Typography></div>
         }
     }
 
