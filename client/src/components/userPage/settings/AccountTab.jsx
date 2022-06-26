@@ -5,8 +5,15 @@ import "./accountTab.scss";
 import { Typography, TextField, Avatar, Button, IconButton } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-// Component imports
-import profilePic from "../../../assets/images/pfp/testProfilePic.png"
+/**
+ * Get a user's initials by first and last name
+ * @param {String} f first name
+ * @param {String} l last name
+ * @returns {String} initials
+ */
+ function getInitials(f, l) {
+    return f.charAt(0) + l.charAt(0);
+}
 
 export default function AccountTab({ user }) {
   return (
@@ -17,7 +24,7 @@ export default function AccountTab({ user }) {
         <div className="avatar-container">
             <div className="col"></div>
             <IconButton className="col avatar-button" aria-label="account of current user" data-testid="settings-avatar">
-                <Avatar className="avatar" alt={user.fullName} src={profilePic} size="large"/>
+                <Avatar className="avatar" alt={user.fullName} size="large">{getInitials(user.firstName, user.lastName)}</Avatar>
             </IconButton>
             <div className="col edit-pfp">
                 <Button className="upload-button" variant="outlined" color="primary">
