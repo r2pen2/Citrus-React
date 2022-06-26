@@ -4,29 +4,38 @@ import multipleChoiceButton from "./multipleChoiceButton.scss";
 // Library imports
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
-// order={oIndex}
-// text={option}
-// valueKey="affiliation"
-// updateValue={this.props.updateValue}
-// nextStep={this.props.nextStep}
+// index={index}
+// choice={option}
+// field="Affiliation"
+// updateValue={updateValue}
+// nextStep={nextStep}
 
-export default function MultipleChoiceButton() {
+export default function MultipleChoiceButton({
+  index,
+  choice,
+  field,
+  updateValue,
+  nextStep,
+}) {
   function handleClick() {
-    this.props.updateValue(this.props.valueKey, this.props.text);
-    this.props.nextStep();
+    updateValue(field, choice);
+    nextStep();
   }
 
   return (
-    <div data-testid="multiple-choice-button-container" onClick={handleClick()}>
+    <div
+      key={index}
+      data-testid="multiple-choice-button-container"
+      onClick={() => handleClick()}
+    >
       <Card
         variant="outlined"
-        sx={[getSize(), getStyle(), getColor(this.props.order)]}
+        sx={[getSize(), getStyle(), getColor(index)]}
         data-testid="multiple-choice-button-card"
-        onClick
       >
         <CardActionArea sx={getActionAreaStyle()}>
           <CardContent sx={{ padding: "0px" }}>
-            <Typography sx={{ fontSize: 24 }}>{this.props.text}</Typography>
+            <Typography sx={{ fontSize: 24 }}>{choice}</Typography>
           </CardContent>
         </CardActionArea>
       </Card>
@@ -57,11 +66,11 @@ function getSize() {
     // paddingTop: "50px",
   };
 }
-function getColor({ order }) {
+function getColor(index) {
   const yellow = "citrusYellow.main";
   const pink = "citrusPink.main";
   const green = "citrusGreen.main";
-  const bgColor = order === 1 ? yellow : order === 2 ? pink : green;
+  const bgColor = index === 0 ? yellow : index === 1 ? pink : green;
   return {
     backgroundColor: bgColor,
   };

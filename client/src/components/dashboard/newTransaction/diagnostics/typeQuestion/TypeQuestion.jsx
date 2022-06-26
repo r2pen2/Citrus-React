@@ -2,36 +2,43 @@
 import "./typeQuestion.scss";
 
 // Library imports
-import { Stack } from "@mui/material";
+import { Fab, Stack } from "@mui/material";
 
 // Component imports
 import MultipleChoiceButton from "../../templates/multipleChoiceButton/MultipleChoiceButton";
 import BackButton from "../../templates/backButton/BackButton";
 import InfoButton from "../../templates/infoButton/InfoButton";
 
-export default function TransactionOrIouBox() {
-  const priorPage = "/dashboard/new-transaction/group-or-one-time";
-  const nextPage = "/dashboard/new-transaction/transaction-or-iou";
+// nextStep={nextStep}
+// updateValue={updateValue}
+// values={values}
+
+export default function AffiliationQuestion({ nextStep, updateValue }) {
+  // const priorPage = "/dashboard";
+  // const nextPage = "/dashboard/new-transaction/transaction-or-iou";
   const informationText =
-    "A transaction involves 3 or more people; an IOU is between you and one other person.";
+    'Select "Communal" if this transaction involves three or more people. Select "IOU" if not.';
+
+  var options = ["Communal", "IOU"];
 
   return (
     <div>
       <div style={{ marginTop: "50px" }}></div>
       <div style={{ marginLeft: "30px", marginTop: "2vh" }}>
-        <BackButton priorHref={priorPage}></BackButton>
+        <BackButton priorHref="/dashboard"></BackButton>
       </div>
       <Stack spacing={5} marginTop="5vh" alignItems="center">
-        <MultipleChoiceButton
-          order={1}
-          text="Transaction"
-          href={nextPage}
-        ></MultipleChoiceButton>
-        <MultipleChoiceButton
-          order={2}
-          text="IOU"
-          href={nextPage}
-        ></MultipleChoiceButton>
+        {options.map(function (option, index) {
+          return (
+            <MultipleChoiceButton
+              index={index}
+              choice={option}
+              field="Type"
+              updateValue={updateValue}
+              nextStep={nextStep}
+            />
+          );
+        })}
         <div style={{ height: "1vh" }}></div>
         <InfoButton informationText={informationText}></InfoButton>
       </Stack>

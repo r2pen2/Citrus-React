@@ -2,69 +2,68 @@
 import "./diagnostics.scss";
 
 // Library imports
-import { Component } from "react";
+import { Component, useState } from "react";
 
 // Component imports
 import AffiliationQuestion from "./affiliationQuestion/AffiliationQuestion";
 import TypeQuestion from "./typeQuestion/TypeQuestion";
 
-class Diagnostics extends Component {
-  state = {
+// class Diagnostics extends Component {
+//   // state = {
+//   //   step: 1,
+//   //   Affiliation: "",
+//   //   Type: "",
+//   // };
+// }
+export default function Diagnostics({ user }) {
+  const [state, setState] = useState({
     step: 1,
     Affiliation: "",
     Type: "",
-  };
+  });
 
   // go back to the previous step
-  prevStep = () => {
-    const { step } = this.state;
-    this.setState({ step: step - 1 });
-  };
+  function prevStep() {
+    // console.log("moving to previous step");
+    const { step } = state;
+    setState({ step: step - 1 });
+  }
 
   // proceed to the next step
-  nextStep = () => {
-    const { step } = this.state;
-    this.setState({ step: step + 1 });
-  };
+  function nextStep() {
+    // console.log("moving to next step");
+    const { step } = state;
+    setState({ step: step + 1 });
+  }
 
   // handle input
-  updateValue = (key, value) => {
-    const items = [...this.state.items];
+  function updateValue(key, value) {
+    const items = state;
     items[key] = value;
-    this.setState({ items });
-  };
+    console.log("before");
+    console.log(state);
+    // setState({ items });
+    console.log("after");
+    console.log(state);
+  }
 
-  render() {
-    const { step } = this.state;
-    const { affiliation, type } = this.state;
-    const values = { affiliation, type };
-    switch (step) {
-      case 0:
-        window.location = "/dashboard";
-      case 1:
-        return (
-          <AffiliationQuestion
-            nextStep={this.nextStep}
-            updateValue={this.updateValue}
-            values={values}
-          />
-        );
-      case 2:
-        return (
-          <TypeQuestion
-            prevStep={this.prevStep}
-            updateValue={this.updateValue}
-            values={values}
-          />
-        );
-      case 3:
-        const nextPage =
-          "/dashboard/new-transaction/" +
-          (this.state.Type === "Communal" ? "communal" : "iou");
-        window.location = nextPage;
-      default:
-    }
+  console.log(state.items);
+  switch (state.step) {
+    case 0:
+      window.location = "/dashboard";
+    case 1:
+      return (
+        <AffiliationQuestion nextStep={nextStep} updateValue={updateValue} />
+      );
+    case 2:
+      return <TypeQuestion prevStep={prevStep} updateValue={updateValue} />;
+    case 3:
+      const nextPage =
+        "/dashboard/new-transaction/" +
+        (state.Type === "Communal" ? "communal" : "iou");
+      console.log(nextPage);
+      window.location = nextPage;
+    default:
+      return <div>error</div>;
   }
 }
-
-export default Diagnostics;

@@ -9,22 +9,18 @@ import MultipleChoiceButton from "../../templates/multipleChoiceButton/MultipleC
 import BackButton from "../../templates/backButton/BackButton";
 import InfoButton from "../../templates/infoButton/InfoButton";
 
-export default function AffiliationQuestion() {
+// nextStep={nextStep}
+// updateValue={updateValue}
+// values={values}
+
+export default function AffiliationQuestion({ nextStep, updateValue }) {
   // const priorPage = "/dashboard";
   // const nextPage = "/dashboard/new-transaction/transaction-or-iou";
   const informationText =
     'Select "Group" if this transaction is part of a group. Select "One-time" if not.';
 
-  const options = [
-    {
-      id: 1,
-      choice: "Group",
-    },
-    {
-      id: 2,
-      choice: "None",
-    },
-  ];
+  var options = ["Group", "None"];
+
   return (
     <div>
       <div style={{ marginTop: "50px" }}></div>
@@ -32,25 +28,17 @@ export default function AffiliationQuestion() {
         <BackButton priorHref="/dashboard"></BackButton>
       </div>
       <Stack spacing={5} marginTop="5vh" alignItems="center">
-        {options.map((option, oIndex) => (
-          <MultipleChoiceButton
-            order={oIndex}
-            text={option}
-            valueKey="affiliation"
-            updateValue={this.props.updateValue}
-            nextStep={this.props.nextStep}
-          />
-        ))}
-        {/* <MultipleChoiceButton
-          order={1}
-          text="Group"
-          choice={choice}
-        ></MultipleChoiceButton>
-        <MultipleChoiceButton
-          order={2}
-          text="One-time"
-          onClick={nextPage}
-        ></MultipleChoiceButton> */}
+        {options.map(function (option, index) {
+          return (
+            <MultipleChoiceButton
+              index={index}
+              choice={option}
+              field="Affiliation"
+              updateValue={updateValue}
+              nextStep={nextStep}
+            />
+          );
+        })}
         <div style={{ height: "1vh" }}></div>
         <InfoButton informationText={informationText}></InfoButton>
       </Stack>
