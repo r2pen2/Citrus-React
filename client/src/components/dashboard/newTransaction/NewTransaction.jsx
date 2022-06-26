@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 
 // Component imports
 import GroupOrOneTimeBox from "./groupOrOneTime/GroupOrOneTime";
+import BookmarkController from "./bookmarkController/BookmarkController";
 // import Transactions from "./transactions/Transactions";
 // import Analytics from "./analytics/Analytics";
 
@@ -14,6 +15,7 @@ export default function NewTransaction({ user }) {
     <Routes>
       <Route path="/" element={<GroupOrOneTimeBox />} />
       <Route path="/group-or-one-time" element={<GroupOrOneTimeBox />} />
+      <Route path="/bookmarks/*" element={<BookmarkController />} />
       {/* <Route pate="/transaction-or-iou" element={<TransactionOrIouBox />} /> */}
     </Routes>
   );

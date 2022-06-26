@@ -5,10 +5,10 @@ export default createTheme({
   palette: {
     type: "light",
     citrusGreen: {
-      main: "#B0C856CC",
+      main: "#bfd679",
     },
     citrusYellow: {
-      main: "#F2DF56CC",
+      main: "#f0e358",
     },
     citrusOrange: {
       main: "#FDB90F",
@@ -26,7 +26,7 @@ export default createTheme({
       main: "#E5E5E5",
     },
     primary: {
-      main: "#B0C856CC", // aka citrusGreen
+      main: "#bfd679", // aka citrusGreen
     },
     secondary: {
       main: "#FDB90F", // aka citrusOrange
@@ -35,13 +35,13 @@ export default createTheme({
       main: "#EA4236", // aka citrusRed
     },
     success: {
-      main: "#B0C856CC", // aka citrusGreen
+      main: "#bfd679", // aka citrusGreen
     },
     warning: {
       main: "#FDB90F", // aka citrusOrange
     },
     info: {
-      main: "#F2DF56CC", // aka citrusYellow
+      main: "#f0e358", // aka citrusYellow
     },
   },
 });

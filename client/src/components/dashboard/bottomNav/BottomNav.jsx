@@ -8,7 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import GroupsIcon from '@mui/icons-material/Groups';
 
-export default function BottomNav({ user }) {
+export default function BottomNav({ user, setShortcutActive, setBookmarksDeployed }) {
 
   // Display only if we have a current user
   const active = user ? true : false;
@@ -32,6 +32,19 @@ export default function BottomNav({ user }) {
     setValue(newValue);
   };
 
+  /**
+   * Display the shortcut menu on mousedown 
+   * @param {Event} event mouseEvent that triggered this function
+   */
+  function handleEvent(event) {
+    if (event.type === "mousedown") {
+      setShortcutActive(true);
+      setBookmarksDeployed(false);
+    } else if (event.type === "mouseup") {
+      window.location = "/dashboard/new-transaction";
+    }
+  }
+
   // Only display if there's a user logged in
   if (active) {
     return(
@@ -46,7 +59,8 @@ export default function BottomNav({ user }) {
           <BottomNavigationAction
             label="New Transaction"
             value="new-transaction"
-            href="/dashboard/new-transaction"
+            onMouseDown={(e) => handleEvent(e)}
+            onMouseUp={(e) => handleEvent(e)}
             icon={<AddBoxIcon fontSize="large" sx={{ color: "#B0C856" }}/>}
           />
           <BottomNavigationAction
