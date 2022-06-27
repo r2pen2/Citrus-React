@@ -35,6 +35,10 @@
                 color: white;
                 font-size: 32px;
             }
+
+            &.disabled {
+                opacity: .4;
+            }
         }
     }
 
@@ -51,7 +55,7 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        height: 200px;
+        height: 500px;
         
         .mark {
             display: flex;

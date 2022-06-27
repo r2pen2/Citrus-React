@@ -91,13 +91,21 @@ export default function Shortcut( {bookmarksDeployed, setBookmarksDeployed} ) {
         }
     }
 
+    function isCardDisabled(title) {
+        if (bookmarksDeployed) {
+            if (title !== type) {
+                return "disabled";
+            }
+        }
+    }
+
     return (
     <div className="shortcut-container">
         <div className="group-or-individual">
-            <Card className="card individual" onMouseEnter={(e) => handleTypeMouseEnter(e, "individual")}>
+            <Card className={"card individual " + isCardDisabled("individual")} onMouseEnter={(e) => handleTypeMouseEnter(e, "individual")}>
                 <div className="text">Individuals</div>
             </Card>
-            <Card className="card group" onMouseEnter={(e) => handleTypeMouseEnter(e, "group")}>
+            <Card className={"card group " + isCardDisabled("group")} onMouseEnter={(e) => handleTypeMouseEnter(e, "group")}>
                 <div className="text">Groups</div>
             </Card>
         </div>
