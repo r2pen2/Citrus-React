@@ -41,6 +41,7 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
       setShortcutActive(true);
       setBookmarksDeployed(false);
     } else if (event.type === "mouseup") {
+      setShortcutActive(false);
       window.location = "/dashboard/new-transaction";
     }
   }
