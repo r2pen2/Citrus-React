@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import MultipleChoiceButton from "../../../../components/dashboard/newTransaction/multipleChoiceButton/MultipleChoiceButton";
+import MultipleChoiceButton from "../../../../components/dashboard/newTransaction/templates/multipleChoiceButton/MultipleChoiceButton";
 
 describe("MultipleChoiceButton render tests", () => {
   test("Multiple choice button 1 renders correctly", () => {

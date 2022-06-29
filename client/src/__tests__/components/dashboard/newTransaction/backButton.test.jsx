@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import BackButton from "../../../../components/dashboard/newTransaction/backButton/BackButton";
+import BackButton from "../../../../components/dashboard/newTransaction/templates/backButton/BackButton";
 
 describe("BackButton render tests", () => {
   test("Back button renders correctly", () => {
