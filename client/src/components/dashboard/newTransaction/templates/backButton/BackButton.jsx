@@ -10,13 +10,13 @@ import {
 } from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
-export default function BackButton({ priorHref }) {
+export default function BackButton({ onClick }) {
   return (
     <div data-testid="back-button-container">
       <Button
         aria-label="back-button"
         sx={{ backgroundColor: "white", color: "black" }}
-        href={priorHref}
+        onClick={onClick}
         data-testid="back-button-button"
       >
         <ArrowBackIosIcon

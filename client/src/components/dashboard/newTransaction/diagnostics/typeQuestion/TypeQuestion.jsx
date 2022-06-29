@@ -13,7 +13,11 @@ import InfoButton from "../../templates/infoButton/InfoButton";
 // updateValue={updateValue}
 // values={values}
 
-export default function AffiliationQuestion({ nextStep, updateValue }) {
+export default function AffiliationQuestion({
+  nextStep,
+  prevStep,
+  updateValue,
+}) {
   // const priorPage = "/dashboard";
   // const nextPage = "/dashboard/new-transaction/transaction-or-iou";
   const informationText =
@@ -25,7 +29,7 @@ export default function AffiliationQuestion({ nextStep, updateValue }) {
     <div>
       <div style={{ marginTop: "50px" }}></div>
       <div style={{ marginLeft: "30px", marginTop: "2vh" }}>
-        <BackButton priorHref="/dashboard"></BackButton>
+        <BackButton onClick={prevStep}></BackButton>
       </div>
       <Stack spacing={5} marginTop="5vh" alignItems="center">
         {options.map(function (option, index) {

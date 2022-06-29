@@ -24,46 +24,68 @@ export default function Diagnostics({ user }) {
 
   // go back to the previous step
   function prevStep() {
-    // console.log("moving to previous step");
-    const { step } = state;
+    const step = state.step;
     setState({ step: step - 1 });
   }
 
   // proceed to the next step
   function nextStep() {
-    // console.log("moving to next step");
-    const { step } = state;
+    const step = state.step;
     setState({ step: step + 1 });
   }
 
   // handle input
   function updateValue(key, value) {
-    const items = state;
-    items[key] = value;
-    console.log("before");
-    console.log(state);
+    console.log(
+      "Everything before: step - " +
+        state.step +
+        "; Affiliation - " +
+        state.Affiliation +
+        "; Type - " +
+        state.Type
+    );
+    setState({ [key]: value });
+    console.log(
+      "Everything after: step - " +
+        state.step +
+        "; Affiliation - " +
+        state.Affiliation +
+        "; Type - " +
+        state.Type
+    );
+
+    // console.log("before");
+    // console.log(state);
     // setState({ items });
-    console.log("after");
-    console.log(state);
+    // console.log("after");
+    // console.log(state);
   }
 
-  console.log(state.items);
   switch (state.step) {
     case 0:
       window.location = "/dashboard";
     case 1:
       return (
-        <AffiliationQuestion nextStep={nextStep} updateValue={updateValue} />
+        <AffiliationQuestion
+          nextStep={nextStep}
+          prevStep={prevStep}
+          updateValue={updateValue}
+        />
       );
     case 2:
-      return <TypeQuestion prevStep={prevStep} updateValue={updateValue} />;
+      return (
+        <TypeQuestion
+          nextStep={nextStep}
+          prevStep={prevStep}
+          updateValue={updateValue}
+        />
+      );
     case 3:
       const nextPage =
         "/dashboard/new-transaction/" +
         (state.Type === "Communal" ? "communal" : "iou");
-      console.log(nextPage);
       window.location = nextPage;
     default:
-      return <div>error</div>;
+      return <div>loading...</div>;
   }
 }
