@@ -64,6 +64,7 @@ export default function Diagnostics({ user }) {
   switch (state.step) {
     case 0:
       window.location = "/dashboard";
+      break;
     case 1:
       return (
         <AffiliationQuestion
