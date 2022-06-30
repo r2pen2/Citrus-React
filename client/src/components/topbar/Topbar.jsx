@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, MenuItem, Menu } from "@mui/material";
 
 // Component Imports
-import profilePic from "../../assets/images/pfp/testProfilePic.png";
 import BlackLogo from "./assets/LogoBlack.png";
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -14,11 +13,22 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 // API Imports
 import { signOutUser } from '../../api/firebase'
 
-export default function Topbar({ user }) {
 
-    // Decide if there's a user signed in
-    console.log(user)
+/**
+ * Gets a user's profile picture url
+ * @param {Object} user current user 
+ * @returns {String} Url to user's profile picture
+ */
+function getPfp(user) {
+    return user.photoURL ? user.photoURL : "";
+}
+
+export default function Topbar({ user }) {
     
+    /**
+     * Checks whether a user is completely signed in based on whether or not they have a display name
+     * @returns {Boolean} whether or not the user has completed signin process
+     */
     function getSignedIn() {
         if (user) {
             if (user.displayName === null) {
@@ -31,7 +41,10 @@ export default function Topbar({ user }) {
         }
     }
 
+    // Check if the user is signed in
     const signedIn = getSignedIn();
+    // If the user is signed in, assing PFP url
+    const pfp = signedIn ? getPfp(user) : "";
 
     /**
      * Log user out and redirect to homepage
@@ -99,7 +112,7 @@ export default function Topbar({ user }) {
                                     {user.displayName}
                                 </Typography>
                                 <IconButton aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={(e) => handleMenu(e)} color="inherit" data-testid="account-button">
-                                    <Avatar alt={user.displayName} sx={{ border: "1px solid black"}}>{getInitials(user.firstName, user.lastName)}</Avatar>
+                                    <Avatar src={pfp} alt={user.displayName} sx={{ border: "1px solid black"}}>{getInitials(user.firstName, user.lastName)}</Avatar>
                                 </IconButton>
                                 <Menu 
                                 data-testid="account-menu"
