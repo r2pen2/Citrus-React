@@ -49,6 +49,7 @@ function App() {
             </div>
         </ThemeProvider>
         <NotificationContainer />
+        <div id="recaptcha-container"></div>
       </Router>
     </div>
   )

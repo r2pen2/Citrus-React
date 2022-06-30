@@ -7,9 +7,14 @@ import { useState } from 'react';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import { Typography, Button, Stack } from "@mui/material";
 import { NotificationManager } from 'react-notifications';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+import { auth } from '../../../api/firebase';
 
 // API imports
 import axios from '../../../api/axios';
+
+// Component imports
+import AuthCodeInput from '../authentication/authCodeInput/AuthCodeInput';
 
 /**
  * Removes all special characters from phone number string and adds leading "+"
@@ -29,7 +34,8 @@ export default function PhoneInput() {
 
     // Define constants
     const [submitEnable, setSubmitEnable] = useState(true);                         // Whether or not the submit button is enabled
-    const [phoneNumber, setPhoneNumber] = useState(getLsNum());                             // Current value of the phone number textfield
+    const [phoneNumber, setPhoneNumber] = useState(getLsNum());                     // Current value of the phone number textfield
+    const [confirmationResult, setConfirmationResult] = useState();                 // Firebase confirmation
 
     /**
      * sets phone number value on initialize to localStorage
@@ -56,22 +62,30 @@ export default function PhoneInput() {
         return num.length === 12;
     }
 
+    function generateRecapcha() {
+        console.log(auth)
+        window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+              // reCAPTCHA solved, allow signInWithPhoneNumber.
+            }
+          }, auth);
+    }
+
     /**
      * Asks the server to send an authentication code to the inputted phone number
      * @param {String} num phone number to send auth code to
      */
     function textMe(num) {
 
-        // Set val in local storage
-        localStorage.setItem('login:phone_number', formatPhoneNumber(num));
-
-        if (numberValid(num)) {
-            console.log("Texting: " + num);
-            axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-            .then(window.location = "/login/authentication");
-        } else {
-            NotificationManager.error("Invalid phone number!", "Error!");
-        }
+        // First, generate captcha
+        generateRecapcha();
+        let appVerifier = window.recaptchaVerifier;
+        signInWithPhoneNumber(auth, num, appVerifier).then((res) => {
+            setConfirmationResult(res);
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     /**
@@ -104,22 +118,26 @@ export default function PhoneInput() {
         setSubmitEnable(numberValid(phoneNumber));
     }
 
-    return (
-        <div data-testid="phone-input-container">  
-            <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
-                Enter your phone number:
-            </Typography>
-            <div className="phone-input-container">
-                <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit} value={localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : ""} data-testid="mui-phone-input"/>
+    if (confirmationResult) {
+        return <AuthCodeInput confirmationResult={confirmationResult}/>;
+    } else {
+        return (
+            <div data-testid="phone-input-container">  
+                <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
+                    Enter your phone number:
+                </Typography>
+                <div className="phone-input-container">
+                    <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit} value={localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : ""} data-testid="mui-phone-input"/>
+                </div>
+                <div className="login-next-button-container">
+                    <Stack direction="column">
+                        <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)} disabled={!submitEnable} data-testid="text-me-button">Text Me</Button>
+                        <div className="call-me-button-container">
+                            <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)} disabled={!submitEnable} data-testid="call-me-button">Or receive a phone call instead</Button>
+                        </div>
+                    </Stack>
+                </div>
             </div>
-            <div className="login-next-button-container">
-                <Stack direction="column">
-                    <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)} disabled={!submitEnable} data-testid="text-me-button">Text Me</Button>
-                    <div className="call-me-button-container">
-                        <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)} disabled={!submitEnable} data-testid="call-me-button">Or receive a phone call instead</Button>
-                    </div>
-                </Stack>
-            </div>
-        </div>
-    );
+        );
+    }
 }

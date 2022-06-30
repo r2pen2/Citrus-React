@@ -9,6 +9,7 @@ import Check from '@mui/icons-material/Check';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector'; 
 import axios from '../../api/axios';
 import { Route, Routes } from "react-router-dom";
+import { useState } from "react"; 
 
 // Component Imports
 import PhoneInput from "./phoneInput/PhoneInput";
@@ -179,8 +180,8 @@ export default function Login({ user }) {
             <img src={Logo} alt="logo" className="logo" data-testid="login-logo"></img>
           </div>
           <Routes>
-            <Route path="/" element={<PhoneInput />}/>
-            <Route path="/phone-number" element={<PhoneInput />}/>
+            <Route path="/" element={<PhoneInput/>}/>
+            <Route path="/phone-number" element={<PhoneInput/>}/>
             <Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
             <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>
           </Routes>

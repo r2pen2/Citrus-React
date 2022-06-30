@@ -12,7 +12,7 @@ export default function Authentication({ setUserById }) {
     if (!localStorage.getItem('login:phone_number')) {
         window.location = "/login";
     }
-  
+
     return (
         <div className="authentication" data-testid="authentication-wrapper">
             <Routes>
