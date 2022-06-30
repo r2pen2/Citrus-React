@@ -7,7 +7,7 @@ import { Route, Routes } from "react-router-dom";
 
 // Component Imports
 import Phone from "./phone/Phone";
-import NewUserForm from "./newUserForm/NewUserForm";
+import NewUserForm from "./newUsers/NewUserForm";
 import LoginHome from "./loginHome/LoginHome";
 import Logo from "../../assets/images/Logo256.png";
 
