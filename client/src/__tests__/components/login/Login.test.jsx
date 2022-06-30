@@ -19,11 +19,11 @@ describe("Login render tests", () => {
         expect(loginLogo).toBeVisible();
     });
 
-    test("First render shows phone input page", () => {
+    test("First render shows login home page", () => {
         render(<Router><Login user={null}/></Router>);
         const backgroundController = screen.getByTestId("login-background-controller");
-        const phoneInput = screen.getByTestId("phone-input-container");
-        expect(backgroundController).toContainElement(phoneInput);
+        const loginHome = screen.getByTestId("login-home");
+        expect(backgroundController).toContainElement(loginHome);
         const authentication = screen.queryByTestId("authentication-wrapper");
         expect(backgroundController).not.toContainElement(authentication);
     });

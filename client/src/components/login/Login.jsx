@@ -7,13 +7,13 @@ import { styled } from '@mui/material/styles';
 import { Stack, Box, Stepper, Step, StepLabel, Paper } from "@mui/material";
 import Check from '@mui/icons-material/Check';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector'; 
-import axios from '../../api/axios';
 import { Route, Routes } from "react-router-dom";
+import { useState } from "react"; 
 
 // Component Imports
-import PhoneInput from "./phoneInput/PhoneInput";
+import Phone from "./phone/Phone";
 import NewUserForm from "./newUserForm/NewUserForm";
-import Authentication from "./authentication/Authentication";
+import LoginHome from "./loginHome/LoginHome";
 import Logo from "../../assets/images/Logo256.png";
 
 /**
@@ -115,7 +115,7 @@ function displaySteps() {
    */
   function getPageIndex() {
     const l = window.location.toString();
-    if (l.includes("/authentication")) {
+    if (l.includes("/")) {
       return 1;
     } else if (l.includes("/password-entry") || l.includes("/account-creation")) {
       return 2;
@@ -141,24 +141,10 @@ function displaySteps() {
 }
 
 /**
- * Sign-in a user by their ID and redirect to dashboard
- * @param {Number} id userID returned from password input
+ * Set the document title or redirect to dashboard
+ * @param {Object} user current user
  */
-function setUserById(id) {
-  axios.post("/database/get-user-by-id", { id: id }).then((res) => {
-    if (res.data) {
-      localStorage.setItem("user", JSON.stringify(res.data));
-      window.location = "/dashboard"
-    }
-  })
-}
-
-/**
- * If we're signed in, redirect to dashboard.
- * Othwerwise, set the document title and continue to login.
- * @param {Object} user The current user (if it exists)
- */
-function doPageSetup(user) {
+function doPageSetup(user) { 
   if (user) {
     window.location = "/dashboard";
   } else {
@@ -166,7 +152,7 @@ function doPageSetup(user) {
   }
 }
 
-export default function Login({ user }) {
+export default function Login({ user, setUser }) {
   
   // Page setup
   doPageSetup(user)
@@ -178,12 +164,14 @@ export default function Login({ user }) {
           <div className="login-logo-container"> 
             <img src={Logo} alt="logo" className="logo" data-testid="login-logo"></img>
           </div>
-          <Routes>
-            <Route path="/" element={<PhoneInput />}/>
-            <Route path="/phone-number" element={<PhoneInput />}/>
-            <Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
-            <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>
-          </Routes>
+          <div className="login-input-window">
+            <Routes>
+              <Route path="/" element={<LoginHome setUser={setUser}/>}/>
+              <Route path="/home" element={<LoginHome setUser={setUser}/>}/>
+              <Route path="/phone" element={<Phone setUser={setUser}/>}/>
+              <Route path="/account-creation" element={<NewUserForm user={user} setUser={setUser}/>}/>
+            </Routes>
+          </div>
         </Stack>
       </Paper>
       <div className="stepper-wrapper">

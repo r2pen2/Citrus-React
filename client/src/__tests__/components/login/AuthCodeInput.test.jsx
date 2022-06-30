@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import AuthCodeInput from '../../../components/login/authentication/authCodeInput/AuthCodeInput';
+import AuthCodeInput from '../../../components/login/phone/AuthCodeInput';
 
 describe("AuthCodeInput render tests", () => {
 
@@ -31,14 +31,4 @@ describe("AuthCodeInput render tests", () => {
 });
 
 describe("AuthCodeInput function tests", () => {
-
-    test("Local storage is cleared correctly", () => {
-        localStorage.setItem('login:user_id', "this shouldn't be here");
-        localStorage.setItem('login:first_name', "this shouldn't be here");
-        render(<AuthCodeInput />);
-        const userIdExistsInLS = localStorage.getItem('login:user_id') ? true : false ;
-        const firstNameExistsInLS = localStorage.getItem('login:first_name') ? true : false ;
-        expect(userIdExistsInLS).toBe(false);
-        expect(firstNameExistsInLS).toBe(false);
-    });
 });

@@ -7,31 +7,11 @@ import { useState } from 'react';
 import { Typography, Button, Stack, TextField } from "@mui/material";
 import { NotificationManager } from 'react-notifications';
 
-// API imports
-import axios from '../../../../api/axios';
-
-export default function AuthCodeInput() {
-
-  // Set phone number from localStorage
-  const phoneNumber = localStorage.getItem('login:phone_number');
-
-  // Clear local storage from further on in auth process
-  localStorage.removeItem('login:user_id');
-  localStorage.removeItem('login:first_name');
+export default function AuthCodeInput({phoneNumber, confirmationResult, resendCode, setUser}) {
 
   // Define constants
   const [authCode, setAuthCode] = useState("");                         // Current value of the auth code textfield
   const [submitEnable, setSubmitEnable] = useState(false);              // Whether or not the submit button is enabled
-
-  /**
-   * Resend auth code to phone number and display a notification
-   * @param {String} num phone number to send auth code to
-   */
-  function resendCode(num) {
-      console.log("Texting: " + num);
-      axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-      .then(NotificationManager.success("to " + num, "Code resent!"));
-  }
 
   /**
    * Enable submit button if auth code is long enough
@@ -54,22 +34,21 @@ export default function AuthCodeInput() {
    * Fetch user if valid.
    */
   function checkAuthCode() {
-    console.log('Checking auth code...');
     if (authCode.length === 6) {
-      axios.post('/login/check-auth', {
-        phoneNumber: phoneNumber,
-        authCode: authCode
-      }).then((res) => {
-        const authStatus = res.data.status;
-        console.log(authStatus);
-        if (authStatus === "approved") {
-          window.location = "/login/authentication/fetch-user";
+      // Verify OTP
+      console.log(confirmationResult)
+      confirmationResult.confirm(authCode).then((result) => {
+        setUser(result.user);
+        localStorage.setItem("citrus:user", JSON.stringify(result.user));
+        if (result.user.displayName) {
+          // If we've logged in this user before, redirect to dashboard
+          window.location = "/dashboard";
         } else {
-          NotificationManager.error("Authentication code does not match!", "Error!")
+          window.location = "/login/account-creation";
         }
-      });
-    } else {
-      NotificationManager.error("Invalid format!", "Error!");
+      }).catch((error) => {
+
+      })
     }
   }
 
@@ -90,7 +69,7 @@ export default function AuthCodeInput() {
           Enter your 6 digit authentication code:
       </Typography>
       <div className="auth-input-container" data-testid="auth-input-container">
-          <TextField autoFocus autoComplete='off' id="auth-code" label="2FA Code" variant="outlined" width="50%" onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={handleOnChange} onBlur={handleOnChange}/>
+          <TextField autoFocus autoComplete='off' id="auth-code" label="2FA Code" variant="outlined" width="50%" value={authCode} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={handleOnChange} onBlur={handleOnChange}/>
       </div>
       <div className="try-again-button-container">
         <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => resendCode(phoneNumber)} data-testid="try-again-button">

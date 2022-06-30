@@ -67,23 +67,12 @@ Server tests and client tests are written differently, but are both run whenever
 
 It's also best to write tests whenever you create a new function (within reason, of course).
 
-
-##### Local Storage Usage (Client only)
-Local storage should only ever have items that are currently relevant. login:phone_number, for example, is only necessary during the login process between entering a user's phone number and getting the userId. Once it has done it's job, it should be removed.
-```js
-localStorage.removeItem('login:phone_number');
-``` 
-
-Also, take note of the name attached to the item. Since phone_number (in this context, at least) is only relevant to login, it's prefixed by "login:". This should make it easy to determine which components are leaking local storage items if there's even an issue.
-
 ##### Function Scopes
 Try to keep helper functions inside their parents. This makes it more clear what each function is used for and makes it easier to collapse code :)
 
 ## Client Manual
 
 ### Routing
-The best way to write connected pages is to make efficient use of the ReactDOM router, parent components, and the browser's localStorage.
-
 Routes work like a switch statement that returns a component based on the current window.location. Components outside the Routes tag will not be effected by the url.
 
 Take a look at how routing works in Login.jsx:
@@ -95,7 +84,6 @@ Take a look at how routing works in Login.jsx:
   <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>
 </Routes>
 ```
-Notice that, even though we're doing user authentication, the phone number, user id, etc. are not being passed into child component. Code looks much cleaner (and is therefore easier to adapt/refactor) when localStorage is used to keep these variables. There's also the added benefit of not losing values on page refresh!
 
 Take note of the asterisk after /authentication. This means that there are more routes contained within /authentication. Forgetting to add the asterisk in the parent route will 
 ```js
@@ -189,128 +177,3 @@ test("Authentication wrapper renders", () => {
 ```
 
 The only little hiccup is that tests run in a simuated browser with some limitations. The window.location cannot actually be changed in the browser, so links will have to be tested a little more creatively.
-
-## Server Manual
-
-### Express
-Express is a Node.js web application framework. Express provides a set of features for web and mobile applications. This is what our entire server is built on.
-
-### CORS
-CORS (Cross-Origin Resource Sharing) is a browser security feature that restricts cross-origin HTTP requests that are initiated from scripts running in the browser. Some external API calls may not be allowed without using CORS on the server.
-
-### Routing
-Our server makes use of the Express Router to organize HTTP request endpoints. For example, database calls are handled by database.js.
-
-Adding a route is easy. Just create a .js file in the /routes directory and add the following imports:
-```js
-const express = require('express') // Define Express in context
-const router = express.Router() // Extract the router element from Express
-const bodyParser = require('body-parser');  // A library for parsing JSON bodies
-
-router.use(bodyParser.urlencoded({ extended: true })); // Use bodyParser in router
-router.use(express.json()); // Use the Express JSON API in router
-```
-
-Then add the router as a module export:
-```js
-module.exports = {
-  router: router,
-  whateverElse: someOtherThing,
-  etc: etc
-}
-```
-
-Now import the route in server.js and "use" it:
-```js
-const login = require('./routes/login'); // Import login.js
-app.use("/login", login.router)  // All server calls to /login will now be handled by login.js
-``` 
-
-Then just add HTTP Request methods in your new route. Here's a template:
-```js
-// HTTPRequestMethod could be a GET, POST, HEAD, etc.
-router.HTTPRequestMethod("/request-url", (HTTPRequest, HTTPResponse) => {
-  const data = HTTPRequest.body.data; // This is where bodyParser comes in
-  const newData = doSomething(data);
-  const jsonContent = JSON.stringify(newData); // Stringify JSON before sending back to client.
-  HTTPResponse.end(jsonContent); // Send JSON back to client
-});
-```
-
-### Making Database Calls
-Let's dissect this function:
-```js
-/**
- * Finds a user on the DB by their id and returns the first result.
- * @param {Number} id userId to be fetched from the database 
- * @returns {Object} the first user returned from the database (and hopefully only becuase ID is unique)
- */
-async function findUserById(id) {
-  return new Promise((resolve, reject) => {
-    if (!id) { reject(new Error("No ID provided!")); }
-    console.log("Searching DB for all users where [id] = [" + id + "]");
-    const queryString = "SELECT * FROM " + dbManager.USERTABLE + " WHERE id IN ('" + id + "');";
-    console.log("QueryString: " + queryString);
-    const client = new Client({
-      connectionString: dbManager.CONNECTIONSTRING,
-      ssl: {
-        rejectUnauthorized: false
-      }
-    });
-    client.connect();
-    client.query(queryString, (err, res) => {
-      client.end();
-      if (err) {
-        console.log(err.detail);
-        reject(err.detail);
-      }
-      console.log("Fetch complete.")
-      resolve(res.rows[0]);
-    });
-  });
-}
-```
-
-First, it's asynchronous. This allows us to wait for the return value (a Promise) to be rejected or resolved before moving onto the next line of code when we call it. Without making this an asycn function, we'll move on before the database has had time to fetch whatever we want from it.
-
-All asynchronous functions must return a Promise. Here's how to make one:
-```js
-/**
- * Creates a new promise and either rejects or resolves based on a boolean value
- * @param {Boolean} bool Whether or not the promise will be resolved
- * @returns {String} The result of the promise
- */
-async function makePromise(bool) {
-  return new Promise((resolve, reject) => { // new Promise takes an arrow function with params that act as returns
-    if (bool) {
-      resolve("Promise resolved!"); // Resolve the promise with a string
-    } else {
-      reject("Promise rejected! >:)"); // Reject the promise with a string
-    }
-  })
-}
-```
-Both resolve() and reject() return a value. We can handle resolved promises different from rejected promises if we want.
-
-Then to call the function, use the await keyword.
-```js
-// Not using await may result in a null value
-const dontDoThis = makePromise(false);
-console.log(dontDoThis) // Prints "undefined" to console.
-
-// Using await will allow the promise to resolve or reject before moving on.
-let resultString = await makePromise(true);
-console.log(resultString); // Prints "Promise resolved!" to console.
-```
-
-The only other thing is that you have to close the database connection after you've made your query.
-```js
-client.end();
-```
-
-### Testing
-We use the "Jest" testing framework. You can find the documentation (here)[https://jestjs.io/docs/getting-started].
-
-Server tests are located in the /\__tests__ directory.
-
-Tests should be surrounded by a describe(), and individual tests should have descriptive names.

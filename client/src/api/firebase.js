@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
-import { getAuth } from 'firebase/authentication';
+import { getAuth, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -27,6 +27,34 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+export const auth = getAuth(app);
+
+/**
+ * Sign out user and remove localStorage item
+ */
+export async function signOutUser() {
+  return new Promise((resolve, reject) => {
+      signOut(auth).then((result) => {
+          localStorage.removeItem("citrus:user");
+          resolve(null);
+      }).catch((error) => {
+          reject(error);
+      });
+  })
+}
+
+/**
+ * Sign in user with google and return user
+ */
+const provider = new GoogleAuthProvider();
+export async function signInWithGoogle() {
+    return new Promise((resolve, reject) => {
+        signInWithPopup(auth, provider).then((result) => {
+          resolve(result.user);
+        }).catch((error) => {
+          reject(error);
+        });
+    })
+}

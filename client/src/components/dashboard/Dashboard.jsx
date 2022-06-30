@@ -13,21 +13,11 @@ import NewTransaction from "./newTransaction/NewTransaction";
 import Shortcut from "./shortcut/Shortcut";
 
 /**
- * Removes unnecessary localStorage registers
- */
-function cleanLs() {
-  localStorage.removeItem("login:phone_number");
-  localStorage.removeItem("login:user_id");
-  localStorage.removeItem("login:first_name");
-}
-
-/**
  * If we're not signed in, redirect to login.
  * Othwerwise, set the document title and continue to dashboard.
  * @param {Object} user The current user (if it exists)
  */
 function doPageSetup(user) {
-  cleanLs();
   if (!user) {
     window.location = "/login";
   }
@@ -36,6 +26,7 @@ function doPageSetup(user) {
 
 export default function Dashboard({ user }) {
   // Set up page
+  console.log(user)
   doPageSetup(user);
 
   const [shortcutActive, setShortcutActive] = useState(false);        // Whether or not new transaction shortcut is active

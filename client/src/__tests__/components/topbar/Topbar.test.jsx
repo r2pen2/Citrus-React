@@ -12,38 +12,7 @@ describe("Topbar render tests", () => {
         const userTopbar = screen.queryByTestId("user-topbar");
         expect(topbarWrapper).not.toContainElement(userTopbar);
     });
-
-    test('Renders user topbar when user is passed in', () => {
-        const testUser = { firstName: "John", lastName: "Doe" }
-        render(<Topbar user={testUser} />);
-        const topbarWrapper = screen.queryByTestId("topbar-wrapper");
-        const noUserTopbar = screen.queryByTestId("no-user-topbar");
-        expect(topbarWrapper).not.toContainElement(noUserTopbar);
-        const userTopbar = screen.queryByTestId("user-topbar");
-        expect(topbarWrapper).toContainElement(userTopbar);
-    });
 });
 
 describe("Topbar function tests", () => {
-
-    test('Logout button clears user from localStorage', () => {
-        const testUser = { firstName: "John", lastName: "Doe" }
-        localStorage.setItem('user', JSON.stringify(testUser));
-        render(<Topbar user={testUser} />);
-        const logoutButton = screen.queryByTestId("topbar-logout-button");
-        fireEvent.click(logoutButton);
-        const userExistsInLS = localStorage.getItem('user') ? true : false;
-        expect(userExistsInLS).toBe(false);
-    });
-
-    test('Clicking account button opens menu', () => {
-        const testUser = { firstName: "John", lastName: "Doe" }
-        localStorage.setItem('user', JSON.stringify(testUser));
-        render(<Topbar user={testUser} />);
-        const accountButton = screen.getByTestId("account-button");
-        const accoutMenu = screen.queryByTestId("account-menu");
-        expect(accoutMenu).not.toBeVisible();
-        fireEvent.click(accountButton);
-        expect(accoutMenu).toBeVisible();
-    });
 });
