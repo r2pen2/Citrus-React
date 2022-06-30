@@ -9,10 +9,6 @@ import { NotificationManager } from 'react-notifications';
 
 export default function AuthCodeInput({phoneNumber, confirmationResult, resendCode, setUser}) {
 
-  // Clear local storage from further on in auth process
-  localStorage.removeItem('login:user_id');
-  localStorage.removeItem('login:first_name');
-
   // Define constants
   const [authCode, setAuthCode] = useState("");                         // Current value of the auth code textfield
   const [submitEnable, setSubmitEnable] = useState(false);              // Whether or not the submit button is enabled

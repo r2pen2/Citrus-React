@@ -19,23 +19,4 @@ describe("HomePage render tests", () => {
 });
 
 describe("Homepage function tests", () => {
-  test('cleanLs() runs on render', () => {
-    localStorage.setItem("login:phone_number", "test");
-    localStorage.setItem("login:first_name", "test");
-    localStorage.setItem("login:user_id", "test");
-    render(<HomePage />);
-    const phoneNumberExistsInLS = localStorage.getItem('login:phone_number') ? true : false;
-    const firstNameExistsInLS = localStorage.getItem('login:first_name') ? true : false;
-    const userIdExistsInLS = localStorage.getItem('login:user_id') ? true : false;
-    expect(phoneNumberExistsInLS).toBe(false);
-    expect(firstNameExistsInLS).toBe(false);
-    expect(userIdExistsInLS).toBe(false);
-  });
-  
-  test('cleanLs() does not clear user from localStorage', () => {
-    localStorage.setItem("user", "test");
-    render(<HomePage />);
-    const userExistsInLS = localStorage.getItem('user') ? true : false;
-    expect(userExistsInLS).toBe(true);
-  });
 });

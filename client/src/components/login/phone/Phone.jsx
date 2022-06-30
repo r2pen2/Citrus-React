@@ -26,23 +26,11 @@ function formatPhoneNumber(num) {
 }
 
 export default function Phone({ setUser }) {
-    
-    // Clear local storage from further on in auth process
-    localStorage.removeItem('login:user_id');
-    localStorage.removeItem('login:first_name');
 
     // Define constants
     const [submitEnable, setSubmitEnable] = useState(true);                         // Whether or not the submit button is enabled
-    const [phoneNumber, setPhoneNumber] = useState(getLsNum());                     // Current value of the phone number textfield
+    const [phoneNumber, setPhoneNumber] = useState("");                             // Current value of the phone number textfield
     const [confirmationResult, setConfirmationResult] = useState();                 // Firebase confirmation
-
-    /**
-     * sets phone number value on initialize to localStorage
-     * @returns {String} phone number from localStorage
-     */
-    function getLsNum() {
-        return localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : "";
-    }
 
     /**
      * Updates state to reflext phone input value
@@ -125,7 +113,7 @@ export default function Phone({ setUser }) {
                     Enter your phone number:
                 </Typography>
                 <div className="phone-input-container">
-                    <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit} value={localStorage.getItem('login:phone_number') ? localStorage.getItem('login:phone_number') : ""} data-testid="mui-phone-input"/>
+                    <MuiPhoneNumber autoFocus defaultCountry={'us'} onChange={handleOnChange} onKeyDown={(e) => {handleEnter(e)}} onKeyUp={enableSubmit} onBlur={enableSubmit} data-testid="mui-phone-input"/>
                 </div>
                 <div className="login-next-button-container">
                     <Stack direction="column">

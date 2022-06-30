@@ -9,25 +9,7 @@ import { NotificationManager } from 'react-notifications';
 // API imports
 import axios from '../../../../api/axios'
 
-/**
- * Checks for a phone number in localStorage
- * @returns {Boolean} whether or not we have a phone number stored in LS
- */
-function phoneNumberExistsInLs() {
-  return localStorage.getItem('login:phone_number') ? true : false;
-}
-
-export default function PasswordEntry({ setUser }) {
-
-  // Redirect if we got here too early
-  if (!localStorage.getItem('login:first_name')) {
-    window.location = "/login";
-  }
-
-  // Or if we got here by accident...
-  if (localStorage.getItem('login:user_id') === 'undefined' && phoneNumberExistsInLs()) {
-    window.location = "/login/account-creation";
-  }
+export default function PasswordEntry({ user, setUser }) {
 
   // Define constants
   const [password, setPassword] = useState("");                     // Current value of password textfield
@@ -47,22 +29,7 @@ export default function PasswordEntry({ setUser }) {
    * Otherwise, display error.
    */
   function handleSubmit() {
-    // Get localStorage items
-    const id = localStorage.getItem('login:user_id');
-
-    // First find out if the password is valid. 
-    // !!!We want to do this on the server!!!
-    axios.post("database/check-password", { userId: id, password: password }).then((res) => {
-      // Handle server response. Workflow is very similar to Twilio response in AuthCodeInput.jsx
-      if (res.data.result === 'accepted') {
-        // Password was correct
-        console.log("Password accepted!");
-        setUser(id);
-      } else {
-        // Password was WRONG! You IDIOT!
-        NotificationManager.error('Invalid password!', 'Error!');
-      }
-    })
+    // TODO implement
   }
 
   /**
@@ -74,13 +41,6 @@ export default function PasswordEntry({ setUser }) {
       e.preventDefault();
       handleSubmit();
     }
-  }
-
-  /**
-   * Gets first name from localStorage and removes quotation marks
-   */
-  function getFirstName() {
-    return localStorage.getItem('login:first_name').replaceAll('"', '');
   }
 
   return (
@@ -95,7 +55,7 @@ export default function PasswordEntry({ setUser }) {
     data-testid="password-entry-wrapper"
     >
       <Typography variant="h5" component="div" align="center" paddingTop="20px" sx={{ flexGrow: 1 }} data-testid="password-entry-welcome-text">
-          Welcome back to Citrus, {getFirstName()}!
+          Welcome back to Citrus, {user.displayName}!
       </Typography>
       <TextField required type="password" id="password" label="Password" autoComplete='off' onChange={e => setPassword(e.target.value)} onKeyUp={enableSubmit} onBlur={enableSubmit} onKeyDown={(e) => {handleEnter(e)}} data-testid="password-input"/>
       <div className="login-next-button-container">
