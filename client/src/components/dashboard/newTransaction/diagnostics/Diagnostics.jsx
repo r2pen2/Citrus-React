@@ -7,6 +7,7 @@ import { Component, useState } from "react";
 // Component imports
 import AffiliationQuestion from "./affiliationQuestion/AffiliationQuestion";
 import TypeQuestion from "./typeQuestion/TypeQuestion";
+import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
 
 // class Diagnostics extends Component {
 //   // state = {
@@ -82,11 +83,13 @@ export default function Diagnostics({ user }) {
       case 3:
         const nextPage =
           "/dashboard/new-transaction/" +
-          (state.Type === "Communal" ? "communal" : "iou");
+          (state.Type === "Communal" ? "communal" : "iou") +
+          "?affiliation=" +
+          state.Affiliation;
         window.location = nextPage;
         break;
       default:
-        return <div>loading...</div>;
+        return <LoadingScreen />;
     }
   }
   return <div>{getPageContent()}</div>;
