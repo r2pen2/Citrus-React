@@ -50,3 +50,4 @@ export default function InfoButton({ informationText }) {
     </div>
   );
 }
+// fixed position; set top fixed and bottom to auto
