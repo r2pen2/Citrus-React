@@ -19,12 +19,12 @@ export default function LoginHome({setUser}) {
   }
 
   return (
-    <div className="login-home">
-      <Button className="login-btn"  variant="contained" onClick={() => handleSignIn()}>
+    <div className="login-home" data-testid="login-home">
+      <Button data-testid="google-button" className="login-btn"  variant="contained" onClick={() => handleSignIn()}>
         <img src={GoogleLogo} alt="Google Logo"/>
         <Typography marginLeft="10px">Sign in with Google</Typography>
       </Button>
-      <Button className="login-btn" variant="contained" onClick={() => {window.location = "/login/phone"}}>
+      <Button data-testid="phone-button" className="login-btn" variant="contained" onClick={() => {window.location = "/login/phone"}}>
         <PhoneIphoneIcon/>
         <Typography marginLeft="10px">Sign in with Phone</Typography>
       </Button>

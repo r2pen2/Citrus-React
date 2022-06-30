@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import AuthCodeInput from '../../../components/login/authentication/authCodeInput/AuthCodeInput';
+import AuthCodeInput from '../../../components/login/phone/AuthCodeInput';
 
 describe("AuthCodeInput render tests", () => {
 

@@ -7,14 +7,12 @@ import { styled } from '@mui/material/styles';
 import { Stack, Box, Stepper, Step, StepLabel, Paper } from "@mui/material";
 import Check from '@mui/icons-material/Check';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector'; 
-import axios from '../../api/axios';
 import { Route, Routes } from "react-router-dom";
 import { useState } from "react"; 
 
 // Component Imports
 import Phone from "./phone/Phone";
 import NewUserForm from "./newUserForm/NewUserForm";
-import Authentication from "./authentication/Authentication";
 import LoginHome from "./loginHome/LoginHome";
 import Logo from "../../assets/images/Logo256.png";
 
@@ -117,7 +115,7 @@ function displaySteps() {
    */
   function getPageIndex() {
     const l = window.location.toString();
-    if (l.includes("/authentication")) {
+    if (l.includes("/")) {
       return 1;
     } else if (l.includes("/password-entry") || l.includes("/account-creation")) {
       return 2;

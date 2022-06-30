@@ -22,18 +22,6 @@ describe("NewUserForm render tests", () => {
         expect(input).toBeVisible();
     });
 
-    test("Password input renders", () => {
-        render(<NewUserForm setUserById={() => {}}/>);
-        const input = screen.getByTestId("password-input");
-        expect(input).toBeVisible();
-    });
-
-    test("Password confirmation input renders", () => {
-        render(<NewUserForm setUserById={() => {}}/>);
-        const input = screen.getByTestId("password-confirmation-input");
-        expect(input).toBeVisible();
-    });
-
     test("Submit button renders and is disabled", () => {
         render(<NewUserForm setUserById={() => {}}/>);
         const button = screen.getByTestId("submit-button");
