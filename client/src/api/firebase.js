@@ -31,6 +31,9 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 
+/**
+ * Sign out user and remove localStorage item
+ */
 export async function signOutUser() {
   return new Promise((resolve, reject) => {
       signOut(auth).then((result) => {
@@ -42,6 +45,9 @@ export async function signOutUser() {
   })
 }
 
+/**
+ * Sign in user with google and return user
+ */
 const provider = new GoogleAuthProvider();
 export async function signInWithGoogle() {
     return new Promise((resolve, reject) => {

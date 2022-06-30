@@ -6,6 +6,10 @@ import GoogleLogo from "../../../assets/images/GoogleLogo.svg";
 
 export default function LoginHome({setUser}) {
 
+  /**
+   * Sign user in with google if button is pressed
+   * Set localStorage itema and redirect to dashboard
+   */
   async function handleSignIn() {
     signInWithGoogle().then((newUser) => {
         setUser(newUser);

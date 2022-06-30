@@ -171,7 +171,6 @@ export default function Login({ user, setUser }) {
               <Route path="/" element={<LoginHome setUser={setUser}/>}/>
               <Route path="/home" element={<LoginHome setUser={setUser}/>}/>
               <Route path="/phone" element={<Phone setUser={setUser}/>}/>
-              <Route path="/authentication/*" element={<Authentication user={user} setUser={setUser}/>}/>
               <Route path="/account-creation" element={<NewUserForm user={user} setUser={setUser}/>}/>
             </Routes>
           </div>

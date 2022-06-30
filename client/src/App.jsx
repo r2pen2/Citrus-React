@@ -25,15 +25,13 @@ function App() {
 
   // Set current user
   const [user, setUser] = useState(localStorage.getItem("citrus:user") ? JSON.parse(localStorage.getItem("citrus:user")) : null);
-  console.log("state = unknown (until the callback is invoked)")
+  // And update user when auth changes
   useEffect(() => {
     auth.onAuthStateChanged(u => {
       if (u) {
         setUser(u);
-        console.log(user);
       }
       else {
-        console.log("state = definitely signed out")
         setUser(null);
       }
     })
