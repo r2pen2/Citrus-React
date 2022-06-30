@@ -24,7 +24,7 @@ import creditsData from './assets/json/creditsPage';
 function App() {
 
   // Set current user
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(localStorage.getItem("citrus:user") ? JSON.parse(localStorage.getItem("citrus:user")) : null);
   console.log("state = unknown (until the callback is invoked)")
   useEffect(() => {
     auth.onAuthStateChanged(u => {

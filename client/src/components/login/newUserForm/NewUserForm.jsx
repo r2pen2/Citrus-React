@@ -54,7 +54,6 @@ export default function NewUserForm({ user, setUser }) {
   // Define constants
   const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)
   const [lastName, setLastName] = useState("");                           // The current user's last name (for account creation)'
-  const [passwordConfirm, setPasswordConfirm] = useState("");             // Current value of the password confirmation textfield (for account creation)
   const [submitEnable, setSubmitEnable] = useState(false);                // Whether or not the submit button is enabled
 
   /**
@@ -95,6 +94,7 @@ export default function NewUserForm({ user, setUser }) {
     }).then((u) => {
       // Profile updated!
       setUser(u);
+      localStorage.setItem("citrus:user", JSON.stringify(u));
       window.location = "/dashboard"
     })
   }

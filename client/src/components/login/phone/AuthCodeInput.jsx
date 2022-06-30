@@ -39,6 +39,7 @@ export default function AuthCodeInput({phoneNumber, confirmationResult, resendCo
       console.log(confirmationResult)
       confirmationResult.confirm(authCode).then((result) => {
         setUser(result.user);
+        localStorage.setItem("citrus:user", JSON.stringify(result.user));
         if (result.user.displayName) {
           // If we've logged in this user before, redirect to dashboard
           window.location = "/dashboard";

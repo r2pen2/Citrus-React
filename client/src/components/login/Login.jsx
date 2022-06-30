@@ -143,16 +143,21 @@ function displaySteps() {
 }
 
 /**
- * Set the document title.
+ * Set the document title or redirect to dashboard
+ * @param {Object} user current user
  */
-function doPageSetup() {
-  document.title = "Citrus | Login";
+function doPageSetup(user) { 
+  if (user) {
+    window.location = "/dashboard";
+  } else {
+    document.title = "Citrus | Login";
+  }
 }
 
 export default function Login({ user, setUser }) {
   
   // Page setup
-  doPageSetup()
+  doPageSetup(user)
 
   return (
     <div className="background-controller" data-testid="login-background-controller">

@@ -34,6 +34,7 @@ export const auth = getAuth(app);
 export async function signOutUser() {
   return new Promise((resolve, reject) => {
       signOut(auth).then((result) => {
+          localStorage.removeItem("citrus:user");
           resolve(null);
       }).catch((error) => {
           reject(error);
