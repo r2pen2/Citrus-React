@@ -11,17 +11,35 @@ import BlackLogo from "./assets/LogoBlack.png";
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
-export default function Topbar( { user }) {
+// API Imports
+import { signOutUser } from '../../api/firebase'
+
+export default function Topbar({ user }) {
 
     // Decide if there's a user signed in
-    const signedIn = user ? true : false;
+    console.log(user)
+    
+    function getSignedIn() {
+        if (user) {
+            if (user.displayName === null) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    const signedIn = getSignedIn();
 
     /**
      * Log user out and redirect to homepage
      */
-    function logOut() {
-        localStorage.removeItem('user');
-        window.location = "/home"
+    async function logOut() {        
+        signOutUser().then(() => {
+        window.location = "/home";
+      });
     }
 
     // Element to anchor account menu to
@@ -59,13 +77,12 @@ export default function Topbar( { user }) {
      * @returns {String} initials
      */
     function getInitials(f, l) {
-        return f.charAt(0) + l.charAt(0);
+        return user.displayName.charAt(0);
     }
 
     // Choose which topbar to display— signedIn is displays user information
     if (signedIn) {
         // Signed in, so set user vars and return detail topbar
-        const fullName = user.firstName + " " + user.lastName
         return (
             <div className="topbar" data-testid="topbar-wrapper">
                 <div className="appbar-container" data-testid="user-topbar">
@@ -79,10 +96,10 @@ export default function Topbar( { user }) {
                             </Typography>
                             <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" display="flex">
                                 <Typography variant="subtitle1" component="div" marginTop="4px">
-                                    {fullName}
+                                    {user.displayName}
                                 </Typography>
                                 <IconButton aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={(e) => handleMenu(e)} color="inherit" data-testid="account-button">
-                                    <Avatar alt={fullName} sx={{ border: "1px solid black"}}>{getInitials(user.firstName, user.lastName)}</Avatar>
+                                    <Avatar alt={user.displayName} sx={{ border: "1px solid black"}}>{getInitials(user.firstName, user.lastName)}</Avatar>
                                 </IconButton>
                                 <Menu 
                                 data-testid="account-menu"

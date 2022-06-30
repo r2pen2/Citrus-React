@@ -12,9 +12,10 @@ import { Route, Routes } from "react-router-dom";
 import { useState } from "react"; 
 
 // Component Imports
-import PhoneInput from "./phoneInput/PhoneInput";
+import Phone from "./phone/Phone";
 import NewUserForm from "./newUserForm/NewUserForm";
 import Authentication from "./authentication/Authentication";
+import LoginHome from "./loginHome/LoginHome";
 import Logo from "../../assets/images/Logo256.png";
 
 /**
@@ -142,35 +143,16 @@ function displaySteps() {
 }
 
 /**
- * Sign-in a user by their ID and redirect to dashboard
- * @param {Number} id userID returned from password input
+ * Set the document title.
  */
-function setUserById(id) {
-  axios.post("/database/get-user-by-id", { id: id }).then((res) => {
-    if (res.data) {
-      localStorage.setItem("user", JSON.stringify(res.data));
-      window.location = "/dashboard"
-    }
-  })
+function doPageSetup() {
+  document.title = "Citrus | Login";
 }
 
-/**
- * If we're signed in, redirect to dashboard.
- * Othwerwise, set the document title and continue to login.
- * @param {Object} user The current user (if it exists)
- */
-function doPageSetup(user) {
-  if (user) {
-    window.location = "/dashboard";
-  } else {
-    document.title = "Citrus | Login";
-  }
-}
-
-export default function Login({ user }) {
+export default function Login({ user, setUser }) {
   
   // Page setup
-  doPageSetup(user)
+  doPageSetup()
 
   return (
     <div className="background-controller" data-testid="login-background-controller">
@@ -180,10 +162,11 @@ export default function Login({ user }) {
             <img src={Logo} alt="logo" className="logo" data-testid="login-logo"></img>
           </div>
           <Routes>
-            <Route path="/" element={<PhoneInput/>}/>
-            <Route path="/phone-number" element={<PhoneInput/>}/>
-            <Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
-            <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>
+            <Route path="/" element={<LoginHome/>}/>
+            <Route path="/home" element={<LoginHome/>}/>
+            <Route path="/phone" element={<Phone setUser={setUser}/>}/>
+            <Route path="/authentication/*" element={<Authentication setUser={setUser}/>}/>
+            <Route path="/account-creation" element={<NewUserForm user={user} setUser={setUser}/>}/>
           </Routes>
         </Stack>
       </Paper>

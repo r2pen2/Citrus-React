@@ -7,13 +7,7 @@ import { useState } from 'react';
 import { Typography, Button, Stack, TextField } from "@mui/material";
 import { NotificationManager } from 'react-notifications';
 
-// API imports
-import axios from '../../../../api/axios';
-
-export default function AuthCodeInput({confirmationResult}) {
-
-  // Set phone number from localStorage
-  const phoneNumber = localStorage.getItem('login:phone_number');
+export default function AuthCodeInput({phoneNumber, confirmationResult, resendCode, setUser}) {
 
   // Clear local storage from further on in auth process
   localStorage.removeItem('login:user_id');
@@ -22,16 +16,6 @@ export default function AuthCodeInput({confirmationResult}) {
   // Define constants
   const [authCode, setAuthCode] = useState("");                         // Current value of the auth code textfield
   const [submitEnable, setSubmitEnable] = useState(false);              // Whether or not the submit button is enabled
-
-  /**
-   * Resend auth code to phone number and display a notification
-   * @param {String} num phone number to send auth code to
-   */
-  function resendCode(num) {
-      console.log("Texting: " + num);
-      axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-      .then(NotificationManager.success("to " + num, "Code resent!"));
-  }
 
   /**
    * Enable submit button if auth code is long enough
@@ -58,8 +42,13 @@ export default function AuthCodeInput({confirmationResult}) {
       // Verify OTP
       console.log(confirmationResult)
       confirmationResult.confirm(authCode).then((result) => {
-        const user = result.user;
-        console.log(user);
+        setUser(result.user);
+        if (result.user.displayName) {
+          // If we've logged in this user before, redirect to dashboard
+          window.location = "/dashboard";
+        } else {
+          window.location = "/login/account-creation";
+        }
       }).catch((error) => {
 
       })

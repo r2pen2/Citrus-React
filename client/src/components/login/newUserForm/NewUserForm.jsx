@@ -8,6 +8,7 @@ import { TransitionGroup } from 'react-transition-group';
 
 // API imports
 import axios from '../../../api/axios'
+import { auth } from '../../../api/firebase'
 
 // A set of welcome messages to be displayed on the account creation page
 // Please feel free to edit these lol
@@ -47,8 +48,12 @@ const helloMessages = [
 // the page state is updated for any reason
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
-export default function NewUserForm({ setUserById }) {
-  
+async function getCurrentUser() {
+
+}
+
+export default function NewUserForm({ user, setUser }) {
+
   // Set phone number from localStorage
   const phoneNumber = localStorage.getItem('login:phone_number');
 
@@ -158,7 +163,7 @@ export default function NewUserForm({ setUserById }) {
   function handleSubmit() {
     axios.post("/database/create-new-user", { firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, password:password }).then((res) => {
       console.log("Setting userID to " + res.data.id);
-      setUserById(res.data.id);
+      setUser(res.data.id);
     })
   }
 

@@ -7,6 +7,8 @@ import "./assets/style/notifications.css";
 import { ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { NotificationContainer } from 'react-notifications';
+import { useState, useEffect } from 'react';
+import { auth } from "./api/firebase";
 
 // Component Imports
 import Login from "./components/login/Login";
@@ -19,18 +21,26 @@ import UserPage from "./components/userPage/UserPage";
 // Data Imports
 import creditsData from './assets/json/creditsPage';
 
-/**
- * Fetches user data from localStorage
- * @returns {Object} user from localStorage
- */
-function getUserFromLS() {
-  return JSON.parse(localStorage.getItem('user'));
-}
-
 function App() {
 
   // Set current user
-  const user = getUserFromLS();
+  const [user, setUser] = useState(null);
+  console.log("state = unknown (until the callback is invoked)")
+  useEffect(() => {
+    auth.onAuthStateChanged(u => {
+      if (u) {
+        setUser(u);
+        console.log(user);
+      }
+      else {
+        console.log("state = definitely signed out")
+        setUser(null);
+      }
+    })
+  }, []);
+
+  
+  
 
   return (
     <div className="app" data-testid="app-wrapper">
@@ -41,7 +51,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/home" element={<HomePage />} />
-                <Route path="/login/*" element={<Login user={user}/>} />
+                <Route path="/login/*" element={<Login user={user} setUser={setUser}/>} />
                 <Route path="/dashboard/*" element={<Dashboard user={user}/>} />
                 <Route path="/user/*" element={<UserPage data={user}/>}/>
                 <Route path="/credits" element={<DataPage data={creditsData}/>} />

@@ -17,7 +17,7 @@ function phoneNumberExistsInLs() {
   return localStorage.getItem('login:phone_number') ? true : false;
 }
 
-export default function PasswordEntry({ setUserById }) {
+export default function PasswordEntry({ setUser }) {
 
   // Redirect if we got here too early
   if (!localStorage.getItem('login:first_name')) {
@@ -57,7 +57,7 @@ export default function PasswordEntry({ setUserById }) {
       if (res.data.result === 'accepted') {
         // Password was correct
         console.log("Password accepted!");
-        setUserById(id);
+        setUser(id);
       } else {
         // Password was WRONG! You IDIOT!
         NotificationManager.error('Invalid password!', 'Error!');

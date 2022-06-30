@@ -1,5 +1,5 @@
 // Style imports
-import "./phoneInput.scss";
+import "./phone.scss";
 
 // Library imports
 import * as React from 'react';
@@ -14,7 +14,7 @@ import { auth } from '../../../api/firebase';
 import axios from '../../../api/axios';
 
 // Component imports
-import AuthCodeInput from '../authentication/authCodeInput/AuthCodeInput';
+import AuthCodeInput from './AuthCodeInput';
 
 /**
  * Removes all special characters from phone number string and adds leading "+"
@@ -25,8 +25,7 @@ function formatPhoneNumber(num) {
     return "+" + num.replace(/\D/g, '');
 }
 
-export default function PhoneInput() {
-
+export default function Phone({ setUser }) {
     
     // Clear local storage from further on in auth process
     localStorage.removeItem('login:user_id');
@@ -89,14 +88,13 @@ export default function PhoneInput() {
     }
 
     /**
-     * Asks the server to call the inputted phone number
-     * @param {String} num phone number to call
-     */
-    function callMe(num) {
-        //console.log("Calling: " + phoneNumber);
-        //axios.post('/send-twilio-auth', { phoneNumber: phoneNumber, channel: 'call'})
-        //.then(incrementPage());
-        NotificationManager.info("This feature is currently disabled.", "Sorry!");
+    * Resend auth code to phone number and display a notification
+    * @param {String} num phone number to send auth code to
+    */
+    function resendCode(num) {
+        console.log("Texting: " + num);
+        axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
+        .then(NotificationManager.success("to " + num, "Code resent!"));
     }
 
     /**
@@ -119,7 +117,7 @@ export default function PhoneInput() {
     }
 
     if (confirmationResult) {
-        return <AuthCodeInput confirmationResult={confirmationResult}/>;
+        return <AuthCodeInput phoneNumber={phoneNumber} confirmationResult={confirmationResult} resendCode={textMe} setUser={setUser}/>;
     } else {
         return (
             <div data-testid="phone-input-container">  
@@ -132,9 +130,6 @@ export default function PhoneInput() {
                 <div className="login-next-button-container">
                     <Stack direction="column">
                         <Button variant="contained" component="div" onClick={() => textMe(phoneNumber)} disabled={!submitEnable} data-testid="text-me-button">Text Me</Button>
-                        <div className="call-me-button-container">
-                            <Button variant="text" sx={{color: "gray" }} size="small" onClick={() => callMe(phoneNumber)} disabled={!submitEnable} data-testid="call-me-button">Or receive a phone call instead</Button>
-                        </div>
                     </Stack>
                 </div>
             </div>
