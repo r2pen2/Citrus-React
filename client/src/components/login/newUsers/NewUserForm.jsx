@@ -8,8 +8,7 @@ import { updateProfile } from 'firebase/auth'
 
 
 // API imports
-import axios from '../../../api/axios'
-import { auth } from '../../../api/firebase'
+import { createUserDocument } from "../../../api/dbManager";
 
 // A set of welcome messages to be displayed on the account creation page
 // Please feel free to edit these lol
@@ -93,8 +92,9 @@ export default function NewUserForm({ user, setUser }) {
       displayName: firstName + " " + lastName
     }).then((u) => {
       // Profile updated!
-      setUser(u);
       localStorage.setItem("citrus:user", JSON.stringify(u));
+      createUserDocument(u);
+      setUser(u);
       window.location = "/dashboard"
     })
   }

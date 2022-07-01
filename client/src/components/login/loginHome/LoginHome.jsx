@@ -1,8 +1,16 @@
+// Style imports
 import "./loginHome.scss";
+
+// Library imports
 import { Button, Typography } from "@mui/material";
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
-import { signInWithGoogle } from "../../../api/firebase";
+
+// Component imports
 import GoogleLogo from "../../../assets/images/GoogleLogo.svg";
+
+// Api imports
+import { signInWithGoogle } from "../../../api/firebase";
+import { createUserDocument } from "../../../api/dbManager";
 
 export default function LoginHome({setUser}) {
 
@@ -12,8 +20,9 @@ export default function LoginHome({setUser}) {
    */
   async function handleSignIn() {
     signInWithGoogle().then((newUser) => {
-        setUser(newUser);
         localStorage.setItem("citrus:user", JSON.stringify(newUser));
+        setUser(newUser);
+        createUserDocument(newUser);
         window.location = "/dashboard";
     });
   }
