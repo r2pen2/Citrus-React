@@ -6,10 +6,6 @@ import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Coll
 import { useState } from 'react';
 import { updateProfile } from 'firebase/auth'
 
-
-// API imports
-import { createUserDocument } from "../../../api/dbManager";
-
 // A set of welcome messages to be displayed on the account creation page
 // Please feel free to edit these lol
 const helloMessages = [
@@ -93,7 +89,6 @@ export default function NewUserForm({ user, setUser }) {
     }).then((u) => {
       // Profile updated!
       localStorage.setItem("citrus:user", JSON.stringify(u));
-      createUserDocument(u);
       setUser(u);
       window.location = "/dashboard"
     })
