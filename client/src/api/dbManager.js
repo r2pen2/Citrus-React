@@ -6,6 +6,12 @@ const USER_COLLECTION = "users";
 const BADGES_COLLECTION = "badges";
 const DEFAULT_PROFILE_PICTURES = "defaultProfilePictures"
 
+/**
+ * Syncronizes database with the current user.
+ * If user does not exist in the database, create a document with default data.
+ * If the user already exists in the database, update their metadata.
+ * @param {Object} user the current user
+ */
 export async function syncUserDoc(user) {
     console.log("Syncing user " + user.uid);
     const docRef = doc(firestore, USER_COLLECTION, user.uid);
