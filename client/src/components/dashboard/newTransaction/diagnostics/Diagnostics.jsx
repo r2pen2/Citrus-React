@@ -9,13 +9,6 @@ import AffiliationQuestion from "./affiliationQuestion/AffiliationQuestion";
 import TypeQuestion from "./typeQuestion/TypeQuestion";
 import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
 
-// class Diagnostics extends Component {
-//   // state = {
-//   //   step: 1,
-//   //   Affiliation: "",
-//   //   Type: "",
-//   // };
-// }
 export default function Diagnostics({ user }) {
   const [step, setStep] = useState(1);
   const [state, setState] = useState({
@@ -52,13 +45,8 @@ export default function Diagnostics({ user }) {
         "; Type - " +
         state.Type
     );
-
-    // console.log("before");
-    // console.log(state);
-    // setState({ items });
-    // console.log("after");
-    // console.log(state);
   }
+
   function getPageContent() {
     switch (step) {
       case 0:
