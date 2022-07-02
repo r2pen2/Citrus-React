@@ -7,13 +7,33 @@ import { useSearchParams } from "react-router-dom";
 
 // Component imports
 import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
+import WhomQuestion from "./whomQuestion/WhomQuestion";
 
 export default function Iou({ user }) {
   const [step, setStep] = useState(1);
+  const [state, setState] = useState({
+    friend: "",
+  });
 
-  const params = new URLSearchParams(window.location.search);
-  const affiliation = params.get("affiliation");
-  // console.log(affiliation);
+  // go back to the previous step
+  function prevStep() {
+    setStep(step - 1);
+  }
+
+  // proceed to the next step
+  function nextStep() {
+    setStep(step + 1);
+  }
+
+  // handle input
+  function updateValue(key, value) {
+    const newState = state;
+    newState[key] = value;
+    setState(newState);
+  }
+
+  // const params = new URLSearchParams(window.location.search);
+  // const affiliation = params.get("affiliation");
 
   function getPageContent() {
     switch (step) {
@@ -22,12 +42,11 @@ export default function Iou({ user }) {
         break;
       case 1:
         return (
-          <div>whom?</div>
-          // <WhomQuestion
-          //   nextStep={nextStep}
-          //   prevStep={prevStep}
-          //   updateValue={updateValue}
-          // />
+          <WhomQuestion
+            nextStep={nextStep}
+            prevStep={prevStep}
+            updateValue={updateValue}
+          />
         );
       case 2:
         return (
@@ -53,5 +72,5 @@ export default function Iou({ user }) {
         return <LoadingScreen />;
     }
   }
-  return <div>IOU</div>;
+  return <div>{getPageContent()}</div>;
 }

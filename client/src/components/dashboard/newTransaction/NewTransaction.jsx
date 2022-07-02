@@ -9,6 +9,7 @@ import Diagnostics from "./diagnostics/Diagnostics";
 import Iou from "./iou/Iou";
 import Communal from "./communal/Communal";
 import BookmarkController from "./bookmarkController/BookmarkController";
+import LoadingScreen from "../../miscellaneous/loadingScreen/LoadingScreen";
 
 export default function NewTransaction({ user }) {
   return (
@@ -18,6 +19,7 @@ export default function NewTransaction({ user }) {
       <Route path="/iou" element={<Iou />} />
       <Route path="/communal" element={<Communal />} />
       <Route path="/bookmarks/*" element={<BookmarkController />} />
+      <Route path="/loading" element={<LoadingScreen />} />
     </Routes>
   );
 }

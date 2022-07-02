@@ -27,11 +27,9 @@ export default function Diagnostics({ user }) {
 
   // handle input
   function updateValue(key, value) {
-    console.log(state);
     const newState = state;
     newState[key] = value;
     setState(newState);
-    console.log(state);
   }
 
   function getPageContent() {
