@@ -13,9 +13,9 @@ export default function AffiliationQuestion({
   updateValue,
 }) {
   const field = "Type";
-  const options = ["Communal", "IOU"];
+  const options = ["Group", "IOU"];
   const informationText =
-    'Select "Communal" if this transaction involves three or more people. Select "IOU" if not.';
+    "Select Group if this transaction is with a group of friends. Select IOU if it's with just one.";
 
   return (
     <MultipleChoicePage

@@ -12,8 +12,7 @@ import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
 export default function Diagnostics({ user }) {
   const [step, setStep] = useState(1);
   const [state, setState] = useState({
-    Affiliation: "",
-    Type: "",
+    type: "",
   });
 
   // go back to the previous step
@@ -28,23 +27,11 @@ export default function Diagnostics({ user }) {
 
   // handle input
   function updateValue(key, value) {
-    console.log(
-      "Everything before: Affiliation - " +
-        state.Affiliation +
-        "; Type - " +
-        state.Type
-    );
-
+    console.log(state);
     const newState = state;
     newState[key] = value;
     setState(newState);
-
-    console.log(
-      "Everything after: Affiliation - " +
-        state.Affiliation +
-        "; Type - " +
-        state.Type
-    );
+    console.log(state);
   }
 
   function getPageContent() {
@@ -54,28 +41,16 @@ export default function Diagnostics({ user }) {
         break;
       case 1:
         return (
-          <AffiliationQuestion
-            nextStep={nextStep}
-            prevStep={prevStep}
-            updateValue={updateValue}
-          />
-        );
-      case 2:
-        return (
           <TypeQuestion
             nextStep={nextStep}
             prevStep={prevStep}
             updateValue={updateValue}
           />
         );
-      case 3:
+      case 2:
         const nextPage =
-          "/dashboard/new-transaction/" +
-          (state.Type === "Communal" ? "communal" : "iou") +
-          "?affiliation=" +
-          state.Affiliation;
+          "/dashboard/new-transaction/" + state.type.toLowerCase();
         window.location = nextPage;
-        break;
       default:
         return <LoadingScreen />;
     }
