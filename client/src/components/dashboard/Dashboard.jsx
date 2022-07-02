@@ -26,7 +26,6 @@ function doPageSetup(user) {
 
 export default function Dashboard({ user }) {
   // Set up page
-  console.log(user)
   doPageSetup(user);
 
   const [shortcutActive, setShortcutActive] = useState(false);        // Whether or not new transaction shortcut is active

@@ -108,7 +108,7 @@ function createTransactionCards( transactions, numDisplayed ) {
     }
 
     return transactions.map((t, tIndex) => 
-        <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title} key="{t.id}"> 
+        <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title} key={t.id}> 
             <CardActionArea>
                 <CardContent>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">

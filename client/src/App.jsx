@@ -21,11 +21,15 @@ import UserPage from "./components/userPage/UserPage";
 // Data Imports
 import creditsData from './assets/json/creditsPage';
 
+// API imports
+import { syncUserDoc } from "./api/dbManager";
+
 function App() {
 
-  // Set current user
+  // Set current user (from LS cache or leave null until firebase auth returns a value)
   const [user, setUser] = useState(localStorage.getItem("citrus:user") ? JSON.parse(localStorage.getItem("citrus:user")) : null);
-  // And update user when auth changes
+
+  // Update user when auth changes
   useEffect(() => {
     auth.onAuthStateChanged(u => {
       if (u) {
@@ -37,7 +41,12 @@ function App() {
     })
   }, []);
 
-  
+  // Sync database with user state whenever it changes (also triggered on page load)
+  useEffect(() => {
+    if (user) {
+      syncUserDoc(user);
+    }
+  }, [user])
   
 
   return (
