@@ -10,9 +10,6 @@ import { NotificationManager } from 'react-notifications';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { auth } from '../../../api/firebase';
 
-// API imports
-import axios from '../../../api/axios';
-
 // Component imports
 import AuthCodeInput from './AuthCodeInput';
 
@@ -73,16 +70,6 @@ export default function Phone({ setUser }) {
         }).catch((error) => {
             console.log(error);
         });
-    }
-
-    /**
-    * Resend auth code to phone number and display a notification
-    * @param {String} num phone number to send auth code to
-    */
-    function resendCode(num) {
-        console.log("Texting: " + num);
-        axios.post('/login/send-auth', { phoneNumber: num, channel: 'sms'})
-        .then(NotificationManager.success("to " + num, "Code resent!"));
     }
 
     /**

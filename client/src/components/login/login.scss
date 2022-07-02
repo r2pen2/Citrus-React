@@ -20,7 +20,6 @@
     .login-content {
         // Used to set paper size
         margin-top: 7vh;
-        padding-top: 20px;
         transform: translate(0, -60px);
         width: 30vw;
         height: 70vh;
@@ -29,6 +28,8 @@
     .login-logo-container {
         display: flex;
         justify-content: center;
+        margin-top: 40px;
+        width: 100%;
         
         .logo {
             width: 256px;
