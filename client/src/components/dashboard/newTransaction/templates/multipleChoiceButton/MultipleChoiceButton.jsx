@@ -18,7 +18,7 @@ export default function MultipleChoiceButton({
   nextStep,
 }) {
   function handleClick() {
-    updateValue(field, choice);
+    updateValue(field.toLowerCase(), choice);
     nextStep();
   }
 
