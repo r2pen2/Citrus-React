@@ -23,7 +23,7 @@ export default function MultipleChoicePage({
       <div style={{ marginLeft: "30px", marginTop: "50px" }}>
         <BackButton onClick={prevStep}></BackButton>
       </div>
-      <Stack spacing={5} marginTop="1vh" alignItems="center">
+      <Stack spacing={"3vh"} marginTop="1vh" alignItems="center">
         <Typography variant="h3" fontFamily="fredokaOne">
           {field + "?"}
         </Typography>

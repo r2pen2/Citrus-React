@@ -8,9 +8,7 @@ import { useSearchParams } from "react-router-dom";
 // Component imports
 import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
 import WhomQuestion from "./whomQuestion/WhomQuestion";
-// import JoePic from "../../../../assets/images/pfp/Joe.png";
-// import LeoPic from "../../../../assets/images/pfp/Leo.png";
-// import OliverPic from "../../../../assets/images/pfp/Oliver.png";
+import { faker } from "@faker-js/faker";
 
 export default function Iou({ user }) {
   const [step, setStep] = useState(1);
@@ -40,17 +38,17 @@ export default function Iou({ user }) {
     {
       id: 1,
       firstName: "Joe",
-      avatar: JoePic,
+      avatarSrc: faker.image.animals(200, 200, true),
     },
     {
       id: 2,
       firstName: "Leo",
-      avatar: JoePic,
+      avatarSrc: faker.image.animals(200, 200, true),
     },
     {
       id: 3,
       firstName: "Oliver",
-      avatar: JoePic,
+      avatarSrc: faker.image.animals(200, 200, true),
     },
   ];
 

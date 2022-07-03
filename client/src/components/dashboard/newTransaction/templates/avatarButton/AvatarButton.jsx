@@ -1,42 +1,37 @@
 // Style imports
-import multipleChoiceButton from "./multipleChoiceButton.scss";
+import "./avatarButton.scss";
 
 // Library imports
-import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
+import { Avatar, IconButton } from "@mui/material";
 
-export default function MultipleChoiceButton({
+export default function AvatarButton({
   index,
-  choice,
-  field,
   updateValue,
   nextStep,
-  size = "large",
+  firstName,
+  avatarSrc,
 }) {
   function handleClick() {
-    updateValue(field.toLowerCase(), choice);
+    updateValue("friend", firstName);
     nextStep();
   }
 
   return (
     <div
       key={index}
-      data-testid="multiple-choice-button-container"
+      data-testid="avatar-button-container"
       onClick={() => handleClick()}
     >
-      <Card
-        variant="outlined"
-        sx={[getSize(size), getStyle(), getColor(index)]}
-        data-testid="multiple-choice-button-card"
-        className="multiple-choice-button"
-      >
-        <CardActionArea sx={getActionAreaStyle(size)}>
-          <CardContent sx={{ padding: "0px" }}>
-            <Typography sx={{ fontSize: getFontSize(size) }}>
-              {choice}
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
+      <IconButton>
+        <Avatar
+          src={avatarSrc}
+          style={{
+            margin: "10px",
+            width: "60px",
+            height: "60px",
+          }}
+        />
+      </IconButton>
     </div>
   );
 }
