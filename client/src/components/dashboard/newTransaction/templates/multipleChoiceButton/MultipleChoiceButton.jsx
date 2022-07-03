@@ -11,6 +11,7 @@ export default function MultipleChoiceButton({
   updateValue,
   nextStep,
   size = "large",
+  avatar = NULL,
 }) {
   function handleClick() {
     updateValue(field.toLowerCase(), choice);
@@ -73,7 +74,7 @@ function getFontSize(size) {
   if (size === "large") {
     return 24;
   } else {
-    return 18;
+    return 20;
   }
 }
 

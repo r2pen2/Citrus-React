@@ -8,6 +8,9 @@ import { useSearchParams } from "react-router-dom";
 // Component imports
 import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
 import WhomQuestion from "./whomQuestion/WhomQuestion";
+// import JoePic from "../../../../assets/images/pfp/Joe.png";
+// import LeoPic from "../../../../assets/images/pfp/Leo.png";
+// import OliverPic from "../../../../assets/images/pfp/Oliver.png";
 
 export default function Iou({ user }) {
   const [step, setStep] = useState(1);
@@ -32,8 +35,24 @@ export default function Iou({ user }) {
     setState(newState);
   }
 
-  // const params = new URLSearchParams(window.location.search);
-  // const affiliation = params.get("affiliation");
+  // example data for listing friend options
+  const bestFriendsExample = [
+    {
+      id: 1,
+      firstName: "Joe",
+      avatar: JoePic,
+    },
+    {
+      id: 2,
+      firstName: "Leo",
+      avatar: JoePic,
+    },
+    {
+      id: 3,
+      firstName: "Oliver",
+      avatar: JoePic,
+    },
+  ];
 
   function getPageContent() {
     switch (step) {
@@ -46,6 +65,7 @@ export default function Iou({ user }) {
             nextStep={nextStep}
             prevStep={prevStep}
             updateValue={updateValue}
+            possibleFriends={bestFriendsExample}
           />
         );
       case 2:
