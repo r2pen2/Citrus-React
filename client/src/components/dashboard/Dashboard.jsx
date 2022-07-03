@@ -80,7 +80,7 @@ export default function Dashboard() {
           path="/new-transaction/*"
           element={<NewTransaction user={user} />}
         />
-        <Route path="/groups" element={<Groups user={user}/>}/>
+        <Route path="/groups/*" element={<Groups user={user}/>}/>
       </Routes>
       <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} />
     </div>

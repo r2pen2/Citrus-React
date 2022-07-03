@@ -66,8 +66,6 @@ export default function Topbar() {
 
     // Check if the user is signed in
     const signedIn = getSignedIn();
-    // If the user is signed in, assing PFP url
-    const pfp = signedIn ? getPfp(user) : "";
 
     /**
      * Log user out and redirect to homepage
