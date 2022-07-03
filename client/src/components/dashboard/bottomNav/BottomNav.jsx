@@ -20,6 +20,9 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
     const location = window.location.toString();
     const lastSlash = location.lastIndexOf('/');
     const afterSlash = location.substring(lastSlash + 1);
+    if (afterSlash === "dashboard") {
+      return "home";
+    }
     return afterSlash;
   }
 
