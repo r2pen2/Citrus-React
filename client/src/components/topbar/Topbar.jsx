@@ -30,19 +30,21 @@ export default function Topbar() {
     const [userDisplayName, setUserDisplayName] = useState("");
     const [userPhotoUrl, setUserPhotoUrl] = useState("");
  
-    async function fetchDisplayName() {
+    /**
+     * Replace blank values with user details from DB
+     */
+    async function fetchUserData() {
         let name = await getDisplayNameById(user.uid);
         setUserDisplayName(name);
-    }
-
-    async function fetchPhotoUrl() {
         let url = await getPhotoUrlById(user.uid);
         setUserPhotoUrl(url);
     }
 
+    // Fetch user details on mount
     useEffect(() => {
-        fetchDisplayName();
-        fetchPhotoUrl();
+        if (user) {
+            fetchUserData();
+        }
     }, [])
 
     /**
@@ -139,7 +141,7 @@ export default function Topbar() {
                                     {userDisplayName}
                                 </Typography>
                                 <IconButton aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={(e) => handleMenu(e)} color="inherit" data-testid="account-button">
-                                    <Avatar src={pfp} alt={userDisplayName} sx={{ border: "1px solid black"}}>{getInitials()}</Avatar>
+                                    <Avatar src={userPhotoUrl} alt={userDisplayName} sx={{ border: "1px solid black"}}>{getInitials()}</Avatar>
                                 </IconButton>
                                 <Menu 
                                 data-testid="account-menu"
