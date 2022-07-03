@@ -2,7 +2,7 @@
 import "./topbar.scss";
 
 // Library imports
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, MenuItem, Menu } from "@mui/material";
 
 // Component Imports
@@ -12,6 +12,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 
 // API Imports
 import { signOutUser } from '../../api/firebase'
+import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager"
 
 
 /**
@@ -23,8 +24,27 @@ function getPfp(user) {
     return user.photoURL ? user.photoURL : "";
 }
 
-export default function Topbar({ user }) {
+export default function Topbar() {
     
+    const user = JSON.parse(localStorage.getItem("citrus:user"));
+    const [userDisplayName, setUserDisplayName] = useState("");
+    const [userPhotoUrl, setUserPhotoUrl] = useState("");
+ 
+    async function fetchDisplayName() {
+        let name = await getDisplayNameById(user.uid);
+        setUserDisplayName(name);
+    }
+
+    async function fetchPhotoUrl() {
+        let url = await getPhotoUrlById(user.uid);
+        setUserPhotoUrl(url);
+    }
+
+    useEffect(() => {
+        fetchDisplayName();
+        fetchPhotoUrl();
+    }, [])
+
     /**
      * Checks whether a user is completely signed in based on whether or not they have a display name
      * @returns {Boolean} whether or not the user has completed signin process
@@ -89,8 +109,15 @@ export default function Topbar({ user }) {
      * @param {String} l last name
      * @returns {String} initials
      */
-    function getInitials(f, l) {
-        return user.displayName.charAt(0);
+    function getInitials() {
+        if (user) {
+            return userDisplayName.charAt(0);
+        } else {
+            // If we don't have a display name, they need to complete their profile!
+            if (!window.location.toString().includes("login")) {
+                window.location = "/login/account-creation"
+            }
+        }
     }
 
     // Choose which topbar to display— signedIn is displays user information
@@ -109,10 +136,10 @@ export default function Topbar({ user }) {
                             </Typography>
                             <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" display="flex">
                                 <Typography variant="subtitle1" component="div" marginTop="4px">
-                                    {user.displayName}
+                                    {userDisplayName}
                                 </Typography>
                                 <IconButton aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={(e) => handleMenu(e)} color="inherit" data-testid="account-button">
-                                    <Avatar src={pfp} alt={user.displayName} sx={{ border: "1px solid black"}}>{getInitials(user.firstName, user.lastName)}</Avatar>
+                                    <Avatar src={pfp} alt={userDisplayName} sx={{ border: "1px solid black"}}>{getInitials()}</Avatar>
                                 </IconButton>
                                 <Menu 
                                 data-testid="account-menu"

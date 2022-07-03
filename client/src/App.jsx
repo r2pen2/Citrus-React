@@ -8,7 +8,7 @@ import { ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { NotificationContainer } from 'react-notifications';
 import { useState, useEffect } from 'react';
-import { auth } from "./api/firebase";
+import { auth, signOutUser } from "./api/firebase";
 
 // Component Imports
 import Login from "./components/login/Login";
@@ -26,41 +26,37 @@ import { syncUserDoc } from "./api/dbManager";
 
 function App() {
 
-  // Set current user (from LS cache or leave null until firebase auth returns a value)
-  const [user, setUser] = useState(localStorage.getItem("citrus:user") ? JSON.parse(localStorage.getItem("citrus:user")) : null);
-
   // Update user when auth changes
   useEffect(() => {
     auth.onAuthStateChanged(u => {
       if (u) {
-        setUser(u);
+        syncUserDoc(u);
+        localStorage.setItem("citrus:user", JSON.stringify(u));
       }
       else {
-        setUser(null);
+        localStorage.removeItem("citrus:user")
       }
     })
   }, []);
 
-  // Sync database with user state whenever it changes (also triggered on page load)
-  useEffect(() => {
-    if (user) {
-      syncUserDoc(user);
-    }
-  }, [user])
+  // If we ever don't have a user stored in localStorage, make sure they're actually singed out!
+  if (!localStorage.getItem("citrus:user")) {
+    signOutUser();
+  }
   
 
   return (
     <div className="app" data-testid="app-wrapper">
       <Router>
         <ThemeProvider theme={theme}>
-          <Topbar user={user}/>
+          <Topbar/>
             <div className="content" data-testid="app-content">
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/home" element={<HomePage />} />
-                <Route path="/login/*" element={<Login user={user} setUser={setUser}/>} />
-                <Route path="/dashboard/*" element={<Dashboard user={user}/>} />
-                <Route path="/user/*" element={<UserPage user={user}/>}/>
+                <Route path="/login/*" element={<Login/>} />
+                <Route path="/dashboard/*" element={<Dashboard/>} />
+                <Route path="/user/*" element={<UserPage/>}/>
                 <Route path="/credits" element={<DataPage data={creditsData}/>} />
               </Routes>
             </div>

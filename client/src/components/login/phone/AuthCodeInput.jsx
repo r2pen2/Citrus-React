@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Typography, Button, Stack, TextField } from "@mui/material";
 import { NotificationManager } from 'react-notifications';
 
-export default function AuthCodeInput({phoneNumber, confirmationResult, resendCode, setUser}) {
+export default function AuthCodeInput({phoneNumber, confirmationResult, resendCode}) {
 
   // Define constants
   const [authCode, setAuthCode] = useState("");                         // Current value of the auth code textfield
@@ -38,7 +38,6 @@ export default function AuthCodeInput({phoneNumber, confirmationResult, resendCo
       // Verify OTP
       console.log(confirmationResult)
       confirmationResult.confirm(authCode).then((result) => {
-        setUser(result.user);
         localStorage.setItem("citrus:user", JSON.stringify(result.user));
         if (result.user.displayName) {
           // If we've logged in this user before, redirect to dashboard

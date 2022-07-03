@@ -12,8 +12,10 @@ import { useState } from 'react';
 // Component imports
 import AccountTab from './AccountTab.jsx';
 
-export default function Settings({ user }) {
+export default function Settings() {
 
+    const user = JSON.parse(localStorage.getItem("citrus:user"));
+    
     // Redirect or set document title
     if (!user) {
         window.location = "/login";

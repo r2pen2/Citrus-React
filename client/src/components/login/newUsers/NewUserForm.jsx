@@ -6,6 +6,9 @@ import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Coll
 import { useState } from 'react';
 import { updateProfile } from 'firebase/auth'
 
+// API Imports
+import { updateDisplayNameById } from "../../../api/dbManager"
+
 // A set of welcome messages to be displayed on the account creation page
 // Please feel free to edit these lol
 const helloMessages = [
@@ -44,7 +47,10 @@ const helloMessages = [
 // the page state is updated for any reason
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
-export default function NewUserForm({ user, setUser }) {
+export default function NewUserForm() {
+
+  const user = JSON.parse(localStorage.getItem("citrus:user"));
+
 
   // Define constants
   const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)
@@ -84,12 +90,8 @@ export default function NewUserForm({ user, setUser }) {
    * Submits new user data to server for account creation
    */
   function handleSubmit() {
-    updateProfile(user, {
-      displayName: firstName + " " + lastName
-    }).then((u) => {
+    updateDisplayNameById(user.uid, firstName + " " + lastName).then(() => {
       // Profile updated!
-      localStorage.setItem("citrus:user", JSON.stringify(u));
-      setUser(u);
       window.location = "/dashboard"
     })
   }

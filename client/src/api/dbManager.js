@@ -118,3 +118,56 @@ export async function syncUserDoc(user) {
         await setDoc(docRef, data).then(console.log("Done!"));
     }
 }
+
+export async function updateDisplayNameById(id, newName) {
+    console.log("Setting displayName of user: " + id);
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            data.personalData.displayName = newName;
+            await setDoc(docRef, data);
+            resolve();
+        } else {
+            console.log("No user with this ID exists on DB");
+            reject();
+        }
+    })
+}
+
+export async function getDisplayNameById(id) {
+    console.log("Getting displayName of user: " + id);
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().personalData.displayName) {
+                resolve(docSnap.data().personalData.displayName);
+            } else {
+                resolve("?");
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+export async function getPhotoUrlById(id) {
+    console.log("Getting phptoUrl of user: " + id);
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().personalData.profilePictureUrl) {
+                resolve(docSnap.data().personalData.profilePictureUrl);
+            } else {
+                resolve("?");
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
