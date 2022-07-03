@@ -76,10 +76,7 @@ export default function Dashboard() {
       <Routes>
         <Route path="/" element={<Home user={user} />} />
         <Route path="/home" element={<Home user={user} />} />
-        <Route
-          path="/new-transaction/*"
-          element={<NewTransaction user={user} />}
-        />
+        <Route path="/new-transaction/*" element={<NewTransaction user={user} />}/>
         <Route path="/groups/*" element={<Groups user={user}/>}/>
       </Routes>
       <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} />

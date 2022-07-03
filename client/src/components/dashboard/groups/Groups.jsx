@@ -1,15 +1,16 @@
 import "./groups.scss"
+import { Routes, Route } from "react-router-dom"
+
+import GroupHome from "./groupHome/GroupHome";
+import JoinGroup from "./joinGroup/JoinGroup";
+import NewGroup from "./newGroup/NewGroup";
 
 export default function Groups({user}) {
   return (
-    <div>
-        <h1>Groups page for user {user.uid}</h1>
-        <h2>Needs implementation</h2>
-        <a href="https://github.com/r2pen2/Citrus-React/issues/90">Github: Implement Dashboard/Groups #90</a>
-        <ul>
-            <li><a href="/groups/join">Join Group</a></li>
-            <li><a href="/groups/new">New Group</a></li>
-        </ul>
-    </div>
+    <Routes>
+        <Route path="/" element={<GroupHome user={user}/>}/>
+        <Route path="/join" element={<JoinGroup user={user}/>}/>
+        <Route path="/new" element={<NewGroup user={user}/>}/>
+    </Routes>
   )
 }
