@@ -2,7 +2,7 @@
 import "./whomQuestion.scss";
 
 // Library imports
-import { Stack, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 
 // Component imports
 import AvatarButton from "../../templates/avatarButton/AvatarButton";
@@ -14,43 +14,79 @@ export default function WhomQuestion({
   updateValue,
   possibleFriends,
 }) {
+  // function generateAvatarButtons(possibleFriends, updateValue, nextStep) {
+  //   function generateRow(rowContents, rowNum, updateValue, nextStep) {
+  //     let rowComponent = rowContents.map((friend, colNum) => {
+  //       return (
+  //         <p>{friend.firstName}</p>
+  //         // <AvatarButton
+  //         //   index={friend.id}
+  //         //   updateValue={updateValue}
+  //         //   nextStep={nextStep}
+  //         //   firstName={friend.firstName}
+  //         //   avatarSrc={friend.avatarSrc}
+  //         // />
+  //       );
+  //     });
+
+  //     return rowComponent;
+  //   }
+
+  //   const avatarsPerRow = 2;
+  //   const numFriends = possibleFriends.length;
+  //   const numRows = Math.round(numFriends / avatarsPerRow);
+
+  //   var rows = [],
+  //     size = avatarsPerRow;
+
+  //   while (possibleFriends.length > 0)
+  //     rows.push(possibleFriends.splice(0, size));
+
+  //   const testArray = ["a", "b", "c"];
+  //   let arrayOutput = rows.map((rowContent, index) => {
+  //     // return generateRow(rowContents, rowNum, updateValue, nextStep);
+  //     console.log(rowContent[0].firstName);
+  //     // return <div>{row[0].firstName}</div>;
+  //     return <div>{rowContent[0].firstName}</div>;
+  //   });
+
+  //   return arrayOutput;
+  // }
+
   function generateAvatarButtons(possibleFriends, updateValue, nextStep) {
-    function generateRow(rowContents, rowNum, updateValue, nextStep) {
-      let rowComponent = rowContents.map((friend, colNum) => {
-        return (
-          <p>{friend.firstName}</p>
-          // <AvatarButton
-          //   index={friend.id}
-          //   updateValue={updateValue}
-          //   nextStep={nextStep}
-          //   firstName={friend.firstName}
-          //   avatarSrc={friend.avatarSrc}
-          // />
-        );
-      });
-
-      return rowComponent;
-    }
-
-    const avatarsPerRow = 2;
-    const numFriends = possibleFriends.length;
-    const numRows = Math.round(numFriends / avatarsPerRow);
-
-    var rows = [],
-      size = avatarsPerRow;
-
-    while (possibleFriends.length > 0)
-      rows.push(possibleFriends.splice(0, size));
-
-    // const testArray = ["a", "b", "c"];
-    let arrayOutput = rows.map((row, rowNum) => {
-      // return generateRow(rowContents, rowNum, updateValue, nextStep);
-      console.log(row[0].firstName);
-      return <div>{row[0].firstName}</div>;
-      // return <div>{val}</div>;
-    });
-
-    return arrayOutput;
+    return (
+      <div>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <AvatarButton
+              index={possibleFriends[0].id}
+              updateValue={updateValue}
+              nextStep={nextStep}
+              firstName={possibleFriends[0].firstName}
+              avatarSrc={possibleFriends[0].avatarSrc}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <AvatarButton
+              index={possibleFriends[1].id}
+              updateValue={updateValue}
+              nextStep={nextStep}
+              firstName={possibleFriends[1].firstName}
+              avatarSrc={possibleFriends[1].avatarSrc}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <AvatarButton
+              index={possibleFriends[2].id}
+              updateValue={updateValue}
+              nextStep={nextStep}
+              firstName={possibleFriends[2].firstName}
+              avatarSrc={possibleFriends[2].avatarSrc}
+            />
+          </Grid>
+        </Grid>
+      </div>
+    );
   }
 
   return (
