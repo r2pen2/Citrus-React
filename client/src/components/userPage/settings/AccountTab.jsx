@@ -7,7 +7,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useState, useEffect } from 'react'
 
 // API imports
-import { getDisplayNameById, getPhoneNumberById } from "../../../api/dbManager"
+import { getDisplayNameById, getPhoneNumberById, getPhotoUrlById } from "../../../api/dbManager"
 
 /**
  * Get a user's initials by first and last name
@@ -23,6 +23,7 @@ export default function AccountTab({ user }) {
   
     const [userDisplayName, setUserDisplayName] = useState("");
     const [userPhoneNumber, setUserPhoneNumber] = useState("");
+    const [userPhotoUrl, setUserPhotoUrl] = useState("");
 
     /**
      * Get user details from DB and replace blank values
@@ -32,6 +33,8 @@ export default function AccountTab({ user }) {
         setUserDisplayName(name);
         let number = await getPhoneNumberById(user.uid);
         setUserPhoneNumber(number);
+        let photo = await getPhotoUrlById(user.uid);
+        setUserPhotoUrl(photo);
     }
 
     // Fetch user details on mount
@@ -47,7 +50,7 @@ export default function AccountTab({ user }) {
         <div className="avatar-container">
             <div className="col"></div>
             <IconButton className="col avatar-button" aria-label="account of current user" data-testid="settings-avatar">
-                <Avatar className="avatar" alt={userDisplayName} size="large">
+                <Avatar src={userPhotoUrl} className="avatar" alt={userDisplayName} size="large">
                     <Typography variant="h3">
                         {getInitials(userDisplayName)}
                     </Typography>

@@ -1,8 +1,8 @@
 // Style imports
-import "./transactions.scss";
+import "./transactionsPreview.scss";
 
 // Library imports
-import { Card, CardContent, CardActionArea, Typography, Stack, Avatar } from '@mui/material';
+import { Card, CardContent, CardActionArea, Typography, Stack, Avatar, Button } from '@mui/material';
 
 // Component imports
 import OliverPic from "../../../../assets/images/pfp/Oliver.png";
@@ -109,7 +109,7 @@ function createTransactionCards( transactions, numDisplayed ) {
 
     return transactions.map((t, tIndex) => 
         <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title} key={t.id}> 
-            <CardActionArea>
+            <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + t.id}>
                 <CardContent>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                         <Stack direction="row" alignItems="center" component="div" id={tIndex}>
@@ -134,7 +134,10 @@ function createTransactionCards( transactions, numDisplayed ) {
 export default function Transactions({ recentTransactions, numDisplayed }) {
     return (
         <div>
-            <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Transactions ❯</Typography>
+            <div className="title">
+                <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Transactions ❯</Typography>
+                <Button variant="contained" onClick={() => window.location = "/dashboard/transactions/"}>View All Transactions</Button>
+            </div>
             { createTransactionCards(recentTransactions, numDisplayed) }
         </div>
         );

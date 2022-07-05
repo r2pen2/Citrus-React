@@ -9,6 +9,7 @@ import { AppBar, Toolbar, IconButton, Typography, Stack, Tooltip, Avatar, MenuIt
 import BlackLogo from "./assets/LogoBlack.png";
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
 
 // API Imports
 import { signOutUser } from '../../api/firebase'
@@ -65,8 +66,6 @@ export default function Topbar() {
 
     // Check if the user is signed in
     const signedIn = getSignedIn();
-    // If the user is signed in, assing PFP url
-    const pfp = signedIn ? getPfp(user) : "";
 
     /**
      * Log user out and redirect to homepage
@@ -171,8 +170,13 @@ export default function Topbar() {
                                     </MenuItem>
                                 </Menu>
                                 <Tooltip title="Notifications">
-                                    <IconButton size="medium" edge="start" color="inherit" aria-label="notifications-icon">
+                                    <IconButton size="medium" edge="start" color="inherit" aria-label="notifications-icon" href='#notifications'>
                                         <NotificationsIcon />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Bookmarks">
+                                    <IconButton size='medium' edge="start" color="inherit" aria-label="bookmarks-icon" href="#bookmarks">
+                                        <BookmarksIcon />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Log-Out">

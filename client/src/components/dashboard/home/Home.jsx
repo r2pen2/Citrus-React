@@ -6,8 +6,8 @@ import { Stack, Box } from "@mui/material"
 
 // Component imports
 import OweCard from "./oweCard/OweCard";
-import Transactions from "./transactions/Transactions";
-import Analytics from "./analytics/Analytics";
+import TransactionsPreview from "./transactionsPreview/TransactionsPreview";
+import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
 
 export default function Home({ user }) {
   return (
@@ -17,9 +17,9 @@ export default function Home({ user }) {
         <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
       </Box>
       <div data-testid="transactions">
-        <Transactions recentTransactions={recentTransactionsExample} numDisplayed={2}/>
+        <TransactionsPreview recentTransactions={recentTransactionsExample} numDisplayed={2}/>
       </div>
-      <Analytics chartData={analyticsExample}/>
+      <AnalyticsPreview chartData={analyticsExample}/>
     </Stack>
   )
 }
@@ -29,21 +29,21 @@ export default function Home({ user }) {
 // Being stored there.
 const recentTransactionsExample = [
     {
-      id: 1,
+      id: "halloweenPartyEample",
       title: "Halloween Party",
       date: "2021-10-31",
       amount: 63.45,
       user: "Oliver Risch"
     },
     {
-      id: 2,
+      id: "drinksExample",
       title: "Drinks",
       date: "2022-03-8",
       amount: 53.25,
       user: "Oliver Risch"
     },
     {
-      id: 3,
+      id: "burritoBowlExample",
       title: "Burrito Bowl",
       date: "2022-03-10",
       amount: 53.25,
