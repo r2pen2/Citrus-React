@@ -57,7 +57,13 @@ export default function WhomQuestion({
     return (
       <div>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid
+            item
+            xs={6}
+            // direction="column"
+            // display="flex"
+            // justifyContent="center"
+          >
             <AvatarButton
               index={possibleFriends[0].id}
               updateValue={updateValue}
