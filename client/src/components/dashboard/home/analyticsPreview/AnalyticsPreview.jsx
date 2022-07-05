@@ -1,8 +1,8 @@
 // Style imports
-import "./analytics.scss";
+import "./analyticsPreview.scss";
 
 // Library imports
-import { Stack, Typography } from "@mui/material"
+import { Stack, Typography, Button } from "@mui/material"
 import { Bar } from "react-chartjs-2";
 // eslint-disable-next-line no-unused-vars
 import Chart from 'chart.js/auto';
@@ -63,6 +63,9 @@ export default function Analytics({ chartData }) {
                     }
                     }
                 }/>
+            </div>
+            <div className="btn">
+                <Button variant="contained" onClick={() => window.location = "/dashboard/analytics/"}>See More</Button>
             </div>
         </Stack>
     );

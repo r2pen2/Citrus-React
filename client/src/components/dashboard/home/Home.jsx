@@ -7,7 +7,7 @@ import { Stack, Box } from "@mui/material"
 // Component imports
 import OweCard from "./oweCard/OweCard";
 import TransactionsPreview from "./transactionsPreview/TransactionsPreview";
-import Analytics from "./analytics/Analytics";
+import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
 
 export default function Home({ user }) {
   return (
@@ -19,7 +19,7 @@ export default function Home({ user }) {
       <div data-testid="transactions">
         <TransactionsPreview recentTransactions={recentTransactionsExample} numDisplayed={2}/>
       </div>
-      <Analytics chartData={analyticsExample}/>
+      <AnalyticsPreview chartData={analyticsExample}/>
     </Stack>
   )
 }
