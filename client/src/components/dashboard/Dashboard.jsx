@@ -13,6 +13,7 @@ import NewTransaction from "./newTransaction/NewTransaction";
 import Shortcut from "./shortcut/Shortcut";
 import Groups from "./groups/Groups";
 import Owe from "./owe/Owe";
+import Transactions from "./transactions/Transactions";
 
 /**
  * If we're not signed in, redirect to login.
@@ -80,6 +81,7 @@ export default function Dashboard() {
         <Route path="/new-transaction/*" element={<NewTransaction user={user} />}/>
         <Route path="/groups/*" element={<Groups user={user}/>}/>
         <Route path="/owe/*" element={<Owe user={user} />}/>
+        <Route path="/transactions/*" element={<Transactions user={user} />}/>
       </Routes>
       <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} />
     </div>
