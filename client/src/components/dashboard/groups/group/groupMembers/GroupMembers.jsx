@@ -1,6 +1,6 @@
 import "./groupMembers.scss";
 
-export default function GroupMembers() {
+export default function GroupMembers({user}) {
 
     const params = new URLSearchParams(window.location.search);
     const groupId = params.get("id");
