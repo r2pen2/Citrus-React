@@ -17,14 +17,16 @@ import Shortcut from "./shortcut/Shortcut";
  * Othwerwise, set the document title and continue to dashboard.
  * @param {Object} user The current user (if it exists)
  */
-function doPageSetup(user) {
-  if (!user) {
+function doPageSetup(u) {
+  if (!u) {
     window.location = "/login";
   }
   document.title = "Citrus | Dashboard";
 }
 
-export default function Dashboard({ user }) {
+export default function Dashboard() {
+
+  const user = JSON.parse(localStorage.getItem("citrus:user"));
   // Set up page
   doPageSetup(user);
 

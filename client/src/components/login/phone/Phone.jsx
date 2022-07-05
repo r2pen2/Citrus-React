@@ -22,7 +22,7 @@ function formatPhoneNumber(num) {
     return "+" + num.replace(/\D/g, '');
 }
 
-export default function Phone({ setUser }) {
+export default function Phone() {
 
     // Define constants
     const [submitEnable, setSubmitEnable] = useState(true);                         // Whether or not the submit button is enabled
@@ -92,7 +92,7 @@ export default function Phone({ setUser }) {
     }
 
     if (confirmationResult) {
-        return <AuthCodeInput phoneNumber={phoneNumber} confirmationResult={confirmationResult} resendCode={textMe} setUser={setUser}/>;
+        return <AuthCodeInput phoneNumber={phoneNumber} confirmationResult={confirmationResult} resendCode={textMe}/>;
     } else {
         return (
             <div data-testid="phone-input-container">  

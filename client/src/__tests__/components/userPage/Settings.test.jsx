@@ -1,31 +1,37 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Settings from '../../../components/userPage/settings/Settings';
-
-const testUser = { id: 1, firstName: "John", lastName: "Doe" }
+import { signInTestUser, signOutTestUser } from "../../../api/testing";
 
 describe("Settings render tests", () => {
 
     test('Settings wrapper renders', () => {
-        render(<Settings user={testUser}/>);
+        signInTestUser();
+        render(<Settings/>);
         const wrapper = screen.getByTestId("user-settings-wrapper");
         expect(wrapper).toBeVisible();
+        signOutTestUser();
     });
 
     test('Paper renders', () => {
-        render(<Settings user={testUser}/>);
+        signInTestUser();
+        render(<Settings/>);
         const paper = screen.getByTestId("settings-paper");
         expect(paper).toBeVisible();
+        signOutTestUser();
     });
 
     test('Drawer renders', () => {
-        render(<Settings user={testUser}/>);
+        signInTestUser();
+        render(<Settings/>);
         const drawer = screen.getByTestId("settings-drawer");
         expect(drawer).toBeVisible();
+        signOutTestUser();
     });
 
     test('All drawer items render', () => {
-        render(<Settings user={testUser}/>);
+        signInTestUser();
+        render(<Settings/>);
         const drawer = screen.getByTestId("settings-drawer");
         const account = screen.getByTestId("drawer-item-Account");
         const appearance = screen.getByTestId("drawer-item-Appearance");
@@ -35,26 +41,33 @@ describe("Settings render tests", () => {
         expect(drawer).toContainElement(appearance);
         expect(drawer).toContainElement(connections);
         expect(drawer).toContainElement(security);
+        signOutTestUser();
     });
+    
 });
 
 describe("Settings function tests", () => {
 
     test('Document title is updated', () => {
+        signInTestUser();
         document.title = "Something else...";
         expect(document.title).not.toEqual("Citrus | Settings");
-        render(<Settings user={testUser}/>);
+        render(<Settings/>);
         expect(document.title).toEqual("Citrus | Settings");
+        signOutTestUser();
     });
 
     test('Active element starts as #account', () => {
-        render(<Settings user={testUser}/>);
+        signInTestUser();
+        render(<Settings/>);
         const account = screen.getByTestId("drawer-item-Account");
         expect(account).toHaveClass("active");
+        signOutTestUser();
     });
 
     test('Active element changes on click', () => {
-        render(<Settings user={testUser}/>);
+        signInTestUser();
+        render(<Settings/>);
         const account = screen.getByTestId("drawer-item-Account");
         const appearance = screen.getByTestId("drawer-item-Appearance");
         fireEvent.click(account);
@@ -63,5 +76,6 @@ describe("Settings function tests", () => {
         fireEvent.click(appearance);
         expect(appearance).toHaveClass("active");
         expect(account).not.toHaveClass("active");
+        signOutTestUser();
     });
 });
