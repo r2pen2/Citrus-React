@@ -16,6 +16,7 @@ export default function TransactionDetail({user}) {
             <li><div>Shows a map (maybe), a button to dispute, and a button to edit</div></li>
             <li><div>Shows avatars of everyone involved in the transaction</div></li>
             <li><div>Shows the cost of the transaction</div></li>
+            <li><a href={"/dashboard/transactions/conversation?id=" + transactionId}>Link to dispute page</a></li>
         </ul>
     </div>
   )

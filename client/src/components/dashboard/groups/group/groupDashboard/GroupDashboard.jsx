@@ -14,6 +14,7 @@ export default function GroupDashboard({user}) {
         <ul>
             <li><div>Renders a dashboard element with context from groupId in urlparams</div></li>
             <li><a href={"/dashboard/groups/group/invite?id=" + groupId}>Invite Someone</a></li>
+            <li><a href={"/dashboard/groups/group/members?id=" + groupId}>View Group Members</a></li>
         </ul>
     </div>
   )
