@@ -7,8 +7,10 @@ import { Route, Routes } from "react-router-dom";
 // Component imports
 import Settings from "./settings/Settings";
 
-export default function UserPage({user}) {
+export default function UserPage() {
     
+    const user = JSON.parse(localStorage.getItem("citrus:user"));
+
     // If we have no user, redirect to login
     // Otherwise, set document title with context.
     if (!user) {
@@ -20,7 +22,7 @@ export default function UserPage({user}) {
     return (
         <Routes>
             <Route path="/" element={<div data-testid="user-profile">User Profile</div>}/>
-            <Route path="/settings" element={<Settings user={user} />}/>
+            <Route path="/settings" element={<Settings/>}/>
         </Routes>
     )
 }

@@ -1,24 +1,24 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Transactions from '../../../components/dashboard/home/transactions/Transactions';
+import TransactionsPreview from '../../../components/dashboard/home/transactionsPreview/TransactionsPreview';
 
 const testTransactions = [
     {
-        id: 1,
+        id: "halloweenPartyEample",
         title: "Halloween Party",
         date: "2021-10-31",
         amount: 63.45,
         user: "James Hetfield"
     },
     {
-        id: 2,
+        id: "drinksExample",
         title: "Drinks",
         date: "2022-03-8",
         amount: 53.25,
         user: "Tom Araya"
     },
     {
-        id: 3,
+        id: "burritoBowlExample",
         title: "Burrito Bowl",
         date: "2022-03-10",
         amount: 53.25,
@@ -36,7 +36,7 @@ describe("Transactions render tests", () => {
                 })
                 return transactions;
             }
-            render(<Transactions recentTransactions={testTransactions} numDisplayed={num}/>)
+            render(<TransactionsPreview recentTransactions={testTransactions} numDisplayed={num}/>)
             const relevantTransactions = sortByDate(testTransactions);
             if (relevantTransactions.length > num) {
                 relevantTransactions.splice(num)
@@ -55,7 +55,7 @@ describe("Transactions render tests", () => {
     });
 
     test("Transactions render correct date format", () => {
-        render(<Transactions recentTransactions={testTransactions} numDisplayed={1}/>);
+        render(<TransactionsPreview recentTransactions={testTransactions} numDisplayed={1}/>);
         const date = screen.queryByText("10 March, 2022");
         expect(date).toBeVisible();
     });

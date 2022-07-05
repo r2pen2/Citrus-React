@@ -47,7 +47,7 @@ export default function OweCard({ credit }) {
           data-testid="owe-card-card-element"
         >
           <CardActionArea>
-            <CardContent>
+            <CardContent onClick={() => {window.location = "/dashboard/owe?dir=" + (credit.positive ? "in" : "out")}}>
               <Typography variant="h5" component="div" color="white">
                 {formatter.format(credit.amount)}
               </Typography>
@@ -60,7 +60,7 @@ export default function OweCard({ credit }) {
                   marginTop="2px"
                   color="white"
                 >
-                  To {credit.numPeople} people
+                  {credit.positive ? "From" : "To"} {credit.numPeople} people
                 </Typography>
               </Stack>
             </CardContent>

@@ -4,6 +4,10 @@ import "./accountTab.scss";
 // Library imports
 import { Typography, TextField, Avatar, Button, IconButton } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useState, useEffect } from 'react'
+
+// API imports
+import { getDisplayNameById, getPhoneNumberById, getPhotoUrlById } from "../../../api/dbManager"
 
 /**
  * Get a user's initials by first and last name
@@ -11,12 +15,34 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
  * @param {String} l last name
  * @returns {String} initials
  */
- function getInitials(f, l) {
-    return f.charAt(0) + l.charAt(0);
+ function getInitials(name) {
+    return name.charAt(0);
 }
 
 export default function AccountTab({ user }) {
-  return (
+  
+    const [userDisplayName, setUserDisplayName] = useState("");
+    const [userPhoneNumber, setUserPhoneNumber] = useState("");
+    const [userPhotoUrl, setUserPhotoUrl] = useState("");
+
+    /**
+     * Get user details from DB and replace blank values
+     */
+    async function fetchUserDetails() {
+        let name = await getDisplayNameById(user.uid);
+        setUserDisplayName(name);
+        let number = await getPhoneNumberById(user.uid);
+        setUserPhoneNumber(number);
+        let photo = await getPhotoUrlById(user.uid);
+        setUserPhotoUrl(photo);
+    }
+
+    // Fetch user details on mount
+    useEffect(() => {
+        fetchUserDetails();
+    }, [])
+
+    return (
     <div className="account-content" data-testid="account-content">
         <Typography variant="h5" className="page-title">
             Account Settings ❯
@@ -24,9 +50,9 @@ export default function AccountTab({ user }) {
         <div className="avatar-container">
             <div className="col"></div>
             <IconButton className="col avatar-button" aria-label="account of current user" data-testid="settings-avatar">
-                <Avatar className="avatar" alt={user.fullName} size="large">
+                <Avatar src={userPhotoUrl} className="avatar" alt={userDisplayName} size="large">
                     <Typography variant="h3">
-                        {getInitials(user.firstName, user.lastName)}
+                        {getInitials(userDisplayName)}
                     </Typography>
                 </Avatar>
             </IconButton>
@@ -37,16 +63,11 @@ export default function AccountTab({ user }) {
             </div>
         </div>
         <div className="fields-container">
-            <div className="field two-fields">
-                <div className="left">
-                    <TextField id="first-name" label="First Name" data-testid="first-name-input" value={user.firstName}/>
-                </div>
-                <div className="right">
-                    <TextField id="last-name" label="Last Name" data-testid="last-name-input" value={user.lastName}/>
-                </div>
+            <div className="field long-field">
+                <TextField id="display-name" label="Display Name" data-testid="display-name-input" value={userDisplayName}/>
             </div>
             <div className="field long-field">
-                <TextField id="phone-number" label="Phone Number" data-testid="phone-number-input" value={user.phoneNumber}/>
+                <TextField id="phone-number" label="Phone Number" data-testid="phone-number-input" value={userPhoneNumber}/>
             </div>
             <div className="field long-field">
                 <TextField id="address" label="Address" data-testid="address-input" value="1600 Pennsylvania Avenue NW"/>
@@ -66,9 +87,6 @@ export default function AccountTab({ user }) {
                 <div className="right">
                     <TextField id="country" label="Country" data-testid="country-input" value="United States"/>
                 </div>
-            </div>
-            <div className="field long-field">
-                <TextField id="password" label="Password" data-testid="password-input" type="password" value="Lol you can't see me"/>
             </div>
             <div className="save-button">
                 <Button type="submit-button" variant="contained">Save</Button>

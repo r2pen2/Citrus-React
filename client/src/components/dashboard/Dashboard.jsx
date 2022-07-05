@@ -11,20 +11,26 @@ import BottomNav from "./bottomNav/BottomNav";
 import Home from "./home/Home";
 import NewTransaction from "./newTransaction/NewTransaction";
 import Shortcut from "./shortcut/Shortcut";
+import Groups from "./groups/Groups";
+import Owe from "./owe/Owe";
+import Transactions from "./transactions/Transactions";
+import Analytics from "./analytics/Analytics";
 
 /**
  * If we're not signed in, redirect to login.
  * Othwerwise, set the document title and continue to dashboard.
  * @param {Object} user The current user (if it exists)
  */
-function doPageSetup(user) {
-  if (!user) {
+function doPageSetup(u) {
+  if (!u) {
     window.location = "/login";
   }
   document.title = "Citrus | Dashboard";
 }
 
-export default function Dashboard({ user }) {
+export default function Dashboard() {
+
+  const user = JSON.parse(localStorage.getItem("citrus:user"));
   // Set up page
   doPageSetup(user);
 
@@ -73,10 +79,11 @@ export default function Dashboard({ user }) {
       <Routes>
         <Route path="/" element={<Home user={user} />} />
         <Route path="/home" element={<Home user={user} />} />
-        <Route
-          path="/new-transaction/*"
-          element={<NewTransaction user={user} />}
-        />
+        <Route path="/new-transaction/*" element={<NewTransaction user={user} />}/>
+        <Route path="/groups/*" element={<Groups user={user}/>}/>
+        <Route path="/owe/*" element={<Owe user={user} />}/>
+        <Route path="/transactions/*" element={<Transactions user={user} />}/>
+        <Route path="/analytics" element={<Analytics user={user} />}/>
       </Routes>
       <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} />
     </div>

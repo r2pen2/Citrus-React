@@ -11,22 +11,20 @@ import NewUserForm from "./newUsers/NewUserForm";
 import LoginHome from "./loginHome/LoginHome";
 import Logo from "../../assets/images/Logo256.png";
 
-
 /**
  * Set the document title or redirect to dashboard
- * @param {Object} user current user
+ * @param {Object} u current user
  */
-function doPageSetup(user) { 
-  if (user) {
+async function doPageSetup(u) { 
+  if (u) {
     window.location = "/dashboard";
   } else {
     document.title = "Citrus | Login";
   }
 }
 
-export default function Login({ user, setUser }) {
-  
-  // Page setup
+export default function Login() {
+  const user = JSON.parse(localStorage.getItem("citrus:user"));
   doPageSetup(user)
 
   return (
@@ -38,10 +36,10 @@ export default function Login({ user, setUser }) {
           </div>
           <div className="login-input-window">
             <Routes>
-              <Route path="/" element={<LoginHome setUser={setUser}/>}/>
-              <Route path="/home" element={<LoginHome setUser={setUser}/>}/>
-              <Route path="/phone" element={<Phone setUser={setUser}/>}/>
-              <Route path="/account-creation" element={<NewUserForm user={user} setUser={setUser}/>}/>
+              <Route path="/" element={<LoginHome/>}/>
+              <Route path="/home" element={<LoginHome/>}/>
+              <Route path="/phone" element={<Phone/>}/>
+              <Route path="/account-creation" element={<NewUserForm/>}/>
             </Routes>
           </div>
         </Stack>

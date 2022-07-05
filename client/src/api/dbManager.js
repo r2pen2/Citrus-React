@@ -118,3 +118,91 @@ export async function syncUserDoc(user) {
         await setDoc(docRef, data).then(console.log("Done!"));
     }
 }
+
+/**
+ * Update user display name on DB by ID
+ * @param {String} id user ID
+ * @param {String} newName name to put on DB
+ * @returns {Object} new user object
+ */
+export async function updateDisplayNameById(id, newName) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            data.personalData.displayName = newName;
+            await setDoc(docRef, data);
+            resolve(data);
+        } else {
+            console.log("No user with this ID exists on DB");
+            reject();
+        }
+    })
+}
+
+/**
+ * Get a user's display name by ID
+ * @param {String} id user ID
+ * @returns {String} user display name
+ */
+export async function getDisplayNameById(id) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().personalData.displayName) {
+                resolve(docSnap.data().personalData.displayName);
+            } else {
+                resolve("?");
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+/**
+ * Get a user's phone number by ID
+ * @param {String} id user ID
+ * @returns {String} user phone number
+ */
+export async function getPhoneNumberById(id) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().personalData.phoneNumber) {
+                resolve(docSnap.data().personalData.phoneNumber);
+            } else {
+                resolve(null);
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve(null)
+        }
+    })
+}
+
+/**
+ * Get a user's profile photo url by ID
+ * @param {String} id user ID
+ * @returns {String} user profile photo url
+ */
+export async function getPhotoUrlById(id) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().personalData.profilePictureUrl) {
+                resolve(docSnap.data().personalData.profilePictureUrl);
+            } else {
+                resolve("?");
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
