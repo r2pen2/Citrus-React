@@ -243,5 +243,41 @@ export default function Topbar() {
         </div>
       </div>
     );
+  } else {
+    // We're not signed in, so make the minimal topbar
+    return (
+      <div className="topbar" data-testid="topbar-wrapper">
+        <div className="appbar-container" data-testid="no-user-topbar">
+          <AppBar className="appbar">
+            <div className="topbar-logo-container">
+              <Toolbar>
+                <IconButton
+                  size="large"
+                  edge="start"
+                  color="inherit"
+                  aria-label="logo"
+                  href="/home"
+                >
+                  <img
+                    src={BlackLogo}
+                    alt="logo"
+                    style={{ width: "40px" }}
+                  ></img>
+                </IconButton>
+                <Typography
+                  variant="h4"
+                  component="a"
+                  href="/home"
+                  fontFamily="FredokaOne"
+                  sx={{ flexGrow: 1 }}
+                >
+                  Citrus
+                </Typography>
+              </Toolbar>
+            </div>
+          </AppBar>
+        </div>
+      </div>
+    );
   }
 }
