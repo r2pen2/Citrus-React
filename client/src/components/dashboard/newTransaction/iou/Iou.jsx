@@ -6,7 +6,7 @@ import { Component, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 // Component imports
-import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
+import LoadingScreen from "../../../resources/loadingScreen/LoadingScreen";
 import WhomQuestion from "./whomQuestion/WhomQuestion";
 import { faker } from "@faker-js/faker";
 

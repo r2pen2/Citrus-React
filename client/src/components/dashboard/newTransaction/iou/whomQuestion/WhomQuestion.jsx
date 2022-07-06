@@ -5,7 +5,7 @@ import "./whomQuestion.scss";
 import { Grid, Stack, Typography } from "@mui/material";
 
 // Component imports
-import AvatarButton from "../../templates/avatarButton/AvatarButton";
+import AvatarButton from "../../../../resources/avatarButton/AvatarButton";
 import BackButton from "../../templates/backButton/BackButton";
 
 export default function WhomQuestion({
@@ -14,6 +14,12 @@ export default function WhomQuestion({
   updateValue,
   possibleFriends,
 }) {
+  // to be implemented on forward button click
+  // function handleClick() {
+  //   updateValue("friend", firstName);
+  //   nextStep();
+  // }
+
   // function generateAvatarButtons(possibleFriends, updateValue, nextStep) {
   //   function generateRow(rowContents, rowNum, updateValue, nextStep) {
   //     let rowComponent = rowContents.map((friend, colNum) => {
@@ -66,19 +72,17 @@ export default function WhomQuestion({
           >
             <AvatarButton
               index={possibleFriends[0].id}
-              updateValue={updateValue}
-              nextStep={nextStep}
               firstName={possibleFriends[0].firstName}
               avatarSrc={possibleFriends[0].avatarSrc}
+              size="large"
             />
           </Grid>
           <Grid item xs={6}>
             <AvatarButton
               index={possibleFriends[1].id}
-              updateValue={updateValue}
-              nextStep={nextStep}
               firstName={possibleFriends[1].firstName}
               avatarSrc={possibleFriends[1].avatarSrc}
+              size="large"
             />
           </Grid>
           <Grid item xs={6}>
@@ -88,6 +92,7 @@ export default function WhomQuestion({
               nextStep={nextStep}
               firstName={possibleFriends[2].firstName}
               avatarSrc={possibleFriends[2].avatarSrc}
+              size="large"
             />
           </Grid>
         </Grid>

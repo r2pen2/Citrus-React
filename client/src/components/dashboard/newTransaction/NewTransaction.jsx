@@ -9,7 +9,7 @@ import Diagnostics from "./diagnostics/Diagnostics";
 import Iou from "./iou/Iou";
 import Communal from "./communal/Communal";
 import BookmarkController from "./bookmarkController/BookmarkController";
-import LoadingScreen from "../../miscellaneous/loadingScreen/LoadingScreen";
+import LoadingScreen from "../../resources/loadingScreen/LoadingScreen";
 
 export default function NewTransaction({ user }) {
   return (

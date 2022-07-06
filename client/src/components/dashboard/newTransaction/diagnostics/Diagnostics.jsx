@@ -7,7 +7,7 @@ import { Component, useState } from "react";
 // Component imports
 import AffiliationQuestion from "./affiliationQuestion/AffiliationQuestion";
 import TypeQuestion from "./typeQuestion/TypeQuestion";
-import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
+import LoadingScreen from "../../../resources/loadingScreen/LoadingScreen";
 
 export default function Diagnostics({ user }) {
   const [step, setStep] = useState(1);
