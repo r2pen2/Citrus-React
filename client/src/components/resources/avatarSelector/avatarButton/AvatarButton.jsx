@@ -41,7 +41,7 @@ export default function AvatarButton({ index, firstName, avatarSrc, size }) {
       width: diameter,
       border: "solid",
       borderWidth: borderWidth,
-      borderColor: "citrusGreen.main",
+      borderColor: "citrusGreen",
     };
   }
 
