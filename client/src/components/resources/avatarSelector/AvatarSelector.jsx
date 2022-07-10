@@ -7,7 +7,6 @@ import AvatarButton from "./avatarButton/AvatarButton";
 
 export default function AvatarSelector({ possibleFriends }) {
   const [selectedFriend, setSelectedFriend] = useState("");
-  console.log(selectedFriend);
 
   return (
     <div>

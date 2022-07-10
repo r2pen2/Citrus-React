@@ -2,7 +2,7 @@
 import "./avatarButton.scss";
 
 // Library imports
-import { Avatar, IconButton } from "@mui/material";
+import { Avatar, Box, IconButton, Typography } from "@mui/material";
 
 // when we integrate backend, will just take user
 export default function AvatarButton({
@@ -25,7 +25,7 @@ export default function AvatarButton({
     }
   }
 
-  function getButtonStyle(size) {
+  function getButtonSize(size) {
     const margin =
       size === "small" ? "10px" : size === "medium" ? "15px" : "20px";
     const diameter =
@@ -42,7 +42,7 @@ export default function AvatarButton({
     const margin =
       size === "small" ? "10px" : size === "medium" ? "15px" : "20px";
     const diameter =
-      size === "small" ? "60px" : size === "medium" ? "80px" : "100px";
+      size === "small" ? "60px" : size === "medium" ? "90px" : "120px";
     const borderWidth = isSelected ? "10px" : "0px";
     return {
       margin: margin,
@@ -60,9 +60,12 @@ export default function AvatarButton({
       data-testid="avatar-button-container"
       onClick={() => handleClick()}
     >
-      <IconButton style={getButtonStyle(size)}>
-        <Avatar src={avatarSrc} style={getAvatarStyle(size, isSelected)} />
-      </IconButton>
+      <Box textAlign="center">
+        <IconButton style={getButtonSize(size)}>
+          <Avatar src={avatarSrc} style={getAvatarStyle(size, isSelected)} />
+        </IconButton>
+      </Box>
+      <Typography className="avatar-button-label">{firstName}</Typography>
     </div>
   );
 }
