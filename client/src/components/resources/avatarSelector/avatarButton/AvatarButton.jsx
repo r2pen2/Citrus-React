@@ -3,16 +3,25 @@ import "./avatarButton.scss";
 
 // Library imports
 import { Avatar, IconButton } from "@mui/material";
-import { useState } from "react";
 
 // when we integrate backend, will just take user
-export default function AvatarButton({ index, firstName, avatarSrc, size }) {
-  const [selected, setSelected] = useState(false);
+export default function AvatarButton({
+  index,
+  firstName,
+  avatarSrc,
+  size,
+  selectedFriend,
+  setSelectedFriend,
+}) {
+  const isSelected = selectedFriend === firstName;
+
   function handleClick() {
-    if (selected === true) {
-      setSelected(false);
+    console.log("selected friend: " + selectedFriend);
+    console.log("this person: " + firstName);
+    if (isSelected) {
+      setSelectedFriend("");
     } else {
-      setSelected(true);
+      setSelectedFriend(firstName);
     }
   }
 
@@ -29,12 +38,12 @@ export default function AvatarButton({ index, firstName, avatarSrc, size }) {
     };
   }
 
-  function getAvatarStyle(size, selected) {
+  function getAvatarStyle(size, isSelected) {
     const margin =
       size === "small" ? "10px" : size === "medium" ? "15px" : "20px";
     const diameter =
       size === "small" ? "60px" : size === "medium" ? "80px" : "100px";
-    const borderWidth = selected === true ? "10px" : "0px";
+    const borderWidth = isSelected ? "10px" : "0px";
     return {
       margin: margin,
       height: diameter,
@@ -52,7 +61,7 @@ export default function AvatarButton({ index, firstName, avatarSrc, size }) {
       onClick={() => handleClick()}
     >
       <IconButton style={getButtonStyle(size)}>
-        <Avatar src={avatarSrc} style={getAvatarStyle(size, selected)} />
+        <Avatar src={avatarSrc} style={getAvatarStyle(size, isSelected)} />
       </IconButton>
     </div>
   );

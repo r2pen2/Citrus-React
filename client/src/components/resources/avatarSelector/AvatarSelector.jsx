@@ -1,10 +1,14 @@
 // Library imports
 import { Grid } from "@mui/material";
+import { useState } from "react";
 
 // component imports
 import AvatarButton from "./avatarButton/AvatarButton";
 
 export default function AvatarSelector({ possibleFriends }) {
+  const [selectedFriend, setSelectedFriend] = useState("");
+  console.log(selectedFriend);
+
   return (
     <div>
       <Grid container spacing={2}>
@@ -14,6 +18,8 @@ export default function AvatarSelector({ possibleFriends }) {
             firstName={possibleFriends[0].firstName}
             avatarSrc={possibleFriends[0].avatarSrc}
             size="large"
+            selectedFriend={selectedFriend}
+            setSelectedFriend={setSelectedFriend}
           />
         </Grid>
         <Grid item xs={6}>
@@ -22,6 +28,8 @@ export default function AvatarSelector({ possibleFriends }) {
             firstName={possibleFriends[1].firstName}
             avatarSrc={possibleFriends[1].avatarSrc}
             size="large"
+            selectedFriend={selectedFriend}
+            setSelectedFriend={setSelectedFriend}
           />
         </Grid>
         <Grid item xs={6}>
@@ -30,6 +38,8 @@ export default function AvatarSelector({ possibleFriends }) {
             firstName={possibleFriends[2].firstName}
             avatarSrc={possibleFriends[2].avatarSrc}
             size="large"
+            selectedFriend={selectedFriend}
+            setSelectedFriend={setSelectedFriend}
           />
         </Grid>
       </Grid>
