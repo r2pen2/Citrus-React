@@ -8,17 +8,12 @@ import { useSearchParams } from "react-router-dom";
 // Component imports
 import LoadingScreen from "../../../resources/loadingScreen/LoadingScreen";
 import WhomQuestion from "./whomQuestion/WhomQuestion";
-import AmountQuestion from "../templates/amountQuestion/AmountQuestion";
 import { faker } from "@faker-js/faker";
 
 export default function Iou({ user }) {
   const [step, setStep] = useState(1);
   const [state, setState] = useState({
-    friend: {
-      firstName: "",
-      id: "",
-    },
-    amount: 0,
+    friend: "",
   });
 
   // go back to the previous step
@@ -57,17 +52,7 @@ export default function Iou({ user }) {
     },
   ];
 
-  // if ID is specified and f
   function getPageContent() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-    if ((id !== null) & (state.friend.id === "")) {
-      const newFriend = state.friend;
-      newFriend["id"] = id;
-      updateValue("friend", newFriend);
-      setStep(2);
-    }
-
     switch (step) {
       case 0:
         window.location = "/dashboard/new-transaction/diagnostics";
@@ -83,12 +68,12 @@ export default function Iou({ user }) {
         );
       case 2:
         return (
-          <AmountQuestion
-            nextStep={nextStep}
-            prevStep={prevStep}
-            updateValue={updateValue}
-            friendName={state.friend.firstName}
-          />
+          <div>amount?</div>
+          // <AmountQuestion
+          //   nextStep={nextStep}
+          //   prevStep={prevStep}
+          //   updateValue={updateValue}
+          // />
         );
       case 3:
         return (
