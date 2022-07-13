@@ -18,7 +18,6 @@ import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager"
 export default function Topbar() {
     
     const user = JSON.parse(localStorage.getItem("citrus:user"));
-    // These next two lines are really gross I'm sorry
     const [userDisplayName, setUserDisplayName] = useState(localStorage.getItem("citrus:displayName") ? localStorage.getItem("citrus:displayName") : "");
     const [userPhotoUrl, setUserPhotoUrl] = useState(localStorage.getItem("citrus:photoUrl") ? localStorage.getItem("citrus:photoUrl") : "");
  
