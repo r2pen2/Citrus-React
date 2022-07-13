@@ -32,9 +32,13 @@ function App() {
       if (u) {
         syncUserDoc(u);
         localStorage.setItem("citrus:user", JSON.stringify(u));
+        localStorage.setItem("citrus:pfpUrl", u.photoURL);
+        localStorage.setItem("citrus:displayName", u.displayName);
       }
       else {
         localStorage.removeItem("citrus:user")
+        localStorage.removeItem("citrus:pfpUrl")
+        localStorage.removeItem("citrus:displayName")
       }
     })
   }, []);
