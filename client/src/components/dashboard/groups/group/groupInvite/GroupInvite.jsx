@@ -1,4 +1,5 @@
 import "./groupInvite.scss";
+import Breadcrumbs from "../../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function GroupInvite() {
 
@@ -7,6 +8,7 @@ export default function GroupInvite() {
 
   return (
     <div>
+        <Breadcrumbs path={"Dashboard/Groups/" + groupId + "/Invite"}/>
         <h1>Group Invite Page</h1>
         <div>Id: {groupId}</div>
         <h2>Needs implementation</h2>

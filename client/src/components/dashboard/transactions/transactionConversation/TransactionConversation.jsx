@@ -1,4 +1,5 @@
 import "./transactionConversation.scss";
+import Breadcrumbs from "../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function TransactionConversation({user}) {
     
@@ -7,6 +8,7 @@ export default function TransactionConversation({user}) {
 
   return (
     <div>
+        <Breadcrumbs path={"Dashboard/Transactions/" + transactionId + "/Conversation"} />
         <h1>Transaction Conversation Page</h1>
         <div>Transaction Id: {transactionId}</div>
         <h2>Needs implementation</h2>

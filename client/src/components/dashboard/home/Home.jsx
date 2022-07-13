@@ -8,10 +8,12 @@ import { Stack, Box } from "@mui/material"
 import OweCard from "./oweCard/OweCard";
 import TransactionsPreview from "./transactionsPreview/TransactionsPreview";
 import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
+import Breadcrumbs from "../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function Home({ user }) {
   return (
     <Stack spacing={3} className="dashboard-home-container">
+      <Breadcrumbs path="Dashboard/Home"/>
       <Box data-testid="owe-cards"> 
         <OweCard credit={{ positive: true, amount: 250, numPeople: 6 }} />
         <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />

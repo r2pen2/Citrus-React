@@ -1,4 +1,5 @@
 import "./transactionDetail.scss";
+import Breadcrumbs from "../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function TransactionDetail({user}) {
     
@@ -7,6 +8,7 @@ export default function TransactionDetail({user}) {
 
   return (
     <div>
+        <Breadcrumbs path={"Dashboard/Transactions/" + transactionId} />
         <h1>Transaction Detail Page</h1>
         <div>Transaction Id: {transactionId}</div>
         <h2>Needs implementation</h2>

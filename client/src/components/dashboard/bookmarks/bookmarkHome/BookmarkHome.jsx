@@ -1,8 +1,10 @@
 import "./bookmarkHome.scss";
+import Breadcrumbs from "../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function BookmarkHome() {
   return (
     <div>
+        <Breadcrumbs path="Dashboard/Bookmarks" />
         <h1>Bookmarks Home Page</h1>
         <h2>Needs implementation</h2>
         <a href="https://github.com/r2pen2/Citrus-React/issues/103">Github: Implement Dashboard/Bookmarks #103</a>
