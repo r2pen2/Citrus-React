@@ -85,7 +85,7 @@ export default function Dashboard() {
         <Route path="/owe/*" element={<Owe user={user} />}/>
         <Route path="/transactions/*" element={<Transactions user={user} />}/>
         <Route path="/analytics" element={<Analytics user={user} />}/>
-        <Route path="/bookmarks" element={<Bookmarks user={user} />}/>
+        <Route path="/bookmarks/*" element={<Bookmarks user={user} />}/>
       </Routes>
       <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} />
     </div>
