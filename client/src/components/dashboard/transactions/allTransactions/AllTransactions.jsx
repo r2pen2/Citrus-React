@@ -1,8 +1,10 @@
 import "./allTransactions.scss";
+import Breadcrumbs from "../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function AllTransactions({user}) {
   return (
     <div>
+        <Breadcrumbs path="Dashboard/Transactions" />
         <h1>All Transactions Page</h1>
         <h2>Needs implementation</h2>
         <a href="https://github.com/r2pen2/Citrus-React/issues/98">Github: Implement Dashboard/Transactions #98</a>

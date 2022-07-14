@@ -1,4 +1,5 @@
 import "./personalDues.scss";
+import Breadcrumbs from "../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function PersonalDues({positive, user}) {
     
@@ -7,6 +8,7 @@ export default function PersonalDues({positive, user}) {
 
   return (
     <div>
+        <Breadcrumbs path={"Dashboard/IOU/" + userId}/>
         <h1>Personal Dues Page</h1>
         <div>With user: {userId}</div>
         <h2>Needs implementation</h2>

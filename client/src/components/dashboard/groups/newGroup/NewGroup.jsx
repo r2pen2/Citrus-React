@@ -1,8 +1,10 @@
 import "./newGroup.scss";
+import Breadcrumbs from "../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function NewGroup() {
   return (
     <div>
+      <Breadcrumbs path="Dashboard/Groups/New"/>
         <h1>New Group Page</h1>
         <h2>Needs implementation</h2>
         <a href="https://github.com/r2pen2/Citrus-React/issues/92">Github: Implement Dashboard/Groups/New #92</a>

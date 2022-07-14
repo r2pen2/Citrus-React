@@ -1,4 +1,5 @@
 import "./groupMembers.scss";
+import Breadcrumbs from "../../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function GroupMembers({user}) {
 
@@ -7,6 +8,7 @@ export default function GroupMembers({user}) {
 
   return (
     <div>
+        <Breadcrumbs path={"Dashboard/Groups/" + groupId + "/Members"}/>
         <h1>Group Members Page</h1>
         <div>Group: {groupId}</div>
         <h2>Needs implementation</h2>
