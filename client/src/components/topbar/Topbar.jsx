@@ -175,7 +175,7 @@ export default function Topbar() {
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Bookmarks">
-                                    <IconButton size='medium' edge="start" color="inherit" aria-label="bookmarks-icon" href="#bookmarks">
+                                    <IconButton size='medium' edge="start" color="inherit" aria-label="bookmarks-icon" href="/dashboard/bookmarks">
                                         <BookmarksIcon />
                                     </IconButton>
                                 </Tooltip>
