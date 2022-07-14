@@ -40,6 +40,8 @@ export async function signOutUser() {
   return new Promise((resolve, reject) => {
       signOut(auth).then((result) => {
           localStorage.removeItem("citrus:user");
+          localStorage.removeItem("citrus:pfpUrl");
+          localStorage.removeItem("citrus:displayName");
           resolve(null);
       }).catch((error) => {
           reject(error);

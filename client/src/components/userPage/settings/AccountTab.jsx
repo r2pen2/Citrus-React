@@ -20,10 +20,10 @@ import { getDisplayNameById, getPhoneNumberById, getPhotoUrlById } from "../../.
 }
 
 export default function AccountTab({ user }) {
-  
-    const [userDisplayName, setUserDisplayName] = useState("");
-    const [userPhoneNumber, setUserPhoneNumber] = useState("");
-    const [userPhotoUrl, setUserPhotoUrl] = useState("");
+
+    const [userDisplayName, setUserDisplayName] = useState(localStorage.getItem("citrus:displayName") ? localStorage.getItem("citrus:displayName") : "");
+    const [userPhotoUrl, setUserPhotoUrl] = useState(localStorage.getItem("citrus:photoUrl") ? localStorage.getItem("citrus:photoUrl") : "");
+    const [userPhoneNumber, setUserPhoneNumber] = useState(localStorage.getItem("citrus:phoneNumber") ? localStorage.getItem("citrus:phoneNumber") : "");
 
     /**
      * Get user details from DB and replace blank values
