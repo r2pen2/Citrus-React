@@ -25,19 +25,18 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import { signOutUser } from "../../api/firebase";
 import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager";
 
-/**
- * Gets a user's profile picture url
- * @param {Object} user current user
- * @returns {String} Url to user's profile picture
- */
-function getPfp(user) {
-  return user.photoURL ? user.photoURL : "";
-}
-
 export default function Topbar() {
   const user = JSON.parse(localStorage.getItem("citrus:user"));
-  const [userDisplayName, setUserDisplayName] = useState("");
-  const [userPhotoUrl, setUserPhotoUrl] = useState("");
+  const [userDisplayName, setUserDisplayName] = useState(
+    localStorage.getItem("citrus:displayName")
+      ? localStorage.getItem("citrus:displayName")
+      : ""
+  );
+  const [userPhotoUrl, setUserPhotoUrl] = useState(
+    localStorage.getItem("citrus:photoUrl")
+      ? localStorage.getItem("citrus:photoUrl")
+      : ""
+  );
 
   /**
    * Replace blank values with user details from DB
@@ -47,6 +46,8 @@ export default function Topbar() {
     setUserDisplayName(name);
     let url = await getPhotoUrlById(user.uid);
     setUserPhotoUrl(url);
+    localStorage.setItem("citrus:pfpUrl", url);
+    localStorage.setItem("citrus:displayName", name);
   }
 
   // Fetch user details on mount
@@ -221,7 +222,7 @@ export default function Topbar() {
                     edge="start"
                     color="inherit"
                     aria-label="bookmarks-icon"
-                    href="#bookmarks"
+                    href="/dashboard/bookmarks"
                   >
                     <BookmarksIcon />
                   </IconButton>

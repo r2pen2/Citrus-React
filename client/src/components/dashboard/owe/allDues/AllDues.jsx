@@ -1,8 +1,10 @@
 import "./allDues.scss";
+import Breadcrumbs from "../../../miscellaneous/navigation/breadcrumbs/Breadcrumbs";
 
 export default function AllDues({positive, user}) {
   return (
     <div>
+        <Breadcrumbs path={"Dashboard/IOU/" + (positive ? "Owe Me" : "I Owe")}/>
         <h1>All Dues Page</h1>
         <h2>Needs implementation</h2>
         <a href="https://github.com/r2pen2/Citrus-React/issues/96">Github: Implement Dashboard/Owe/?dir=in/out #96</a>
