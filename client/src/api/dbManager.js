@@ -1,8 +1,9 @@
 import { firestore } from "./firebase";
-import { onSnapshot, doc, collection, addDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { onSnapshot, doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 
 const USER_COLLECTION = "users";
+const GROUP_COLLECTION = "groups";
 const TRANSACTION_COLLECTION = "transactions";
 const BADGES_COLLECTION = "badges";
 const DEFAULT_PROFILE_PICTURES = "defaultProfilePictures"
@@ -219,7 +220,9 @@ export async function addTransactionToUser(userId, transactionId) {
         const docRef = doc(firestore, USER_COLLECTION, userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-            docSnap.data().transactions.active.push(transactionId);
+            const data = docSnap.data();
+            data.transactions.active.push(transactionId);
+            await setDoc(docRef, data);
             resolve(true);
         } else {
             console.log("No user with this ID exists on DB");
@@ -345,6 +348,7 @@ export async function addTransactionToUser(userId, transactionId) {
                 uData.transactions.active = newActive;
                 uData.transactions.inactive = newInactive;
                 await setDoc(uDoc, uData);
+                resolve();
             } else {
                 console.log("No user with this ID exists on DB");
                 reject("No user with this ID exists on DB");
@@ -361,10 +365,162 @@ export async function addTransactionToUser(userId, transactionId) {
             for (const c of credits) {
                 await deleteOnUser(c.user);
             }
+            await deleteDoc(docRef);
             resolve();
         } else {
             console.log("No transaction with this ID exists on DB");
             reject("No transaction with this ID");
+        }
+    })
+}
+
+/**
+ * Creates a group on the DB with given name
+ * @param {String} name name of new group
+ * @returns {String} id of the new group
+ */
+ export async function createGroup(name) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = await addDoc(collection(firestore, GROUP_COLLECTION), {
+            name: name,
+            users: [],
+            transactions: [],
+        })
+        console.log("Group created with ID: " + docRef.id);
+        resolve(docRef.id);
+    })
+}
+
+/**
+ * Cannot be reversed! Deletes a group from the database entirely and removes it from users
+ * @param {String} id group ID to delete from DB
+ */
+ export async function deleteGroup(id) {
+    async function deleteOnUser(u) {
+        return new Promise(async function (resolve, reject) {
+            const uDoc = doc(firestore, USER_COLLECTION, u);
+            const uDocSnap = await getDoc(uDoc);
+            if (uDocSnap.exists()) {
+                const uData = uDocSnap.data();
+                const newGroups = uData.groups.filter(g => g !== id);
+                uData.groups = newGroups;
+                await setDoc(uDoc, uData);
+                resolve();
+            } else {
+                console.log("No user with this ID exists on DB");
+                reject("No user with this ID exists on DB");
+            }
+        })
+    }
+
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, GROUP_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const users = data.users;
+            for (const u of users) {
+                await deleteOnUser(u);
+            }
+            await deleteDoc(docRef);
+            resolve();
+        } else {
+            console.log("No transaction with this ID exists on DB");
+            reject("No transaction with this ID");
+        }
+    })
+}
+
+/**
+ * Adds a group to a user and adds user to the group
+ * @param {String} userId user's id to get group added
+ * @param {String} groupId group id to add to user
+ */
+ export async function addUserToGroup(userId, groupId) {
+    return new Promise(async (resolve, reject) => {
+        const groupRef = doc(firestore, GROUP_COLLECTION, groupId);
+        const groupSnap = await getDoc(groupRef);
+        const userRef = doc(firestore, USER_COLLECTION, userId);
+        const userSnap = await getDoc(userRef);
+        if (groupSnap.exists() && userSnap.exists()) {
+            const groupData = groupSnap.data();
+            groupData.users.push(userId);
+            const userData = userSnap.data();
+            userData.groups.push(groupId);
+            await setDoc(groupRef, groupData);
+            await setDoc(userRef, userData);
+            resolve(true);
+        } else {
+            console.log("Group or user ID invalid!");
+            reject("Group or user ID invalid!");
+        }
+    })
+}
+
+/**
+ * Removes a group from a user and removes user from the group
+ * @param {String} userId user's id to get group removed
+ * @param {String} groupId group id to remove from user
+ */
+ export async function removeUserFromGroup(userId, groupId) {
+    return new Promise(async (resolve, reject) => {
+        const groupRef = doc(firestore, GROUP_COLLECTION, groupId);
+        const groupSnap = await getDoc(groupRef);
+        const userRef = doc(firestore, USER_COLLECTION, userId);
+        const userSnap = await getDoc(userRef);
+        if (groupSnap.exists() && userSnap.exists()) {
+            const groupData = groupSnap.data();
+            groupData.users.filter(u => u !== userId);
+            const userData = userSnap.data();
+            userData.groups.filter(g => g !== groupId);
+            await setDoc(groupRef, groupData);
+            await setDoc(userRef, userData);
+            resolve(true);
+        } else {
+            console.log("Group or user ID invalid!");
+            reject("Group or user ID invalid!");
+        }
+    })
+}
+
+/**
+ * Adds a transaction to a group
+ * @param {String} transactionId transaction id to add
+ * @param {String} groupId group id receive transaction
+ */
+ export async function addTransactionToGroup(transactionId, groupId) {
+    return new Promise(async (resolve, reject) => {
+        const groupRef = doc(firestore, GROUP_COLLECTION, groupId);
+        const groupSnap = await getDoc(groupRef);
+        if (groupSnap.exists()) {
+            const groupData = groupSnap.data();
+            groupData.transactions.push(transactionId);
+            await setDoc(groupRef, groupData);
+            resolve(true);
+        } else {
+            console.log("Group ID invalid!");
+            reject("Group ID invalid!");
+        }
+    })
+}
+
+/**
+ * Removes a transaction from a group
+ * @param {String} transactionId transaction id to remove
+ * @param {String} groupId group id delete transaction on
+ */
+ export async function removeTransactionFromGroup(transactionId, groupId) {
+    return new Promise(async (resolve, reject) => {
+        const groupRef = doc(firestore, GROUP_COLLECTION, groupId);
+        const groupSnap = await getDoc(groupRef);
+        if (groupSnap.exists()) {
+            const groupData = groupSnap.data();
+            groupData.transactions.filter(t => t !== transactionId);
+            await setDoc(groupRef, groupData);
+            resolve(true);
+        } else {
+            console.log("Group ID invalid!");
+            reject("Group ID invalid!");
         }
     })
 }
