@@ -1,47 +1,82 @@
 import "./bookmarkHome.scss";
 import Breadcrumbs from "../../../resources/navigation/breadcrumbs/Breadcrumbs";
+import { CircularProgress, Typography } from '@mui/material';
+import { getBookmarksById } from '../../../../api/dbManager';
 
-export default function BookmarkHome() {
+import { useState, useEffect } from 'react';
+
+const b = 
+[{
+  id: "ajwglahjglajhlihawg",
+  title: "fullBookmark",
+  who: "Oliver",
+  amount: 40,
+  extra: "No more information"
+},
+{
+  id: "awgagasdgagawg",
+  title: "noWho",
+  who: null,
+  amount: 40,
+  extra: "No more information"
+},
+{
+  id: "awggawagwawgagwb",
+  title: "noAmount",
+  who: "Oliver",
+  amount: null,
+  extra: "No more information"
+},
+{
+  id: "GGggwgwgagaw",
+  title: "noExtra",
+  who: "Oliver",
+  amount: 40,
+  extra: null
+}];
+
+/** Builds bookmark slides with bookmarks array */
+function generateBookmarks(a)  {
+  if (!a) {
+    // If array is null, generate loading circle while we fetch
+    return (
+      <div className="loading-box">
+        <CircularProgress />
+      </div>
+    )
+  }
+  if (a === "none") {
+    //dbManager returned string "none", meaning the user has no bookmarks.
+    return (
+      <div className="loading-box">
+        <Typography>User has no bookmarks.</Typography>
+      </div>
+    )
+  }
+  // Otherwise, we have bookmarks from DB and should display cards accordingly
+
+}
+
+export default function BookmarkHome({user}) {
+  
+  const [userBookmarks, setUserBookmarks] = useState(null);
+
+  async function fetchBookmarks(u) {
+    const bm = await getBookmarksById(u.uid);
+    setUserBookmarks(bm);
+  }
+
+  // Fetch bookmarks by ID on mount
+  useEffect(() => {
+    fetchBookmarks(user);
+  }, [])
+
   return (
     <div>
       <Breadcrumbs path="Dashboard/Bookmarks" />
-      <h1>Bookmarks Home Page</h1>
-      <h2>Needs implementation</h2>
-      <a href="https://github.com/r2pen2/Citrus-React/issues/103">
-        Github: Implement Dashboard/Bookmarks #103
-      </a>
-      <ul>
-        <li>
-          <div>Has a link to add a new bookmark</div>
-        </li>
-        <li>
-          <div>Shows a list of user's bookmarked transactions</div>
-        </li>
-        <li>
-          <div>Bookmarks can be deleted individually from the list</div>
-        </li>
-        <li>
-          <div>Shows a receipt icon for bookmarks with receipts scanned</div>
-        </li>
-        <li>
-          <div>Shows price on each bookmark (if added)</div>
-        </li>
-        <li>
-          <div>Shows users on each bookmark (if added)</div>
-        </li>
-        <li>
-          <div>Shows date on each bookmark ALWAYS</div>
-        </li>
-        <li>
-          <div>Shows title on each bookmark (if added)</div>
-        </li>
-        <li>
-          <div>Shows extra information on each bookmark (if added)</div>
-        </li>
-        <li>
-          <a href="/dashboard/bookmarks/new">New Bookmark</a>
-        </li>
-      </ul>
+      <div className="bookmarks">
+        { generateBookmarks(userBookmarks) }
+      </div>
     </div>
   );
 }
