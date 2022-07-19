@@ -11,3 +11,9 @@ body, ul {
     // Disable scrollbar
     &::-webkit-scrollbar {display:none;}
 }
+
+.content {
+    margin-top: 50px;
+    margin-left: 75px;
+    margin-right: 75px;
+}
