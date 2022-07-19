@@ -7,20 +7,12 @@ import { Component, useState } from "react";
 // Component imports
 import AffiliationQuestion from "./affiliationQuestion/AffiliationQuestion";
 import TypeQuestion from "./typeQuestion/TypeQuestion";
-import LoadingScreen from "../../../miscellaneous/loadingScreen/LoadingScreen";
+import LoadingScreen from "../../../resources/loadingScreen/LoadingScreen";
 
-// class Diagnostics extends Component {
-//   // state = {
-//   //   step: 1,
-//   //   Affiliation: "",
-//   //   Type: "",
-//   // };
-// }
 export default function Diagnostics({ user }) {
   const [step, setStep] = useState(1);
   const [state, setState] = useState({
-    Affiliation: "",
-    Type: "",
+    type: "",
   });
 
   // go back to the previous step
@@ -35,30 +27,11 @@ export default function Diagnostics({ user }) {
 
   // handle input
   function updateValue(key, value) {
-    console.log(
-      "Everything before: Affiliation - " +
-        state.Affiliation +
-        "; Type - " +
-        state.Type
-    );
-
     const newState = state;
     newState[key] = value;
     setState(newState);
-
-    console.log(
-      "Everything after: Affiliation - " +
-        state.Affiliation +
-        "; Type - " +
-        state.Type
-    );
-
-    // console.log("before");
-    // console.log(state);
-    // setState({ items });
-    // console.log("after");
-    // console.log(state);
   }
+
   function getPageContent() {
     switch (step) {
       case 0:
@@ -66,28 +39,16 @@ export default function Diagnostics({ user }) {
         break;
       case 1:
         return (
-          <AffiliationQuestion
-            nextStep={nextStep}
-            prevStep={prevStep}
-            updateValue={updateValue}
-          />
-        );
-      case 2:
-        return (
           <TypeQuestion
             nextStep={nextStep}
             prevStep={prevStep}
             updateValue={updateValue}
           />
         );
-      case 3:
+      case 2:
         const nextPage =
-          "/dashboard/new-transaction/" +
-          (state.Type === "Communal" ? "communal" : "iou") +
-          "?affiliation=" +
-          state.Affiliation;
+          "/dashboard/new-transaction/" + state.type.toLowerCase();
         window.location = nextPage;
-        break;
       default:
         return <LoadingScreen />;
     }

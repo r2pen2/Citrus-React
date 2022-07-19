@@ -4,21 +4,16 @@ import multipleChoiceButton from "./multipleChoiceButton.scss";
 // Library imports
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
-// index={index}
-// choice={option}
-// field="Affiliation"
-// updateValue={updateValue}
-// nextStep={nextStep}
-
 export default function MultipleChoiceButton({
   index,
   choice,
   field,
   updateValue,
   nextStep,
+  size = "large",
 }) {
   function handleClick() {
-    updateValue(field, choice);
+    updateValue(field.toLowerCase(), choice);
     nextStep();
   }
 
@@ -30,12 +25,15 @@ export default function MultipleChoiceButton({
     >
       <Card
         variant="outlined"
-        sx={[getSize(), getStyle(), getColor(index)]}
+        sx={[getSize(size), getStyle(), getColor(index)]}
         data-testid="multiple-choice-button-card"
+        className="multiple-choice-button"
       >
-        <CardActionArea sx={getActionAreaStyle()}>
+        <CardActionArea sx={getActionAreaStyle(size)}>
           <CardContent sx={{ padding: "0px" }}>
-            <Typography sx={{ fontSize: 24 }}>{choice}</Typography>
+            <Typography sx={{ fontSize: getFontSize(size) }}>
+              {choice}
+            </Typography>
           </CardContent>
         </CardActionArea>
       </Card>
@@ -49,23 +47,36 @@ function getContentStyle() {
   };
 }
 
-function getActionAreaStyle() {
+function getActionAreaStyle(size) {
+  const cardHeight = size === "large" ? "12vh" : "6vh";
   return {
     textAlign: "center",
-    paddingTop: "4.5vh",
-    paddingBottom: "5vh",
-    width: "50vw",
-    height: "12vh",
+    height: cardHeight,
   };
 }
 
-function getSize() {
-  return {
-    width: "50vw",
-    height: "12vh",
-    // paddingTop: "50px",
-  };
+function getSize(size) {
+  if (size === "large") {
+    return {
+      width: "50vw",
+      height: "12vh",
+    };
+  } else {
+    return {
+      width: "40vw",
+      height: "6vh",
+    };
+  }
 }
+
+function getFontSize(size) {
+  if (size === "large") {
+    return 24;
+  } else {
+    return 20;
+  }
+}
+
 function getColor(index) {
   const yellow = "citrusYellow.main";
   const pink = "citrusPink.main";
@@ -75,9 +86,9 @@ function getColor(index) {
     backgroundColor: bgColor,
   };
 }
+
 function getStyle() {
   return {
     borderRadius: "20px",
-    // textAlign: "center",
   };
 }

@@ -5,47 +5,26 @@ import "./typeQuestion.scss";
 import { Fab, Stack } from "@mui/material";
 
 // Component imports
-import MultipleChoiceButton from "../../templates/multipleChoiceButton/MultipleChoiceButton";
-import BackButton from "../../templates/backButton/BackButton";
-import InfoButton from "../../templates/infoButton/InfoButton";
-
-// nextStep={nextStep}
-// updateValue={updateValue}
-// values={values}
+import MultipleChoicePage from "../../templates/multipleChoicePage/MultipleChoicePage";
 
 export default function AffiliationQuestion({
   nextStep,
   prevStep,
   updateValue,
 }) {
-  // const priorPage = "/dashboard";
-  // const nextPage = "/dashboard/new-transaction/transaction-or-iou";
+  const field = "Type";
+  const options = ["Group", "IOU"];
   const informationText =
-    'Select "Communal" if this transaction involves three or more people. Select "IOU" if not.';
-
-  var options = ["Communal", "IOU"];
+    "Select Group if this transaction is with a group of friends. Select IOU if it's with just one.";
 
   return (
-    <div>
-      <div style={{ marginTop: "50px" }}></div>
-      <div style={{ marginLeft: "30px", marginTop: "2vh" }}>
-        <BackButton onClick={prevStep}></BackButton>
-      </div>
-      <Stack spacing={5} marginTop="5vh" alignItems="center">
-        {options.map(function (option, index) {
-          return (
-            <MultipleChoiceButton
-              index={index}
-              choice={option}
-              field="Type"
-              updateValue={updateValue}
-              nextStep={nextStep}
-            />
-          );
-        })}
-        <div style={{ height: "1vh" }}></div>
-        <InfoButton informationText={informationText}></InfoButton>
-      </Stack>
-    </div>
+    <MultipleChoicePage
+      field={field}
+      options={options}
+      informationText={informationText}
+      nextStep={nextStep}
+      prevStep={prevStep}
+      updateValue={updateValue}
+    />
   );
 }
