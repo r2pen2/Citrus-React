@@ -2,27 +2,15 @@
 import "./transactionsPreview.scss";
 
 // Library imports
-import { Card, CardContent, CardActionArea, Typography, Stack, Avatar, Button } from '@mui/material';
+import { CardContent, CardActionArea, Typography, Stack, Avatar, Button } from '@mui/material';
 
 // Component imports
 import OliverPic from "../../../../assets/images/pfp/Oliver.png";
 import LeoPic from "../../../../assets/images/pfp/Leo.png";
+import OutlinedCard from "../../../resources/surfaces/OutlinedCard";
 
 // API imports
 import formatter from "../../../../api/formatter";
-
-/**
- * Get style for transaction card
- * @returns {Object} card style
- */
-function getCardStyle() {
-    return {
-        var: "outlined",
-        borderRadius: "5px",
-        backgroundColor: "white",
-        marginBottom: "10px"
-    }
-}
 
 /**
  * Sorts a list of transactions by date
@@ -108,26 +96,28 @@ function createTransactionCards( transactions, numDisplayed ) {
     }
 
     return transactions.map((t, tIndex) => 
-        <Card variant="outlined" sx={getCardStyle()} data-testid={"transaction-card-" + t.title} key={t.id}> 
-            <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + t.id}>
-                <CardContent>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between">
-                        <Stack direction="row" alignItems="center" component="div" id={tIndex}>
-                            <Avatar 
-                                sx={{ marginRight: "10px"}} 
-                                alt={t.user}
-                                src={t.user === "Oliver Risch" ? OliverPic : LeoPic}
-                            />
-                            <Stack direction="column" alignItems="left" align="left">
-                                <Typography variant="h6" component="div">{t.title}</Typography>
-                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{formatDate(t.date)}</Typography>
+        <div data-testid={"transaction-card-" + t.title} key={t.id}>
+            <OutlinedCard>
+                <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + t.id}>
+                    <CardContent>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                            <Stack direction="row" alignItems="center" component="div" id={tIndex}>
+                                <Avatar 
+                                    sx={{ marginRight: "10px"}} 
+                                    alt={t.user}
+                                    src={t.user === "Oliver Risch" ? OliverPic : LeoPic}
+                                />
+                                <Stack direction="column" alignItems="left" align="left">
+                                    <Typography variant="h6" component="div">{t.title}</Typography>
+                                    <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{formatDate(t.date)}</Typography>
+                                </Stack>
                             </Stack>
+                            <Typography align="right" variant="h5" component="div">{formatter.format(t.amount)}</Typography>
                         </Stack>
-                        <Typography align="right" variant="h5" component="div">{formatter.format(t.amount)}</Typography>
-                    </Stack>
-                </CardContent>
-            </CardActionArea>
-        </Card>
+                    </CardContent>
+                </CardActionArea>
+            </OutlinedCard>
+        </div>
     )
 }
 

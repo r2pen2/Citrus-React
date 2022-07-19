@@ -5,6 +5,8 @@ import { getBookmarksById } from '../../../../api/dbManager';
 
 import { useState, useEffect } from 'react';
 
+import Bookmark from "./bookmark/Bookmark";
+
 const b = 
 [{
   id: "ajwglahjglajhlihawg",
@@ -35,8 +37,11 @@ const b =
   extra: null
 }];
 
-/** Builds bookmark slides with bookmarks array */
-function generateBookmarks(a)  {
+/**
+ * Renders bookmark slides based on given array
+ * @param {Array} a bookmarks for user
+ */
+function renderBookmarks(a)  {
   if (!a) {
     // If array is null, generate loading circle while we fetch
     return (
@@ -54,7 +59,13 @@ function generateBookmarks(a)  {
     )
   }
   // Otherwise, we have bookmarks from DB and should display cards accordingly
-
+  return (
+    a.map((bookmark, idx) => {
+      return (
+        <Bookmark bookmark={bookmark} idx={idx}/>
+      )
+    })
+  )
 }
 
 export default function BookmarkHome({user}) {
@@ -75,7 +86,7 @@ export default function BookmarkHome({user}) {
     <div>
       <Breadcrumbs path="Dashboard/Bookmarks" />
       <div className="bookmarks">
-        { generateBookmarks(userBookmarks) }
+        { renderBookmarks(userBookmarks) }
       </div>
     </div>
   );
