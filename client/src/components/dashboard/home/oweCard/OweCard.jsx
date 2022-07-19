@@ -14,22 +14,8 @@ import GroupsIcon from "@mui/icons-material/Groups";
 // API imports
 import formatter from "../../../../api/formatter";
 
-/**
- * Create styling object based on credit
- * @param {Object} credit credit that this card is associated with
- * @returns {Object} styling for a card element
- */
-function getCardStyle(credit) {
-  const bgColor = credit.positive
-    ? "rgba(176, 200, 86, 0.8)"
-    : "rgba(234, 66, 54, 0.5)";
-  return {
-    backgroundColor: bgColor,
-    width: "100%",
-    borderRadius: "5px",
-    marginBottom: "10px",
-  };
-}
+// Component imports
+import ColoredCard from "../../../resources/surfaces/ColoredCard";
 
 export default function OweCard({ credit }) {
   return (
@@ -41,11 +27,7 @@ export default function OweCard({ credit }) {
         {credit.positive ? "Owe Me" : "I Owe"} ❯
       </Typography>
       <div className="card-wrapper">
-        <Card
-          variant="outlined"
-          sx={getCardStyle(credit)}
-          data-testid="owe-card-card-element"
-        >
+        <ColoredCard color={credit.positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} >
           <CardActionArea>
             <CardContent onClick={() => {window.location = "/dashboard/owe?dir=" + (credit.positive ? "in" : "out")}}>
               <Typography variant="h5" component="div" color="white">
@@ -65,7 +47,7 @@ export default function OweCard({ credit }) {
               </Stack>
             </CardContent>
           </CardActionArea>
-        </Card>
+        </ColoredCard>
       </div>
     </div>
   );
