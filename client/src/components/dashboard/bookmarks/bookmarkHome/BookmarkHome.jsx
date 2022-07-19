@@ -1,11 +1,11 @@
 import "./bookmarkHome.scss";
 import Breadcrumbs from "../../../resources/navigation/breadcrumbs/Breadcrumbs";
-import { CircularProgress, Typography } from '@mui/material';
+import { CircularProgress, Typography, CardContent, CardActionArea } from '@mui/material';
 import { getBookmarksById } from '../../../../api/dbManager';
 
 import { useState, useEffect } from 'react';
 
-import Bookmark from "./bookmark/Bookmark";
+import ColoredCard from "../../../resources/surfaces/ColoredCard";
 
 const b = 
 [{
@@ -62,7 +62,13 @@ function renderBookmarks(a)  {
   return (
     a.map((bookmark, idx) => {
       return (
-        <Bookmark bookmark={bookmark} idx={idx}/>
+        <ColoredCard>
+          <CardActionArea>
+            <CardContent>
+              
+            </CardContent>  
+          </CardActionArea>
+        </ColoredCard>
       )
     })
   )
