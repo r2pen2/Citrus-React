@@ -10,18 +10,21 @@ export default function AvatarButton({
   firstName,
   avatarSrc,
   size,
-  selectedFriend,
-  setSelectedFriend,
+  selectedFriendName,
+  setSelectedFriendName,
+  setSelectedFriendId,
 }) {
-  const isSelected = selectedFriend === firstName;
+  const isSelected = selectedFriendName === firstName;
 
   function handleClick() {
-    console.log("selected friend: " + selectedFriend);
+    console.log("selected friend: " + selectedFriendName);
     console.log("this person: " + firstName);
     if (isSelected) {
-      setSelectedFriend("");
+      setSelectedFriendName("");
+      setSelectedFriendId("");
     } else {
-      setSelectedFriend(firstName);
+      setSelectedFriendName(firstName);
+      setSelectedFriendId(index);
     }
   }
 
