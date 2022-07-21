@@ -595,11 +595,35 @@ export async function addTransactionToUser(userId, transactionId) {
                 title: formatBookmarkString(bookmark.title),
                 who: formatBookmarkString(bookmark.who),
                 amount: bookmark.amount,
-                extra: formatBookmarkString(bookmark.extra)
+                extra: formatBookmarkString(bookmark.extra),
+                receiptUrl: formatBookmarkString(bookmark.receiptUrl),
+                createdAt: new Date(),
             }
             userData.bookmarks.push(indexedBookmark);
             setDoc(docRef, userData);
             resolve(newId)
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+/**
+ * Removes a bookmark from a user
+ * @param {String} id user ID
+ * @param {Object} bookmarkId id of bookmark to remove
+ */
+ export async function removeBookmarkFromUser(id, bookmarkId) {
+
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            userData.bookmarks.filter(b => b.id !== bookmarkId);
+            setDoc(docRef, userData);
+            resolve();
         } else {
             console.log("No user with this ID exists on DB");
             resolve("?")

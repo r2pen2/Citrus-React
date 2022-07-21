@@ -11,76 +11,8 @@ import OutlinedCard from "../../../resources/surfaces/OutlinedCard";
 
 // API imports
 import formatter from "../../../../api/formatter";
-
-/**
- * Sorts a list of transactions by date
- * @param {[Object]} transactions list of transactions to be sorted
- * @returns {[Object]} sorted list of transactions
- */
-function sortByDate( transactions ) {
-    transactions.sort((a, b) => {
-        return new Date(b.date) - new Date(a.date);
-    })
-
-    return transactions;
-}
-
-/**
- * Formats a UTC date string so that it's easier to read
- * @param {String} date string representing a UTC date
- * @returns {String} date formatted as a string
- */
-function formatDate( date ) {
-    const d = new Date(date)
-    const day = d.getUTCDate();
-    const month = d.getMonth();
-    const year = d.getFullYear();
-
-    var monthString = ""
-    switch (month) {
-        case 0:
-            monthString = "January";
-            break;
-        case 1:
-            monthString = "February";
-            break;
-        case 2:
-            monthString = "March";
-            break;
-        case 3:
-            monthString = "April";
-            break;
-        case 4:
-            monthString = "May";
-            break;
-        case 5:
-            monthString = "June";
-            break;
-        case 6:
-            monthString = "July";
-            break;
-        case 7:
-            monthString = "August";
-            break;
-        case 8:
-            monthString = "September";
-            break;
-        case 9:
-            monthString = "October";
-            break;
-        case 10:
-            monthString = "November";
-            break;
-        case 11:
-            monthString = "December";
-            break;
-        default:
-            monthString = "";
-            break;
-    }
-
-    return day + " " + monthString + ", " + year;
-}
+import { getDateString } from "../../../../api/strings";
+import { sortByDate } from "../../../../api/sorting";
 
 /**
  * Creates cards representing a list of transaction
@@ -109,7 +41,7 @@ function createTransactionCards( transactions, numDisplayed ) {
                                 />
                                 <Stack direction="column" alignItems="left" align="left">
                                     <Typography variant="h6" component="div">{t.title}</Typography>
-                                    <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{formatDate(t.date)}</Typography>
+                                    <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(t.date)}</Typography>
                                 </Stack>
                             </Stack>
                             <Typography align="right" variant="h5" component="div">{formatter.format(t.amount)}</Typography>

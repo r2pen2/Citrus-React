@@ -15,7 +15,6 @@ export default function ColoredCard(props) {
     <Card
           variant="outlined"
           sx={getCardStyle(props.color)}
-          data-testid="owe-card-card-element"
     >
         {props.children}
     </Card>
