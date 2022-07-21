@@ -13,28 +13,32 @@ const b =
   title: "fullBookmark",
   who: "Oliver",
   amount: 40,
-  extra: "No more information"
+  extra: "No more information",
+  createdAt: new Date(),
 },
 {
   id: "awgagasdgagawg",
   title: "noWho",
   who: null,
   amount: 40,
-  extra: "No more information"
+  extra: "No more information",
+  createdAt: new Date(),
 },
 {
   id: "awggawagwawgagwb",
   title: "noAmount",
   who: "Oliver",
   amount: null,
-  extra: "No more information"
+  extra: "No more information",
+  createdAt: new Date(),
 },
 {
   id: "GGggwgwgagaw",
   title: "noExtra",
   who: "Oliver",
   amount: 40,
-  extra: null
+  extra: null,
+  createdAt: new Date(),
 }];
 
 /**
@@ -42,6 +46,28 @@ const b =
  * @param {Array} a bookmarks for user
  */
 function renderBookmarks(a)  {
+
+  function getBookmarkAge(bookmark) {
+    const now = new Date();
+    const delta = now.getTime() - bookmark.createdAt.getTime();
+    const seconds = delta/1000;
+    const minutes = seconds/60;
+    const hours = minutes/60;
+    const days = hours/24;
+    return Math.floor(days);
+  }
+
+  function getBookmarkColor(bookmark) {
+    const age = getBookmarkAge(bookmark);
+    if (age < 3) {
+      return "#bfd679"; // citrus green
+    }
+    if (age < 7) {
+      return "#FDB90F"; // citrus orange
+    }
+    return "#EA4236"; // citrus red
+  }
+
   if (!a) {
     // If array is null, generate loading circle while we fetch
     return (
@@ -62,10 +88,12 @@ function renderBookmarks(a)  {
   return (
     a.map((bookmark, idx) => {
       return (
-        <ColoredCard>
+        <ColoredCard color={getBookmarkColor(bookmark)}>
           <CardActionArea>
             <CardContent>
-              
+              <div className="bookmark">
+
+              </div>
             </CardContent>  
           </CardActionArea>
         </ColoredCard>
@@ -80,7 +108,7 @@ export default function BookmarkHome({user}) {
 
   async function fetchBookmarks(u) {
     const bm = await getBookmarksById(u.uid);
-    setUserBookmarks(bm);
+    setUserBookmarks(b);
   }
 
   // Fetch bookmarks by ID on mount
