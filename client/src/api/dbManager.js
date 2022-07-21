@@ -421,8 +421,7 @@ export async function addTransactionToUser(userId, transactionId) {
             const uDocSnap = await getDoc(uDoc);
             if (uDocSnap.exists()) {
                 const uData = uDocSnap.data();
-                const newGroups = uData.groups.filter(g => g !== id);
-                uData.groups = newGroups;
+                uData.groups = uData.groups.filter(g => g !== id);
                 await setDoc(uDoc, uData);
                 resolve();
             } else {
@@ -489,9 +488,9 @@ export async function addTransactionToUser(userId, transactionId) {
         const userSnap = await getDoc(userRef);
         if (groupSnap.exists() && userSnap.exists()) {
             const groupData = groupSnap.data();
-            groupData.users.filter(u => u !== userId);
+            groupData.users = groupData.users.filter(u => u !== userId);
             const userData = userSnap.data();
-            userData.groups.filter(g => g !== groupId);
+            userData.groups = userData.groups.filter(g => g !== groupId);
             await setDoc(groupRef, groupData);
             await setDoc(userRef, userData);
             resolve(true);
@@ -534,7 +533,7 @@ export async function addTransactionToUser(userId, transactionId) {
         const groupSnap = await getDoc(groupRef);
         if (groupSnap.exists()) {
             const groupData = groupSnap.data();
-            groupData.transactions.filter(t => t !== transactionId);
+            groupData.transactions = groupData.transactions.filter(t => t !== transactionId);
             await setDoc(groupRef, groupData);
             resolve(true);
         } else {
@@ -595,7 +594,7 @@ export async function addTransactionToUser(userId, transactionId) {
                 title: formatBookmarkString(bookmark.title),
                 who: formatBookmarkString(bookmark.who),
                 amount: bookmark.amount,
-                extra: formatBookmarkString(bookmark.extra),
+                note: formatBookmarkString(bookmark.note),
                 receiptUrl: formatBookmarkString(bookmark.receiptUrl),
                 createdAt: new Date(),
             }
@@ -619,9 +618,11 @@ export async function addTransactionToUser(userId, transactionId) {
     return new Promise(async (resolve, reject) => {
         const docRef = doc(firestore, USER_COLLECTION, id);
         const docSnap = await getDoc(docRef);
+        console.log("Deleting: " + bookmarkId);
         if (docSnap.exists()) {
             const userData = docSnap.data();
-            userData.bookmarks.filter(b => b.id !== bookmarkId);
+            console.log(userData.bookmarks)
+            userData.bookmarks = userData.bookmarks.filter(b => b.id !== bookmarkId);
             setDoc(docRef, userData);
             resolve();
         } else {
