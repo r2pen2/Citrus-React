@@ -111,3 +111,14 @@
 
     return (month + 1) + "/" + day + "/" + year;
 }
+
+/**
+ * Cuts a string at an index and places an ellipsis
+ * @param {String} string input string to cut
+ * @param {Number} index last index to show 
+ */
+export function cutAtIndex(string, index) {
+    if (string) {
+        return string.slice(0, index) + "...";
+    }
+}

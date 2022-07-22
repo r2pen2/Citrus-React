@@ -18,7 +18,6 @@
 }
 
 .bookmark-wrapper {
-
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -82,7 +81,8 @@
             width: 100%;
             align-items: center;
             justify-content: center;
-    
+            transition: all 0.5s ease;
+
             .title {
                 flex: 1;
                 align-items: flex-start;
@@ -93,6 +93,23 @@
             .who {
                 flex: 1;
                 align-items: flex-end;
+            }
+        }
+
+        .note-container {
+            display: flex;
+            width: 0;
+            opacity: 0;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+            font-size: 14px;
+
+            .text {
+                width: 100%;
+                margin-left: 10px;
+                text-overflow: ellipsis;
             }
         }
     
@@ -106,6 +123,19 @@
             .amount {
                 font-weight: bold;
                 font-size: 32px;
+            }
+        }
+    }
+
+    &.hover {
+        .bookmark {
+            .center {
+                flex: 2;
+            }
+
+            .note-container {
+                flex: 4;
+                opacity: 1;
             }
         }
     }
