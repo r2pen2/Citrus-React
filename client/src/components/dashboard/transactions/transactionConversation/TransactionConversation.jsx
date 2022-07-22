@@ -1,5 +1,5 @@
 import "./transactionConversation.scss";
-import Breadcrumbs from "../../../resources/navigation/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../../../resources/Breadcrumbs";
 
 export default function TransactionConversation({ user }) {
   const params = new URLSearchParams(window.location.search);

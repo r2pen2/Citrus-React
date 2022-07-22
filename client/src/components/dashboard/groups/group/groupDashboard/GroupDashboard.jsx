@@ -1,5 +1,5 @@
 import "./groupDashboard.scss";
-import Breadcrumbs from "../../../../resources/navigation/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../../../../resources/Breadcrumbs";
 
 export default function GroupDashboard({ user }) {
   const params = new URLSearchParams(window.location.search);

@@ -1,5 +1,5 @@
 import "./joinGroup.scss";
-import Breadcrumbs from "../../../resources/navigation/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../../../resources/Breadcrumbs";
 
 export default function JoinGroup({ user }) {
   return (

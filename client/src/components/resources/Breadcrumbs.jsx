@@ -1,4 +1,4 @@
-import "./breadcrumbs.scss";
+import "./navigation/breadcrumbs/breadcrumbs.scss";
 import {Breadcrumbs as MUIBreadcrumbs, Link} from "@mui/material"
 
 function mapPath(p) {
