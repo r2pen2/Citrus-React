@@ -1,6 +1,6 @@
 import "./bookmarks.scss";
 import Breadcrumbs from "../../resources/Breadcrumbs";
-import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, CardContent, CardActionArea, IconButton, TextField } from '@mui/material';
+import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, CardContent, CardActionArea, IconButton, TextField, Popper, Paper, Fade } from '@mui/material';
 import { getBookmarksById, removeBookmarkFromUser, createBookmarkOnUser } from '../../../api/dbManager';
 import { getSlashDateString } from '../../../api/strings';
 import formatter from '../../../api/formatter';
@@ -36,6 +36,8 @@ export default function Bookmarks({user}) {
   const [newAmount, setNewAmount] = useState(null);
   const [newNote, setNewNote] = useState(null);
   const [newReceiptUrl, setNewReceiptUrl] = useState(null);
+  const [popperAnchor, setPopperAnchor] = useState(null);
+  const [popperOpen, setPopperOpen] = useState(false);
 
   /**
    * Fetch bookmark list for current user
@@ -78,6 +80,17 @@ export default function Bookmarks({user}) {
       return s ? s : "";
     }
 
+    function handleEnter(mark, e) {
+      if (mark.note) {
+        setPopperAnchor(e.currentTarget);
+        setPopperOpen(true);
+      }
+    }
+
+    function handleExit(e) {
+      setPopperOpen(false);
+    }
+
     if (a === "none") {
       //dbManager returned string "none", meaning the user has no bookmarks.
       return (
@@ -94,8 +107,17 @@ export default function Bookmarks({user}) {
         a.map((bookmark, idx) => {
           return (
             <div className="bookmark-wrapper" key={idx}>
+              <Popper open={popperOpen} anchorEl={popperAnchor} placement={'top'} transition>
+                {({ TransitionProps }) => (
+                  <Fade {...TransitionProps} timeout={350}>
+                    <Paper>
+                      <Typography sx={{ p: 2 }}>{bookmark.note}</Typography>
+                    </Paper>
+                  </Fade>
+                )}
+              </Popper>
               <ColoredCard color={getBookmarkColor(bookmark)}>
-                <CardActionArea onClick={() => console.log("Sending transaction for bookmark: " + bookmark.id)}>
+                <CardActionArea onClick={() => console.log("Sending transaction for bookmark: " + bookmark.id)} onMouseEnter={(e) => handleEnter(bookmark, e)} onMouseLeave={() => handleExit()}>
                   <CardContent>
                     <div className="bookmark">
                       <div className="left">
