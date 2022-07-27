@@ -26,7 +26,7 @@ export default function OweCard({ credit }) {
       <Typography sc={{ fontSize: 14 }} color="text-secondary" gutterBottom>
         {credit.positive ? "Owe Me" : "I Owe"} ❯
       </Typography>
-      <div className="card-wrapper">
+      <div className="card-wrapper" data-testid="owe-card-card-element">
         <ColoredCard color={credit.positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} data-testid="owe-card-card-element">
           <CardActionArea>
             <CardContent onClick={() => {window.location = "/dashboard/owe?dir=" + (credit.positive ? "in" : "out")}}>

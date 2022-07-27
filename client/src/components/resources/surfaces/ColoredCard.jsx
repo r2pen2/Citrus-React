@@ -13,6 +13,7 @@ function getCardStyle(color) {
 export default function ColoredCard(props) {
   return (
     <Card
+          data-testid={"colored-card-" + props.color}
           variant="outlined"
           sx={getCardStyle(props.color)}
     >
