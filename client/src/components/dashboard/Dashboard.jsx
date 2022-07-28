@@ -75,7 +75,7 @@ export default function Dashboard() {
   }
   
   return (
-    <div>
+    <div className="dashboard">
       {renderShortcut()}
       <Routes>
         <Route path="/" element={<Home user={user} />} />

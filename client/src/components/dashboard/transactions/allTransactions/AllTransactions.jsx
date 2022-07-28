@@ -1,5 +1,5 @@
 import "./allTransactions.scss";
-import Breadcrumbs from "../../../resources/navigation/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../../../resources/Breadcrumbs";
 
 export default function AllTransactions({ user }) {
   return (

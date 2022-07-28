@@ -1,5 +1,5 @@
 import "./allDues.scss";
-import Breadcrumbs from "../../../resources/navigation/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../../../resources/Breadcrumbs";
 
 export default function AllDues({ positive, user }) {
   return (

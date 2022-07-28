@@ -1,13 +1,11 @@
-import "./breadcrumbs.scss";
+import "./navigation/breadcrumbs/breadcrumbs.scss";
 import {Breadcrumbs as MUIBreadcrumbs, Link} from "@mui/material"
 
 function mapPath(p) {
     const path = p.split("/");
     return path.map((link, idx) => {
-        console.log("idx: " + idx)
-        console.log("len: " + path.length)
         return (
-            <Link underline='none' color="inherit">
+            <Link underline='none' color="inherit" key={link}>
                 <div className={(idx + 1 === path.length ? "current " : "") + (idx === 0 ? "first" : "")}>
                     {link}
                 </div>

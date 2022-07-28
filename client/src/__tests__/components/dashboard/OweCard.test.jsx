@@ -13,9 +13,8 @@ describe("OweCard render tests", () => {
         expect(oweCard).toBeVisible();
         const groupsIcon = screen.getByTestId('GroupsIcon');
         expect(groupsIcon).toBeVisible();
-        const cardElement = screen.getByTestId('owe-card-card-element');
-        expect(cardElement).toBeVisible();
-        expect(cardElement).toHaveStyle({ backgroundColor: "rgba(176, 200, 86, 0.8)" })
+        const coloredCardElement = screen.getByTestId('colored-card-rgba(176, 200, 86, 0.8)');
+        expect(coloredCardElement).toBeVisible();
     });
 
     test("Negative card renders correctly", () => {
@@ -24,8 +23,7 @@ describe("OweCard render tests", () => {
         expect(oweCard).toBeVisible();
         const groupsIcon = screen.getByTestId('GroupsIcon');
         expect(groupsIcon).toBeVisible();
-        const cardElement = screen.getByTestId('owe-card-card-element');
-        expect(cardElement).toBeVisible();
-        expect(cardElement).toHaveStyle({ backgroundColor: "rgba(234, 66, 54, 0.5)" })
+        const coloredCardElement = screen.getByTestId('colored-card-rgba(234, 66, 54, 0.5)');
+        expect(coloredCardElement).toBeVisible();
     });
 });

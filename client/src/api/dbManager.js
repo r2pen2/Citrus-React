@@ -1,5 +1,5 @@
 import { firestore } from "./firebase";
-import { onSnapshot, doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 
 const USER_COLLECTION = "users";
@@ -9,6 +9,22 @@ const BADGES_COLLECTION = "badges";
 const DEFAULT_PROFILE_PICTURES = "defaultProfilePictures"
 
 /**
+ * Generates a random id string of a given length
+ * @param {Number} length length of id to be created 
+ * @returns {String} generated id
+ */
+function generateId(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
+/**
+ * 
  * Syncronizes database with the current user.
  * If user does not exist in the database, create a document with default data.
  * If the user already exists in the database, update their metadata.
@@ -77,6 +93,9 @@ export async function syncUserDoc(user) {
                 badges: [
                     
                 ],
+                bookmarks: [
+
+                ]
             };
         } else {
             data = { 
@@ -402,8 +421,7 @@ export async function addTransactionToUser(userId, transactionId) {
             const uDocSnap = await getDoc(uDoc);
             if (uDocSnap.exists()) {
                 const uData = uDocSnap.data();
-                const newGroups = uData.groups.filter(g => g !== id);
-                uData.groups = newGroups;
+                uData.groups = uData.groups.filter(g => g !== id);
                 await setDoc(uDoc, uData);
                 resolve();
             } else {
@@ -470,9 +488,9 @@ export async function addTransactionToUser(userId, transactionId) {
         const userSnap = await getDoc(userRef);
         if (groupSnap.exists() && userSnap.exists()) {
             const groupData = groupSnap.data();
-            groupData.users.filter(u => u !== userId);
+            groupData.users = groupData.users.filter(u => u !== userId);
             const userData = userSnap.data();
-            userData.groups.filter(g => g !== groupId);
+            userData.groups = userData.groups.filter(g => g !== groupId);
             await setDoc(groupRef, groupData);
             await setDoc(userRef, userData);
             resolve(true);
@@ -515,12 +533,101 @@ export async function addTransactionToUser(userId, transactionId) {
         const groupSnap = await getDoc(groupRef);
         if (groupSnap.exists()) {
             const groupData = groupSnap.data();
-            groupData.transactions.filter(t => t !== transactionId);
+            groupData.transactions = groupData.transactions.filter(t => t !== transactionId);
             await setDoc(groupRef, groupData);
             resolve(true);
         } else {
             console.log("Group ID invalid!");
             reject("Group ID invalid!");
+        }
+    })
+}
+
+/**
+ * Get a user's bookmarks by ID
+ * @param {String} id user ID
+ * @returns {Array} user's bookmarks
+ */
+ export async function getBookmarksById(id) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().bookmarks.length <= 0) {
+                resolve("none");
+            } else {
+                resolve(docSnap.data().bookmarks);
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+/**
+ * Adds a bookmark to a user
+ * @param {String} id user ID
+ * @param {Object} bookmark bookmark to add
+ * @returns {String} id of new bookmark
+ */
+ export async function createBookmarkOnUser(id, bookmark) {
+
+    function formatBookmarkString(s) {
+        if (!s) {
+            return null;
+        }
+        if (s === "") {
+            return null;
+        }
+        return s;
+    }
+
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            const newId = generateId(32)
+            const indexedBookmark = {
+                id: newId,
+                title: formatBookmarkString(bookmark.title),
+                who: formatBookmarkString(bookmark.who),
+                amount: bookmark.amount,
+                note: formatBookmarkString(bookmark.note),
+                receiptUrl: formatBookmarkString(bookmark.receiptUrl),
+                createdAt: new Date(),
+            }
+            userData.bookmarks.push(indexedBookmark);
+            setDoc(docRef, userData);
+            resolve(newId)
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+/**
+ * Removes a bookmark from a user
+ * @param {String} id user ID
+ * @param {Object} bookmarkId id of bookmark to remove
+ */
+ export async function removeBookmarkFromUser(id, bookmarkId) {
+
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        console.log("Deleting: " + bookmarkId);
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            console.log(userData.bookmarks)
+            userData.bookmarks = userData.bookmarks.filter(b => b.id !== bookmarkId);
+            setDoc(docRef, userData);
+            resolve();
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
         }
     })
 }

@@ -1,5 +1,5 @@
 import "./personalDues.scss";
-import Breadcrumbs from "../../../resources/navigation/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../../../resources/Breadcrumbs";
 
 export default function PersonalDues({ positive, user }) {
   const params = new URLSearchParams(window.location.search);
