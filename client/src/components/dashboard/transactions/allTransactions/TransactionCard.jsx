@@ -20,11 +20,10 @@ export default function TransactionCard({id, user}) {
 
     /**
     * Get's an object represesnting a transaction from the current user's perspective
-    * @param {String} transactionId transaction id to get context for
     * @returns {Object} transaction from current user's perspective
     */
-    async function getTransactionContext(transactionId) {
-        let transaction = await getTransactionById(transactionId);
+    async function getTransactionContext() {
+        let transaction = await getTransactionById(id);
         if (transaction.user1 === user.uid) {
             setContext({
                 title: transaction.title,
@@ -47,11 +46,10 @@ export default function TransactionCard({id, user}) {
     }, [context]);
 
     useEffect(() => {
-        getTransactionContext(id);
+        getTransactionContext();
     }, [])
 
     if (context) {
-        console.log(context.date)
         return (
             <OutlinedCard>
                 <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + id}>

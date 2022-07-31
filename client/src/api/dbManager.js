@@ -1,5 +1,6 @@
 import { firestore } from "./firebase";
 import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { sortByDate } from "./sorting";
 
 
 const USER_COLLECTION = "users";
@@ -32,14 +33,12 @@ function generateId(length) {
  * @returns {Boolean} true if user already existed, false if it had to be created
  */
 export async function syncUserDoc(user) {
-    console.log("Syncing user " + user.uid);
     return new Promise(async function(resolve, reject) {
         const docRef = doc(firestore, USER_COLLECTION, user.uid);
         const docSnap = await getDoc(docRef);
         var data = null;
         if (docSnap.exists()) {
             // This document already exists, so we update it
-            console.log("User already exists in database. Just update metadata.");
             // Update metadata
             if (user.metadata) {
                 await updateDoc(docRef, {
@@ -226,7 +225,6 @@ export async function getPhoneNumberById(id) {
  * @returns {String} user profile photo url
  */
 export async function getPhotoUrlById(id) {
-    console.log("Finding URL for user: " + id);
     async function fetchPhoto(id, count) {
         return new Promise(async (resolve, reject) => {
             const docRef = doc(firestore, USER_COLLECTION, id);
@@ -438,13 +436,37 @@ export async function addTransactionToUser(userId, transactionId) {
  * @param {String} userId user's id to get transactions for
  * @returns {Object} all of a user's transactions
  */
- export async function getTransactionsByUserId(userId) {
+ export async function getActiveTransactionsByUserId(userId) {
+    
+    /**
+     * Fetch the date of a transaction
+     * @param {String} transactionId id of transaction to get date for
+     * @returns {Date} date of transaction 
+     */
+    async function getTransactionDate(transactionId) {
+        return new Promise(async (resolve, reject) => {
+            const transactionRef = doc(firestore, TRANSACTION_COLLECTION, transactionId);
+            const transactionSnap = await getDoc(transactionRef);
+            if (transactionSnap.exists()) {
+                resolve(transactionSnap.data().createdAt);
+            } else {
+                resolve(null);
+            }
+        })
+    }
+    
     return new Promise(async (resolve, reject) => {
         const docRef = doc(firestore, USER_COLLECTION, userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
-            resolve(data.transactions);
+            var transactionList = [];
+            for (const t of data.transactions.active) {
+                let transactionDate = await getTransactionDate(t);
+                transactionList.push({transactionId: t, date: transactionDate});
+            }
+
+            resolve(sortByDate(transactionList));
         } else {
             console.log("No user with this ID exists on DB");
             reject("No user with this ID");

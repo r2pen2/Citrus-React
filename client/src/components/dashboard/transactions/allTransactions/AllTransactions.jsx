@@ -3,15 +3,16 @@ import { Breadcrumbs } from "../../../resources/Navigation";
 import { CircularProgress, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 import TransactionCard from "./TransactionCard";
-import { getTransactionsByUserId } from "../../../../api/dbManager";
+import { getActiveTransactionsByUserId } from "../../../../api/dbManager";
+import TransactionList from "../transactionList/TransactionList"
 
 export default function AllTransactions({ user }) {
 
   const [activeTransactions, setActiveTransactions] = useState(null);
 
   async function fetchUserTransactions() {
-    let t = await getTransactionsByUserId(user.uid);
-    setActiveTransactions(t.active);
+    let t = await getActiveTransactionsByUserId(user.uid);
+    setActiveTransactions(t);
   }
 
   // Fetch transactions on mount
@@ -39,7 +40,7 @@ export default function AllTransactions({ user }) {
 
     if (a.length > 0) {
       return a.map((t, idx) => {
-        return renderTransactionCard(t, idx);
+        return renderTransactionCard(t.transactionId, idx);
       })
     } else {
       return    (     
@@ -55,7 +56,7 @@ export default function AllTransactions({ user }) {
   return (
     <div className="all-transactions">
       <Breadcrumbs path="Dashboard/Transactions" />
-      { renderTransactions(activeTransactions) }
+      <TransactionList user={user} />
     </div>
   );
 }
