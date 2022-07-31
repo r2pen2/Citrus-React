@@ -14,6 +14,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import formatter from "../../../../api/formatter";
 
 // Component imports
+import { SectionTitle } from "../../../resources/Labels";
 import { ColoredCard } from "../../../resources/Surfaces";
 
 export default function OweCard({ credit }) {
@@ -22,9 +23,7 @@ export default function OweCard({ credit }) {
       data-testid={"owe-card-" + (credit.positive ? "positive" : "negative")}
       className="owe-card-container"
     >
-      <Typography sc={{ fontSize: 14 }} color="text-secondary" gutterBottom>
-        {credit.positive ? "Owe Me" : "I Owe"} ❯
-      </Typography>
+      <SectionTitle title={credit.positive ? "Owe Me" : "I Owe"} />
       <div className="card-wrapper" data-testid="owe-card-card-element">
         <ColoredCard color={credit.positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} data-testid="owe-card-card-element">
           <CardActionArea>

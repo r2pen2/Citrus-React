@@ -46,7 +46,6 @@ export default function Analytics({ chartData }) {
 
     return (
         <Stack >
-            <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Analytics ❯</Typography>
             <div className="chart-container">
                 <Bar 
                 data={data} 

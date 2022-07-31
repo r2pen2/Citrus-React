@@ -78,7 +78,7 @@ export default function TransactionList(props) {
                   {title}
                 </Typography>
               </div>
-              <div className="line" />
+              <div className="fill-line" />
             </div>
             )
           }

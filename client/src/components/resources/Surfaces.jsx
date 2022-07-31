@@ -6,7 +6,7 @@ export function ColoredCard(props) {
         return {
           backgroundColor: color,
           width: "100%",
-          borderRadius: "5px",
+          borderRadius: props.borderRadius ? props.borderRadius : "10px",
           marginBottom: "10px",
         };
     }
@@ -27,9 +27,10 @@ export function OutlinedCard(props) {
     function getCardStyle() {
         return {
             var: "outlined",
-            borderRadius: "5px",
+            borderRadius: props.borderRadius ? props.borderRadius : "10px",
             backgroundColor: "white",
-            marginBottom: "10px"
+            marginBottom: "10px",
+            border: props.border ? props.border : ""
         }
     }
     

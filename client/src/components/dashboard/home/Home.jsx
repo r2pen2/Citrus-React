@@ -2,13 +2,14 @@
 import "./home.scss";
 
 // Library imports
-import { Stack, Box, Typography, Button } from "@mui/material";
+import { Stack, Box, Button } from "@mui/material";
 
 // Component imports
 import OweCard from "./oweCard/OweCard";
 import TransactionList from "../transactions/transactionList/TransactionList";
 import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
-import {Breadcrumbs} from "../../resources/Navigation";
+import { Breadcrumbs } from "../../resources/Navigation";
+import { SectionTitle } from "../../resources/Labels";
 
 export default function Home({ user }) {
   return (
@@ -19,16 +20,16 @@ export default function Home({ user }) {
         <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
       </Box>
       <div data-testid="transactions">
-        <div className="title">
-          <Typography sc={{ fontSize: 14}} color="text-secondary" gutterBottom>Transactions ❯</Typography>
+        <SectionTitle title="Transactions">
           <Button variant="contained" onClick={() => window.location = "/dashboard/transactions/"}>View All Transactions</Button>
-        </div>
+        </SectionTitle>
         <TransactionList
           user={user}
           numDisplayed={2}
         />
       </div>
       <div data-testid="analytics">
+        <SectionTitle title="Analytics" />
         <AnalyticsPreview chartData={analyticsExample} />
       </div>
     </Stack>
