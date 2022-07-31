@@ -28,7 +28,9 @@ export default function Home({ user }) {
           numDisplayed={2}
         />
       </div>
-      <AnalyticsPreview chartData={analyticsExample} />
+      <div data-testid="analytics">
+        <AnalyticsPreview chartData={analyticsExample} />
+      </div>
     </Stack>
   );
 }
