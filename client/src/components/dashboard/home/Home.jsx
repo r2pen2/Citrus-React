@@ -8,7 +8,7 @@ import { Stack, Box } from "@mui/material";
 import OweCard from "./oweCard/OweCard";
 import TransactionsPreview from "./transactionsPreview/TransactionsPreview";
 import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
-import Breadcrumbs from "../../resources/Breadcrumbs";
+import {Breadcrumbs} from "../../resources/Navigation";
 
 export default function Home({ user }) {
   return (

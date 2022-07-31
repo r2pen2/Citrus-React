@@ -1,12 +1,5 @@
-@import "../../../../assets/style/global.scss";
+@import "../../assets/style/global.scss";
 
-.current {
-    color: black;
-}
-
-.first {
-    color: lightslategray;
-}
 
 .breadcrumbs {
     display: flex;
@@ -14,4 +7,12 @@
     align-items: center;
     justify-content: flex-start;
     margin-bottom: 20px;
+    
+    &.current {
+        color: black;
+    }
+
+    &.first {
+        color: lightslategray;
+    }
 }

@@ -3,7 +3,6 @@ import "./oweCard.scss";
 
 // Library imports
 import {
-  Card,
   CardContent,
   CardActionArea,
   Typography,
@@ -15,7 +14,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import formatter from "../../../../api/formatter";
 
 // Component imports
-import ColoredCard from "../../../resources/surfaces/ColoredCard";
+import { ColoredCard } from "../../../resources/Surfaces";
 
 export default function OweCard({ credit }) {
   return (

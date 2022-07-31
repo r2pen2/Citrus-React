@@ -7,7 +7,7 @@ import { CardContent, CardActionArea, Typography, Stack, Avatar, Button } from '
 // Component imports
 import OliverPic from "../../../../assets/images/pfp/Oliver.png";
 import LeoPic from "../../../../assets/images/pfp/Leo.png";
-import OutlinedCard from "../../../resources/surfaces/OutlinedCard";
+import { OutlinedCard } from "../../../resources/Surfaces";
 
 // API imports
 import formatter from "../../../../api/formatter";

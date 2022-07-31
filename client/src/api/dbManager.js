@@ -277,26 +277,23 @@ export async function addTransactionToUser(userId, transactionId) {
 
 /**
  * Creates a transaction on the DB and adds it to the two users' active transactions
- * @param {Object} user1Id the first user's id
- * @param {Object} user1Debt how much user1 owes
- * @param {Object} user2Id the second user's id
- * @param {Object} user2Debt how much user2 owes
+ * @param {String} user1Id the first user's id
+ * @param {Number} user1Debt how much user1 owes
+ * @param {String} user2Id the second user's id
+ * @param {Number} user2Debt how much user2 owes
+ * @param {String} newTitle title for new transaction
  * @returns {String} id of the new transaction
  */
- export async function createTransaction(user1Id, user1Debt, user2Id, user2Debt) {
+ export async function createTransaction(user1Id, user1Debt, user2Id, user2Debt, newTitle) {
     return new Promise(async (resolve, reject) => {
         const docRef = await addDoc(collection(firestore, TRANSACTION_COLLECTION), {
-            credits: [
-                {
-                    user: user1Id,
-                    debt: user1Debt,
-                },
-                {
-                    user: user2Id,
-                    debt: user2Debt,
-                }
-            ],
+            user1: user1Id,
+            debt1: user1Debt,
+            user2: user2Id,
+            debt2: user2Debt,
             active: true,
+            title: newTitle,
+            createdAt: new Date(),
         })
         console.log("Transaction created with ID: " + docRef.id);
         await addTransactionToUser(user1Id, docRef.id);
@@ -377,6 +374,24 @@ export async function addTransactionToUser(userId, transactionId) {
 }
 
 /**
+ * Get transaction detail by transaction id
+ * @param {String} id transactionId
+ * @returns {Object} transaction as object
+ */
+ export async function getTransactionById(id) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, TRANSACTION_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            resolve(docSnap.data())
+        } else {
+            console.log("No transaction with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+/**
  * Cannot be reversed! Deletes a transaction from the database entirely and removes it from users
  * @param {String} id transaction ID to delete from DB
  */
@@ -414,6 +429,25 @@ export async function addTransactionToUser(userId, transactionId) {
         } else {
             console.log("No transaction with this ID exists on DB");
             reject("No transaction with this ID");
+        }
+    })
+}
+
+/**
+ * Fetch an object containing user's active and inactive transactions
+ * @param {String} userId user's id to get transactions for
+ * @returns {Object} all of a user's transactions
+ */
+ export async function getTransactionsByUserId(userId) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            resolve(data.transactions);
+        } else {
+            console.log("No user with this ID exists on DB");
+            reject("No user with this ID");
         }
     })
 }
