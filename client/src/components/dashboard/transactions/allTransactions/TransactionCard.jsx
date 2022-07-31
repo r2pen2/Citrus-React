@@ -1,20 +1,26 @@
 import React from 'react'
 import { OutlinedCard } from "../../../resources/Surfaces";
-import { CardContent, CardActionArea, Typography, Stack, Avatar } from "@mui/material";
+import { CardContent, CardActionArea, Typography, Stack, Avatar, Tooltip } from "@mui/material";
 import { useState, useEffect } from 'react';
-import { getPhotoUrlById, getTransactionById } from "../../../../api/dbManager";
+import { getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../../../api/dbManager";
 import { getDateString } from "../../../../api/strings";
 import formatter from "../../../../api/formatter";
 
 export default function TransactionCard({id, user}) {
     
     const [context, setContext] = useState(null);
-    const [partnerPhoto, setPartnerPhoto] = useState("")
+    const [partnerPhoto, setPartnerPhoto] = useState("");
+    const [partnerName, setPartnerName] = useState("");
 
-    async function fetchPartnerPhoto() {
+    /**
+     * Fetches partner details from database for avatar + tooltip
+     */
+    async function fetchPartnerDetails() {
         if (context) {
             let url = await getPhotoUrlById(context.partner)
             setPartnerPhoto(url);
+            let name = await getDisplayNameById(context.partner)
+            setPartnerName(name);
         }
     }
 
@@ -42,7 +48,7 @@ export default function TransactionCard({id, user}) {
     }
 
     useEffect(() => {
-        fetchPartnerPhoto();
+        fetchPartnerDetails();
     }, [context]);
 
     useEffect(() => {
@@ -56,10 +62,9 @@ export default function TransactionCard({id, user}) {
                     <CardContent>
                         <Stack direction="row" alignItems="center" justifyContent="space-between">
                             <Stack direction="row" alignItems="center" component="div">
-                                <Avatar 
-                                    sx={{ marginRight: "10px"}} 
-                                    src={partnerPhoto}
-                                />
+                                <Tooltip title={partnerName}>
+                                    <Avatar sx={{ marginRight: "10px" }} src={partnerPhoto} />
+                                </Tooltip>
                                 <Stack direction="column" alignItems="left" align="left">
                                     <Typography variant="h6" component="div">{context.title}</Typography>
                                     <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(context.date.toDate())}</Typography>
