@@ -47,27 +47,31 @@ export default function TransactionCard({id, user}) {
         getTransactionContext(id);
     }, [])
 
-    return (
-        <OutlinedCard>
-            <CardActionArea>
-                <CardContent>
-                    <div className="transaction-content">
-                        <div className="left">                    
-                            <Avatar src={partnerPhoto} className="transaction-avatar"/>
-                        </div>
-                        <div className="center">
-                            <div className="title">
-                                {context.title}
+    if (context) {
+        return (
+            <OutlinedCard>
+                <CardActionArea>
+                    <CardContent>
+                        <div className="transaction-content">
+                            <div className="left">                    
+                                <Avatar src={partnerPhoto} className="transaction-avatar"/>
+                            </div>
+                            <div className="center">
+                                <div className="title">
+                                    {context.title}
+                                </div>
+                            </div>
+                            <div className="right">
+                                <div className="amount">
+                                    {formatter.format(context.debt)}
+                                </div>
                             </div>
                         </div>
-                        <div className="right">
-                            <div className="amount">
-                                {formatter.format(context.debt)}
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </CardActionArea>
-        </OutlinedCard>
-  )
+                    </CardContent>
+                </CardActionArea>
+            </OutlinedCard>
+        )
+    } else {
+        return <div></div>
+    }
 }
