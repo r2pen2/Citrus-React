@@ -1,12 +1,13 @@
 import "./allTransactions.scss";
 import { Breadcrumbs } from "../../../resources/Navigation";
+import { CircularProgress, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 import TransactionCard from "./TransactionCard";
 import { getTransactionsByUserId } from "../../../../api/dbManager";
 
 export default function AllTransactions({ user }) {
 
-  const [activeTransactions, setActiveTransactions] = useState([]);
+  const [activeTransactions, setActiveTransactions] = useState(null);
 
   async function fetchUserTransactions() {
     let t = await getTransactionsByUserId(user.uid);
@@ -32,10 +33,22 @@ export default function AllTransactions({ user }) {
       )
     }
 
-    if (a.length >= 0) {
+    if (!a) {
+      return <div className="loading-box"><CircularProgress /></div>
+    }
+
+    if (a.length > 0) {
       return a.map((t, idx) => {
         return renderTransactionCard(t, idx);
       })
+    } else {
+      return    (     
+      <div className="empty">
+        <Typography>
+          User has no transactions.
+        </Typography>
+      </div>
+      )
     }
   }
 

@@ -3,6 +3,7 @@ import { OutlinedCard } from "../../../resources/Surfaces";
 import { CardContent, CardActionArea, Typography, Stack, Avatar } from "@mui/material";
 import { useState, useEffect } from 'react';
 import { getPhotoUrlById, getTransactionById } from "../../../../api/dbManager";
+import { getDateString } from "../../../../api/strings";
 import formatter from "../../../../api/formatter";
 
 export default function TransactionCard({id, user}) {
@@ -28,13 +29,15 @@ export default function TransactionCard({id, user}) {
             setContext({
                 title: transaction.title,
                 partner: transaction.user2,
-                debt: transaction.debt1 - transaction.debt2 
+                debt: transaction.debt1 - transaction.debt2, 
+                date: transaction.createdAt
             })
           } else {
             setContext({
                 title: transaction.title,
                 partner: transaction.user1,
-                debt: transaction.debt2 - transaction.debt1 
+                debt: transaction.debt2 - transaction.debt1 ,
+                date: transaction.createdAt
             })
         }
     }
@@ -48,25 +51,24 @@ export default function TransactionCard({id, user}) {
     }, [])
 
     if (context) {
+        console.log(context.date)
         return (
             <OutlinedCard>
-                <CardActionArea>
+                <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + id}>
                     <CardContent>
-                        <div className="transaction-content">
-                            <div className="left">                    
-                                <Avatar src={partnerPhoto} className="transaction-avatar"/>
-                            </div>
-                            <div className="center">
-                                <div className="title">
-                                    {context.title}
-                                </div>
-                            </div>
-                            <div className="right">
-                                <div className="amount">
-                                    {formatter.format(context.debt)}
-                                </div>
-                            </div>
-                        </div>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                            <Stack direction="row" alignItems="center" component="div">
+                                <Avatar 
+                                    sx={{ marginRight: "10px"}} 
+                                    src={partnerPhoto}
+                                />
+                                <Stack direction="column" alignItems="left" align="left">
+                                    <Typography variant="h6" component="div">{context.title}</Typography>
+                                    <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(context.date.toDate())}</Typography>
+                                </Stack>
+                            </Stack>
+                            <Typography align="right" variant="h5" component="div">{formatter.format(context.debt)}</Typography>
+                        </Stack>
                     </CardContent>
                 </CardActionArea>
             </OutlinedCard>
