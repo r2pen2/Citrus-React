@@ -34,11 +34,67 @@ export default function TransactionList(props) {
    * @param {Array} a array of user's transactions
    */
    function renderTransactions(a) {
+    const DAY = 86400000;
+    var unusedBrackets = [
+      {
+        title: "Today",
+        age: DAY * 1
+      },
+      {
+        title: "Yesterday",
+        age: DAY * 2
+      },
+      {
+        title: "This Week",
+        age: DAY * 7
+      },
+      {
+        title: "This Month",
+        age: DAY * 30
+      },
+      {
+        title: "This Year",
+        age: DAY * 365
+      },
+      {
+        title: "Older",
+        age: DAY * 3650
+      }
+    ];
 
+    function renderBracket(date) {
+      if (props.showBrackets) {
+        const transactionAge = (new Date().getTime()) - date.getTime();
+        for (var i = 0; i < unusedBrackets.length; i++) {
+          if (transactionAge < unusedBrackets[i].age) {
+            const title = unusedBrackets[i].title;
+            for (var j = 0; j <= i; j++) {
+              unusedBrackets.shift();
+            }
+            return (
+            <div className="bracket">
+              <div className="text">
+                <Typography marginBottom="5px">
+                  {title}
+                </Typography>
+              </div>
+              <div className="line" />
+            </div>
+            )
+          }
+        }
+      }
+    }
+    
     function renderTransactionCard(transaction, index) {
       return (
-        <div className="transaction-card" key={index} data-testid={"transaction-card-" + transaction}>
-          <TransactionCard id={transaction} user={props.user} />
+        <div>
+          <div className="bracket">
+            {renderBracket(transaction.date.toDate())}
+          </div>
+          <div className="transaction-card" key={index} data-testid={"transaction-card-" + transaction}>
+            <TransactionCard id={transaction.transactionId} user={props.user} />
+          </div>
         </div>
       )
     }
@@ -49,7 +105,7 @@ export default function TransactionList(props) {
   
       if (a.length > 0) {
         return a.map((t, idx) => {
-          return renderTransactionCard(t.transactionId, idx);
+          return renderTransactionCard(t, idx);
         })
       } else {
         return    (     
