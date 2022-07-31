@@ -76,7 +76,5 @@ export default function TransactionCard({id, user}) {
                 </CardActionArea>
             </OutlinedCard>
         )
-    } else {
-        return <div></div>
     }
 }
