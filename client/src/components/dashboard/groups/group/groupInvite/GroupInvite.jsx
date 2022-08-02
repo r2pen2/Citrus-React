@@ -1,5 +1,5 @@
 import "./groupInvite.scss";
-import Breadcrumbs from "../../../../resources/Breadcrumbs";
+import {Breadcrumbs} from "../../../../resources/Navigation";
 
 export default function GroupInvite() {
   const params = new URLSearchParams(window.location.search);

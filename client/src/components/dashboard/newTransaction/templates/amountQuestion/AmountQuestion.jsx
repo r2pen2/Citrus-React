@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 
 // Component imports
 import BackButton from "../backButton/BackButton";
-import Breadcrumbs from "../../../../resources/Breadcrumbs";
+import {Breadcrumbs} from "../../../../resources/Navigation";
 
 export default function AmountQuestion({
   nextStep,

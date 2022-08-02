@@ -1,5 +1,5 @@
 import "./bookmarks.scss";
-import Breadcrumbs from "../../resources/Breadcrumbs";
+import { Breadcrumbs } from "../../resources/Navigation";
 import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, CardContent, CardActionArea, IconButton, TextField } from '@mui/material';
 import { getBookmarksById, removeBookmarkFromUser, createBookmarkOnUser } from '../../../api/dbManager';
 import { getSlashDateString, cutAtIndex } from '../../../api/strings';
@@ -8,7 +8,7 @@ import { sortByCreatedAt } from '../../../api/sorting';
 
 import { useState, useEffect } from 'react';
 
-import ColoredCard from "../../resources/surfaces/ColoredCard";
+import { ColoredCard } from "../../resources/Surfaces";
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';

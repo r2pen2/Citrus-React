@@ -2,13 +2,14 @@
 import "./home.scss";
 
 // Library imports
-import { Stack, Box } from "@mui/material";
+import { Stack, Box, Button } from "@mui/material";
 
 // Component imports
 import OweCard from "./oweCard/OweCard";
-import TransactionsPreview from "./transactionsPreview/TransactionsPreview";
+import TransactionList from "../transactions/transactionList/TransactionList";
 import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
-import Breadcrumbs from "../../resources/Breadcrumbs";
+import { Breadcrumbs } from "../../resources/Navigation";
+import { SectionTitle } from "../../resources/Labels";
 
 export default function Home({ user }) {
   return (
@@ -19,42 +20,21 @@ export default function Home({ user }) {
         <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
       </Box>
       <div data-testid="transactions">
-        <TransactionsPreview
-          recentTransactions={recentTransactionsExample}
+        <SectionTitle title="Transactions">
+          <Button variant="contained" onClick={() => window.location = "/dashboard/transactions/"}>View All Transactions</Button>
+        </SectionTitle>
+        <TransactionList
+          user={user}
           numDisplayed={2}
         />
       </div>
-      <AnalyticsPreview chartData={analyticsExample} />
+      <div data-testid="analytics">
+        <SectionTitle title="Analytics" />
+        <AnalyticsPreview chartData={analyticsExample} />
+      </div>
     </Stack>
   );
 }
-
-// This is temporary. We'll pull these vals from the DB when they're actually
-// Being stored there.
-const recentTransactionsExample = [
-  {
-    id: "halloweenPartyEample",
-    title: "Halloween Party",
-    date: "2021-10-31",
-    amount: 63.45,
-    user: "Oliver Risch",
-  },
-  {
-    id: "drinksExample",
-    title: "Drinks",
-    date: "2022-03-8",
-    amount: 53.25,
-    user: "Oliver Risch",
-  },
-  {
-    id: "burritoBowlExample",
-    title: "Burrito Bowl",
-    date: "2022-03-10",
-    amount: 53.25,
-    user: "Leo Brougher",
-  },
-];
-
 // This is temporary. We'll pull these vals from the DB when they're actually
 // Being stored there.
 const analyticsExample = [

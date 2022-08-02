@@ -1,5 +1,5 @@
 import "./groupMembers.scss";
-import Breadcrumbs from "../../../../resources/Breadcrumbs";
+import {Breadcrumbs} from "../../../../resources/Navigation";
 
 export default function GroupMembers({ user }) {
   const params = new URLSearchParams(window.location.search);
