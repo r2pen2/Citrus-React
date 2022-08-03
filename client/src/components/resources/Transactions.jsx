@@ -1,15 +1,129 @@
+import "./resources.scss";
+import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip } from '@mui/material';
+import { useState, useEffect} from 'react';
+import { getActiveTransactionsByUserId, getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../api/dbManager"
 import React from 'react'
-import "./transactionCard.scss";
-import { OutlinedCard } from "../../../resources/Surfaces";
-import { CardContent, CardActionArea, Typography, Tooltip } from "@mui/material";
-import { useState, useEffect } from 'react';
-import { getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../../../api/dbManager";
-import { getDateString } from "../../../../api/strings";
-import formatter from "../../../../api/formatter";
-import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit } from "../../../../api/transactions";
-import { AvatarStack, AvatarStackItem } from "../../../resources/Avatars";
+import { OutlinedCard } from "./Surfaces";
+import { getDateString } from "../../api/strings";
+import formatter from "../../api/formatter";
+import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit } from "../../api/transactions";
+import { AvatarStack, AvatarStackItem } from "./Avatars";
 
-export default function TransactionCard({id, user}) {
+export function TransactionList(props) {
+    
+    const [activeTransactions, setActiveTransactions] = useState(null);
+
+    async function fetchUserTransactions() {
+      let t = await getActiveTransactionsByUserId(props.user.uid);
+      if (props.numDisplayed) {
+        setActiveTransactions(t.slice(0, props.numDisplayed));
+      } else {
+        setActiveTransactions(t);
+      }
+    }
+  
+    // Fetch transactions on mount
+    useEffect(() => {
+      fetchUserTransactions();
+    }, [])
+
+    /**
+   * Renders cards for each of the user's transactions
+   * @param {Array} a array of user's transactions
+   */
+   function renderTransactions(a) {
+    const DAY = 86400000;
+    var unusedBrackets = [
+      {
+        title: "Today",
+        age: DAY * 1
+      },
+      {
+        title: "Yesterday",
+        age: DAY * 2
+      },
+      {
+        title: "This Week",
+        age: DAY * 7
+      },
+      {
+        title: "This Month",
+        age: DAY * 30
+      },
+      {
+        title: "This Year",
+        age: DAY * 365
+      },
+      {
+        title: "Older",
+        age: DAY * 3650
+      }
+    ];
+
+    function renderBracket(date) {
+      if (props.showBrackets) {
+        const transactionAge = (new Date().getTime()) - date.getTime();
+        for (var i = 0; i < unusedBrackets.length; i++) {
+          if (transactionAge < unusedBrackets[i].age) {
+            const title = unusedBrackets[i].title;
+            for (var j = 0; j <= i; j++) {
+              unusedBrackets.shift();
+            }
+            return (
+            <div className="bracket">
+              <div className="text">
+                <Typography marginBottom="5px">
+                  {title}
+                </Typography>
+              </div>
+              <div className="fill-line" />
+            </div>
+            )
+          }
+        }
+      }
+    }
+    
+    function renderTransactionCard(transaction, index) {
+      return (
+        <div>
+          <div className="bracket">
+            {renderBracket(transaction.date.toDate())}
+          </div>
+          <div className="transaction-card" key={index} data-testid={"transaction-card-" + transaction}>
+            <TransactionCard id={transaction.transactionId} user={props.user} />
+          </div>
+        </div>
+      )
+    }
+
+    if (!a) {
+        return <div className="loading-box"><CircularProgress /></div>
+      }
+  
+      if (a.length > 0) {
+        return a.map((t, idx) => {
+          return renderTransactionCard(t, idx);
+        })
+      } else {
+        return    (     
+        <div className="empty">
+          <Typography>
+            User has no transactions.
+          </Typography>
+        </div>
+        )
+      }
+  }
+    
+    return (
+        <div className="transaction-list">
+            { renderTransactions(activeTransactions) }
+        </div>
+        );
+}
+
+export function TransactionCard({id, user}) {
     
     const [context, setContext] = useState(null);
     const [partnerPhoto, setPartnerPhoto] = useState("");

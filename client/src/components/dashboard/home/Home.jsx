@@ -6,7 +6,7 @@ import { Stack, Box, Button } from "@mui/material";
 
 // Component imports
 import OweCard from "./oweCard/OweCard";
-import TransactionList from "../transactions/transactionList/TransactionList";
+import { TransactionList } from "../../resources/Transactions";
 import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { SectionTitle } from "../../resources/Labels";
