@@ -6,6 +6,7 @@ import React from 'react'
 import { OutlinedCard } from "./Surfaces";
 import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
+import { sortByDate } from "../../api/sorting";
 import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
 import { AvatarStack, AvatarStackItem } from "./Avatars";
 
@@ -18,7 +19,8 @@ export function TransactionList(props) {
       if (props.numDisplayed) {
         setActiveTransactions(t.slice(0, props.numDisplayed));
       } else {
-        setActiveTransactions(t);
+        setActiveTransactions(t.reverse());
+        console.log(activeTransactions)
       }
     }
   
@@ -193,7 +195,6 @@ export function TransactionCard({id, user}) {
             }
             for (const payer of context.payers) {
                 payerIds.push(payer.userId);
-                console.log(payer.weight * context.total)
                 if (payer.credit >= payer.weight * context.total) {
                   settledPayers.push(payer.userId)
                 }
