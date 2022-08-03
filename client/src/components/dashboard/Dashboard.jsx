@@ -77,16 +77,18 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       {renderShortcut()}
-      <Routes>
-        <Route path="/" element={<Home user={user} />} />
-        <Route path="/home" element={<Home user={user} />} />
-        <Route path="/new-transaction/*" element={<NewTransaction user={user} />}/>
-        <Route path="/groups/*" element={<Groups user={user}/>}/>
-        <Route path="/owe/*" element={<Owe user={user} />}/>
-        <Route path="/transactions/*" element={<Transactions user={user} />}/>
-        <Route path="/analytics" element={<Analytics user={user} />}/>
-        <Route path="/bookmarks/*" element={<Bookmarks user={user} />}/>
-      </Routes>
+      <div className="dashboard-pane">
+        <Routes>
+          <Route path="/" element={<Home user={user} />} />
+          <Route path="/home" element={<Home user={user} />} />
+          <Route path="/new-transaction/*" element={<NewTransaction user={user} />}/>
+          <Route path="/groups/*" element={<Groups user={user}/>}/>
+          <Route path="/owe/*" element={<Owe user={user} />}/>
+          <Route path="/transactions/*" element={<Transactions user={user} />}/>
+          <Route path="/analytics" element={<Analytics user={user} />}/>
+          <Route path="/bookmarks/*" element={<Bookmarks user={user} />}/>
+        </Routes>
+      </div>
       <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} />
     </div>
   );

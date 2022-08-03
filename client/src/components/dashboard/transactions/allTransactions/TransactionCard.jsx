@@ -1,7 +1,7 @@
 import React from 'react'
 import "./transactionCard.scss";
 import { OutlinedCard } from "../../../resources/Surfaces";
-import { CardContent, CardActionArea, Typography, Stack } from "@mui/material";
+import { CardContent, CardActionArea, Typography, Tooltip } from "@mui/material";
 import { useState, useEffect } from 'react';
 import { getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../../../api/dbManager";
 import { getDateString } from "../../../../api/strings";
@@ -67,25 +67,28 @@ export default function TransactionCard({id, user}) {
 
     function renderAvatarStack() {
 
-        function renderFronterAvatar(fronter, idx) {
-            return <AvatarStackItem userId={fronter.userId} featured={true} index={idx} />
-        }
-
-        function renderPayerAvatar(payer, idx) {
-            return <AvatarStackItem userId={payer.userId} featured={false} index={idx} />
-        }
-
         if (context) {
+
+            var fronterIds = [];
+            var payerIds = [];
+            for (const fronter of context.fronters) {
+                fronterIds.push(fronter.userId);
+            }
+            for (const payer of context.payers) {
+                payerIds.push(payer.userId);
+            }
+
             return (
-                <AvatarStack>
-                    { context.fronters.map((fronter, idx) => {
-                        return renderFronterAvatar(fronter, idx);
-                    })}
-                    { context.payers.map((payer, idx) => {
-                        return renderPayerAvatar(payer, idx);
-                    }) }
-                </AvatarStack>
+                <AvatarStack featured={fronterIds} secondary={payerIds} />
             )
+        }
+    }
+
+    function generateDebtTooltip() {
+        if (context) {
+            if (context.role === "payer") {
+                return "You still owe " + formatter.format(context.debt - context.credit) + " in this transaction.";
+            }
         }
     }
 
@@ -106,7 +109,12 @@ export default function TransactionCard({id, user}) {
                                 </div>
                             </div>
                             <div className="right">
-                                <Typography align="right" variant="h5" component="div">{formatter.format(context.debt)}</Typography>
+                                <Tooltip title={generateDebtTooltip()}>
+                                    <div className="amount-container">
+                                       <Typography align="right" variant="h5" component="div" color={context.debt > 0 ? "#ec6a60" : "#bfd679"}>{formatter.format(context.debt - context.credit)}</Typography>
+                                       <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(context.debt)}</Typography>
+                                    </div>
+                                </Tooltip>
                             </div>
                         </div>
                     </CardContent>
