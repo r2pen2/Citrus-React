@@ -111,6 +111,12 @@ export function userIsFronter(t, userId) {
     return false;
 }
 
+/**
+* Returns a user's credit in a transaction
+* @param {Object} t current transaction
+* @param {String} userId id of user in context
+* @returns {Number} amount of debt associated with user
+*/
 export function getFronterCredit(t, userId) {
     var amountPaid = 0;
     for (const payer of t.payers) {
