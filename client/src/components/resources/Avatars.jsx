@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { AvatarGroup, Avatar, Tooltip } from "@mui/material";
 import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager";
 import "./resources.scss";
+import { styled } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
 
-export function AvatarStack({featured, secondary}) {
+export function AvatarStack({featured, secondary, checked}) {
     
     function renderAvatarStackItems(ids, featured) {
         return (
-            <AvatarGroup >
+            <AvatarGroup>
                 { ids.map((id, key) => {
-                    return <AvatarStackItem userId={id} index={key} featured={featured}/>
+                    return <AvatarStackItem userId={id} index={key} featured={featured} checked={checked}/>
                 })}
             </AvatarGroup>
         )
@@ -43,11 +45,23 @@ export function AvatarStackItem(props) {
         fetchUserData();
     }, [])
 
+    function renderBadgedAvatar() {
+        
+        for (const payer of props.checked) {
+            if (payer === props.userId) {
+                return (
+                    <Badge badgeContent={<div className="avatar-check">✓</div>} color="primary" anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
+                        <Avatar src={pfpUrl ? pfpUrl : ""} alt={name ? name : ""} className={"pfp " + (!props.featured ? "small" : "")}/>
+                    </Badge>   
+                )
+            }
+        }
+        return <Avatar src={pfpUrl ? pfpUrl : ""} alt={name ? name : ""} className={"pfp " + (!props.featured ? "small" : "")}/>
+    }
+
     return (
-        <div className="avatar-stack-item" key={props.index}>
-            <Tooltip title={name ? name : ""}>
-                    <Avatar src={pfpUrl ? pfpUrl : ""} alt={name ? name : ""} className={"pfp " + (!props.featured ? "small" : "")}/>
-            </Tooltip>
-        </div>
+        <Tooltip title={name ? name : ""}>
+            { renderBadgedAvatar() }
+        </Tooltip>
     )
 }

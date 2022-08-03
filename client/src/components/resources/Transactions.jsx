@@ -6,7 +6,7 @@ import React from 'react'
 import { OutlinedCard } from "./Surfaces";
 import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
-import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit } from "../../api/transactions";
+import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
 import { AvatarStack, AvatarStackItem } from "./Avatars";
 
 export function TransactionList(props) {
@@ -154,9 +154,10 @@ export function TransactionCard({id, user}) {
                 title: transaction.title,
                 fronters: transaction.fronters,
                 payers: transaction.payers,
-                debt: null,
-                credit: null,
+                debt: getFronterDebt(transaction, user.uid),
+                credit: getFronterCredit(transaction, user.uid),
                 date: transaction.createdAt,
+                total: transaction.total
             })
         } else {
             setContext({
@@ -167,6 +168,7 @@ export function TransactionCard({id, user}) {
                 debt: getPayerDebt(transaction, user.uid),
                 credit: getPayerCredit(transaction, user.uid),
                 date: transaction.createdAt,
+                total: transaction.total
             })
         }
     }
@@ -185,15 +187,20 @@ export function TransactionCard({id, user}) {
 
             var fronterIds = [];
             var payerIds = [];
+            var settledPayers = [];
             for (const fronter of context.fronters) {
                 fronterIds.push(fronter.userId);
             }
             for (const payer of context.payers) {
                 payerIds.push(payer.userId);
+                console.log(payer.weight * context.total)
+                if (payer.credit >= payer.weight * context.total) {
+                  settledPayers.push(payer.userId)
+                }
             }
 
             return (
-                <AvatarStack featured={fronterIds} secondary={payerIds} />
+                <AvatarStack featured={fronterIds} secondary={payerIds} checked={settledPayers}/>
             )
         }
     }
@@ -202,12 +209,13 @@ export function TransactionCard({id, user}) {
         if (context) {
             if (context.role === "payer") {
                 return "You still owe " + formatter.format(context.debt - context.credit) + " in this transaction.";
+            } else if (context.role === "fronter") {
+                return "You are still owed " + formatter.format(context.debt - context.credit) + " in this transaction.";
             }
         }
     }
 
     if (context) {
-        console.log(context);
         return (
             <OutlinedCard>
                 <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + id}>
@@ -225,7 +233,7 @@ export function TransactionCard({id, user}) {
                             <div className="right">
                                 <Tooltip title={generateDebtTooltip()}>
                                     <div className="amount-container">
-                                       <Typography align="right" variant="h5" component="div" color={context.debt > 0 ? "#ec6a60" : "#bfd679"}>{formatter.format(context.debt - context.credit)}</Typography>
+                                       <Typography align="right" variant="h5" component="div" color={context.role === "payer" ? "#ec6a60" : "#bfd679"}>{formatter.format(context.debt - context.credit)}</Typography>
                                        <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(context.debt)}</Typography>
                                     </div>
                                 </Tooltip>
