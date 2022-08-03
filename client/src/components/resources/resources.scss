@@ -26,3 +26,12 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+.avatar-stack-wrapper {
+    display: flex;
+    flex-direction: row;
+
+    .avatar-stack-item {
+        filter: drop-shadow(0 0 0.1rem darkgrey);
+    }
+}

@@ -1,10 +1,13 @@
 import React from 'react'
+import "./transactionCard.scss";
 import { OutlinedCard } from "../../../resources/Surfaces";
-import { CardContent, CardActionArea, Typography, Stack, Avatar, Tooltip } from "@mui/material";
+import { CardContent, CardActionArea, Typography, Stack } from "@mui/material";
 import { useState, useEffect } from 'react';
 import { getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../../../api/dbManager";
 import { getDateString } from "../../../../api/strings";
 import formatter from "../../../../api/formatter";
+import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit } from "../../../../api/transactions";
+import { AvatarStack, AvatarStackItem } from "../../../resources/Avatars";
 
 export default function TransactionCard({id, user}) {
     
@@ -29,20 +32,27 @@ export default function TransactionCard({id, user}) {
     * @returns {Object} transaction from current user's perspective
     */
     async function getTransactionContext() {
+
         let transaction = await getTransactionById(id);
-        if (transaction.user1 === user.uid) {
+        if (userIsFronter(transaction, user.uid)) {
             setContext({
+                role: "fronter",
                 title: transaction.title,
-                partner: transaction.user2,
-                debt: transaction.debt1 - transaction.debt2, 
-                date: transaction.createdAt
+                fronters: transaction.fronters,
+                payers: transaction.payers,
+                debt: null,
+                credit: null,
+                date: transaction.createdAt,
             })
-          } else {
+        } else {
             setContext({
+                role: "payer",
                 title: transaction.title,
-                partner: transaction.user1,
-                debt: transaction.debt2 - transaction.debt1 ,
-                date: transaction.createdAt
+                fronters: transaction.fronters,
+                payers: getOtherPayers(transaction, user.uid),
+                debt: getPayerDebt(transaction, user.uid),
+                credit: getPayerCredit(transaction, user.uid),
+                date: transaction.createdAt,
             })
         }
     }
@@ -55,23 +65,50 @@ export default function TransactionCard({id, user}) {
         getTransactionContext();
     }, [])
 
+    function renderAvatarStack() {
+
+        function renderFronterAvatar(fronter, idx) {
+            return <AvatarStackItem userId={fronter.userId} featured={true} index={idx} />
+        }
+
+        function renderPayerAvatar(payer, idx) {
+            return <AvatarStackItem userId={payer.userId} featured={false} index={idx} />
+        }
+
+        if (context) {
+            return (
+                <AvatarStack>
+                    { context.fronters.map((fronter, idx) => {
+                        return renderFronterAvatar(fronter, idx);
+                    })}
+                    { context.payers.map((payer, idx) => {
+                        return renderPayerAvatar(payer, idx);
+                    }) }
+                </AvatarStack>
+            )
+        }
+    }
+
     if (context) {
+        console.log(context);
         return (
             <OutlinedCard>
                 <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + id}>
                     <CardContent>
-                        <Stack direction="row" alignItems="center" justifyContent="space-between">
-                            <Stack direction="row" alignItems="center" component="div">
-                                <Tooltip title={partnerName}>
-                                    <Avatar sx={{ marginRight: "10px" }} src={partnerPhoto} />
-                                </Tooltip>
-                                <Stack direction="column" alignItems="left" align="left">
+                        <div className="transaction-card-content-container">
+                            <div className="left">
+                                { renderAvatarStack() }
+                            </div>
+                            <div className="center">
+                                <div className="text-container">
                                     <Typography variant="h6" component="div">{context.title}</Typography>
                                     <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(context.date.toDate())}</Typography>
-                                </Stack>
-                            </Stack>
-                            <Typography align="right" variant="h5" component="div">{formatter.format(context.debt)}</Typography>
-                        </Stack>
+                                </div>
+                            </div>
+                            <div className="right">
+                                <Typography align="right" variant="h5" component="div">{formatter.format(context.debt)}</Typography>
+                            </div>
+                        </div>
                     </CardContent>
                 </CardActionArea>
             </OutlinedCard>
