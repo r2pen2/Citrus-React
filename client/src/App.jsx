@@ -23,6 +23,7 @@ import creditsData from './assets/json/creditsPage';
 
 // API imports
 import { syncUserDoc } from "./api/dbManager";
+import { clearLS } from "./api/localStorage";
 
 function App() {
 
@@ -36,9 +37,7 @@ function App() {
         localStorage.setItem("citrus:displayName", u.displayName);
       }
       else {
-        localStorage.removeItem("citrus:user")
-        localStorage.removeItem("citrus:pfpUrl")
-        localStorage.removeItem("citrus:displayName")
+        clearLS();
       }
     })
   }, []);
