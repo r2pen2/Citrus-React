@@ -6,9 +6,8 @@ import React from 'react'
 import { OutlinedCard } from "./Surfaces";
 import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
-import { sortByDate } from "../../api/sorting";
 import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
-import { AvatarStack, AvatarStackItem } from "./Avatars";
+import { AvatarStack } from "./Avatars";
 
 export function TransactionList(props) {
     
