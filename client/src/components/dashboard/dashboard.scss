@@ -1,7 +1,17 @@
+@import "../../assets/style/global.scss";
+
 .dashboard {
     padding-bottom: 100px;
     height: calc(100% - 7vh);
     margin-top: 50px;
     margin-left: 75px;
     margin-right: 75px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .dashboard-pane {
+        width: 100%;
+        max-width: $dashboard-content-width;
+    }
 }

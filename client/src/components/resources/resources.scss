@@ -26,3 +26,74 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+.avatar-stack-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+
+    .pfp {
+        width: 60px;
+        height: 60px;
+        background-color: white;
+
+        &.small {
+            width: 25px;
+            height: 25px;
+        }
+    }
+
+    .avatar-check {
+        font-size: 10px;
+    }
+}
+
+.transaction-list {
+    ul {
+        list-style-type: none;
+    }
+    
+    .title {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    
+    .bracket {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+    }
+}
+
+.transaction-card-content-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 60px;
+
+    .left {
+        flex: 2;
+    }
+
+    .center {
+        flex: 7;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+
+        .text-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+    }
+
+    .right {
+        flex: 2;
+    }
+}

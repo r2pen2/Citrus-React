@@ -256,6 +256,7 @@ export async function getPhotoUrlById(id) {
  * Adds a transaction to a user's active transaction array
  * @param {String} userId user's id to get transaction added
  * @param {String} transactionId id of transaction to add
+ * @returns {Boolean} true if transaction is added, false if transaction was already there
  */
 export async function addTransactionToUser(userId, transactionId) {
     return new Promise(async (resolve, reject) => {
@@ -263,7 +264,12 @@ export async function addTransactionToUser(userId, transactionId) {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
-            data.transactions.active.push(transactionId);
+            if (!data.transactions.active.includes(transactionId)) {
+                // Only add transaction if it's not already on the user
+                data.transactions.active.push(transactionId);
+            } else {
+                resolve(false);
+            }
             await setDoc(docRef, data);
             resolve(true);
         } else {
@@ -274,28 +280,21 @@ export async function addTransactionToUser(userId, transactionId) {
 }
 
 /**
- * Creates a transaction on the DB and adds it to the two users' active transactions
- * @param {String} user1Id the first user's id
- * @param {Number} user1Debt how much user1 owes
- * @param {String} user2Id the second user's id
- * @param {Number} user2Debt how much user2 owes
- * @param {String} newTitle title for new transaction
+ * Adds a transaction to the DB and adds it to the two users' active
  * @returns {String} id of the new transaction
  */
- export async function createTransaction(user1Id, user1Debt, user2Id, user2Debt, newTitle) {
+ export async function createTransactionOnDB(newTransaction) {
     return new Promise(async (resolve, reject) => {
-        const docRef = await addDoc(collection(firestore, TRANSACTION_COLLECTION), {
-            user1: user1Id,
-            debt1: user1Debt,
-            user2: user2Id,
-            debt2: user2Debt,
-            active: true,
-            title: newTitle,
-            createdAt: new Date(),
-        })
+        const docRef = await addDoc(collection(firestore, TRANSACTION_COLLECTION), newTransaction);
         console.log("Transaction created with ID: " + docRef.id);
-        await addTransactionToUser(user1Id, docRef.id);
-        await addTransactionToUser(user2Id, docRef.id);
+        // Add transaction to each payer
+        for (const payer of newTransaction.payers) {
+            addTransactionToUser(payer.userId, docRef.id);
+        }
+        // Add transaction to each fronter
+        for (const fronter of newTransaction.fronters) {
+            addTransactionToUser(fronter.userId, docRef.id);
+        }
         resolve(docRef.id);
     })
 }
