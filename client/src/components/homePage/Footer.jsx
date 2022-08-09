@@ -1,4 +1,3 @@
-import "./footer.scss";
 import { Typography } from '@mui/material'
 
 export default function Footer() {
