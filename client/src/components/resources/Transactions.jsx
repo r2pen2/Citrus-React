@@ -6,6 +6,7 @@ import React from 'react'
 import { OutlinedCard } from "./Surfaces";
 import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
+import { sortByDate } from "../../api/sorting";
 import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
 import { AvatarStack } from "./Avatars";
 
@@ -17,10 +18,8 @@ export function TransactionList(props) {
       let t = await getActiveTransactionsByUserId(props.user.uid);
       if (props.numDisplayed) {
         setActiveTransactions(t.slice(0, props.numDisplayed));
-        console.log(activeTransactions)
       } else {
         setActiveTransactions(t);
-        console.log(activeTransactions)
       }
     }
   
@@ -33,65 +32,14 @@ export function TransactionList(props) {
    * Renders cards for each of the user's transactions
    * @param {Array} a array of user's transactions
    */
-   function renderTransactions(a) {
+   function renderTransactions(unsortedArray) {
+    
+    const a = sortByDate(unsortedArray);
     const DAY = 86400000;
-    var unusedBrackets = [
-      {
-        title: "Today",
-        age: DAY * 1
-      },
-      {
-        title: "Yesterday",
-        age: DAY * 2
-      },
-      {
-        title: "This Week",
-        age: DAY * 7
-      },
-      {
-        title: "This Month",
-        age: DAY * 30
-      },
-      {
-        title: "This Year",
-        age: DAY * 365
-      },
-      {
-        title: "Older",
-        age: DAY * 3650
-      }
-    ];
-
-    function renderBracket(date) {
-      if (props.showBrackets) {
-        const transactionAge = (new Date().getTime()) - date.getTime();
-        for (var i = 0; i < unusedBrackets.length; i++) {
-          if (transactionAge < unusedBrackets[i].age) {
-            const title = unusedBrackets[i].title;
-            for (var j = 0; j <= i; j++) {
-              unusedBrackets.shift();
-            }
-            return (
-            <div className="bracket">
-              <div className="text">
-                <Typography marginBottom="5px">
-                  {title}
-                </Typography>
-              </div>
-              <div className="fill-line" />
-            </div>
-            )
-          }
-        }
-      }
-    }
     
     function renderTransactionCard(transaction, index) {
       return (
         <div>
-          <div className="bracket">
-            {renderBracket(transaction.date.toDate())}
-          </div>
           <div className="transaction-card" key={index} data-testid={"transaction-card-" + transaction}>
             <TransactionCard id={transaction.transactionId} user={props.user} />
           </div>
@@ -100,7 +48,7 @@ export function TransactionList(props) {
     }
 
     if (!a) {
-        return <div className="loading-box"><CircularProgress /></div>
+        return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
       }
   
       if (a.length > 0) {
@@ -218,7 +166,7 @@ export function TransactionCard({id, user}) {
 
     if (context) {
         return (
-            <OutlinedCard>
+            <OutlinedCard key={id}>
                 <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + id}>
                     <CardContent>
                         <div className="transaction-card-content-container">
