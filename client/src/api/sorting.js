@@ -14,6 +14,22 @@ export function sortByDate(array) {
 }
 
 /**
+ * Sorts a list by UT date
+ * @param {[Object]} array list to be sorted
+ * @returns {[Object]} sorted list
+ */
+ export function sortByUTDate(array) {
+    if (!array) {
+        return null;
+    }
+    console.log(array)
+    array.sort((a, b) => {
+        return b.date.toDate() - a.date.toDate();
+    })
+    return array;
+}
+
+/**
  * Sorts a list by createdAt
  * @param {[Object]} array list to be sorted
  * @returns {[Object]} sorted list

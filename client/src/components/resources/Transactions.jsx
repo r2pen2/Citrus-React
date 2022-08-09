@@ -6,7 +6,7 @@ import React from 'react'
 import { OutlinedCard } from "./Surfaces";
 import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
-import { sortByDate } from "../../api/sorting";
+import { sortByUTDate } from "../../api/sorting";
 import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
 import { AvatarStack } from "./Avatars";
 
@@ -34,7 +34,7 @@ export function TransactionList(props) {
    */
    function renderTransactions(unsortedArray) {
     
-    const a = sortByDate(unsortedArray);
+    const a = sortByUTDate(unsortedArray);
     const DAY = 86400000;
     
     function renderTransactionCard(transaction, index) {
