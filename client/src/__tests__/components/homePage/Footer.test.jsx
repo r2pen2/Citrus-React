@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Footer from '../../../components/homePage/footer/Footer';
+import Footer from '../../../components/homePage/Footer';
 
 describe("Footer render tests", () => {
 
