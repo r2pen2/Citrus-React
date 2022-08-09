@@ -79,7 +79,7 @@ export function TransactionList(props) {
 
           return (
             <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
-              { bracket.length > 0 ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
+              { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
               { bracket.map((t, idx) => {
                 return renderTransactionCard(t, idx)
               }) }
@@ -127,7 +127,6 @@ export function TransactionCard({id, user}) {
     * @returns {Object} transaction from current user's perspective
     */
     async function getTransactionContext() {
-
         let transaction = await getTransactionById(id);
         if (userIsFronter(transaction, user.uid)) {
             setContext({
@@ -163,9 +162,7 @@ export function TransactionCard({id, user}) {
     }, [])
 
     function renderAvatarStack() {
-
         if (context) {
-
             var fronterIds = [];
             var payerIds = [];
             var settledPayers = [];
