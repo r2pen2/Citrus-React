@@ -51,12 +51,20 @@ export function AvatarStackItem(props) {
             if (payer === props.userId) {
                 return (
                     <Badge badgeContent={<div className="avatar-check">✓</div>} color="primary" anchorOrigin={{vertical: "bottom", horizontal: "right"}}>
-                        <Avatar src={pfpUrl ? pfpUrl : ""} alt={name ? name : ""} className={"pfp " + (!props.featured ? "small" : "")}/>
+                        <Avatar 
+                        src={pfpUrl ? pfpUrl : ""} 
+                        alt={name ? name : ""} 
+                        className={"pfp " + (!props.featured ? "small" : "")}
+                        imgProps={{referrerPolicy: "no-referrer" }}/>
                     </Badge>   
                 )
             }
         }
-        return <Avatar src={pfpUrl ? pfpUrl : ""} alt={name ? name : ""} className={"pfp " + (!props.featured ? "small" : "")}/>
+        return <Avatar 
+        src={pfpUrl ? pfpUrl : ""} 
+        alt={name ? name : ""} 
+        className={"pfp " + (!props.featured ? "small" : "")}
+        imgProps={{referrerPolicy: "no-referrer" }}/>
     }
 
     return (

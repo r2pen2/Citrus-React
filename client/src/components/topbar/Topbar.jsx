@@ -178,6 +178,7 @@ export default function Topbar() {
                     src={userPhotoUrl}
                     alt={userDisplayName}
                     sx={{ border: "1px solid black" }}
+                    imgProps={{referrerPolicy: "no-referrer" }}
                   >
                     {getInitials()}
                   </Avatar>

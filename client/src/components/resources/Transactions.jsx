@@ -17,8 +17,9 @@ export function TransactionList(props) {
       let t = await getActiveTransactionsByUserId(props.user.uid);
       if (props.numDisplayed) {
         setActiveTransactions(t.slice(0, props.numDisplayed));
+        console.log(activeTransactions)
       } else {
-        setActiveTransactions(t.reverse());
+        setActiveTransactions(t);
         console.log(activeTransactions)
       }
     }
