@@ -22,7 +22,6 @@ export function sortByDate(array) {
     if (!array) {
         return null;
     }
-    console.log(array)
     array.sort((a, b) => {
         return b.date.toDate() - a.date.toDate();
     })

@@ -9,6 +9,7 @@ import formatter from "../../api/formatter";
 import { sortByUTDate } from "../../api/sorting";
 import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
 import { AvatarStack } from "./Avatars";
+import { SectionTitle } from "./Labels";
 
 export function TransactionList(props) {
     
@@ -33,9 +34,8 @@ export function TransactionList(props) {
    * @param {Array} a array of user's transactions
    */
    function renderTransactions(unsortedArray) {
-    
+
     const a = sortByUTDate(unsortedArray);
-    const DAY = 86400000;
     
     function renderTransactionCard(transaction, index) {
       return (
@@ -52,8 +52,39 @@ export function TransactionList(props) {
       }
   
       if (a.length > 0) {
-        return a.map((t, idx) => {
-          return renderTransactionCard(t, idx);
+        // Populate bracket arrays
+        const DAY = 86400000;
+        var brackets = [[], [], [], [], [], []];
+        const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
+        // Assign each transaction to a bracket associated with time since transcation creation 
+        if (a) {
+          for (const t of a) {
+            const ageInDays = (new Date().getTime() - t.date.toDate().getTime()) / DAY;
+            if (ageInDays <= 1) {
+              brackets[0].push(t);
+            } else if (ageInDays <= 2) {
+              brackets[1].push(t);
+            } else if (ageInDays <= 7) {
+              brackets[2].push(t);
+            } else if (ageInDays <= 30) {
+              brackets[3].push(t);
+            } else if (ageInDays <= 365) {
+              brackets[4].push(t);
+            } else {
+              brackets[5].push(t);
+            }
+          }
+        }
+        return brackets.map((bracket, bracketIdx) => {
+
+          return (
+            <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
+              { bracket.length > 0 ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
+              { bracket.map((t, idx) => {
+                return renderTransactionCard(t, idx)
+              }) }
+            </div>
+          )
         })
       } else {
         return    (     
