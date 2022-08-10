@@ -3,7 +3,7 @@ import "./homePage.scss";
 
 // Component imports
 import LandingPage from "./landingPage/LandingPage";
-import Footer from "./footer/Footer";
+import Footer from "./Footer";
 
 export default function Home() {
   return (
