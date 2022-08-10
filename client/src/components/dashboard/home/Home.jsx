@@ -16,8 +16,11 @@ export default function Home({ user }) {
     <Stack spacing={3} className="dashboard-home-container">
       <Breadcrumbs path="Dashboard/Home" />
       <Box data-testid="owe-cards">
-        <OweCard credit={{ positive: true, amount: 250, numPeople: 6 }} />
-        <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
+        <div className="owe-cards-row">
+          <OweCard credit={{ positive: true, amount: 250, numPeople: 6 }} />
+          <div className="spacer"></div>
+          <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} />
+        </div>
       </Box>
       <div data-testid="transactions">
         <SectionTitle title="Transactions">
