@@ -29,8 +29,10 @@ export function OutlinedCard(props) {
             var: "outlined",
             borderRadius: props.borderRadius ? props.borderRadius : "10px",
             backgroundColor: "white",
+            width: "100%",
             marginBottom: "10px",
-            border: props.border ? props.border : ""
+            border: props.border ? props.border : "",
+            color: props.color ? props.color : "black"
         }
     }
     
