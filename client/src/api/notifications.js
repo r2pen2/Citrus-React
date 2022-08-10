@@ -4,7 +4,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import GroupsIcon from '@mui/icons-material/Groups';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import AlarmIcon from '@mui/icons-material/Alarm';
-import { getPhotoUrlById  } from './dbManager';
+import { getPhotoUrlById, getDisplayNameById } from './dbManager';
 import { Avatar } from '@mui/material';
 
 /**
@@ -13,27 +13,68 @@ import { Avatar } from '@mui/material';
  * @returns string representation of notification
  */
 export function getNotificationString(notification) {
+
+    function getFriendInviteString() {
+        return "New friend request from " + notification.user.name + ".";
+    }
+
+    function getFriendAcceptString() {
+        return notification.user.name + " accepted your friend request.";
+    }
+
+    function getNudgeString() {
+        return notification.user.name + " nudged you about a transaction.";
+    }
+
+    function getPaidString() {
+        return notification.user.name + " paid you " + notification.transcation.amount + " for " + notification.transcation.title + ".";
+    }
+
+    function getRequestedString() {
+        return notification.user.name + " requested " + notification.transcation.amount + " for " + notification.transcation.title + ".";
+    }
+
+    function getGroupInviteString() {
+        return 'You were invited to join the group "' + notification.group.name + '".';
+    }
+
+    function getGroupJoinString() {
+        return notification.user.name + ' joined "' + notification.group.name + '".';
+    }
+
+    function getGroupLeaveString() {
+        return notification.user.name + ' left "' + notification.group.name + '".';
+    }
+
+    function getTransactionMessageString() {
+        return notification.user.name + ' sent a message about the transcation "' + notification.transcation.title + '".';
+    }
+
+    function getTransactionDisputeString() {
+        return notification.user.name + ' is disputing the transaction "' + notification.transcation.title + '".';
+    }
+
     switch (notification.type) {
         case "friend-invite":
-            return getFriendInviteString(notification);
+            return getFriendInviteString();
         case "friend-accept":
-            return getFriendAcceptString(notification);
+            return getFriendAcceptString();
         case "nudge":
-            return getNudgeString(notification);
+            return getNudgeString();
         case "paid":
-            return getPaidString(notification);
+            return getPaidString();
         case "requested":
-            return getRequestedString(notification);
+            return getRequestedString();
         case "group-invite":
-            return getGroupInviteString(notification);
-        case "group-accept":
-            return getGroupAcceptString(notification);
+            return getGroupInviteString();
+        case "group-join":
+            return getGroupJoinString();
         case "group-leave":
-            return getGroupLeaveString(notification);
+            return getGroupLeaveString();
         case "transaction-message":
-            return getTranscationMessageString(notification);
+            return getTransactionMessageString();
         case "transaction-dispute":
-            return getTranscactionDisputeString(notification);
+            return getTransactionDisputeString();
         default:
             return "Error: invalid notification type";
     }
@@ -96,11 +137,10 @@ export function getNotificationIcon(notification) {
         )
     }
 
-    function getFriendIcon(n) {
-        const url = getPhotoUrlById(n.friend.id);
+    function getFriendIcon() {
         return (
             <div className="notification-icon friend">
-                <Avatar src={url} alt={n.friend.name} />
+                <Avatar src={notification.user.pfpUrl} alt={notification.user.name} />
             </div>
         )
     }
@@ -108,14 +148,14 @@ export function getNotificationIcon(notification) {
     switch (notification.type) {
         case "friend-invite":
         case "friend-accept":
-            return getFriendIcon(notification);
+            return getFriendIcon();
         case "nudge":
             return getPokeIcon();
         case "paid":
         case "requested":
             return getMoneyIcon();
         case "group-invite":
-        case "group-accept":
+        case "group-join":
         case "group-leave":
             return getGroupIcon();
         case "transaction-message":
