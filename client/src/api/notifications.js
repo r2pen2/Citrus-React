@@ -76,7 +76,7 @@ export function getNotificationString(notification) {
         case "transaction-dispute":
             return getTransactionDisputeString();
         default:
-            return "Error: invalid notification type";
+            return "Error: invalid notification type!";
     }
 }
 
