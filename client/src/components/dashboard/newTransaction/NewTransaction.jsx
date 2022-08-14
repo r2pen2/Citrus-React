@@ -1,25 +1,40 @@
 // Style imports
 import "./newtransaction.scss";
 
-// Library imports
-import { Route, Routes } from "react-router-dom";
-
-// Component imports
-import Diagnostics from "./diagnostics/Diagnostics";
-import Iou from "./iou/Iou";
-// import Communal from "./communal/Communal";
-import BookmarkController from "./bookmarkController/BookmarkController";
-import LoadingScreen from "../../resources/loadingScreen/LoadingScreen";
+// Library imports;
+import { Typography, Paper, Button, Drawer, List, ListItem, ListItemText } from "@mui/material";
+import { useState } from 'react';
 
 export default function NewTransaction({ user }) {
+
+  const [title, setTitle] = useState(null);
+  const [payers, setPayers] = useState(null);
+  const [fronters, setFronters] = useState(null);
+  const [amount, setAmount] = useState(null);
+  const [submitEnable, setSubmitEnable] = useState(false);
+  const [transactionTab, setTransactionTab] = useState("Split");
+
+  function sendTransactionToDatabase() {
+    console.log("Sending transaction to database!")
+  }
+
+  function renderTransactionWindow() {
+    return <div>Test</div>
+  }
+
   return (
-    <Routes>
-      <Route path="/" element={<Diagnostics />} />
-      <Route path="/diagnostics" element={<Diagnostics />} />
-      <Route path="/iou" element={<Iou />} />
-      {/* <Route path="/communal" element={<Communal />} /> */}
-      <Route path="/bookmarks/*" element={<BookmarkController />} />
-      <Route path="/loading" element={<LoadingScreen />} />
-    </Routes>
+    <div className="new-transaction-wrapper">
+      <Paper className="new-transaction-content" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
+        <div className="tab-container">
+          <div className="tab-selector">
+            Split
+          </div>
+          <div className="tab-selector">
+            IOU
+          </div>
+        </div>
+        { renderTransactionWindow() }
+      </Paper>
+    </div>
   );
 }

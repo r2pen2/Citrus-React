@@ -1,0 +1,52 @@
+$drawer-height: 60px;
+
+.new-transaction-wrapper {
+    width: 100%;
+    height: 70vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .new-transaction-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        
+        .tab-container {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+
+            .tab-selector {
+                width: 50%;
+                border: 1px solid lightgrey;
+                align-items: center;
+                justify-content: center;
+                display: flex;
+
+                &.hover {
+                    background-color: lightgrey;
+                }
+            }
+        }
+
+        .fields {
+
+        }
+
+        .button-container {
+            
+            width: 50%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .btn {
+                width: 48%;
+            }
+        }
+    }
+}
