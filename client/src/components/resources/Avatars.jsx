@@ -73,3 +73,23 @@ export function AvatarStackItem(props) {
         </Tooltip>
     )
 }
+
+export function AvatarIcon({id}) {
+    const [pfpUrl, setPfpUrl] = useState(null);
+    const [alt, setAlt] = useState("");
+
+    useEffect(() => {
+
+        async function fetchUserData() {
+            let url = await getPhotoUrlById(id);
+            setPfpUrl(url);
+            let name = await getDisplayNameById(id);
+            setAlt(name);
+        }
+
+        fetchUserData();
+        
+    }, [id])
+
+    return <Avatar src={pfpUrl} alt={alt} />
+}
