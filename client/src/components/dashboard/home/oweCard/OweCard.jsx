@@ -15,7 +15,7 @@ import formatter from "../../../../api/formatter";
 
 // Component imports
 import { SectionTitle } from "../../../resources/Labels";
-import { ColoredCard } from "../../../resources/Surfaces";
+import { ColoredCard, OutlinedCard } from "../../../resources/Surfaces";
 
 export default function OweCard({ credit }) {
   return (
@@ -25,27 +25,26 @@ export default function OweCard({ credit }) {
     >
       <SectionTitle title={credit.positive ? "Owe Me" : "I Owe"} />
       <div className="card-wrapper" data-testid="owe-card-card-element">
-        <ColoredCard color={credit.positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} data-testid="owe-card-card-element">
+        <OutlinedCard border={credit.positive ? "4px solid rgba(176, 200, 86, 0.8)" : "4px solid rgba(234, 66, 54, 0.5)"} data-testid="owe-card-card-element">
           <CardActionArea>
             <CardContent onClick={() => {window.location = "/dashboard/owe?dir=" + (credit.positive ? "in" : "out")}}>
-              <Typography variant="h5" component="div" color="white">
+              <Typography variant="h5" component="div">
                 {formatter.format(credit.amount)}
               </Typography>
               <Stack direction="row" alignItems="center">
-                <GroupsIcon fontSize="large" sx={{ color: "white" }} />
+                <GroupsIcon fontSize="large" />
                 <Typography
                   variant="subtitle1"
                   component="div"
                   marginLeft="5px"
                   marginTop="2px"
-                  color="white"
                 >
                   {credit.positive ? "From" : "To"} {credit.numPeople} people
                 </Typography>
               </Stack>
             </CardContent>
           </CardActionArea>
-        </ColoredCard>
+        </OutlinedCard>
       </div>
     </div>
   );
