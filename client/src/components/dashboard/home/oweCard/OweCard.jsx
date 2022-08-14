@@ -15,7 +15,7 @@ import formatter from "../../../../api/formatter";
 
 // Component imports
 import { SectionTitle } from "../../../resources/Labels";
-import { ColoredCard, OutlinedCard } from "../../../resources/Surfaces";
+import { OutlinedCard } from "../../../resources/Surfaces";
 
 export default function OweCard({ credit }) {
   return (
@@ -25,7 +25,7 @@ export default function OweCard({ credit }) {
     >
       <SectionTitle title={credit.positive ? "Owe Me" : "I Owe"} />
       <div className="card-wrapper" data-testid="owe-card-card-element">
-        <OutlinedCard border={credit.positive ? "2px solid rgba(176, 200, 86, 0.8)" : "2px solid rgba(234, 66, 54, 0.5)"} data-testid="owe-card-card-element">
+        <OutlinedCard borderWeight="2px" borderColor={credit.positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} data-testid="owe-card-card-element">
           <CardActionArea>
             <CardContent onClick={() => {window.location = "/dashboard/owe?dir=" + (credit.positive ? "in" : "out")}}>
               <Typography variant="h5" component="div">

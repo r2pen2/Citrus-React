@@ -31,7 +31,7 @@ export function OutlinedCard(props) {
             backgroundColor: "white",
             width: "100%",
             marginBottom: "10px",
-            border: props.border ? props.border : "",
+            border: (props.borderWeight ? props.borderWeight : "1px") + " " + (props.borderStyle ? props.borderStyle : "solid") + " " + (props.borderColor ? props.borderColor : "darkgrey"),
             color: props.color ? props.color : "black"
         }
     }
