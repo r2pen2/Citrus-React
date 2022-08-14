@@ -11,7 +11,7 @@ import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { SectionTitle } from "../../resources/Labels";
 
-export default function Home({ user }) {
+export default function Home({ user, setActiveTab }) {
   return (
     <Stack spacing={3} className="dashboard-home-container">
       <Breadcrumbs path="Dashboard/Home" />
@@ -23,8 +23,8 @@ export default function Home({ user }) {
         </div>
       </Box>
       <div data-testid="transactions">
-        <SectionTitle title="Transactions">
-          <Button variant="contained" onClick={() => window.location = "/dashboard/transactions/"}>View All Transactions</Button>
+        <SectionTitle title="Recent Transactions">
+          <Button variant="contained" onClick={() => setActiveTab("transactions")}>View All Transactions</Button>
         </SectionTitle>
         <TransactionList
           user={user}
@@ -33,7 +33,7 @@ export default function Home({ user }) {
       </div>
       <div data-testid="analytics">
         <SectionTitle title="Analytics" />
-        <AnalyticsPreview chartData={analyticsExample} />
+        <AnalyticsPreview chartData={analyticsExample} setActiveTab={setActiveTab}/>
       </div>
     </Stack>
   );

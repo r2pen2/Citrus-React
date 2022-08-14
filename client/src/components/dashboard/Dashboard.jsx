@@ -13,9 +13,10 @@ import NewTransaction from "./newTransaction/NewTransaction";
 import Shortcut from "./shortcut/Shortcut";
 import Groups from "./groups/Groups";
 import Owe from "./owe/Owe";
-import Transactions from "./transactions/Transactions";
+import AllTransactions from "./allTransactions/AllTransactions";
 import Analytics from "./analytics/Analytics";
 import Bookmarks from "./bookmarks/Bookmarks";
+import Transaction from "./transaction/Transaction";
 
 /**
  * If we're not signed in, redirect to login.
@@ -37,6 +38,7 @@ export default function Dashboard() {
 
   const [shortcutActive, setShortcutActive] = useState(false);        // Whether or not new transaction shortcut is active
   const [bookmarksDeployed, setBookmarksDeployed] = useState(false);  // Whether or not bookmarks are displayed in shortcut
+  const [activeTab, setActiveTab] = useState("home");                 // Active tab for content selection
 
   /**
    * Close shortcut on mouseup
@@ -73,23 +75,39 @@ export default function Dashboard() {
       ) 
     }
   }
+
+  function renderTab() {
+    switch(activeTab) {
+      case "home":
+        return <Home user={user} setActiveTab={setActiveTab}/>;
+      case "new-transaction":
+        return <NewTransaction user={user} />;
+      case "groups":
+        return <Groups user={user} />;
+      case "owe":
+        return <Owe user={user} />;
+      case "transactions":
+        return <AllTransactions user={user} />;
+      case "analytics":
+        return <Analytics user={user} />;
+      case "bookmarks":
+        return <Bookmarks user={user} />;
+      default:
+        return <Home user={user} />;
+    }
+  }
   
   return (
     <div className="dashboard">
       {renderShortcut()}
       <div className="dashboard-pane">
         <Routes>
-          <Route path="/" element={<Home user={user} />} />
-          <Route path="/home" element={<Home user={user} />} />
-          <Route path="/new-transaction/*" element={<NewTransaction user={user} />}/>
-          <Route path="/groups/*" element={<Groups user={user}/>}/>
-          <Route path="/owe/*" element={<Owe user={user} />}/>
-          <Route path="/transactions/*" element={<Transactions user={user} />}/>
-          <Route path="/analytics" element={<Analytics user={user} />}/>
-          <Route path="/bookmarks/*" element={<Bookmarks user={user} />}/>
+          <Route path="/" element={ renderTab() }/>
+          <Route path="/home" element={ renderTab() }/>
+          <Route path="/transaction" element={<Transaction user={user} />}/>
         </Routes>
       </div>
-      <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} />
+      <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} setActiveTab={setActiveTab}/>
     </div>
   );
 }

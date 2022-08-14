@@ -1,9 +1,9 @@
 import "./allTransactions.scss";
-import { Breadcrumbs } from "../../../resources/Navigation";
+import { Breadcrumbs } from "../../resources/Navigation";
 import { CircularProgress, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { getActiveTransactionsByUserId } from "../../../../api/dbManager";
-import { TransactionList, TransactionCard } from "../../../resources/Transactions"
+import { getActiveTransactionsByUserId } from "../../../api/dbManager";
+import { TransactionList, TransactionCard } from "../../resources/Transactions"
 
 export default function AllTransactions({ user }) {
 

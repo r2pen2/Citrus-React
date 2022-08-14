@@ -8,7 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import GroupsIcon from '@mui/icons-material/Groups';
 
-export default function BottomNav({ user, setShortcutActive, setBookmarksDeployed }) {
+export default function BottomNav({ user, setShortcutActive, setBookmarksDeployed, setActiveTab, onBaseDashboard }) {
 
   // Display only if we have a current user
   const active = user ? true : false;
@@ -32,7 +32,18 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
    * @param {String} newValue the value of the new active element
    */
   const handleChange = (event, newValue) => {
+    
+    function onBaseDashboard() {
+      return window.location.toString().includes("/dashboard/home");
+    }
+
     setValue(newValue);
+    setActiveTab(newValue);
+    if (newValue === "home") {
+      if (!onBaseDashboard()) {
+        window.location = "/dashboard/" + newValue;
+      }
+    }
   };
 
   /**
@@ -45,7 +56,7 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
       setBookmarksDeployed(false);
     } else if (event.type === "mouseup") {
       setShortcutActive(false);
-      window.location = "/dashboard/new-transaction";
+      setActiveTab("new-transaction");
     }
   }
 
@@ -57,7 +68,6 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
           <BottomNavigationAction
             label="Home"
             value="home"
-            href="/dashboard/home"
             icon={<HomeIcon fontSize="large" sx={{ color: "#F2DF56" }}/>}
           />
           <BottomNavigationAction
@@ -70,7 +80,6 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
           <BottomNavigationAction
             label="Groups"
             value="groups"
-            href="/dashboard/groups"
             icon={<GroupsIcon fontSize="large" sx={{ color: "#FDB90F" }}/>}
           />
         </BottomNavigation>

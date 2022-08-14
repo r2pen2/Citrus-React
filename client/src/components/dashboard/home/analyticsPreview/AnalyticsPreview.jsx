@@ -15,7 +15,7 @@ import Chart from 'chart.js/auto';
  * this one doesn't seem to let us display values as currency.
  */
 
-export default function Analytics({ chartData }) {
+export default function Analytics({ chartData, setActiveTab }) {
     // Data to be represented by the bar chart
     const data = {
         labels: chartData.map((data) => data.month),
@@ -64,7 +64,7 @@ export default function Analytics({ chartData }) {
                 }/>
             </div>
             <div className="btn">
-                <Button variant="contained" onClick={() => window.location = "/dashboard/analytics/"}>See More</Button>
+                <Button variant="contained" onClick={() => setActiveTab("analytics")}>See More</Button>
             </div>
         </Stack>
     );

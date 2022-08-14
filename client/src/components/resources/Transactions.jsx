@@ -1,5 +1,5 @@
 import "./resources.scss";
-import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip } from '@mui/material';
+import { CircularProgress, Typography, Button, CardContent, CardActionArea, Tooltip } from '@mui/material';
 import { useState, useEffect} from 'react';
 import { getActiveTransactionsByUserId, getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../api/dbManager"
 import React from 'react'
@@ -10,6 +10,7 @@ import { sortByUTDate } from "../../api/sorting";
 import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
 import { AvatarStack } from "./Avatars";
 import { SectionTitle } from "./Labels";
+import { Breadcrumbs } from "./Navigation";
 
 export function TransactionList(props) {
     
@@ -195,7 +196,7 @@ export function TransactionCard({id, user}) {
     if (context) {
         return (
             <OutlinedCard key={id}>
-                <CardActionArea onClick={() => window.location = "/dashboard/transactions/detail?id=" + id}>
+                <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + id}>
                     <CardContent>
                         <div className="transaction-card-content-container">
                             <div className="left">
@@ -221,4 +222,69 @@ export function TransactionCard({id, user}) {
             </OutlinedCard>
         )
     }
+}
+
+export function TransactionDetail({ user }) {
+  const params = new URLSearchParams(window.location.search);
+  const transactionId = params.get("id");
+
+  return (
+    <div>
+      <Breadcrumbs path={"Dashboard/Transactions/" + transactionId} />
+      <h1>Transaction Detail Page</h1>
+      <div>Transaction Id: {transactionId}</div>
+      <h2>Needs implementation</h2>
+      <a href="https://github.com/r2pen2/Citrus-React/issues/97">
+        Github: Implement Dashboard/Transactions/Detail?id=transactionId #97
+      </a>
+      <ul>
+        <li>
+          <div>Renders information on a transaction by ID</div>
+        </li>
+        <li>
+          <div>
+            Shows a map (maybe), a button to dispute, and a button to edit
+          </div>
+        </li>
+        <li>
+          <div>Shows avatars of everyone involved in the transaction</div>
+        </li>
+        <li>
+          <div>Shows the cost of the transaction</div>
+        </li>
+        <li>
+          <a href={"/dashboard/transaction/conversation?id=" + transactionId}>
+            Link to dispute page
+          </a>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
+export function TransactionConversation({ user }) {
+  const params = new URLSearchParams(window.location.search);
+  const transactionId = params.get("id");
+
+  return (
+    <div>
+      <Breadcrumbs
+        path={"Dashboard/Transactions/" + transactionId + "/Conversation"}
+      />
+      <h1>Transaction Conversation Page</h1>
+      <div>Transaction Id: {transactionId}</div>
+      <h2>Needs implementation</h2>
+      <a href="https://github.com/r2pen2/Citrus-React/issues/100">
+        Github: Implement Dashboard/Transactions/Conversation?id=transactionId
+        #100
+      </a>
+      <ul>
+        <li>
+          <div>
+            A chat room within the context of the transaction in urlparams
+          </div>
+        </li>
+      </ul>
+    </div>
+  );
 }

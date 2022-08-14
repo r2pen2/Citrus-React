@@ -389,6 +389,24 @@ export async function addTransactionToUser(userId, transactionId) {
 }
 
 /**
+ * Get transaction title by transaction id
+ * @param {String} id transactionId
+ * @returns {Object} transaction title
+ */
+ export async function getTransactionTitleById(id) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, TRANSACTION_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            resolve(docSnap.data().title)
+        } else {
+            console.log("No transaction with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+/**
  * Cannot be reversed! Deletes a transaction from the database entirely and removes it from users
  * @param {String} id transaction ID to delete from DB
  */
