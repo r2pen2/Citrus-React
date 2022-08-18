@@ -1,5 +1,3 @@
-$drawer-height: 60px;
-
 .new-transaction-wrapper {
     width: 100%;
     height: 70vh;
@@ -19,34 +17,29 @@ $drawer-height: 60px;
             width: 100%;
             display: flex;
             flex-direction: row;
+            justify-content: center;
 
-            .tab-selector {
-                width: 50%;
-                border: 1px solid lightgrey;
-                align-items: center;
-                justify-content: center;
-                display: flex;
+            .tabs {
+                width: 100%;
 
-                &.hover {
-                    background-color: lightgrey;
+                .tab-item {
+
+                    &.left {
+                        border-right: 1px solid lightgrey;
+                    }
                 }
             }
         }
 
-        .fields {
-
-        }
-
-        .button-container {
-            
-            width: 50%;
+        .tab-content {
+            width: 100%;
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-
-            .btn {
-                width: 48%;
-            }
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 60vh;
+            border-top: 1px solid lightgrey;
         }
+
     }
 }
