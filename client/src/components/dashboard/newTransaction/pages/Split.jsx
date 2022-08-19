@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Button, IconButton, Typography } from '@mui/material';
+import { Button, IconButton, Select, InputLabel, FormControl, MenuItem, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { getGroupsByUserId, getGroupNameById } from "../../../../api/dbManager";
 
 export default function Split(props) {
 
-    const [splitPage, setSplitPage] = useState(props.splitPage ? props.splitPage : "split-type");
+    const [splitPage, setSplitPage] = useState(props.splitPage ? props.splitPage : "add-people");
     const [userGroups, setUserGroups] = useState(null);
     const [groupPicklistContent, setGroupPicklistContent] = useState(null);
-    const [currentGroup, setCurrentGroup] = useState(null);
+    const [currentGroup, setCurrentGroup] = useState("");
     const [peopleInvolved, setPeopleInvolved] = useState([]);
 
     async function fetchUserData() {
@@ -29,8 +29,8 @@ export default function Split(props) {
 
     function renderSplitPage() {
         switch (splitPage) {
-            case "split-type":
-                return <SplitTypePage setSplitPage={setSplitPage}/>;
+            case "add-people":
+                return <AddPeoplePage setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent}/>;
             case "group-select":
                 return <GroupSelectionPage setSplitPage={setSplitPage}/>;
             case "friend-select":
@@ -49,17 +49,38 @@ export default function Split(props) {
     )
 }
 
-function SplitTypePage({setSplitPage}) {
+function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup}) {
+
+    function populateGroupSelect() {
+        if (groupPicklistContent) {
+            return groupPicklistContent.map((group, index) => {
+                return (
+                    <MenuItem key={index} value={group.id}>{group.name}</MenuItem>
+                )
+            });
+        }
+    }
+
+    function handleGroupChange(e) {
+        setCurrentGroup(e.target.value);
+    }
+
     return (
         <div className="split-type-page">
             <Typography variant="h6">Add People</Typography>
             <div className="search-bar">
 
             </div>
-            <div className="group-select">
-
-            </div>
             <Typography variant="h6">Assign to Group</Typography>
+            <div className="group-select">
+                <FormControl className="group-select-box">
+                    <InputLabel id="group-select-label">Group</InputLabel>
+                    <Select value={currentGroup} labelId="group-select-label" onChange={handleGroupChange} label="Group">
+                        <MenuItem value=""><em>None</em></MenuItem>
+                        { populateGroupSelect() }
+                    </Select>
+                </FormControl>
+            </div>
         </div>
     )
 }
