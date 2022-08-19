@@ -621,6 +621,44 @@ export async function addTransactionToUser(userId, transactionId) {
 }
 
 /**
+ * Gets a list of all groups a user is in
+ * @param {String} userId ID of user to get groups list from
+ */
+ export async function getGroupsByUserId(userId) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().groups) {
+                resolve(docSnap.data().groups);
+            } else {
+                resolve(null);
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve(null)
+        }
+    })
+}
+
+/**
+ * Returns the name of a group
+ * @param {String} groupId group id to get name from
+ */
+ export async function getGroupNameById(groupId) {
+    return new Promise(async (resolve, reject) => {
+        const groupRef = doc(firestore, GROUP_COLLECTION, groupId);
+        const groupSnap = await getDoc(groupRef);
+        if (groupSnap.exists()) {
+            resolve(groupSnap.data().name);
+        } else {
+            console.log("Group ID invalid!");
+            reject("Group ID invalid!");
+        }
+    })
+}
+
+/**
  * Removes a transaction from a group
  * @param {String} transactionId transaction id to remove
  * @param {String} groupId group id delete transaction on

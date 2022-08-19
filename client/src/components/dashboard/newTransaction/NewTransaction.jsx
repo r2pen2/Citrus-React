@@ -23,7 +23,7 @@ export default function NewTransaction({ user }) {
   function renderTab() {
     if (tabValue === 0) {
       return (
-        <Split/>
+        <Split user={user}/>
       )
     }
     if (tabValue === 1) {

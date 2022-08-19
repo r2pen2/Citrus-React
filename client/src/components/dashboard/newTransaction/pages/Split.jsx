@@ -1,11 +1,31 @@
 import { useState, useEffect } from 'react';
 import { Button, IconButton, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { getGroupsByUserId, getGroupNameById } from "../../../../api/dbManager";
 
 export default function Split(props) {
 
     const [splitPage, setSplitPage] = useState(props.splitPage ? props.splitPage : "split-type");
     const [userGroups, setUserGroups] = useState(null);
+    const [groupPicklistContent, setGroupPicklistContent] = useState(null);
+    const [currentGroup, setCurrentGroup] = useState(null);
+    const [peopleInvolved, setPeopleInvolved] = useState([]);
+
+    async function fetchUserData() {
+        let groups = await getGroupsByUserId(props.user.uid);
+        setUserGroups(groups);
+        // Also get the names of each group
+        var groupObjects = [];
+        for (const groupId of groups) {
+            let groupName = await getGroupNameById(groupId);
+            groupObjects.push({id: groupId, name: groupName })
+        }
+        setGroupPicklistContent(groupObjects);
+    }
+
+    useEffect(() => {
+        fetchUserData();
+    }, [])
 
     function renderSplitPage() {
         switch (splitPage) {
@@ -32,11 +52,14 @@ export default function Split(props) {
 function SplitTypePage({setSplitPage}) {
     return (
         <div className="split-type-page">
-            <Typography variant="h6">Who are you splitting with?</Typography>
-            <div className="button-container">
-                <Button variant="contained" onClick={() => setSplitPage("group-select")}>Groups</Button>
-                <Button variant="contained" onClick={() => setSplitPage("friend-select")}>Friends</Button>
+            <Typography variant="h6">Add People</Typography>
+            <div className="search-bar">
+
             </div>
+            <div className="group-select">
+
+            </div>
+            <Typography variant="h6">Assign to Group</Typography>
         </div>
     )
 }
