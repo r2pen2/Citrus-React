@@ -5,6 +5,9 @@ import "./newtransaction.scss";
 import { Typography, Paper, Select, Tabs, Tab, Box, FormControl, MenuItem, InputLabel } from "@mui/material";
 import { useState } from 'react';
 
+// Component Imports
+import Split from "./pages/Split";
+import IOU from "./pages/IOU";
 
 export default function NewTransaction({ user }) {
   const [tabValue, setTabValue] = useState(0);
@@ -20,12 +23,12 @@ export default function NewTransaction({ user }) {
   function renderTab() {
     if (tabValue === 0) {
       return (
-        <div>IOU</div>
+        <Split/>
       )
     }
     if (tabValue === 1) {
       return (
-        <div>IOU</div>
+        <IOU/>
       )
     } else {
       return <div>Error: Invalid tab ID</div>
