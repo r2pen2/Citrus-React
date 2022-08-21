@@ -54,28 +54,29 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 
     .back-button {
-        height: 40px;
-        width: 100%;
+        padding-left: 20px;
+        padding-right: 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        user-select: none;
+
+        &.hover {
+            text-decoration: underline;
+        }
     }
     
-    .split-type-page {
+    .split-page-content {
         width: 100%;
         height: 100%;
         justify-content: center;
         align-items: center;
         display: flex;
         flex-direction: column;
-        
-        .button-container {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: row;
-            width: 20%;
-            justify-content: space-between;
-        }
 
         .group-select {
             display: flex;
@@ -203,6 +204,24 @@
             &.hidden {
                 opacity: 0;
             }
+        }
+
+        .group-cancel-button {
+            margin-top: 10px;
+            opacity: 0;
+            transition: all 0.5s ease;
+
+            &.visible {
+                opacity: 1;
+            }
+        }
+
+        .transaction-detail-form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
         }
     }
 }

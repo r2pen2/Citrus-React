@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, IconButton, Select, InputLabel, FormControl, InputAdornment, Input, MenuItem, Typography, CircularProgress } from '@mui/material';
+import { Button, IconButton, Select, InputLabel, FormControl, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import { getGroupsByUserId, getGroupNameById, getFriendsById, getDisplayNameById, getPhotoUrlById, getUsersByGroupId } from "../../../../api/dbManager";
@@ -13,6 +13,8 @@ export default function Split(props) {
     const [groupPicklistContent, setGroupPicklistContent] = useState(null);
     const [currentGroup, setCurrentGroup] = useState("");
     const [peopleInvolved, setPeopleInvolved] = useState([]);
+    const [transactionTitle, setTransactionTitle] = useState(null);
+    const [transactionAmount, setTransactionAmount] = useState(null);
 
     async function fetchUserData() {
         let groups = await getGroupsByUserId(props.user.uid);
@@ -33,11 +35,11 @@ export default function Split(props) {
     function renderSplitPage() {
         switch (splitPage) {
             case "add-people":
-                return <AddPeoplePage user={props.user} setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent}/>;
-            case "group-select":
-                return <GroupSelectionPage setSplitPage={setSplitPage}/>;
-            case "friend-select":
-                return <FriendSelectionPage setSplitPage={setSplitPage}/>;
+                return <AddPeoplePage user={props.user} setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
+            case "transaction-details":
+                return <TransactionDetailsPage transactionAmount={transactionAmount} setTransactionAmount={setTransactionAmount} currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} transactionTitle={transactionTitle} setTransactionTitle={setTransactionTitle}/>;
+            case "set-weights":
+                return <SetWeightsPage setSplitPage={setSplitPage}/>;
             case "money-entry":
                 return <MoneyEntryPage />;
             default:
@@ -52,7 +54,7 @@ export default function Split(props) {
     )
 }
 
-function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup}) {
+function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
 
     
     const [searchString, setSearchString] = useState("");               // Contents of search box
@@ -230,7 +232,26 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
      * Handle next button press, passing on information to next page
      */
     function handleNext() {
-        //  TODO implement this method
+        var contextSet = false;
+        if (searchExpanded) {
+            var friendsSelected = [];
+            for (const friend of friends) {
+                if (friend.selected) {
+                    friendsSelected.push(friend.id);
+                }
+            }
+            setPeopleInvolved(friendsSelected);
+            contextSet = true;
+        }
+        if (groupsExpanded) {
+            if (currentGroupUsers && currentGroup.length > 0) {
+                setPeopleInvolved(currentGroupUsers);
+                contextSet = true;
+            }
+        }
+        if (contextSet) {
+            setSplitPage("transaction-details");
+        }
     }
 
     /** 
@@ -273,8 +294,12 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
         }
     }
 
+    function handleGroupCancel() {
+        setCurrentGroup("");
+    }
+
     return (
-        <div className="split-type-page">
+        <div className="split-page-content">
             <div className={"search-bar " + (groupsExpanded ? "hidden" : "")}>
                 <Typography variant="h6">Select Friends</Typography>
                 <FormControl className="friend-search-box">
@@ -324,33 +349,82 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
             <div className="next-button">
                 <Button variant="contained" disabled={!nextEnabled} onClick={() => handleNext()}>Next</Button>
             </div>
-        </div>
-    )
-}
-
-function GroupSelectionPage({setSplitPage}) {
-    return (
-        <div>
-            <div className="back-button">
-                <IconButton onClick={() => setSplitPage("split-type")}>
-                    <ArrowBackIcon />
-                </IconButton>
-            </div>
-            <div className="split-target-buttons">
-                <Button variant="contained">Groups</Button>
-                <Button variant="outlined" onClick={() => setSplitPage("friend-select")}>Friends</Button>
+            <div className={"group-cancel-button " + (groupsExpanded && nextEnabled ? "visible" : "")}>
+                <Button variant="outlined" disabled={!nextEnabled} onClick={() => handleGroupCancel()}>Cancel</Button>
             </div>
         </div>
     )
 }
 
-function FriendSelectionPage({setSplitPage}) {
+function TransactionDetailsPage({setSplitPage, transactionTitle, transactionAmount, setTransactionAmount, setTransactionTitle, currentGroup, groupPicklistContent}) {
+
+    const [backButtonHover, setBackButtonHover] = useState(false);  // Whether or not mouse is over the back button
+
+    function renderHeader() {
+        if (currentGroup) {
+            if (currentGroup.length > 0) {
+                for (const group of groupPicklistContent) {
+                    if (group.id === currentGroup) {
+                        return (
+                            <Typography variant="h6">{group.name}</Typography>
+                        )
+                    }
+                }
+            }
+        } else {
+            return (
+                <Typography variant="h6">New Transaciton with Friends</Typography>
+            )
+        }
+    }
+
+    function handleTitleChange(e) {
+        setTransactionTitle(e.target.value);
+    }
+
+    function handleAmountChange(e) {
+        setTransactionTitle(e.target.value);
+    }
+
     return (
-        <div>
-            <div className="back-button">
-                <IconButton onClick={() => setSplitPage("split-type")}>
-                    <ArrowBackIcon />
-                </IconButton>
+        <div className="split-page-content">
+            <div className={"back-button " + (backButtonHover ? "hover" : "")} onClick={() => setSplitPage("add-people")} onMouseEnter={() => setBackButtonHover(true)} onMouseLeave={() => setBackButtonHover(false)}>
+                <ArrowBackIcon />
+                <Typography marginLeft="5px" variant="subtitle1">Go Back</Typography>
+            </div>
+            <div className="header">
+                { renderHeader() }
+            </div>
+            <div className="transaction-detail-form">
+                <Typography variant="subtitle1">Transaction Title</Typography>
+                <FormControl className="title-text-field">
+                    <TextField
+                        value={transactionTitle}
+                        onChange={handleTitleChange}
+                        label="ex. My Transaction"
+                    >
+                    </TextField>
+                </FormControl>
+                <Typography variant="subtitle1">Total Price</Typography>
+                <FormControl className="title-text-field">
+                    <TextField
+                        value={transactionAmount}
+                        onChange={handleAmountChange}
+                        label="ex. $100"
+                    >
+                    </TextField>
+                </FormControl>
+            </div>
+        </div>
+    )
+}
+
+function SetWeightsPage({setSplitPage}) {
+    return (
+        <div className="split-page-content">
+            <div className="back-button" onClick={() => setSplitPage("split-type")}>
+                <ArrowBackIcon />
+                <Typography variant="subtitle1">Go Back</Typography>
             </div>
             <div className="split-target-buttons">
                 <Button variant="outlined" onClick={() => setSplitPage("group-select")}>Groups</Button>
