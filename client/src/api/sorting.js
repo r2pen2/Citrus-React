@@ -39,3 +39,21 @@ export function sortByDate(array) {
     })
     return array;
 }
+
+/**
+ * Sorts a list by displayName
+ * @param {[Object]} array list to be sorted
+ * @returns {[Object]} sorted list
+ */
+ export function sortByDisplayName(array) {
+    array.sort((a, b) => {
+        if (a.displayName < b.displayName) {
+            return -1;
+        }
+        if (a.displayName > b.displayName) {
+            return 1;
+        }
+        return 0;
+    });
+    return array;
+}

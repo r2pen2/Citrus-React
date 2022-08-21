@@ -767,3 +767,43 @@ export async function addTransactionToUser(userId, transactionId) {
         }
     })
 }
+
+/**
+ * Get a user's friends list
+ * @param {String} id user ID
+ * @returns {Array} user's friends
+ */
+ export async function getFriendsById(id) {
+    return new Promise(async (resolve, reject) => {
+        const docRef = doc(firestore, USER_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            if (docSnap.data().friends.length <= 0) {
+                resolve("none");
+            } else {
+                resolve(docSnap.data().friends);
+            }
+        } else {
+            console.log("No user with this ID exists on DB");
+            resolve("?")
+        }
+    })
+}
+
+/**
+ * Returns a list of all users in a group
+ * @param {String} groupId group id fetch users from
+ */
+ export async function getUsersByGroupId(groupId) {
+    return new Promise(async (resolve, reject) => {
+        const groupRef = doc(firestore, GROUP_COLLECTION, groupId);
+        const groupSnap = await getDoc(groupRef);
+        if (groupSnap.exists()) {
+            const groupData = groupSnap.data();
+            resolve(groupSnap.data().users);
+        } else {
+            console.log("Group or user ID invalid!");
+            reject("Group or user ID invalid!");
+        }
+    })
+}

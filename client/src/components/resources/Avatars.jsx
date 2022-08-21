@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AvatarGroup, Avatar, Tooltip } from "@mui/material";
+import { AvatarGroup, Avatar, Tooltip, Typography } from "@mui/material";
 import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager";
 import "./resources.scss";
 import { styled } from '@mui/material/styles';
@@ -74,22 +74,47 @@ export function AvatarStackItem(props) {
     )
 }
 
-export function AvatarIcon({id}) {
-    const [pfpUrl, setPfpUrl] = useState(null);
-    const [alt, setAlt] = useState("");
+export function AvatarIcon(props) {
+    const [pfpUrl, setPfpUrl] = useState(props.src ? props.src : null);
+    const [alt, setAlt] = useState(props.alt ? props.alt : "");
 
     useEffect(() => {
 
         async function fetchUserData() {
-            let url = await getPhotoUrlById(id);
-            setPfpUrl(url);
-            let name = await getDisplayNameById(id);
-            setAlt(name);
+            if (!props.src) {
+                let url = await getPhotoUrlById(props.id);
+                setPfpUrl(url);
+            }
+            if (!props.alt) {
+                let name = await getDisplayNameById(props.id);
+                setAlt(name);
+            }
         }
 
         fetchUserData();
         
-    }, [id])
+    }, [props.id])
 
     return <Avatar src={pfpUrl} alt={alt} />
+}
+
+export function AvatarToggle(props) {
+
+    function renderName() {
+        if (props.displayName) {
+            const shortenedName = props.displayName.substring(0, props.displayName.indexOf(" "));
+            return (
+                <Typography color={props.outlined ? "primary" : "black"}>{shortenedName}</Typography>
+            )
+        }
+    }
+
+    return (
+        <div className="avatar-toggle">
+            <div className={"avatar-toggle-icon-element " + (props.outlined ? "outlined" : "")}>
+                <AvatarIcon id={props.id} src={props.src ? props.src : null}/>
+            </div>
+            { renderName() }
+        </div>
+    )
 }
