@@ -800,7 +800,7 @@ export async function addTransactionToUser(userId, transactionId) {
         const groupSnap = await getDoc(groupRef);
         if (groupSnap.exists()) {
             const groupData = groupSnap.data();
-            resolve(groupSnap.data().users);
+            resolve(groupData.users);
         } else {
             console.log("Group or user ID invalid!");
             reject("Group or user ID invalid!");

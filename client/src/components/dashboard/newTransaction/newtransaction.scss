@@ -82,6 +82,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
             width: 40%;
             height: 100px;
             transition: all 0.5s ease;
@@ -113,7 +114,6 @@
                 height: 0px;
                 width: 100%;
                 opacity: 0;
-                overflow: hidden;
                 transition: all 0.5s ease;
             }
 
@@ -127,7 +127,7 @@
 
                 .user-preview {
                     margin-top: 20px;
-                    height: 50px;
+                    height: 200px;
                     opacity: 1;
                 }
 

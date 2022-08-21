@@ -65,6 +65,8 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
     const [someoneIsSelected, setSomeoneIsSelected] = useState(false);  // Whether or not anyone is currently selected
     const [groupsExpanded, setGroupsExpanded] = useState(false);        // Whether or not the groups section is expanded
     const [currentGroupUsers, setCurrentGroupUsers] = useState(null);   // All users in currently selected group
+    const [currentGroupLoaded, setCurrentGroupLoaded] = useState(false);// Whether or not data for users in current group is loaded
+    const [someoneIsSelectedInGroup, setSomeoneIsSelectedInGroup] = useState(true); // Flag if a group has nobody selected in it
 
     /**
      * @param {Array} friendsList a list of objects representing all of the current user's friends without detailed information on them
@@ -137,7 +139,7 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
      * Toggle the selected state of a friend by userId
      * @param {String} id id of friend to toggle selected state for
      */
-    function toggleSelected(id) {
+    function toggleSelectedFriend(id) {
         var toggled = [];
         var foundSelectedFriend = false;
         for (const f of friends) {
@@ -156,11 +158,34 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
         setFriends(toggled);
     }
 
+        /**
+     * Toggle the selected state of a user by userId
+     * @param {String} id id of user to toggle selected state for
+     */
+         function toggleSelectedGroupUser(id) {
+            var toggled = [];
+            var foundSelectedUser = false;
+            for (const u of currentGroupUsers) {
+                const toggledUser = {
+                    id: u.id,
+                    displayName: u.displayName,
+                    pfpUrl: u.pfpUrl,
+                    selected: (id === u.id) ? !u.selected : u.selected 
+                }
+                if (toggledUser.selected) {
+                    foundSelectedUser = true;
+                }
+                toggled.push(toggledUser);
+            }
+            setSomeoneIsSelectedInGroup(foundSelectedUser);
+            setCurrentGroupUsers(toggled);
+        }
+
     /** 
     * Check if the next button should be enabled
     */
     function checkNextEnabled() {
-        setNextEnabled(someoneIsSelected || currentGroup.length > 0);
+        setNextEnabled(someoneIsSelected || (currentGroup.length > 0 && someoneIsSelectedInGroup));
     }
 
     /**
@@ -185,7 +210,7 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
                                     className="friend-container" 
                                     key={index} 
                                     onClick={() => { 
-                                        toggleSelected(friend.id);
+                                        toggleSelectedFriend(friend.id);
                                         clearSearch();
                                     }
                                 }>
@@ -206,7 +231,7 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
                                className="friend-container" 
                                key={index} 
                                onClick={() => {
-                                    toggleSelected(friend.id);
+                                toggleSelectedFriend(friend.id);
                                }}
                             >
                                 <AvatarToggle 
@@ -244,10 +269,14 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
             contextSet = true;
         }
         if (groupsExpanded) {
-            if (currentGroupUsers && currentGroup.length > 0) {
-                setPeopleInvolved(currentGroupUsers);
-                contextSet = true;
+            var userSelected = [];
+            for (const user of currentGroupUsers) {
+                if (user.selected) {
+                    userSelected.push(user.id);
+                }
             }
+            setPeopleInvolved(userSelected);
+            contextSet = true;
         }
         if (contextSet) {
             setSplitPage("transaction-details");
@@ -263,7 +292,7 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
         setSearchExpanded(someoneIsSelected || searchString.length > 0);
         setGroupsExpanded(currentGroup.length > 0);
         checkNextEnabled();
-    }, [someoneIsSelected, searchString, currentGroup])
+    }, [someoneIsSelected, someoneIsSelectedInGroup, searchString, currentGroup])
 
     /**
      * Fetch current group's users when it changes
@@ -277,7 +306,27 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
      */
     async function fetchCurrentGroupUsers() {
         let users = await getUsersByGroupId(currentGroup);
-        setCurrentGroupUsers(users);
+        var usersInGroup = [];
+        for (const user of users) {
+            usersInGroup.push({id: user, selected: true, displayName: null, pfpUrl: null})
+        }
+        setCurrentGroupUsers(usersInGroup);
+        loadCurrentGroupUsers();
+    }
+
+    /**
+     * Load personal data for all users in selected group
+     */
+    async function loadCurrentGroupUsers() {
+        var loadedUsers = [];
+        for (const user of currentGroupUsers) {
+            let name = await getDisplayNameById(user.id);
+            let url = await getPhotoUrlById(user.id);
+            loadedUsers.push({id: user.id, displayName: name, selected: true, pfpUrl: url})
+        }
+        setCurrentGroupUsers(loadedUsers);
+        setSomeoneIsSelectedInGroup(true);
+        setCurrentGroupLoaded(true);
     }
 
     /**
@@ -285,10 +334,23 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
      * @returns {Component} list of user icons
      */
     function populateGroupUserPreview() {
-        if (currentGroupUsers && currentGroup.length > 0) {
+        if (currentGroupLoaded && currentGroup.length > 0) {
             return currentGroupUsers.map((user, index) => {
                 return (
-                    <AvatarIcon id={user}/>
+                    <div 
+                        className="friend-container" 
+                        key={index} 
+                        onClick={() => { 
+                            toggleSelectedGroupUser(user.id);
+                        }
+                    }>
+                        <AvatarToggle 
+                            outlined={user.selected} 
+                            id={user.id} 
+                            src={user.pfpUrl}
+                            displayName={user.displayName}
+                        />
+                    </div> 
                 )
             })
         }
@@ -349,8 +411,8 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
             <div className="next-button">
                 <Button variant="contained" disabled={!nextEnabled} onClick={() => handleNext()}>Next</Button>
             </div>
-            <div className={"group-cancel-button " + (groupsExpanded && nextEnabled ? "visible" : "")}>
-                <Button variant="outlined" disabled={!nextEnabled} onClick={() => handleGroupCancel()}>Cancel</Button>
+            <div className={"group-cancel-button " + (groupsExpanded ? "visible" : "")}>
+                <Button variant="outlined" onClick={() => handleGroupCancel()}>Cancel</Button>
             </div>
         </div>
     )
