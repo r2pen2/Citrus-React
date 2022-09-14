@@ -59,16 +59,35 @@ export class ObjectManager {
         }
     }
 
+    /**
+     * Get this ObjectManager's document id
+     * @returns {String} id of this ObjectManager's firestore document
+     */
     getDocumentId() {
         return this.documentId;
     }
 
+    /**
+     * Get this ObjectManager's type
+     * @returns {String} object type
+     */
     getObjectType() {
         return this.objectType;
     }
 
+    /**
+     * Get a string representation of this ObjectManager
+     * @returns {String} string representation of the object
+     */
     toString() {
         return 'Object manager of type "' + this.objectType + '" with id "' + this.objectId + '"';
+    }
+    
+    /**
+     * Log the objectManager's data
+     */
+    logData() {
+        console.log(this.data);
     }
 
     /**
@@ -131,6 +150,20 @@ export class ObjectManager {
             return this.data;
         }
     }
+
+    // Set document data
+    setData(newData) {
+        this.data = newData;
+    }
+
+    // Send document data to database
+    async pushData() {
+        return new Promise(async (resolve) => {
+            console.log('Pushing changes to: ' + this.toString());
+            await setDoc(this.docRef, this.data);
+            resolve(this.data);
+        })
+    }
 }
 
 export class BookmarkManager extends ObjectManager {
@@ -178,7 +211,7 @@ export class UserManager extends ObjectManager {
     * Get current user's display name
     * @returns {String} user display name
     */
-    async getDisplayName() {
+    getDisplayName() {
         let userData = super.getData();
         if (userData) {
             if (userData.personalData.displayName) {            
@@ -201,6 +234,36 @@ export class UserManager extends ObjectManager {
                     console.log("getDisplayName() gave up after too many fetch attempts.");
                 }
             });
+        }
+    }
+
+    /**
+     * Set user's display name
+     * @param {String} newDisplayName display name to set on user object
+     */
+    setDisplayName(newDisplayName) {
+        let userData = super.getData();
+        if (userData) {
+            userData.personalData.displayName = newDisplayName;
+            this.setData(userData);
+        } else {
+            console.log("setDisplayName() didn't receive any data from DBManager.");
+        }
+    }
+
+    /**
+    * Get a user's phone number
+    * @returns {String} user phone number
+    */
+    getPhoneNumber() {
+        let userData = super.getData();
+        if (userData) {
+            if (userData.personalData.phoneNumber) {            
+                return userData.personalData.phoneNumber;
+            } else {
+                console.log("Error: User had no phone number?");
+                return null;
+            }
         }
     }
 }
