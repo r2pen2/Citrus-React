@@ -30,11 +30,14 @@ function generateId(length) {
 }
 
 export class ObjectManager {
-    constructor(_objectType, _documentId) {
+    constructor(_objectType, _documentId, _data) {
         this.objectType = _objectType;
         this.documentId = _documentId;
         this.data = null;
         this.docRef = doc(firestore, this.getCollection(), _documentId);
+        this.children = [];
+        this.error = false;
+        this.changed = false;
     }
 
     /**
@@ -93,6 +96,10 @@ export class ObjectManager {
         console.log(this.data);
     }
 
+    getChildren() {
+        return this.children;
+    }
+
     /**
     * Fetch data from database by document reference
     * @returns {Object} data from document snapshot
@@ -130,7 +137,7 @@ export class ObjectManager {
                     } else {
                         dbDebugger.log("Didn't find data on attempt " + (fetchAttempts + 1));
                         setTimeout(() => {
-                            return fetch(fetchAttempts + 1);
+                            resolve(fetchRecursive(fetchAttempts + 1));
                         }, delay);
                     }
                 }
@@ -157,29 +164,72 @@ export class ObjectManager {
     // Set document data
     setData(newData) {
         this.data = newData;
+        this.changed = true;
     }
 
-    // Send document data to database
-    async pushToDatabase() {
+    // Send only the top (this) to database
+    async pushSingle() {
+        if (!this.error) {
+            // Assuming everything was OK, we push
+            return new Promise(async (resolve) => {
+                if (this.changed) {
+                    dbDebugger.log('Pushing changes to: ' + this.toString());
+                    if (this.documentId) {
+                        // Document has an ID. Set data and return true
+                        await setDoc(this.docRef, this.data);
+                    } else {
+                        const newDoc = await addDoc(collection(firestore, this.getCollection), this.data);
+                        this.documentId = newDoc.id;
+                        this.docRef = newDoc;
+                        dbDebugger.log('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
+                    }
+                } else {
+                    dbDebugger.log("No changes were made to: " + this.toString());
+                }
+                resolve(true);
+            })
+        } else {
+            // Don't push if there was an error
+            dbDebugger.log("Error detected in objectManager: " + this.toString());
+            dbDebugger.log("Changes will not be pushed!");
+        }
+    }
+
+    // Send this, children, and children of children to the database
+    async push() {
         return new Promise(async (resolve) => {
-            dbDebugger.log('Pushing changes to: ' + this.toString());
-            if (this.documentId) {
-                // Document has an ID. Set data and return true
-                await setDoc(this.docRef, this.data);
+            let selfPushed = await this.pushSingle();
+            if (selfPushed) {
+                for (const childManager of this.children) {
+                    await childManager.push();
+                }
+                resolve(true);
             } else {
-                const newDoc = await addDoc(collection(firestore, this.getCollection), this.data);
-                this.documentId = newDoc.id;
-                this.docRef = newDoc;
-                dbDebugger.log('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
+                resolve(false);
             }
-            resolve(true);
         })
     }
 
     // Print no data error and return param;
     logNoDataError(retval) {
         dbDebugger.log("Error! ObjectManager<" + this.objectType + "> failed to return data to child class.");
+        this.error = true;
         return retval;
+    }
+
+    equals(objectManager) {
+        const matchingTypes = objectManager.getObjectType() === this.getObjectType();
+        const matchingIds = objectManager.getObjectId() === this.getObjectId();
+        return matchingTypes && matchingIds;
+    }
+
+    addChild(objectManager) {
+        this.children.push(objectManager);
+    }
+
+    removeChild(objectManager) {
+        const newChildren = this.children.filter(child => !child.equals(objectManager));
+        this.children = newChildren;
     }
 }
 
@@ -226,7 +276,7 @@ export class TransactionManager extends ObjectManager {
                     let userData = await userManager.fetchData();
                     if (userData) {                    
                         userManager.addTransaction(this.documentId);
-                        await userManager.pushToDatabase();
+                        super.addChild(userManager);
                     }
                 }
                 // Add transaction to each fronter
@@ -235,10 +285,9 @@ export class TransactionManager extends ObjectManager {
                     let userData = await userManager.fetchData();
                     if (userData) {                    
                         userManager.addTransaction(this.documentId);
-                        await userManager.pushToDatabase();
+                        super.addChild(userManager);
                     }
                 }
-                await super.pushToDatabase();
                 resolve(true);
             });
         } else {
@@ -250,36 +299,30 @@ export class TransactionManager extends ObjectManager {
      * Set transaction to active
      * @returns {Boolean} whether or not this operation was successful
      */
-    async activate() {
-        return new Promise(async (resolve) => {
-            let transactionData = super.getData();
-            if (transactionData) {
-                transactionData.active = true;
-                super.setData(transactionData);
-                await super.pushToDatabase();
-                resolve(true);
-            } else {
-                resolve(super.logNoDataError(false));
-            }
-        })
+    activate() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.active = true;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
     }
 
     /**
      * Set transaction to inactive
      * @returns {Boolean} whether or not this operation was successful
      */
-    async deactivate() {
-        return new Promise(async (resolve) => {
-            let transactionData = super.getData();
-            if (transactionData) {
-                transactionData.active = false;
-                super.setData(transactionData);
-                await super.pushToDatabase();
-                resolve(true);
-            } else {
-                resolve(super.logNoDataError(false));
-            }
-        })
+    deactivate() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.active = false;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
     }
 }
 
@@ -329,18 +372,15 @@ export class UserManager extends ObjectManager {
     * @param {String} newDisplayName display name to set on user object
     * @returns {Boolean} true if successful, false otherwise
     */
-    async setDisplayName(newDisplayName) {
-        return new Promise(async (resolve) => {
-            let userData = super.getData();
-            if (userData) {
-                userData.personalData.displayName = newDisplayName;
-                super.setData(userData);
-                await super.pushToDatabase();
-                resolve(true);
-            } else {
-                resolve(super.logNoDataError(false));
-            }
-        })
+    setDisplayName(newDisplayName) {
+        let userData = super.getData();
+        if (userData) {
+            userData.personalData.displayName = newDisplayName;
+            super.setData(userData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
     }
 
     /**
@@ -364,18 +404,15 @@ export class UserManager extends ObjectManager {
     * @param {String} newPhoneNumber phone number to set on user object
     * @returns {Boolean} true if successful, false otherwise
     */
-    async setPhoneNumber(newPhoneNumber) {
-        return new Promise(async (resolve) => {
-            let userData = super.getData();
-            if (userData) {
-                userData.personalData.phoneNumber = newPhoneNumber;
-                super.setData(userData);
-                await super.pushToDatabase();
-                resolve(true);
-            } else {
-                resolve(super.logNoDataError(false));
-            }
-        })
+    setPhoneNumber(newPhoneNumber) {
+        let userData = super.getData();
+        if (userData) {
+            userData.personalData.phoneNumber = newPhoneNumber;
+            super.setData(userData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
     }
 
     /**
@@ -411,22 +448,19 @@ export class UserManager extends ObjectManager {
     * @param {String} transactionId id of transaction to add
     * @returns {Boolean} true if successful, false otherwise
     */
-    async addTransaction(transactionId) {
-        return new Promise(async (resolve) => {
-            let userData = super.getData();
-            if (userData) {
-                if (!userData.transactions.active.includes(transactionId)) {            
-                    userData.transactions.active.push(transactionId);
-                    super.setData(userData);
-                    await super.pushToDatabase();
-                    resolve(true)
-                } else {
-                    resolve(false);
-                }
+    addTransaction(transactionId) {
+        let userData = super.getData();
+        if (userData) {
+            if (!userData.transactions.active.includes(transactionId)) {            
+                userData.transactions.active.push(transactionId);
+                super.setData(userData);
+                return true;
             } else {
-                resolve(super.logNoDataError(false));
+                return false;
             }
-        });
+        } else {
+            return super.logNoDataError(false);
+        }
     }
 
     /**
@@ -434,23 +468,20 @@ export class UserManager extends ObjectManager {
      * @param {String} transactionId id of transaction to activate
      * @returns {Boolean} true if successful, false otherwise
      */
-    async activateTransaction(transactionId) {
-        return new Promise(async (resolve) => {
-            let userData = super.getData();
-            if (userData) {
-                const remainingArr = userData.transactions.inactive.filter(t => t !== transactionId);
-                if (remainingArr.length < userData.transactions.inactive) {
-                    userData.transactions.inactive = remainingArr;
-                    userData.transactions.active.push(transactionId);
-                    super.setData(userData);
-                    await super.pushToDatabase();
-                    dbDebugger.log("Activated a transaction on user: " + this.documentId);
-                    resolve(true);
-                }
-            } else {
-                resolve(super.logNoDataError(false));
+    activateTransaction(transactionId) {
+        let userData = super.getData();
+        if (userData) {
+            const remainingArr = userData.transactions.inactive.filter(t => t !== transactionId);
+            if (remainingArr.length < userData.transactions.inactive) {
+                userData.transactions.inactive = remainingArr;
+                userData.transactions.active.push(transactionId);
+                super.setData(userData);
+                dbDebugger.log("Activated a transaction on user: " + this.documentId);
+                return true;
             }
-        })
+        } else {
+            return super.logNoDataError(false);
+        }
     }
 
     /**
@@ -458,22 +489,19 @@ export class UserManager extends ObjectManager {
      * @param {String} transactionId id of transaction to deactivate
      * @returns {Boolean} true if successful, false otherwise
      */
-    async deactivateTransaction(transactionId) {
-        return new Promise(async (resolve) => {
-            let userData = super.getData();
-            if (userData) {
-                const remainingArr = userData.transactions.active.filter(t => t !== transactionId);
-                if (remainingArr.length < userData.transactions.active) {
-                    userData.transactions.active = remainingArr;
-                    userData.transactions.inactive.push(transactionId);
-                    super.setData(userData);
-                    await super.pushToDatabase();
-                    dbDebugger.log("Deactivated a transaction on user: " + this.documentId);
-                    resolve(true);
-                }
-            } else {
-                resolve(super.logNoDataError(false));
+    deactivateTransaction(transactionId) {
+        let userData = super.getData();
+        if (userData) {
+            const remainingArr = userData.transactions.active.filter(t => t !== transactionId);
+            if (remainingArr.length < userData.transactions.active) {
+                userData.transactions.active = remainingArr;
+                userData.transactions.inactive.push(transactionId);
+                super.setData(userData);
+                dbDebugger.log("Deactivated a transaction on user: " + this.documentId);
+                return true;
             }
-        })
+        } else {
+            return super.logNoDataError(false);
+        }
     }
 }
