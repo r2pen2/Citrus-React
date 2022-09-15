@@ -233,24 +233,28 @@ export class ObjectManager {
     }
 }
 
+// TODO: Complete skeleton for BookmarkManager
 export class BookmarkManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.BOOKMARK, _id);
     }
 }
 
+// TODO: Complete skeleton for GroupInvitationManager
 export class GroupInvitationManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.GROUPINVITATION, _id);
     }
 }
 
+// TODO: Complete skeleton for GroupManager
 export class GroupManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.GROUP, _id);
     }
 }
 
+// TODO: Complete skeleton for TransactionAttemptManager
 export class TransactionAttemptManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTIONATTEMPT, _id);
@@ -560,12 +564,14 @@ export class TransactionManager extends ObjectManager {
     }
 }
 
+// TODO: Complete skeleton for UserInvitationManager
 export class UserInvatationManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.USERINVITATION, _id);
     }
 }
 
+// TODO: Complete skeleton for UserManager
 export class UserManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.USER, _id);
