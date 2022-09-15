@@ -353,6 +353,16 @@ export class TransactionManager extends ObjectManager {
         }
     }
 
+    // Get active status
+    getActive() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.active;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
     // Set createdAt dateTime
     setCreatedAt(date) {
         let transactionData = super.getData();
@@ -360,6 +370,16 @@ export class TransactionManager extends ObjectManager {
             transactionData.createdAt = date;
             super.setData(transactionData);
             return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Get createdAt
+    getCreatedAt() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.createdAt;
         } else {
             return super.logNoDataError(false);
         }
@@ -377,6 +397,16 @@ export class TransactionManager extends ObjectManager {
         }
     }
 
+    // Get barterEmoji
+    getBarterEmoji() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.barterEmoji;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
     // Set createdBy string
     setCreatedBy(creator) {
         let transactionData = super.getData();
@@ -384,6 +414,16 @@ export class TransactionManager extends ObjectManager {
             transactionData.createdBy = creator;
             super.setData(transactionData);
             return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Get total
+    getCreatedBy() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.createdBy;
         } else {
             return super.logNoDataError(false);
         }
@@ -401,6 +441,16 @@ export class TransactionManager extends ObjectManager {
         }
     }
 
+    // Get fromBookmark
+    getFromBookmark() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.fromBookmark;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
     // Set title string
     setTitle(title) {
         let transactionData = super.getData();
@@ -408,6 +458,16 @@ export class TransactionManager extends ObjectManager {
             transactionData.title = title;
             super.setData(transactionData);
             return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Get total
+    getTitle() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.title;
         } else {
             return super.logNoDataError(false);
         }
@@ -425,6 +485,16 @@ export class TransactionManager extends ObjectManager {
         }
     }
 
+    // Get total
+    getTotal() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.total;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
     // add a fronter
     addFronter(fronterId, fronterWeight) {
         let transactionData = super.getData();
@@ -437,6 +507,16 @@ export class TransactionManager extends ObjectManager {
         }
     }
 
+    // get all fronters
+    getFronters() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.fronters;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
     // add a fronter
     addPayer(payerId, payerWeight) {
         let transactionData = super.getData();
@@ -444,6 +524,16 @@ export class TransactionManager extends ObjectManager {
             transactionData.payers.push({userId: payerId, weight: payerWeight});
             super.setData(transactionData);
             return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // get all payers
+    getPayers() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return transactionData.payers;
         } else {
             return super.logNoDataError(false);
         }
