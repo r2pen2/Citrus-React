@@ -272,12 +272,15 @@ export class TransactionManager extends ObjectManager {
             return new Promise(async (resolve) => {
                 // Add transaction to each payer
                 for (const payer of transactionData.payers) {
-                    const userManager = new UserManager(payer);
-                    let userData = await userManager.fetchData();
-                    if (userData) {                    
-                        userManager.addTransaction(this.documentId);
-                        super.addChild(userManager);
-                    }
+                        const userManager = new UserManager(payer);
+                        let userData = await userManager.fetchData();
+                        if (userData) {                    
+                            userManager.addTransaction(this.documentId);
+                            super.addChild(userManager);
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
                 }
                 // Add transaction to each fronter
                 for (const fronter of transactionData.fronters) {
@@ -286,12 +289,37 @@ export class TransactionManager extends ObjectManager {
                     if (userData) {                    
                         userManager.addTransaction(this.documentId);
                         super.addChild(userManager);
+                        resolve(true);
+                    } else {
+                        resolve(false);
                     }
                 }
                 resolve(true);
             });
         } else {
             return super.logNoDataError(false);
+        }
+    }
+    
+    /**
+     * Add this transaction to a user by ID
+     * @param {String} userId userId of person to add transaction on
+     * @returns True if success, false otherwise
+     */
+    async addToUser(userId) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return new Promise(async (resolve) => {
+                const userManager = new UserManager(userId);
+                let userData = await userManager.fetchData();
+                if (userData) {
+                    userManager.addTransaction(this.documentId);
+                    super.addChild(userManager);
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            })
         }
     }
 
@@ -323,6 +351,122 @@ export class TransactionManager extends ObjectManager {
         } else {
             return super.logNoDataError(false);
         }
+    }
+
+    // Set createdAt dateTime
+    setCreatedAt(date) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.createdAt = date;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Set barterEmoji string
+    setBarterEmoji(barterEmoji) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.barterEmoji = barterEmoji;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Set createdBy string
+    setCreatedBy(creator) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.createdBy = creator;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Set fromBookmark boolean
+    setFromBookmark(boolean) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.fromBookmark = boolean;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Set title string
+    setTitle(title) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.title = title;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Set total number
+    setTotal(total) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.total = total;
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // add a fronter
+    addFronter(fronterId, fronterWeight) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.fronters.push({userId: fronterId, weight: fronterWeight});
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // add a fronter
+    addPayer(payerId, payerWeight) {
+        let transactionData = super.getData();
+        if (transactionData) {
+            transactionData.payers.push({userId: payerId, weight: payerWeight});
+            super.setData(transactionData);
+            return true;
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    // Validate that fronter weights add up to 1
+    fronterWeightsValid() {
+        let totalWeight = 0;
+        let transactionData = super.getData();
+        for (const fronter of transactionData.fronters) {
+            totalWeight += fronter.weight;
+        }
+        return totalWeight === 1;
+    }
+
+    // Validate that payer weights add up to 1
+    payerWeightsValid() {
+        let totalWeight = 0;
+        let transactionData = super.getData();
+        for (const payer of transactionData.payers) {
+            totalWeight += payer.weight;
+        }
+        return totalWeight === 1;
     }
 }
 
