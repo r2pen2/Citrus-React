@@ -1,5 +1,6 @@
 import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
+import { Debugger } from "./debugger";
 
 const dbObjectTypes = {
     BOOKMARK: "bookmark",
@@ -10,6 +11,8 @@ const dbObjectTypes = {
     USERINVITATION: "userInvatation",
     USER: "user",
 };
+
+const dbDebugger = new Debugger();
 
 /**
 * Generates a random id string of a given length
@@ -80,7 +83,7 @@ export class ObjectManager {
      * @returns {String} string representation of the object
      */
     toString() {
-        return 'Object manager of type "' + this.objectType + '" with id "' + this.objectId + '"';
+        return 'Object manager of type "' + this.objectType + '" with id "' + this.documentId + '"';
     }
     
     /**
@@ -91,9 +94,9 @@ export class ObjectManager {
     }
 
     /**
-     * Fetch data from database by document reference
-     * @returns {Object} data from document snapshot
-     */
+    * Fetch data from database by document reference
+    * @returns {Object} data from document snapshot
+    */
     async fetchData() {
         return new Promise(async (resolve) => {
             const docSnap = await getDoc(this.docRef);
@@ -101,9 +104,9 @@ export class ObjectManager {
                 this.data = docSnap.data();
                 resolve(docSnap.data());
             } else {
-                console.log("Error: Document snapshot didn't exist!");
+                dbDebugger.log("Error: Document snapshot didn't exist!");
                 this.data = null;
-                resolve(null);
+                resolve(false);
             }
         })
     }
@@ -121,11 +124,11 @@ export class ObjectManager {
                     this.data = docSnap.data();
                     resolve(docSnap.data());
                 } else {
-                    console.log("No document with this ID exists on DB.");
+                    dbDebugger.log("No document with this ID exists on DB.");
                     if (fetchAttempts > maxAttempts) {
                         resolve(null);
                     } else {
-                        console.log("Didn't find data on attempt " + (fetchAttempts + 1));
+                        dbDebugger.log("Didn't find data on attempt " + (fetchAttempts + 1));
                         setTimeout(() => {
                             return fetch(fetchAttempts + 1);
                         }, delay);
@@ -146,7 +149,7 @@ export class ObjectManager {
         if (this.data) {
             return this.data;
         } else {
-            console.log("getData() returned null! Did you remember to fetchData() first?");
+            dbDebugger.log("getData() returned null! Did you remember to fetchData() first?");
             return this.data;
         }
     }
@@ -157,12 +160,26 @@ export class ObjectManager {
     }
 
     // Send document data to database
-    async pushData() {
+    async pushToDatabase() {
         return new Promise(async (resolve) => {
-            console.log('Pushing changes to: ' + this.toString());
-            await setDoc(this.docRef, this.data);
-            resolve(this.data);
+            dbDebugger.log('Pushing changes to: ' + this.toString());
+            if (this.documentId) {
+                // Document has an ID. Set data and return true
+                await setDoc(this.docRef, this.data);
+            } else {
+                const newDoc = await addDoc(collection(firestore, this.getCollection), this.data);
+                this.documentId = newDoc.id;
+                this.docRef = newDoc;
+                dbDebugger.log('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
+            }
+            resolve(true);
         })
+    }
+
+    // Print no data error and return param;
+    logNoDataError(retval) {
+        dbDebugger.log("Error! ObjectManager<" + this.objectType + "> failed to return data to child class.");
+        return retval;
     }
 }
 
@@ -194,6 +211,76 @@ export class TransactionManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTION, _id);
     }
+
+    /**
+     * Add a transaction to all user's active lists
+     * @returns {Boolean} whether or not this operation was successful
+     */
+    async addToAllUsers() {
+        let transactionData = super.getData();
+        if (transactionData) {
+            return new Promise(async (resolve) => {
+                // Add transaction to each payer
+                for (const payer of transactionData.payers) {
+                    const userManager = new UserManager(payer);
+                    let userData = await userManager.fetchData();
+                    if (userData) {                    
+                        userManager.addTransaction(this.documentId);
+                        await userManager.pushToDatabase();
+                    }
+                }
+                // Add transaction to each fronter
+                for (const fronter of transactionData.fronters) {
+                    const userManager = new UserManager(fronter);
+                    let userData = await userManager.fetchData();
+                    if (userData) {                    
+                        userManager.addTransaction(this.documentId);
+                        await userManager.pushToDatabase();
+                    }
+                }
+                await super.pushToDatabase();
+                resolve(true);
+            });
+        } else {
+            return super.logNoDataError(false);
+        }
+    }
+
+    /**
+     * Set transaction to active
+     * @returns {Boolean} whether or not this operation was successful
+     */
+    async activate() {
+        return new Promise(async (resolve) => {
+            let transactionData = super.getData();
+            if (transactionData) {
+                transactionData.active = true;
+                super.setData(transactionData);
+                await super.pushToDatabase();
+                resolve(true);
+            } else {
+                resolve(super.logNoDataError(false));
+            }
+        })
+    }
+
+    /**
+     * Set transaction to inactive
+     * @returns {Boolean} whether or not this operation was successful
+     */
+    async deactivate() {
+        return new Promise(async (resolve) => {
+            let transactionData = super.getData();
+            if (transactionData) {
+                transactionData.active = false;
+                super.setData(transactionData);
+                await super.pushToDatabase();
+                resolve(true);
+            } else {
+                resolve(super.logNoDataError(false));
+            }
+        })
+    }
 }
 
 export class UserInvatationManager extends ObjectManager {
@@ -209,7 +296,7 @@ export class UserManager extends ObjectManager {
 
     /**
     * Get current user's display name
-    * @returns {String} user display name
+    * @returns {String} user display name or null
     */
     getDisplayName() {
         let userData = super.getData();
@@ -231,24 +318,29 @@ export class UserManager extends ObjectManager {
                         return null;
                     }
                 } else {
-                    console.log("getDisplayName() gave up after too many fetch attempts.");
+                    return super.logNoDataError(false);
                 }
             });
         }
     }
 
     /**
-     * Set user's display name
-     * @param {String} newDisplayName display name to set on user object
-     */
-    setDisplayName(newDisplayName) {
-        let userData = super.getData();
-        if (userData) {
-            userData.personalData.displayName = newDisplayName;
-            this.setData(userData);
-        } else {
-            console.log("setDisplayName() didn't receive any data from DBManager.");
-        }
+    * Set user's display name
+    * @param {String} newDisplayName display name to set on user object
+    * @returns {Boolean} true if successful, false otherwise
+    */
+    async setDisplayName(newDisplayName) {
+        return new Promise(async (resolve) => {
+            let userData = super.getData();
+            if (userData) {
+                userData.personalData.displayName = newDisplayName;
+                super.setData(userData);
+                await super.pushToDatabase();
+                resolve(true);
+            } else {
+                resolve(super.logNoDataError(false));
+            }
+        })
     }
 
     /**
@@ -265,5 +357,123 @@ export class UserManager extends ObjectManager {
                 return null;
             }
         }
+    }
+    
+    /**
+    * Set user's phone number
+    * @param {String} newPhoneNumber phone number to set on user object
+    * @returns {Boolean} true if successful, false otherwise
+    */
+    async setPhoneNumber(newPhoneNumber) {
+        return new Promise(async (resolve) => {
+            let userData = super.getData();
+            if (userData) {
+                userData.personalData.phoneNumber = newPhoneNumber;
+                super.setData(userData);
+                await super.pushToDatabase();
+                resolve(true);
+            } else {
+                resolve(super.logNoDataError(false));
+            }
+        })
+    }
+
+    /**
+    * Get current user's photo url
+    * @returns {String} user photo url
+    */
+    getPhotoUrl() {
+        let userData = super.getData();
+        if (userData) {
+            if (userData.personalData.profilePictureUrl) {            
+                return userData.personalData.profilePictureUrl;
+            } else {
+                return "https://robohash.org/" + super.getDocumentId();
+            }
+        } else {
+            super.fetchDataAndRetry(6, 500).then((result) => {
+                if (result) {
+                    // Result is the data from docSnap
+                    if (result.personalData.profilePictureUrl) {
+                        return result.personalData.profilePictureUrl;
+                    } else {
+                        return "https://robohash.org/" + super.getDocumentId();
+                    }
+                } else {
+                    return super.logNoDataError(null);
+                }
+            });
+        }
+    }
+
+    /**
+    * Adds a transaction to a user's active transaction array
+    * @param {String} transactionId id of transaction to add
+    * @returns {Boolean} true if successful, false otherwise
+    */
+    async addTransaction(transactionId) {
+        return new Promise(async (resolve) => {
+            let userData = super.getData();
+            if (userData) {
+                if (!userData.transactions.active.includes(transactionId)) {            
+                    userData.transactions.active.push(transactionId);
+                    super.setData(userData);
+                    await super.pushToDatabase();
+                    resolve(true)
+                } else {
+                    resolve(false);
+                }
+            } else {
+                resolve(super.logNoDataError(false));
+            }
+        });
+    }
+
+    /**
+     * Removes transaction from inactive and moves it into active
+     * @param {String} transactionId id of transaction to activate
+     * @returns {Boolean} true if successful, false otherwise
+     */
+    async activateTransaction(transactionId) {
+        return new Promise(async (resolve) => {
+            let userData = super.getData();
+            if (userData) {
+                const remainingArr = userData.transactions.inactive.filter(t => t !== transactionId);
+                if (remainingArr.length < userData.transactions.inactive) {
+                    userData.transactions.inactive = remainingArr;
+                    userData.transactions.active.push(transactionId);
+                    super.setData(userData);
+                    await super.pushToDatabase();
+                    dbDebugger.log("Activated a transaction on user: " + this.documentId);
+                    resolve(true);
+                }
+            } else {
+                resolve(super.logNoDataError(false));
+            }
+        })
+    }
+
+    /**
+     * Removes transaction from activated and moves it into inactive
+     * @param {String} transactionId id of transaction to deactivate
+     * @returns {Boolean} true if successful, false otherwise
+     */
+    async deactivateTransaction(transactionId) {
+        return new Promise(async (resolve) => {
+            let userData = super.getData();
+            if (userData) {
+                const remainingArr = userData.transactions.active.filter(t => t !== transactionId);
+                if (remainingArr.length < userData.transactions.active) {
+                    userData.transactions.active = remainingArr;
+                    userData.transactions.inactive.push(transactionId);
+                    super.setData(userData);
+                    await super.pushToDatabase();
+                    dbDebugger.log("Deactivated a transaction on user: " + this.documentId);
+                    resolve(true);
+                }
+            } else {
+                resolve(super.logNoDataError(false));
+            }
+        })
     }
 }
