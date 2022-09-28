@@ -12,6 +12,12 @@ const dbObjectTypes = {
     USER: "user",
 };
 
+const changeTypes = {
+    SET: "set",
+    REMOVE: "remove",
+    ADD: "add",
+};
+
 const dbDebugger = new Debugger();
 
 /**
@@ -29,6 +35,36 @@ function generateId(length) {
    return result;
 }
 
+export class Change {
+    constructor(_type, _field, _value) {
+        this.type = _type;
+        this.field = _field;
+        this.value = _value;
+    }
+
+    toString() {
+        return 'Change of type "' + this.type + '" on field "' + this.field + '" with value "' + this.value + '"';
+    }
+}
+
+export class Set extends Change {
+    constructor(_field, _newValue) {
+        super(changeTypes.SET, _field, _newValue);
+    }
+}
+
+export class Remove extends Change {
+    constructor(_field, _value) {
+        super(changeTypes.REMOVE, _field, _value);
+    }
+}
+
+export class Add extends Change {
+    constructor(_field, _newValue) {
+        super(changeTypes.ADD, _field, _newValue);
+    }
+}
+
 export class ObjectManager {
     constructor(_objectType, _documentId, _data) {
         this.objectType = _objectType;
@@ -37,7 +73,45 @@ export class ObjectManager {
         this.docRef = doc(firestore, this.getCollection(), _documentId);
         this.children = [];
         this.error = false;
-        this.changed = false;
+        this.fetched = false;
+        this.changes = [];
+    }
+
+    addChange(change) {
+        this.changed = true;
+        this.changes.push(change);
+    }
+
+    async applyChanges() {
+        return new Promise(async (resolve, reject) => {
+            if (!this.fetched) {
+                dbDebugger.log("Fetching data to apply changes...");
+                await this.fetchData();
+                dbDebugger.log("Fetch complete!");
+            }
+            if (this.data) {
+                for (const change of this.changes) {
+                    switch(change.type) {
+                        case changeTypes.ADD:
+                            this.data = this.handleAdd(change, this.data);
+                            break;
+                        case changeTypes.REMOVE:
+                            this.data = this.handleRemove(change, this.data);
+                            break;
+                        case changeTypes.SET:
+                            this.data = this.handleSet(change, this.data);
+                            break;
+                        default:
+                            dbDebugger.log("Invalid change type when trying to apply changes!");
+                            break;
+                    }
+                }
+                resolve(true);
+            } else {
+                dbDebugger.log("Applying changes failed because data was null!");
+                resolve(false);
+            }
+        })
     }
 
     /**
@@ -96,6 +170,18 @@ export class ObjectManager {
         console.log(this.data);
     }
 
+    logChangeFail(change) {
+        dbDebugger.log(change.toString + ' failed to apply on object "' + this.objectType + '" because field does not accept this kind of change!');
+    }
+
+    logInvalidChangeField(change) {
+        dbDebugger.log(change.toString + ' failed to apply on object "' + this.objectType + '" because the field was not recognized!');
+    }
+
+    logInvalidGetField(field) {
+        dbDebugger.log('"' + field + '" is not a valid field on object "' + this.objectType + '"!');
+    }
+
     getChildren() {
         return this.children;
     }
@@ -109,6 +195,7 @@ export class ObjectManager {
             const docSnap = await getDoc(this.docRef);
             if (docSnap.exists()) {
                 this.data = docSnap.data();
+                this.fetched = true;
                 resolve(docSnap.data());
             } else {
                 dbDebugger.log("Error: Document snapshot didn't exist!");
@@ -129,6 +216,7 @@ export class ObjectManager {
                 const docSnap = await getDoc(this.docRef);
                 if (docSnap.exists()) {
                     this.data = docSnap.data();
+                    this.fetched = true;
                     resolve(docSnap.data());
                 } else {
                     dbDebugger.log("No document with this ID exists on DB.");
@@ -156,15 +244,18 @@ export class ObjectManager {
         if (this.data) {
             return this.data;
         } else {
-            dbDebugger.log("getData() returned null! Did you remember to fetchData() first?");
-            return this.data;
+            if (!this.fetched) {
+                dbDebugger.log("We need to fetch data first... Fetching!");
+                return this.fetchData();
+            } else {
+                dbDebugger.log("getData() returned null AFTER fetching!");
+            }
         }
     }
 
     // Set document data
     setData(newData) {
         this.data = newData;
-        this.changed = true;
     }
 
     // Send only the top (this) to database
@@ -176,8 +267,10 @@ export class ObjectManager {
                     dbDebugger.log('Pushing changes to: ' + this.toString());
                     if (this.documentId) {
                         // Document has an ID. Set data and return true
+                        await this.applyChanges();
                         await setDoc(this.docRef, this.data);
                     } else {
+                        await this.applyChanges();
                         const newDoc = await addDoc(collection(firestore, this.getCollection), this.data);
                         this.documentId = newDoc.id;
                         this.docRef = newDoc;
@@ -238,12 +331,20 @@ export class BookmarkManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.BOOKMARK, _id);
     }
+
+    handleAdd() {
+        
+    }
 }
 
 // TODO: Complete skeleton for GroupInvitationManager
 export class GroupInvitationManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.GROUPINVITATION, _id);
+    }
+
+    handleAdd() {
+        
     }
 }
 
@@ -252,6 +353,10 @@ export class GroupManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.GROUP, _id);
     }
+
+    handleAdd() {
+        
+    }
 }
 
 // TODO: Complete skeleton for TransactionAttemptManager
@@ -259,11 +364,19 @@ export class TransactionAttemptManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTIONATTEMPT, _id);
     }
+
+    handleAdd() {
+        
+    }
 }
 
 export class TransactionManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTION, _id);
+    }
+
+    handleAdd() {
+        
     }
 
     /**
@@ -569,179 +682,424 @@ export class UserInvatationManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.USERINVITATION, _id);
     }
+
+    handleAdd() {
+        
+    }
 }
 
-// TODO: Complete skeleton for UserManager
 export class UserManager extends ObjectManager {
+    
+    fields = {
+        BADGES: "badges",
+        BOOKMARKS: "bookmarks",
+        FRIENDS: "friends",
+        GROUPS: "groups",
+        LOCATION: "location",
+        CREATEDAT: "createdAt",
+        EMAILVERIFIED: "emailVerified",
+        LASTLOGINAT: "lastLoginAt",
+        DISPLAYNAME: "displayName",
+        EMAIL: "email",
+        PHONENUMBER: "phoneNumber",
+        PROFILEPICTUREURL: "profilePictureUrl",
+        SETTINGS: "settings",
+        TRANSACTIONS: "transactions",
+    }
+    
     constructor(_id) {
         super(dbObjectTypes.USER, _id);
     }
 
-    /**
-    * Get current user's display name
-    * @returns {String} user display name or null
-    */
-    getDisplayName() {
-        let userData = super.getData();
-        if (userData) {
-            if (userData.personalData.displayName) {            
-                return userData.personalData.displayName;
-            } else {
-                console.log("Error: User had no display name?");
-                return null;
-            }
-        } else {
-            super.fetchDataAndRetry(6, 500).then((result) => {
-                if (result) {
-                    // Result is the data from docSnap
-                    if (result.personalData.displayName) {
-                        return result.personalData.displayName;
-                    } else {
-                        console.log("Error: User had no display name?");
-                        return null;
-                    }
-                } else {
-                    return super.logNoDataError(false);
+    handleAdd(change, data) {
+        switch(change.field) {
+            case this.fields.BADGES:
+                if (!data.badges.includes(change.value)) {    
+                    data.badges.push(change.value);
                 }
-            });
+                return data;
+            case this.fields.BOOKMARKS:
+                if (!data.bookmarks.includes(change.value)) {    
+                    data.bookmarks.push(change.value);
+                }
+                return data;
+            case this.fields.FRIENDS:
+                if (!data.friends.includes(change.value)) {    
+                    data.friends.push(change.value);
+                }
+                return data;
+            case this.fields.GROUPS:
+                if (!data.groups.includes(change.value)) {    
+                    data.groups.push(change.value);
+                }
+                return data;
+            case this.fields.TRANSACTIONS:
+                if (!data.transactions.includes(change.value)) {    
+                    data.transactions.push(change.value);
+                }
+                return data;
+            case this.fields.LOCATION:
+            case this.fields.CREATEDAT:
+            case this.fields.EMAILVERIFIED:
+            case this.fields.LASTLOGINAT:
+            case this.fields.DISPLAYNAME:
+            case this.fields.EMAIL:
+            case this.fields.PHONENUMBER:
+            case this.fields.PROFILEPICTUREURL:
+            case this.fields.SETTINGS:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
         }
     }
 
-    /**
-    * Set user's display name
-    * @param {String} newDisplayName display name to set on user object
-    * @returns {Boolean} true if successful, false otherwise
-    */
-    setDisplayName(newDisplayName) {
-        let userData = super.getData();
-        if (userData) {
-            userData.personalData.displayName = newDisplayName;
-            super.setData(userData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
+    handleRemove(change, data) {
+        switch(change.field) {
+            case this.fields.BADGES:
+                data.badges = data.badges.filter(badge => badge !== change.value);
+                return data;
+            case this.fields.BOOKMARKS:
+                data.bookmarks = data.bookmarks.filter(bookmark => bookmark !== change.value);
+                return data;
+            case this.fields.FRIENDS:
+                data.friends = data.friends.filter(friend => friend !== change.value);
+                return data;
+            case this.fields.GROUPS:
+                data.groups = data.groups.filter(group => group !== change.value);
+                return data;
+            case this.fields.TRANSACTIONS:
+                data.transactions = data.transactions.filter(transaction => transaction !== change.value);
+                return data;
+            case this.fields.LOCATION:
+            case this.fields.CREATEDAT:
+            case this.fields.EMAILVERIFIED:
+            case this.fields.LASTLOGINAT:
+            case this.fields.DISPLAYNAME:
+            case this.fields.EMAIL:
+            case this.fields.PHONENUMBER:
+            case this.fields.PROFILEPICTUREURL:
+            case this.fields.SETTINGS:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
         }
     }
 
-    /**
-    * Get a user's phone number
-    * @returns {String} user phone number
-    */
-    getPhoneNumber() {
-        let userData = super.getData();
-        if (userData) {
-            if (userData.personalData.phoneNumber) {            
-                return userData.personalData.phoneNumber;
-            } else {
-                console.log("Error: User had no phone number?");
-                return null;
+    handleSet(change, data) {
+        switch(change.field) {
+            case this.fields.LOCATION:
+                data.metadata.location = change.value;
+                return data;
+            case this.fields.CREATEDAT:
+                data.metadata.createdAt = change.value;
+                return data;
+            case this.fields.EMAILVERIFIED:
+                data.metadata.emailVerified = change.value;
+                return data;
+            case this.fields.LASTLOGINAT:
+                data.metadata.lastLoginAt = change.value;
+                return data;
+            case this.fields.DISPLAYNAME:
+                data.personalData.displayName = change.value;
+                return data;
+            case this.fields.EMAIL:
+                data.personalData.email = change.value;
+                return data;
+            case this.fields.PHONENUMBER:
+                data.personalData.phoneNumber = change.value;
+                return data;
+            case this.fields.PROFILEPICTUREURL:
+                data.personalData.profilePictureUrl = change.value;
+                return data;
+            case this.fields.SETTINGS:
+                data.settings = change.value;
+                return data;
+            case this.fields.BADGES:
+            case this.fields.BOOKMARKS:
+            case this.fields.FRIENDS:
+            case this.fields.GROUPS:
+            case this.fields.TRANSACTIONS:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    async handleGet(field) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.fetched) {
+                await super.fetchData();
             }
-        }
+            switch(field) {
+                case this.fields.LOCATION:
+                    resolve(this.data.metadata.location);
+                    break;
+                case this.fields.CREATEDAT:
+                    resolve(this.data.metadata.createdAt);
+                    break;
+                case this.fields.EMAILVERIFIED:
+                    resolve(this.data.metadata.emailVerified);
+                    break;
+                case this.fields.LASTLOGINAT:
+                    resolve(this.data.metadata.lastLoginAt);
+                    break;
+                case this.fields.DISPLAYNAME:
+                    resolve(this.data.personalData.displayName);
+                    break;
+                case this.fields.EMAIL:
+                    resolve(this.data.personalData.email);
+                    break;
+                case this.fields.PHONENUMBER:
+                    resolve(this.data.personalData.phoneNumber);
+                    break;
+                case this.fields.PROFILEPICTUREURL:
+                    if (this.data.personalData.profilePictureUrl) {
+                        resolve(this.data.personalData.profilePictureUrl);
+                        break;
+                    } else {
+                        resolve("https://robohash.org/" + this.documentId);
+                        break;
+                    }
+                case this.fields.SETTINGS:
+                    resolve(this.data.settings);
+                    break;
+                case this.fields.BADGES:
+                    resolve(this.data.badges);
+                    break;
+                case this.fields.BOOKMARKS:
+                    resolve(this.data.bookmarks);
+                    break;
+                case this.fields.FRIENDS:
+                    resolve(this.data.friends);
+                    break;
+                case this.fields.GROUPS:
+                    resolve(this.data.groups);
+                    break;
+                case this.fields.TRANSACTIONS:
+                    resolve(this.data.transactions);
+                    break;
+                default:
+                    super.logInvalidGetField(field);
+                    resolve(null);
+                    break;
+            }
+        })
+    }
+
+    // ================= Get Operations ================= //
+    async getBadges() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.BADGES).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getBookmarks() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.BOOKMARKS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getFriends() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.FRIENDS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getGroups() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.GROUPS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getLocation() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.LOCATION).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCreatedAt() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDAT).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getEmailVerified() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.EMAILVERIFIED).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getLastLoginAt() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.LASTLOGINAT).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getDisplayName() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.DISPLAYNAME).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getEmail() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.EMAIL).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getPhoneNumber() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.PHONENUMBER).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getPhotoUrl() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.PROFILEPICTUREURL).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getSettings() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.SETTINGS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getTransactions() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TRANSACTIONS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    // ================= Set Operations ================= //
+    setLocation(newLocation) {
+        const locationChange = new Set(this.fields.LOCATION, newLocation);
+        super.addChange(locationChange);
     }
     
-    /**
-    * Set user's phone number
-    * @param {String} newPhoneNumber phone number to set on user object
-    * @returns {Boolean} true if successful, false otherwise
-    */
+    setCreatedAt(newCreatedAt) {
+        const createdAtChange = new Set(this.fields.CREATEDAT, newCreatedAt);
+        super.addChange(createdAtChange);
+    }
+    
+    setEmailVerified(newEmailVerified) {
+        const emailVerifiedChange = new Set(this.fields.EMAILVERIFIED, newEmailVerified);
+        super.addChange(emailVerifiedChange);
+    }
+    
+    setLastLoginAt(newLastLoginAt) {
+        const loginAtChange = new Set(this.fields.LASTLOGINAT, newLastLoginAt);
+        super.addChange(loginAtChange);
+    }
+
+    setDisplayName(newDisplayName) {
+        const displayNameChange = new Set(this.fields.DISPLAYNAME, newDisplayName);
+        super.addChange(displayNameChange);
+    }
+    
+    setEmail(newEmail) {
+        const emailChange = new Set(this.fields.EMAIL, newEmail);
+        super.addChange(emailChange);
+    }
+
     setPhoneNumber(newPhoneNumber) {
-        let userData = super.getData();
-        if (userData) {
-            userData.personalData.phoneNumber = newPhoneNumber;
-            super.setData(userData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
+        const phoneNumberChange = new Set(this.fields.PHONENUMBER, newPhoneNumber);
+        super.addChange(phoneNumberChange);
+    }
+    
+    setPhotoUrl(newProfilePictureUrl) {
+        const photoUrlChange = new Set(this.fields.PROFILEPICTUREURL, newProfilePictureUrl);
+        super.addChange(photoUrlChange);
+    }
+    
+    setSettings(newSettings) {
+        const settingsChange = new Set(this.fields.SETTINGS, newSettings);
+        super.addChange(settingsChange);
     }
 
-    /**
-    * Get current user's photo url
-    * @returns {String} user photo url
-    */
-    getPhotoUrl() {
-        let userData = super.getData();
-        if (userData) {
-            if (userData.personalData.profilePictureUrl) {            
-                return userData.personalData.profilePictureUrl;
-            } else {
-                return "https://robohash.org/" + super.getDocumentId();
-            }
-        } else {
-            super.fetchDataAndRetry(6, 500).then((result) => {
-                if (result) {
-                    // Result is the data from docSnap
-                    if (result.personalData.profilePictureUrl) {
-                        return result.personalData.profilePictureUrl;
-                    } else {
-                        return "https://robohash.org/" + super.getDocumentId();
-                    }
-                } else {
-                    return super.logNoDataError(null);
-                }
-            });
-        }
+    // ================= Add Operations ================= //
+    addBadge(badgeId) {
+        const badgeAddition = new Add(this.fields.BADGES, badgeId);
+        super.addChange(badgeAddition);
     }
 
-    /**
-    * Adds a transaction to a user's active transaction array
-    * @param {String} transactionId id of transaction to add
-    * @returns {Boolean} true if successful, false otherwise
-    */
+    addBookmark(bookmarkId) {
+        const bookmarkAddition = new Add(this.fields.BOOKMARKS, bookmarkId);
+        super.addChange(bookmarkAddition);
+    }
+    
+    addFriend(friendId) {
+        const friendAddition = new Add(this.fields.FRIENDS, friendId);
+        super.addChange(friendAddition);
+    }
+    
+    addGroup(groupId) {
+        const groupAddition = new Add(this.fields.GROUPS, groupId);
+        super.addChange(groupAddition);
+    }
+
     addTransaction(transactionId) {
-        let userData = super.getData();
-        if (userData) {
-            if (!userData.transactions.active.includes(transactionId)) {            
-                userData.transactions.active.push(transactionId);
-                super.setData(userData);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return super.logNoDataError(false);
-        }
+        const transactionAddition = new Add(this.fields.TRANSACTIONS, transactionId);
+        super.addChange(transactionAddition);
     }
 
-    /**
-     * Removes transaction from inactive and moves it into active
-     * @param {String} transactionId id of transaction to activate
-     * @returns {Boolean} true if successful, false otherwise
-     */
-    activateTransaction(transactionId) {
-        let userData = super.getData();
-        if (userData) {
-            const remainingArr = userData.transactions.inactive.filter(t => t !== transactionId);
-            if (remainingArr.length < userData.transactions.inactive) {
-                userData.transactions.inactive = remainingArr;
-                userData.transactions.active.push(transactionId);
-                super.setData(userData);
-                dbDebugger.log("Activated a transaction on user: " + this.documentId);
-                return true;
-            }
-        } else {
-            return super.logNoDataError(false);
-        }
+    // ================= Remove Operations ================= //
+    removeBadge(badgeId) {
+        const badgeRemoval = new Remove(this.fields.BADGES, badgeId);
+        super.addChange(badgeRemoval);
     }
 
-    /**
-     * Removes transaction from activated and moves it into inactive
-     * @param {String} transactionId id of transaction to deactivate
-     * @returns {Boolean} true if successful, false otherwise
-     */
-    deactivateTransaction(transactionId) {
-        let userData = super.getData();
-        if (userData) {
-            const remainingArr = userData.transactions.active.filter(t => t !== transactionId);
-            if (remainingArr.length < userData.transactions.active) {
-                userData.transactions.active = remainingArr;
-                userData.transactions.inactive.push(transactionId);
-                super.setData(userData);
-                dbDebugger.log("Deactivated a transaction on user: " + this.documentId);
-                return true;
-            }
-        } else {
-            return super.logNoDataError(false);
-        }
+    removeBookmark(bookmarkId) {
+        const bookmarkRemoval = new Remove(this.fields.BOOKMARKS, bookmarkId);
+        super.addChange(bookmarkRemoval);
+    }
+    
+    removeFriend(friendId) {
+        const friendRemoval = new Remove(this.fields.FRIENDS, friendId);
+        super.addChange(friendRemoval);
+    }
+    
+    removeGroup(groupId) {
+        const groupRemoval = new Remove(this.fields.GROUPS, groupId);
+        super.addChange(groupRemoval);
+    }
+
+    removeTransaction(transactionId) {
+        const transactionRemoval = new Remove(this.fields.TRANSACTIONS, transactionId);
+        super.addChange(transactionRemoval);
     }
 }
