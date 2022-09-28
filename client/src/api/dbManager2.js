@@ -90,6 +90,7 @@ export class ObjectManager {
                 dbDebugger.log("Fetch complete!");
             }
             if (this.data) {
+                this.data = this.formatData();
                 for (const change of this.changes) {
                     switch(change.type) {
                         case changeTypes.ADD:
@@ -264,10 +265,11 @@ export class ObjectManager {
             // Assuming everything was OK, we push
             return new Promise(async (resolve) => {
                 if (this.changed) {
-                    dbDebugger.log('Pushing changes to: ' + this.toString());
                     if (this.documentId) {
                         // Document has an ID. Set data and return true
-                        await this.applyChanges();
+                        dbDebugger.log('Applying changes to: ' + this.toString());
+                        await this.applyChanges();                    
+                        dbDebugger.log('Pushing changes to: ' + this.toString());
                         await setDoc(this.docRef, this.data);
                     } else {
                         await this.applyChanges();
@@ -695,6 +697,7 @@ export class UserManager extends ObjectManager {
         BOOKMARKS: "bookmarks",
         FRIENDS: "friends",
         GROUPS: "groups",
+        TRANSACTIONS: "transactions",
         LOCATION: "location",
         CREATEDAT: "createdAt",
         EMAILVERIFIED: "emailVerified",
@@ -704,11 +707,36 @@ export class UserManager extends ObjectManager {
         PHONENUMBER: "phoneNumber",
         PROFILEPICTUREURL: "profilePictureUrl",
         SETTINGS: "settings",
-        TRANSACTIONS: "transactions",
     }
     
     constructor(_id) {
         super(dbObjectTypes.USER, _id);
+    }
+
+    formatData() {
+        return {
+            badges: this.data.badges || [],
+            bookmarks: this.data.bookmarks || [],
+            friends: this.data.friends || [],
+            groups: this.data.groups || [],
+            transactions: this.data.transactions || [],
+            metadata: {
+                location: this.data.metadata.location || null,
+                createdAt: this.data.metadata.createdAt || null,
+                emailVerified: this.data.metadata.emailVerified || null,
+                lastLoginAt: this.data.metadata.lastLoginAt || null,
+            },
+            personalData: {
+                displayName: this.data.personalData.displayName || null,
+                email: this.data.personalData.email || null,
+                phoneNumber: this.data.personalData.phoneNumber || null,
+                profilePictureUrl: this.data.personalData.profilePictureUrl || null,
+            },
+            settings: {
+                darkMode: this.data.settings.darkMode || null,
+                language: this.data.settings.language || null,
+            },
+        }
     }
 
     handleAdd(change, data) {
@@ -925,6 +953,14 @@ export class UserManager extends ObjectManager {
         })
     }
 
+    async getTransactions() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TRANSACTIONS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
     async getLocation() {
         return new Promise(async (resolve, reject) => {
             this.handleGet(this.fields.LOCATION).then((val) => {
@@ -992,14 +1028,6 @@ export class UserManager extends ObjectManager {
     async getSettings() {
         return new Promise(async (resolve, reject) => {
             this.handleGet(this.fields.SETTINGS).then((val) => {
-                resolve(val);
-            })
-        })
-    }
-
-    async getTransactions() {
-        return new Promise(async (resolve, reject) => {
-            this.handleGet(this.fields.TRANSACTIONS).then((val) => {
                 resolve(val);
             })
         })
