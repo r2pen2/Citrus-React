@@ -713,28 +713,28 @@ export class UserManager extends ObjectManager {
         super(dbObjectTypes.USER, _id);
     }
 
-    formatData() {
+    static createEmptyObject() {
         return {
-            badges: this.data.badges || [],
-            bookmarks: this.data.bookmarks || [],
-            friends: this.data.friends || [],
-            groups: this.data.groups || [],
-            transactions: this.data.transactions || [],
+            badges: [],
+            bookmarks: [],
+            friends: [],
+            groups: [],
+            transactions: [],
             metadata: {
-                location: this.data.metadata.location || null,
-                createdAt: this.data.metadata.createdAt || null,
-                emailVerified: this.data.metadata.emailVerified || null,
-                lastLoginAt: this.data.metadata.lastLoginAt || null,
+                location: null,
+                createdAt: null,
+                emailVerified: null,
+                lastLoginAt: null,
             },
             personalData: {
-                displayName: this.data.personalData.displayName || null,
-                email: this.data.personalData.email || null,
-                phoneNumber: this.data.personalData.phoneNumber || null,
-                profilePictureUrl: this.data.personalData.profilePictureUrl || null,
+                displayName: null,
+                email: null,
+                phoneNumber: null,
+                profilePictureUrl: null,
             },
             settings: {
-                darkMode: this.data.settings.darkMode || null,
-                language: this.data.settings.language || null,
+                darkMode: null,
+                language: null,
             },
         }
     }
