@@ -713,8 +713,8 @@ export class UserManager extends ObjectManager {
         super(dbObjectTypes.USER, _id);
     }
 
-    static createEmptyObject() {
-        return {
+    setEmptyData() {
+        const empty = {
             badges: [],
             bookmarks: [],
             friends: [],
@@ -737,6 +737,7 @@ export class UserManager extends ObjectManager {
                 language: null,
             },
         }
+        super.setData(empty);
     }
 
     handleAdd(change, data) {
