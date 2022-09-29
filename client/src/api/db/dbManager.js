@@ -2,7 +2,7 @@ import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "f
 import { firestore } from "../firebase";
 import { Debugger } from "../debugger";
 import { Add, Remove, Set, changeTypes } from "./changes";
-import { emojiIds } from "./emojis";
+import { emojiIds, Emoji, UserPhoneNumber, UserEmail, inviteMethods, InviteMethod } from "./subObjects";
 
 const dbObjectTypes = {
     BOOKMARK: "bookmark",
@@ -754,6 +754,13 @@ export class UserInvatationManager extends ObjectManager {
         super(dbObjectTypes.USERINVITATION, _id);
     }
 
+    fields = {
+        INVITEMETHOD: "inviteMethod",
+        INVITEDAT: "invitedAt",
+        INVITEELOCATION: "inviteeLocation",
+        INVITERLOCATION: "inviterLocation",
+    }
+
     setEmptyData() {
         const empty = {
             inviteMethod: null,     // {object <- inviteMethod} Which invite method was used
@@ -768,8 +775,78 @@ export class UserInvatationManager extends ObjectManager {
         super.setData(empty);
     }
 
-    handleAdd() {
-        
+    handleAdd(change, data) {
+        switch (change.field) {
+            case this.fields.INVITEMETHOD:
+            case this.fields.INVITEDAT:
+            case this.fields.INVITEELOCATION:
+            case this.fields.INVITERLOCATION:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleRemove(change, data) {
+        switch (change.field) {
+            case this.fields.INVITEMETHOD:
+            case this.fields.INVITEDAT:
+            case this.fields.INVITEELOCATION:
+            case this.fields.INVITERLOCATION:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleSet(change, data) {
+        switch (change.field) {
+            case this.fields.INVITEMETHOD:
+                data.inviteMethod = change.value;
+                return data;
+            case this.fields.INVITEDAT:
+                data.invitedAt = change.value;
+                return data;
+            case this.fields.INVITEELOCATION:
+                data.inviteeAttrs.location = change.value;
+                return data;
+            case this.fields.INVITERLOCATION:
+                data.inviterAttrs.location = change.value;
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    async handleGet(field) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.fetched) {
+                await super.fetchData();
+            }
+            switch(field) {
+                case this.fields.INVITEMETHOD:
+                    resolve(this.data.inviteMethod);
+                    break;
+                case this.fields.INVITEDAT:
+                    resolve(this.data.invitedAt);
+                    break;
+                case this.fields.INVITEELOCATION:
+                    resolve(this.data.inviteeAttrs.location);
+                    break;
+                case this.fields.INVITERLOCATION:
+                    resolve(this.data.inviterAttrs.location);
+                    break;
+                default:
+                    super.logInvalidGetField(field);
+                    resolve(null);
+                    break;
+            }
+        })
     }
 }
 

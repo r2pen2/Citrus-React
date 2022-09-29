@@ -1,3 +1,0 @@
-const emojiIds = {
-    TEST: "test"
-}
