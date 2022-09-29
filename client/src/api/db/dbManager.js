@@ -300,8 +300,13 @@ export class BadgeManager extends ObjectManager {
         super(dbObjectTypes.BADGE, _id);
     }
 
-    setEmptyData() {
+    fields = {
+        TITLE: "title",
+        DESCRIPTION: "description",
+        EMOJI: "emoji",
+    }
 
+    setEmptyData() {
         const empty = {
             title: null,            // {string} Badge title 
             description: null,      // {string} Badge description 
@@ -310,8 +315,70 @@ export class BadgeManager extends ObjectManager {
         super.setData(empty);
     }
 
-    handleAdd() {
-        
+    handleAdd(change, data) {
+        switch (change.field) {
+            case this.fields.TITLE:
+            case this.fields.DESCRIPTION:
+            case this.fields.EMOJI:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleRemove(change, data) {
+        switch (change.field) {
+            case this.fields.TITLE:
+            case this.fields.DESCRIPTION:
+            case this.fields.EMOJI:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleSet(change, data) {
+        switch (change.field) {
+            case this.fields.TITLE:
+                data.title = change.value;
+                return data;
+            case this.fields.DESCRIPTION:
+                data.description = change.value;
+                return data;
+            case this.fields.EMOJI:
+                data.emoji = change.value;
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    async handleGet(field) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.fetched) {
+                await super.fetchData();
+            }
+            switch(field) {
+                case this.fields.TITLE:
+                    resolve(this.data.title);
+                    break;
+                case this.fields.DESCRIPTION:
+                    resolve(this.data.description);
+                    break;
+                case this.fields.EMOJI:
+                    resolve(this.data.emoji);
+                    break;
+                default:
+                    super.logInvalidGetField(field);
+                    resolve(null);
+                    break;
+            }
+        })
     }
 }
 
