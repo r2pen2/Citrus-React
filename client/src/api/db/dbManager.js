@@ -294,7 +294,7 @@ export class ObjectManager {
     }
 }
 
-// Needs rework
+// Needs methods
 export class BadgeManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.BADGE, _id);
@@ -626,7 +626,6 @@ export class GroupManager extends ObjectManager {
     }
 }
 
-// Needs methods
 export class TransactionAttemptManager extends ObjectManager {
 
     constructor(_id) {
@@ -755,6 +754,103 @@ export class TransactionAttemptManager extends ObjectManager {
             }
         })
     }
+
+    // ================= Get Operations ================= //
+    async getCreatedAt() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDAT).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCreatorLocation() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATORLOCATION).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getIsBookmark() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ISBOOKMARK).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getIsIndividual() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ISINDIVIDUAL).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getIsStandard() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ISSTANDARD).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getIsTransaction() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ISTRANSACTION).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getUsedSuggestion() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.USEDSUGGESTION).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    // ================= Set Operations ================= //
+    setCreatedAt(newCreatedAt) {
+        const createdAtChange = new Set(this.fields.CREATEDAT, newCreatedAt);
+        super.addChange(createdAtChange);
+    }
+
+    setCreatorLocation(newLocation) {
+        const locationChange = new Set(this.fields.CREATORLOCATION, newLocation);
+        super.addChange(locationChange);
+    }
+    
+    setIsBookmark(newIsBookmark) {
+        const isBookmarkChange = new Set(this.fields.ISBOOKMARK, newIsBookmark);
+        super.addChange(isBookmarkChange);
+    }
+    
+    setIsIndividual(newIsIndividual) {
+        const isIndividualChange = new Set(this.fields.ISINDIVIDUAL, newIsIndividual);
+        super.addChange(isIndividualChange);
+    }
+
+    setIsStandard(newIsStandard) {
+        const isStandardChange = new Set(this.fields.ISSTANDARD, newIsStandard);
+        super.addChange(isStandardChange);
+    }
+    
+    setIsTransaction(newIsTransaction) {
+        const isTransactionChange = new Set(this.fields.ISTRANSACTION, newIsTransaction);
+        super.addChange(isTransactionChange);
+    }
+
+    setUsedSuggestion(newUsedSuggestion) {
+        const usedSuggestionChange = new Set(this.fields.USEDSUGGESTION, newUsedSuggestion);
+        super.addChange(usedSuggestionChange);
+    }
+
+    // ================= Add Operations ================= //
+
+    // ================= Remove Operations ================= //
 }
 
 // Needs rework + EMOJI
