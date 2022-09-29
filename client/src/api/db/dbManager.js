@@ -1,6 +1,8 @@
 import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { firestore } from "./firebase";
-import { Debugger } from "./debugger";
+import { firestore } from "../firebase";
+import { Debugger } from "../debugger";
+import { Add, Remove, Set, changeTypes } from "./changes";
+import { emojiIds } from "./emojis";
 
 const dbObjectTypes = {
     BOOKMARK: "bookmark",
@@ -11,12 +13,6 @@ const dbObjectTypes = {
     USERINVITATION: "userInvatation",
     USER: "user",
     BADGE: "badge",
-};
-
-const changeTypes = {
-    SET: "set",
-    REMOVE: "remove",
-    ADD: "add",
 };
 
 const dbDebugger = new Debugger();
@@ -34,36 +30,6 @@ function generateId(length) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
    }
    return result;
-}
-
-export class Change {
-    constructor(_type, _field, _value) {
-        this.type = _type;
-        this.field = _field;
-        this.value = _value;
-    }
-
-    toString() {
-        return 'Change of type "' + this.type + '" on field "' + this.field + '" with value "' + this.value + '"';
-    }
-}
-
-export class Set extends Change {
-    constructor(_field, _newValue) {
-        super(changeTypes.SET, _field, _newValue);
-    }
-}
-
-export class Remove extends Change {
-    constructor(_field, _value) {
-        super(changeTypes.REMOVE, _field, _value);
-    }
-}
-
-export class Add extends Change {
-    constructor(_field, _newValue) {
-        super(changeTypes.ADD, _field, _newValue);
-    }
 }
 
 export class ObjectManager {
@@ -340,9 +306,9 @@ export class BadgeManager extends ObjectManager {
     setEmptyData() {
 
         const empty = {
-            title: null,
-            description: null,
-            emoji: null,
+            title: null,            // {string} Badge title 
+            description: null,      // {string} Badge description 
+            emoji: null,            // {string <- emojiId} Emoji representation of badge 
         }
         super.setData(empty);
     }
@@ -361,19 +327,17 @@ export class BookmarkManager extends ObjectManager {
 
         // Template for a bookmark user -- Will be implemented soon
         const bookmarkUser = {
-            userId: null,
-            initialBalance: null,
-            currentBalalce: null,
+            userId: null,           // {string} ID of user involved in bookmark 
+            initialBalance: null,   // {number} Initial balance of user (ex. +100, -100) 
         }
 
         const empty = {
-            active: null,
-            barterEmoji: null,
-            createdAt: null,
-            createdBy: null,
-            title: null,
-            total: null,
-            users: [],
+            barterEmoji: null,      // {string <- emojiId} Emoji representation of transaction 
+            createdAt: null,        // {date} Timestamp of bookmark creation 
+            createdBy: null,        // {string} ID of user that created this bookmark
+            title: null,            // {string} title of bookmark
+            total: null,            // {number} total value of bookmark (all debts added together)
+            users: [],              // {array <- bookmarkUser} All users referenced in this bookmark
         }
         super.setData(empty);
     }
@@ -391,13 +355,13 @@ export class GroupInvitationManager extends ObjectManager {
     setEmptyData() {
 
         const empty = {
-            inviteMethod: null,
-            invitedAt: null,
-            inviteeAttrs: {
-                location: null,
+            inviteMethod: null,     // {object <- inviteMethod} Which invite method was used
+            invitedAt: null,        // {date} When this invitation was created
+            inviteeAttrs: {         // {map} Attributes associated with invitee
+                location: null,     // --- {geoPoint} Location of the invitee when they accept the invitation
             },
-            inviterAttrs: {
-                location: null,
+            inviterAttrs: {         // {map} Attributes associated with the inviter
+                location: null,     // --- {geoPoint} Location of the inviter when they create the invitation
             },
         }
         super.setData(empty);
@@ -416,11 +380,11 @@ export class GroupManager extends ObjectManager {
     setEmptyData() {
 
         const empty = {
-            createdAt: null,
-            createdBy: null,
-            name: null,
-            transactions: [],
-            users: [],
+            createdAt: null,    // {date} When the group was created
+            createdBy: null,    // {string} ID of user that created the group
+            name: null,         // {string} Name of the group
+            transactions: [],   // {array <- string} IDs of every transaction associated with this group
+            users: [],          // {array <- string} IDs of every user in this group
         }
         super.setData(empty);
     }
@@ -438,15 +402,15 @@ export class TransactionAttemptManager extends ObjectManager {
     setEmptyData() {
 
         const empty = {
-            createdAt: null,
-            creatorAttrs: {
-                location: null,
+            createdAt: null,        // {date} When this transaction attempt was created
+            creatorAttrs: {         // {map} Attributes associated with the creator
+                location: null,     // --- {geoPoint} Location of the creator
             },
-            isBookmark: null,
-            isIndividual: null,
-            isStandard: null,
-            isTransaction: null,
-            usedSuggestion: null,
+            isBookmark: null,       // {boolean} Whether or not the attempt turned into a bookmark
+            isIndividual: null,     // {boolean} Whether or not it was an indivitual transaction (or a group transaction)
+            isStandard: null,       // {boolean} Whether or not the attempt was through standard pathway or shortcut
+            isTransaction: null,    // {boolean} Whether or not this attempt turned into a full transaction
+            usedSuggestion: null,   // {boolean} Whether or not they used a suggested group/individual (null if cancelled before this stage)
         }
         super.setData(empty);
     }
@@ -465,20 +429,20 @@ export class TransactionManager extends ObjectManager {
 
         // Template for a transaction user -- Will be implemented soon
         const transactionUser = {
-            userId: null,
-            initialBalance: null,
-            currentBalalce: null,
+            userId: null,           // {string} ID of user
+            initialBalance: null,   // {number} Balance of user upon transaction creation
+            currentBalalce: null,   // {number} Current balance of user in this transaction
         }
 
         const empty = {
-            active: null,
-            barterEmoji: null,
-            createdAt: null,
-            createdBy: null,
-            fromBookmark: null,
-            title: null,
-            total: null,
-            users: [],
+            active: null,           // {boolean} Whether or not this transaction is still active
+            barterEmoji: null,      // {string <- emojiId} Emoji representation of transaction 
+            createdAt: null,        // {date} Timestamp of transaction creation 
+            createdBy: null,        // {string} ID of user that created this transaction
+            fromBookmark: null,     // {boolean} Whether or not this transaction was created from a bookmark
+            title: null,            // {string} title of transaction
+            total: null,            // {number} total value of transaction (all debts added together)
+            users: [],              // {array <- transactionUser} All users referenced in this transaction
         }
         super.setData(empty);
     }
@@ -792,13 +756,13 @@ export class UserInvatationManager extends ObjectManager {
 
     setEmptyData() {
         const empty = {
-            inviteMethod: null,
-            invitedAt: null,
-            inviteeAttrs: {
-                location: null,
+            inviteMethod: null,     // {object <- inviteMethod} Which invite method was used
+            invitedAt: null,        // {date} When this user invitation was created
+            inviteeAttrs: {         // {map} Attributes associated with invitee
+                location: null,     // --- {geoPoint} Location of the invitee when they accept the invitation
             },
-            inviterAttrs: {
-                location: null,
+            inviterAttrs: {         // {map} Attributes associated with inviter
+                location: null,     // --- {geoPoint} Location of the inviter when they create the invitation
             },
         }
         super.setData(empty);
@@ -835,26 +799,26 @@ export class UserManager extends ObjectManager {
     setEmptyData() {
 
         const empty = {
-            badges: [],
-            bookmarks: [],
-            friends: [],
-            groups: [],
-            transactions: [],
-            metadata: {
-                location: null,
-                createdAt: null,
-                emailVerified: null,
-                lastLoginAt: null,
+            badges: [],                     // {array} IDs of badges that the user has earned
+            bookmarks: [],                  // {array} IDs of bookmarks that the user has created
+            friends: [],                    // {array} IDs of friends the user has added
+            groups: [],                     // {array} IDs of groups the user is in
+            transactions: [],               // {array} IDs of transactions the user is involved in
+            metadata: {                     // {map} Metadata associated with user
+                location: null,             // --- {geoPoint} Last login location of user
+                createdAt: null,            // --- {date} When the user was created
+                emailVerified: null,        // --- {boolean} Whether or not the user is email verified
+                lastLoginAt: null,          // --- {date} Timestamp of last login
+            },  
+            personalData: {                 // {map} Personal data associated with user
+                displayName: null,          // --- {string} User's display name
+                email: null,                // --- {string} User's email address
+                phoneNumber: null,          // --- {object <- phoneNumber} User's phone number
+                profilePictureUrl: null,    // --- {string} URL of user's prophile photo
             },
-            personalData: {
-                displayName: null,
-                email: null,
-                phoneNumber: null,
-                profilePictureUrl: null,
-            },
-            settings: {
-                darkMode: null,
-                language: null,
+            settings: {                     // {map} User's current settings
+                darkMode: null,             // --- {boolean} Whether the user is in darkMode or not
+                language: null,             // --- {string <- languageId} User's language choice
             },
         }
         super.setData(empty);

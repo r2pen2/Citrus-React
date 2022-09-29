@@ -1,0 +1,3 @@
+const emojiIds = {
+    TEST: "test"
+}
