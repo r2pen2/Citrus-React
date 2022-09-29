@@ -395,12 +395,22 @@ export class GroupManager extends ObjectManager {
 }
 
 export class TransactionAttemptManager extends ObjectManager {
+
     constructor(_id) {
         super(dbObjectTypes.TRANSACTIONATTEMPT, _id);
     }
 
-    setEmptyData() {
+    fields = {
+        CREATEDAT: "createdAt",
+        CREATORLOCATION: "creatorLocation",
+        ISBOOKMARK: "isBookmark",
+        ISINDIVIDUAL: "isIndividual",
+        ISSTANDARD: "isStandard",
+        ISTRANSACTION: "isTransaction",
+        USEDSUGGESTION: "usedSuggestion"
+    }
 
+    setEmptyData() {
         const empty = {
             createdAt: null,        // {date} When this transaction attempt was created
             creatorAttrs: {         // {map} Attributes associated with the creator
@@ -415,8 +425,102 @@ export class TransactionAttemptManager extends ObjectManager {
         super.setData(empty);
     }
 
-    handleAdd() {
-        
+    handleAdd(change, data) {
+        switch (change.field) {
+            case this.fields.CREATEDAT:
+            case this.fields.CREATORLOCATION:
+            case this.fields.ISBOOKMARK:
+            case this.fields.ISINDIVIDUAL:
+            case this.fields.ISSTANDARD:
+            case this.fields.ISTRANSACTION:
+            case this.fields.USEDSUGGESTION:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleRemove(change, data) {
+        switch (change.field) {
+            case this.fields.CREATEDAT:
+            case this.fields.CREATORLOCATION:
+            case this.fields.ISBOOKMARK:
+            case this.fields.ISINDIVIDUAL:
+            case this.fields.ISSTANDARD:
+            case this.fields.ISTRANSACTION:
+            case this.fields.USEDSUGGESTION:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleSet(change, data) {
+        switch (change.field) {
+            case this.fields.CREATEDAT:
+                data.createdAt = change.value;
+                return data;
+            case this.fields.CREATORLOCATION:
+                data.creatorAttrs.location = change.value;
+                return data;
+            case this.fields.ISBOOKMARK:
+                data.isBookmark = change.value;
+                return data;
+            case this.fields.ISINDIVIDUAL:
+                data.isIndividual = change.value;
+                return data;
+            case this.fields.ISSTANDARD:
+                data.isStandard = change.value;
+                return data;
+            case this.fields.ISTRANSACTION:
+                data.isTransaction = change.value;
+                return data;
+            case this.fields.USEDSUGGESTION:
+                data.usedSuggestion = change.value;
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    async handleGet(field) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.fetched) {
+                await super.fetchData();
+            }
+            switch(field) {
+                case this.fields.CREATEDAT:
+                    resolve(this.data.createdAt);
+                    break;
+                case this.fields.CREATORLOCATION:
+                    resolve(this.data.creatorAttrs.location);
+                    break;
+                case this.fields.ISBOOKMARK:
+                    resolve(this.data.isBookmark);
+                    break;
+                case this.fields.ISINDIVIDUAL:
+                    resolve(this.data.isIndividual);
+                    break;
+                case this.fields.ISSTANDARD:
+                    resolve(this.data.isStandard);
+                    break;
+                case this.fields.ISTRANSACTION:
+                    resolve(this.data.isTransaction);
+                    break;
+                case this.fields.USEDSUGGESTION:
+                    resolve(this.data.usedSuggestion);
+                    break;
+                default:
+                    super.logInvalidGetField(field);
+                    resolve(null);
+                    break;
+            }
+        })
     }
 }
 
@@ -750,6 +854,7 @@ export class TransactionManager extends ObjectManager {
 }
 
 export class UserInvatationManager extends ObjectManager {
+
     constructor(_id) {
         super(dbObjectTypes.USERINVITATION, _id);
     }
@@ -852,6 +957,10 @@ export class UserInvatationManager extends ObjectManager {
 
 export class UserManager extends ObjectManager {
     
+    constructor(_id) {
+        super(dbObjectTypes.USER, _id);
+    }
+    
     fields = {
         BADGES: "badges",
         BOOKMARKS: "bookmarks",
@@ -868,13 +977,8 @@ export class UserManager extends ObjectManager {
         PROFILEPICTUREURL: "profilePictureUrl",
         SETTINGS: "settings",
     }
-    
-    constructor(_id) {
-        super(dbObjectTypes.USER, _id);
-    }
 
     setEmptyData() {
-
         const empty = {
             badges: [],                     // {array} IDs of badges that the user has earned
             bookmarks: [],                  // {array} IDs of bookmarks that the user has created
