@@ -294,7 +294,6 @@ export class ObjectManager {
     }
 }
 
-// Needs methods
 export class BadgeManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.BADGE, _id);
@@ -380,6 +379,51 @@ export class BadgeManager extends ObjectManager {
             }
         })
     }
+
+    // ================= Get Operations ================= //
+    async getTitle() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TITLE).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getDescription() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.DESCRIPTION).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getEmoji() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.EMOJI).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    // ================= Set Operations ================= //
+    setTilte(newTitle) {
+        const titleChange = new Set(this.fields.TITLE, newTitle);
+        super.addChange(newTitle);
+    }
+
+    setDescription(newDescription) {
+        const descriptionChange = new Set(this.fields.DESCRIPTION, newDescription);
+        super.addChange(descriptionChange);
+    }
+    
+    setEmoji(newEmoji) {
+        const emojiChange = new Set(this.fields.EMOJI, newEmoji);
+        super.addChange(emojiChange);
+    }
+
+    // ================= Add Operations ================= //
+
+    // ================= Remove Operations ================= //
 }
 
 // Needs methods
