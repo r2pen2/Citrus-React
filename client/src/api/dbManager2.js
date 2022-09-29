@@ -10,6 +10,7 @@ const dbObjectTypes = {
     TRANSACTION: "transaction",
     USERINVITATION: "userInvatation",
     USER: "user",
+    BADGE: "badge",
 };
 
 const changeTypes = {
@@ -135,6 +136,8 @@ export class ObjectManager {
                 return "userInvatations";
             case dbObjectTypes.USER:
                 return "users";
+            case dbObjectTypes.BADGE:
+                return "badges";
             default:
                 return null;
         }
@@ -328,43 +331,124 @@ export class ObjectManager {
     }
 }
 
-// TODO: Complete skeleton for BookmarkManager
+
+export class BadgeManager extends ObjectManager {
+    constructor(_id) {
+        super(dbObjectTypes.BADGE, _id);
+    }
+
+    setEmptyData() {
+
+        const empty = {
+            title: null,
+            description: null,
+            emoji: null,
+        }
+        super.setData(empty);
+    }
+
+    handleAdd() {
+        
+    }
+}
+
 export class BookmarkManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.BOOKMARK, _id);
     }
 
+    setEmptyData() {
+
+        // Template for a bookmark user -- Will be implemented soon
+        const bookmarkUser = {
+            userId: null,
+            initialBalance: null,
+            currentBalalce: null,
+        }
+
+        const empty = {
+            active: null,
+            barterEmoji: null,
+            createdAt: null,
+            createdBy: null,
+            title: null,
+            total: null,
+            users: [],
+        }
+        super.setData(empty);
+    }
+
     handleAdd() {
         
     }
 }
 
-// TODO: Complete skeleton for GroupInvitationManager
 export class GroupInvitationManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.GROUPINVITATION, _id);
     }
 
+    setEmptyData() {
+
+        const empty = {
+            inviteMethod: null,
+            invitedAt: null,
+            inviteeAttrs: {
+                location: null,
+            },
+            inviterAttrs: {
+                location: null,
+            },
+        }
+        super.setData(empty);
+    }
+
     handleAdd() {
         
     }
 }
 
-// TODO: Complete skeleton for GroupManager
 export class GroupManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.GROUP, _id);
     }
 
+    setEmptyData() {
+
+        const empty = {
+            createdAt: null,
+            createdBy: null,
+            name: null,
+            transactions: [],
+            users: [],
+        }
+        super.setData(empty);
+    }
+
     handleAdd() {
         
     }
 }
 
-// TODO: Complete skeleton for TransactionAttemptManager
 export class TransactionAttemptManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTIONATTEMPT, _id);
+    }
+
+    setEmptyData() {
+
+        const empty = {
+            createdAt: null,
+            creatorAttrs: {
+                location: null,
+            },
+            isBookmark: null,
+            isIndividual: null,
+            isStandard: null,
+            isTransaction: null,
+            usedSuggestion: null,
+        }
+        super.setData(empty);
     }
 
     handleAdd() {
@@ -375,6 +459,28 @@ export class TransactionAttemptManager extends ObjectManager {
 export class TransactionManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTION, _id);
+    }
+
+    setEmptyData() {
+
+        // Template for a transaction user -- Will be implemented soon
+        const transactionUser = {
+            userId: null,
+            initialBalance: null,
+            currentBalalce: null,
+        }
+
+        const empty = {
+            active: null,
+            barterEmoji: null,
+            createdAt: null,
+            createdBy: null,
+            fromBookmark: null,
+            title: null,
+            total: null,
+            users: [],
+        }
+        super.setData(empty);
     }
 
     handleAdd() {
@@ -679,10 +785,23 @@ export class TransactionManager extends ObjectManager {
     }
 }
 
-// TODO: Complete skeleton for UserInvitationManager
 export class UserInvatationManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.USERINVITATION, _id);
+    }
+
+    setEmptyData() {
+        const empty = {
+            inviteMethod: null,
+            invitedAt: null,
+            inviteeAttrs: {
+                location: null,
+            },
+            inviterAttrs: {
+                location: null,
+            },
+        }
+        super.setData(empty);
     }
 
     handleAdd() {
@@ -714,6 +833,7 @@ export class UserManager extends ObjectManager {
     }
 
     setEmptyData() {
+
         const empty = {
             badges: [],
             bookmarks: [],
