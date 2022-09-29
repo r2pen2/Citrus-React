@@ -2,7 +2,7 @@ import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "f
 import { firestore } from "../firebase";
 import { Debugger } from "../debugger";
 import { Add, Remove, Set, changeTypes } from "./changes";
-import { emojiIds, Emoji, UserPhoneNumber, UserEmail, inviteMethods, InviteMethod, InviteType, inviteTypes } from "./subObjects";
+import { emojiIds, Emoji, UserPhoneNumber, UserEmail, inviteMethods, InviteMethod, InviteType, inviteTypes, BookmarkUser } from "./subObjects";
 
 const dbObjectTypes = {
     BOOKMARK: "bookmark",
@@ -305,7 +305,7 @@ export class BadgeManager extends ObjectManager {
         const empty = {
             title: null,            // {string} Badge title 
             description: null,      // {string} Badge description 
-            emoji: null,            // {string <- emojiId} Emoji representation of badge 
+            emoji: null,            // {Emoji} Emoji representation of badge 
         }
         super.setData(empty);
     }
@@ -315,37 +315,132 @@ export class BadgeManager extends ObjectManager {
     }
 }
 
-// Needs rework
+// Needs methods
 export class BookmarkManager extends ObjectManager {
+
     constructor(_id) {
         super(dbObjectTypes.BOOKMARK, _id);
     }
 
+    fields = {
+        EMOJI: "emoji",
+        CREATEDAT: "createdAt",
+        CREATEDBY: "createdBy",
+        TITLE: "title",
+        TOTAL: "total",
+        USERS: "users",
+    }
+
     setEmptyData() {
-
-        // Template for a bookmark user -- Will be implemented soon
-        const bookmarkUser = {
-            userId: null,           // {string} ID of user involved in bookmark 
-            initialBalance: null,   // {number} Initial balance of user (ex. +100, -100) 
-        }
-
         const empty = {
-            barterEmoji: null,      // {string <- emojiId} Emoji representation of transaction 
+            emoji: null,            // {Emoji} Emoji representation of transaction 
             createdAt: null,        // {date} Timestamp of bookmark creation 
             createdBy: null,        // {string} ID of user that created this bookmark
             title: null,            // {string} title of bookmark
             total: null,            // {number} total value of bookmark (all debts added together)
-            users: [],              // {array <- bookmarkUser} All users referenced in this bookmark
+            users: [],              // {array <- BookmarkUser} All users referenced in this bookmark
         }
         super.setData(empty);
     }
 
-    handleAdd() {
-        
+    handleAdd(change, data) {
+        switch(change.field) {
+            case this.fields.USERS:
+                if (!data.users.includes(change.value)) {    
+                    data.users.push(change.value);
+                }
+                return data;
+            case this.fields.EMOJI:
+            case this.fields.CREATEDAT:
+            case this.fields.CREATEDBY:
+            case this.fields.TITLE:
+            case this.fields.TOTAL:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleRemove(change, data) {
+        switch(change.field) {
+            case this.fields.USERS:
+                data.users = data.users.filter(user => user !== change.value);
+                return data;
+            case this.fields.EMOJI:
+            case this.fields.CREATEDAT:
+            case this.fields.CREATEDBY:
+            case this.fields.TITLE:
+            case this.fields.TOTAL:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    handleSet(change, data) {
+        switch(change.field) {
+            case this.fields.EMOJI:
+                data.emoji = change.value;
+                return data;
+            case this.fields.CREATEDAT:
+                data.createdAt = change.value;
+                return data;
+            case this.fields.CREATEDBY:
+                data.createdBy = change.value;
+                return data;
+            case this.fields.TITLE:
+                data.title = change.value;
+                return data;
+            case this.fields.TOTAL:
+                data.total = change.value;
+                return data;
+            case this.fields.USERS:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    async handleGet(field) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.fetched) {
+                await super.fetchData();
+            }
+            switch(field) {
+                case this.fields.EMOJI:
+                    resolve(this.data.emoji);
+                    break;
+                case this.fields.CREATEDAT:
+                    resolve(this.data.createdAt);
+                    break;
+                case this.fields.CREATEDBY:
+                    resolve(this.data.createdBy);
+                    break;
+                case this.fields.TITLE:
+                    resolve(this.data.title);
+                    break;
+                case this.fields.TOTAL:
+                    resolve(this.data.total);
+                    break;
+                case this.fields.USERS:
+                    resolve(this.data.users);
+                    break;
+                default:
+                    super.logInvalidGetField(field);
+                    resolve(null);
+                    break;
+            }
+        })
     }
 }
 
-// Needs rework
+// Needs methods
 export class GroupManager extends ObjectManager {
 
     constructor(_id) {
@@ -595,7 +690,7 @@ export class TransactionAttemptManager extends ObjectManager {
     }
 }
 
-// Needs rework
+// Needs rework + EMOJI
 export class TransactionManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTION, _id);
@@ -942,8 +1037,8 @@ export class InvitationManager extends ObjectManager {
 
     setEmptyData() {
         const empty = {
-            inviteType: null,       // {object <- inviteType} Which invite type this is (friends, groups, chip-ins)
-            inviteMethod: null,     // {object <- inviteMethod} Which invite method was used
+            inviteType: null,       // {InviteType} Which invite type this is (friends, groups, chip-ins)
+            inviteMethod: null,     // {InviteMethod} Which invite method was used
             invitedAt: null,        // {date} When this user invitation was created
             inviteeAttrs: {         // {map} Attributes associated with invitee
                 location: null,     // --- {geoPoint} Location of the invitee when they accept the invitation
@@ -1077,7 +1172,7 @@ export class UserManager extends ObjectManager {
             personalData: {                 // {map} Personal data associated with user
                 displayName: null,          // --- {string} User's display name
                 email: null,                // --- {string} User's email address
-                phoneNumber: null,          // --- {object <- phoneNumber} User's phone number
+                phoneNumber: null,          // --- {PhoneNumber} User's phone number
                 profilePictureUrl: null,    // --- {string} URL of user's prophile photo
             },
             settings: {                     // {map} User's current settings

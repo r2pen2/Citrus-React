@@ -56,3 +56,14 @@ export class InviteType {
         }
     }
 }
+
+export class BookmarkUser {
+    constructor(_id) {
+        this.id = _id;
+        this.balance = null;
+    }
+
+    setBalance(bal) {
+        this.balance = bal;
+    }
+}
