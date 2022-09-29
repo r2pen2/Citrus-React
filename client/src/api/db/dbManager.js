@@ -1480,7 +1480,7 @@ export class InvitationManager extends ObjectManager {
     }
 
     setInviterLocation(newInviterLocation) {
-        const inviterLocationChange = new Set(this.fields.INVITERLOCATION, newInviterLocation);newIsStandard);
+        const inviterLocationChange = new Set(this.fields.INVITERLOCATION, newInviterLocation);
         super.addChange(inviterLocationChange);
     }
 
