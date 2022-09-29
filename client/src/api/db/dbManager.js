@@ -1183,7 +1183,6 @@ export class TransactionManager extends ObjectManager {
     }
 }
 
-// Needs methods
 export class InvitationManager extends ObjectManager {
 
     constructor(_id) {
@@ -1294,6 +1293,77 @@ export class InvitationManager extends ObjectManager {
             }
         })
     }
+
+    // ================= Get Operations ================= //
+    async getInviteType() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDAT).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getInviteMethod() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATORLOCATION).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getInvitedAt() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ISBOOKMARK).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getInviteeLocation() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ISINDIVIDUAL).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getInviterLocation() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ISSTANDARD).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    // ================= Set Operations ================= //
+    setInviteType(newInviteType) {
+        const inviteTypeChange = new Set(this.fields.INVITETYPE, newInviteType);
+        super.addChange(inviteTypeChange);
+    }
+
+    setInviteMethod(newInviteMethod) {
+        const inviteMethodChange = new Set(this.fields.INVITEMETHOD, newInviteMethod);
+        super.addChange(inviteMethodChange);
+    }
+    
+    setInvitedAt(newInvitedAt) {
+        const invitedAtChange = new Set(this.fields.INVITEDAT, newInvitedAt);
+        super.addChange(invitedAtChange);
+    }
+    
+    setInviteeLocation(newInviteeLocation) {
+        const inviteeLocationChange = new Set(this.fields.INVITEELOCATION, newInviteeLocation);
+        super.addChange(inviteeLocationChange);
+    }
+
+    setInviterLocation(newInviterLocation) {
+        const inviterLocationChange = new Set(this.fields.INVITERLOCATION, newInviterLocation);newIsStandard);
+        super.addChange(inviterLocationChange);
+    }
+
+    // ================= Add Operations ================= //
+
+    // ================= Remove Operations ================= //
 }
 
 export class UserManager extends ObjectManager {
