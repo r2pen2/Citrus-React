@@ -2,15 +2,14 @@ import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "f
 import { firestore } from "../firebase";
 import { Debugger } from "../debugger";
 import { Add, Remove, Set, changeTypes } from "./changes";
-import { emojiIds, Emoji, UserPhoneNumber, UserEmail, inviteMethods, InviteMethod } from "./subObjects";
+import { emojiIds, Emoji, UserPhoneNumber, UserEmail, inviteMethods, InviteMethod, InviteType, inviteTypes } from "./subObjects";
 
 const dbObjectTypes = {
     BOOKMARK: "bookmark",
-    GROUPINVITATION: "groupInvitation",
+    INVITATION: "invitations",
     GROUP: "group",
     TRANSACTIONATTEMPT: "transactionAttempt",
     TRANSACTION: "transaction",
-    USERINVITATION: "userInvatation",
     USER: "user",
     BADGE: "badge",
 };
@@ -90,16 +89,14 @@ export class ObjectManager {
         switch(this.objectType) {
             case dbObjectTypes.BOOKMARK:
                 return "bookmarks";
-            case dbObjectTypes.GROUPINVITATION:
-                return "groupInvitations";
             case dbObjectTypes.GROUP:
                 return "groups";
             case dbObjectTypes.TRANSACTIONATTEMPT:
                 return "transactionAttempts";
             case dbObjectTypes.TRANSACTION:
                 return "transactions";
-            case dbObjectTypes.USERINVITATION:
-                return "userInvatations";
+            case dbObjectTypes.INVITATION:
+                return this.data.inviteType.getCollection();
             case dbObjectTypes.USER:
                 return "users";
             case dbObjectTypes.BADGE:
@@ -338,31 +335,6 @@ export class BookmarkManager extends ObjectManager {
             title: null,            // {string} title of bookmark
             total: null,            // {number} total value of bookmark (all debts added together)
             users: [],              // {array <- bookmarkUser} All users referenced in this bookmark
-        }
-        super.setData(empty);
-    }
-
-    handleAdd() {
-        
-    }
-}
-
-export class GroupInvitationManager extends ObjectManager {
-    constructor(_id) {
-        super(dbObjectTypes.GROUPINVITATION, _id);
-    }
-
-    setEmptyData() {
-
-        const empty = {
-            inviteMethod: null,     // {object <- inviteMethod} Which invite method was used
-            invitedAt: null,        // {date} When this invitation was created
-            inviteeAttrs: {         // {map} Attributes associated with invitee
-                location: null,     // --- {geoPoint} Location of the invitee when they accept the invitation
-            },
-            inviterAttrs: {         // {map} Attributes associated with the inviter
-                location: null,     // --- {geoPoint} Location of the inviter when they create the invitation
-            },
         }
         super.setData(empty);
     }
@@ -853,13 +825,14 @@ export class TransactionManager extends ObjectManager {
     }
 }
 
-export class UserInvatationManager extends ObjectManager {
+export class InvitationManager extends ObjectManager {
 
     constructor(_id) {
-        super(dbObjectTypes.USERINVITATION, _id);
+        super(dbObjectTypes.INVITATION, _id);
     }
 
     fields = {
+        INVITETYPE: "inviteType",
         INVITEMETHOD: "inviteMethod",
         INVITEDAT: "invitedAt",
         INVITEELOCATION: "inviteeLocation",
@@ -868,6 +841,7 @@ export class UserInvatationManager extends ObjectManager {
 
     setEmptyData() {
         const empty = {
+            inviteType: null,       // {object <- inviteType} Which invite type this is (friends, groups, chip-ins)
             inviteMethod: null,     // {object <- inviteMethod} Which invite method was used
             invitedAt: null,        // {date} When this user invitation was created
             inviteeAttrs: {         // {map} Attributes associated with invitee
@@ -882,6 +856,7 @@ export class UserInvatationManager extends ObjectManager {
 
     handleAdd(change, data) {
         switch (change.field) {
+            case this.fields.INVITETYPE:
             case this.fields.INVITEMETHOD:
             case this.fields.INVITEDAT:
             case this.fields.INVITEELOCATION:
@@ -896,6 +871,7 @@ export class UserInvatationManager extends ObjectManager {
 
     handleRemove(change, data) {
         switch (change.field) {
+            case this.fields.INVITETYPE:
             case this.fields.INVITEMETHOD:
             case this.fields.INVITEDAT:
             case this.fields.INVITEELOCATION:
@@ -910,6 +886,9 @@ export class UserInvatationManager extends ObjectManager {
 
     handleSet(change, data) {
         switch (change.field) {
+            case this.fields.INVITETYPE:
+                data.inviteType = change.value;
+                return data;
             case this.fields.INVITEMETHOD:
                 data.inviteMethod = change.value;
                 return data;
@@ -934,6 +913,9 @@ export class UserInvatationManager extends ObjectManager {
                 await super.fetchData();
             }
             switch(field) {
+                case this.fields.INVITETYPE:
+                    resolve(this.data.inviteType);
+                    break;
                 case this.fields.INVITEMETHOD:
                     resolve(this.data.inviteMethod);
                     break;
