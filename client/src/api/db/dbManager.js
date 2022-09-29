@@ -668,6 +668,85 @@ export class GroupManager extends ObjectManager {
             }
         })
     }
+
+    // ================= Get Operations ================= //
+    async getCreatedAt() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDAT).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCreatedBy() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDBY).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getName() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.NAME).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getTransactions() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TRANSACTIONS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getUsers() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.USERS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+    
+    // ================= Set Operations ================= //
+    setCreatedAt(newCreatedAt) {
+        const createdAtChange = new Set(this.fields.CREATEDAT, newCreatedAt);
+        super.addChange(createdAtChange);
+    }
+    
+    setCreatedBy(newCreatedBy) {
+        const createdByChange = new Set(this.fields.CREATEDBY, newCreatedBy);
+        super.addChange(createdByChange);
+    }
+    
+    setName(newName) {
+        const nameChange = new Set(this.fields.NAME, newName);
+        super.addChange(nameChange);
+    }
+
+    // ================= Add Operations ================= //
+    addTransaction(transactionId) {
+        const transactionAddition = new Add(this.fields.TRANSACTIONS, transactionId);
+        super.addChange(transactionAddition);
+    }
+
+    addUser(userId) {
+        const userAddition = new Add(this.fields.USERS, userId);
+        super.addChange(userAddition);
+    }
+
+    // ================= Remove Operations ================= //
+    removeTransaction(transactionId) {
+        const transactionRemoval = new Remove(this.fields.TRANSACTIONS, transactionId);
+        super.addChange(transactionRemoval);
+    }
+
+    removeUser(userId) {
+        const userRemoval = new Remove(this.fields.USERS, userId);
+        super.addChange(userRemoval);
+    }
 }
 
 export class TransactionAttemptManager extends ObjectManager {
