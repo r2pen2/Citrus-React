@@ -2,7 +2,7 @@ import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "f
 import { firestore } from "../firebase";
 import { Debugger } from "../debugger";
 import { Add, Remove, Set, changeTypes } from "./changes";
-import { emojiIds, Emoji, UserPhoneNumber, UserEmail, inviteMethods, InviteMethod, InviteType, inviteTypes, BookmarkUser } from "./subObjects";
+import { emojiIds, Emoji, UserPhoneNumber, UserEmail, inviteMethods, InviteMethod, InviteType, inviteTypes, BookmarkUser, TransactionUser } from "./subObjects";
 
 const dbObjectTypes = {
     BOOKMARK: "bookmark",
@@ -97,6 +97,7 @@ export class ObjectManager {
             case dbObjectTypes.TRANSACTION:
                 return "transactions";
             case dbObjectTypes.INVITATION:
+                // Invitations have different collections depending on their type
                 return this.data.inviteType.getCollection();
             case dbObjectTypes.USER:
                 return "users";
@@ -427,7 +428,6 @@ export class BadgeManager extends ObjectManager {
     // ================= Remove Operations ================= //
 }
 
-// Needs methods
 export class BookmarkManager extends ObjectManager {
 
     constructor(_id) {
@@ -1061,24 +1061,27 @@ export class TransactionAttemptManager extends ObjectManager {
     // ================= Remove Operations ================= //
 }
 
-// Needs rework + EMOJI
 export class TransactionManager extends ObjectManager {
     constructor(_id) {
         super(dbObjectTypes.TRANSACTION, _id);
     }
 
-    setEmptyData() {
+    fields = {
+        ACTIVE: "active",
+        EMOJI: "emoji",
+        CREATEDAT: "createdAt",
+        CREATEDBY: "createdBy",
+        FROMBOOKMARK: "fromBookmark",
+        TITLE: "title",
+        TOTAL: "total",
+        USERS: "users",
+    }
 
-        // Template for a transaction user -- Will be implemented soon
-        const transactionUser = {
-            userId: null,           // {string} ID of user
-            initialBalance: null,   // {number} Balance of user upon transaction creation
-            currentBalalce: null,   // {number} Current balance of user in this transaction
-        }
+    setEmptyData() {
 
         const empty = {
             active: null,           // {boolean} Whether or not this transaction is still active
-            barterEmoji: null,      // {string <- emojiId} Emoji representation of transaction 
+            emoji: null,            // {Emoji} Emoji representation of transaction 
             createdAt: null,        // {date} Timestamp of transaction creation 
             createdBy: null,        // {string} ID of user that created this transaction
             fromBookmark: null,     // {boolean} Whether or not this transaction was created from a bookmark
@@ -1089,305 +1092,207 @@ export class TransactionManager extends ObjectManager {
         super.setData(empty);
     }
 
-    handleAdd() {
-        
+    handleAdd(change, data) {
+        switch(change.field) {
+            case this.fields.USERS:
+                if (!data.users.includes(change.value)) {    
+                    data.users.push(change.value);
+                }
+                return data;
+            case this.fields.ACTIVE:
+            case this.fields.EMOJI:
+            case this.fields.CREATEDAT:
+            case this.fields.CREATEDBY:
+            case this.fields.TITLE:
+            case this.fields.TOTAL:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
     }
 
-    /**
-     * Add a transaction to all user's active lists
-     * @returns {Boolean} whether or not this operation was successful
-     */
-    async addToAllUsers() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return new Promise(async (resolve) => {
-                // Add transaction to each payer
-                for (const payer of transactionData.payers) {
-                        const userManager = new UserManager(payer);
-                        let userData = await userManager.fetchData();
-                        if (userData) {                    
-                            userManager.addTransaction(this.documentId);
-                            super.addChild(userManager);
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                }
-                // Add transaction to each fronter
-                for (const fronter of transactionData.fronters) {
-                    const userManager = new UserManager(fronter);
-                    let userData = await userManager.fetchData();
-                    if (userData) {                    
-                        userManager.addTransaction(this.documentId);
-                        super.addChild(userManager);
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                }
-                resolve(true);
-            });
-        } else {
-            return super.logNoDataError(false);
+    handleRemove(change, data) {
+        switch(change.field) {
+            case this.fields.USERS:
+                data.users = data.users.filter(user => user !== change.value);
+                return data;
+            case this.fields.ACTIVE:
+            case this.fields.EMOJI:
+            case this.fields.CREATEDAT:
+            case this.fields.CREATEDBY:
+            case this.fields.TITLE:
+            case this.fields.TOTAL:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
         }
+    }
+
+    handleSet(change, data) {
+        switch(change.field) {
+            case this.fields.ACTIVE:
+                data.active = change.value;
+                return data;
+            case this.fields.EMOJI:
+                data.emoji = change.value;
+                return data;
+            case this.fields.CREATEDAT:
+                data.createdAt = change.value;
+                return data;
+            case this.fields.CREATEDBY:
+                data.createdBy = change.value;
+                return data;
+            case this.fields.TITLE:
+                data.title = change.value;
+                return data;
+            case this.fields.TOTAL:
+                data.total = change.value;
+                return data;
+            case this.fields.USERS:
+                super.logInvalidChangeType(change);
+                return data;
+            default:
+                super.logInvalidChangeField(change);
+                return data;
+        }
+    }
+
+    async handleGet(field) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.fetched) {
+                await super.fetchData();
+            }
+            switch(field) {
+                case this.fields.ACTIVE:
+                    resolve(this.data.active);
+                    break;
+                case this.fields.EMOJI:
+                    resolve(this.data.emoji);
+                    break;
+                case this.fields.CREATEDAT:
+                    resolve(this.data.createdAt);
+                    break;
+                case this.fields.CREATEDBY:
+                    resolve(this.data.createdBy);
+                    break;
+                case this.fields.TITLE:
+                    resolve(this.data.title);
+                    break;
+                case this.fields.TOTAL:
+                    resolve(this.data.total);
+                    break;
+                case this.fields.USERS:
+                    resolve(this.data.users);
+                    break;
+                default:
+                    super.logInvalidGetField(field);
+                    resolve(null);
+                    break;
+            }
+        })
+    }
+
+    // ================= Get Operations ================= //
+
+    async getActive() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.ACTIVE).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getEmoji() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.EMOJI).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCreatedAt() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDAT).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCreatedBy() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDBY).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getTitle() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TITLE).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getTotal() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TOTAL).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getUsers() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.USERS).then((val) => {
+                resolve(val);
+            })
+        })
     }
     
-    /**
-     * Add this transaction to a user by ID
-     * @param {String} userId userId of person to add transaction on
-     * @returns True if success, false otherwise
-     */
-    async addToUser(userId) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return new Promise(async (resolve) => {
-                const userManager = new UserManager(userId);
-                let userData = await userManager.fetchData();
-                if (userData) {
-                    userManager.addTransaction(this.documentId);
-                    super.addChild(userManager);
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            })
-        }
+    // ================= Set Operations ================= //
+
+    setActive(newActive) {
+        const activeChange = new Set(this.fields.ACTIVE, newActive);
+        super.addChange(activeChange);
     }
 
-    /**
-     * Set transaction to active
-     * @returns {Boolean} whether or not this operation was successful
-     */
-    activate() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.active = true;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
+    setEmoji(newEmoji) {
+        const emojiChange = new Set(this.fields.EMOJI, newEmoji);
+        super.addChange(emojiChange);
     }
 
-    /**
-     * Set transaction to inactive
-     * @returns {Boolean} whether or not this operation was successful
-     */
-    deactivate() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.active = false;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
+    setCreatedAt(newCreatedAt) {
+        const createdAtChange = new Set(this.fields.CREATEDAT, newCreatedAt);
+        super.addChange(createdAtChange);
+    }
+    
+    setCreatedBy(newCreatedBy) {
+        const createdByChange = new Set(this.fields.CREATEDBY, newCreatedBy);
+        super.addChange(createdByChange);
+    }
+    
+    setTitle(newTitle) {
+        const titleChange = new Set(this.fields.TITLE, newTitle);
+        super.addChange(titleChange);
     }
 
-    // Get active status
-    getActive() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.active;
-        } else {
-            return super.logNoDataError(false);
-        }
+    // ================= Add Operations ================= //
+    
+    addUser(userId) {
+        const userAddition = new Add(this.fields.USERS, userId);
+        super.addChange(userAddition);
     }
 
-    // Set createdAt dateTime
-    setCreatedAt(date) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.createdAt = date;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Get createdAt
-    getCreatedAt() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.createdAt;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Set barterEmoji string
-    setBarterEmoji(barterEmoji) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.barterEmoji = barterEmoji;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Get barterEmoji
-    getBarterEmoji() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.barterEmoji;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Set createdBy string
-    setCreatedBy(creator) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.createdBy = creator;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Get total
-    getCreatedBy() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.createdBy;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Set fromBookmark boolean
-    setFromBookmark(boolean) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.fromBookmark = boolean;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Get fromBookmark
-    getFromBookmark() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.fromBookmark;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Set title string
-    setTitle(title) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.title = title;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Get total
-    getTitle() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.title;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Set total number
-    setTotal(total) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.total = total;
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Get total
-    getTotal() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.total;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // add a fronter
-    addFronter(fronterId, fronterWeight) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.fronters.push({userId: fronterId, weight: fronterWeight});
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // get all fronters
-    getFronters() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.fronters;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // add a fronter
-    addPayer(payerId, payerWeight) {
-        let transactionData = super.getData();
-        if (transactionData) {
-            transactionData.payers.push({userId: payerId, weight: payerWeight});
-            super.setData(transactionData);
-            return true;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // get all payers
-    getPayers() {
-        let transactionData = super.getData();
-        if (transactionData) {
-            return transactionData.payers;
-        } else {
-            return super.logNoDataError(false);
-        }
-    }
-
-    // Validate that fronter weights add up to 1
-    fronterWeightsValid() {
-        let totalWeight = 0;
-        let transactionData = super.getData();
-        for (const fronter of transactionData.fronters) {
-            totalWeight += fronter.weight;
-        }
-        return totalWeight === 1;
-    }
-
-    // Validate that payer weights add up to 1
-    payerWeightsValid() {
-        let totalWeight = 0;
-        let transactionData = super.getData();
-        for (const payer of transactionData.payers) {
-            totalWeight += payer.weight;
-        }
-        return totalWeight === 1;
+    // ================= Remove Operations ================= //
+    
+    removeUser(userId) {
+        const userRemoval = new Remove(this.fields.USERS, userId);
+        super.addChange(userRemoval);
     }
 }
 
