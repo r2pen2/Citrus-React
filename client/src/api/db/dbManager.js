@@ -32,6 +32,7 @@ function generateId(length) {
 }
 
 export class ObjectManager {
+
     constructor(_objectType, _documentId, _data) {
         this.objectType = _objectType;
         this.documentId = _documentId;
@@ -551,7 +552,6 @@ export class BookmarkManager extends ObjectManager {
     }
 }
 
-// Needs methods
 export class GroupManager extends ObjectManager {
 
     constructor(_id) {
