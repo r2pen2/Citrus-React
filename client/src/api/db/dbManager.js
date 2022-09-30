@@ -550,6 +550,91 @@ export class BookmarkManager extends ObjectManager {
             }
         })
     }
+
+    // ================= Get Operations ================= //
+
+    async getEmoji() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.EMOJI).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCreatedAt() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDAT).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCreatedBy() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CREATEDBY).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getTitle() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TITLE).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getTotal() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TOTAL).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getUsers() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.USERS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+    
+    // ================= Set Operations ================= //
+    setEmoji(newEmoji) {
+        const emojiChange = new Set(this.fields.EMOJI, newEmoji);
+        super.addChange(emojiChange);
+    }
+
+    setCreatedAt(newCreatedAt) {
+        const createdAtChange = new Set(this.fields.CREATEDAT, newCreatedAt);
+        super.addChange(createdAtChange);
+    }
+    
+    setCreatedBy(newCreatedBy) {
+        const createdByChange = new Set(this.fields.CREATEDBY, newCreatedBy);
+        super.addChange(createdByChange);
+    }
+    
+    setTitle(newTitle) {
+        const titleChange = new Set(this.fields.TITLE, newTitle);
+        super.addChange(titleChange);
+    }
+
+    // ================= Add Operations ================= //
+    
+    addUser(userId) {
+        const userAddition = new Add(this.fields.USERS, userId);
+        super.addChange(userAddition);
+    }
+
+    // ================= Remove Operations ================= //
+    
+    removeUser(userId) {
+        const userRemoval = new Remove(this.fields.USERS, userId);
+        super.addChange(userRemoval);
+    }
 }
 
 export class GroupManager extends ObjectManager {
