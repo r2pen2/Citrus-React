@@ -1,6 +1,5 @@
-import { Add, Remove, Set } from "./dbManager";
+import { dbObjectTypes, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
-import { dbObjectTypes } from "../dbManager";
 
 export class GroupManager extends ObjectManager {
 

@@ -25,38 +25,37 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import { signOutUser } from "../../api/firebase";
 import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager";
 import { SessionManager } from "../../api/sessionManager";
+import { DBManager, dbObjectTypes } from "../../api/db/dbManager";
 
 export default function Topbar() {
+  
+  // Get session data
   const user = SessionManager.getUser();
-  const [userDisplayName, setUserDisplayName] = useState(
-    localStorage.getItem("citrus:displayName")
-      ? localStorage.getItem("citrus:displayName")
-      : ""
-  );
-  const [userPhotoUrl, setUserPhotoUrl] = useState(
-    localStorage.getItem("citrus:photoUrl")
-      ? localStorage.getItem("citrus:photoUrl")
-      : ""
-  );
+  const [userDisplayName, setUserDisplayName] = useState(SessionManager.getDisplayName());
+  const [userPhotoUrl, setUserPhotoUrl] = useState(SessionManager.getPfpUrl());
 
-  /**
-   * Replace blank values with user details from DB
-   */
-  async function fetchUserData() {
-    let name = await getDisplayNameById(user.uid);
-    setUserDisplayName(name);
-    let url = await getPhotoUrlById(user.uid);
-    setUserPhotoUrl(url);
-    localStorage.setItem("citrus:pfpUrl", url);
-    localStorage.setItem("citrus:displayName", name);
-  }
+  // If we're logged in, create a UserManager
+  const userManager = user ? DBManager.getObjectManager(dbObjectTypes.USER, user.uid) : null;
+
+
 
   // Fetch user details on mount
   useEffect(() => {
-    if (user) {
+    
+    async function fetchUserData() {
+      let name = await userManager.getDisplayName();
+      setUserDisplayName(name);
+      let url = await userManager.getPhotoUrl();
+      setUserPhotoUrl(url);
+      SessionManager.setPfpUrl(url);
+      SessionManager.setDisplayName(name);
+    }
+
+    // If user is present in LocalStorage, fetch data
+    if (SessionManager.userInLS()) {
       fetchUserData();
     }
-  }, []);
+  });
 
   /**
    * Checks whether a user is completely signed in based on whether or not they have a display name

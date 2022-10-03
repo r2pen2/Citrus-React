@@ -43,7 +43,7 @@ function App() {
   }, []);
 
   // If we ever don't have a user stored in localStorage, make sure they're actually singed out!
-  if (!SessionManager.LSExists()) {
+  if (!SessionManager.userInLS()) {
     signOutUser();
   }
 

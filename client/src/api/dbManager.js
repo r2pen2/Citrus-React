@@ -2,6 +2,9 @@ import { firestore } from "./firebase";
 import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { sortByDate } from "./sorting";
 
+/**
+ * @deprecated 
+ */
 
 const USER_COLLECTION = "users";
 const GROUP_COLLECTION = "groups";

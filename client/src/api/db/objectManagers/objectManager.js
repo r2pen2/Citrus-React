@@ -1,5 +1,5 @@
 import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { firestore } from "../firebase";
+import { firestore } from "../../firebase";
 import { Debugger } from "../../debugger";
 
 import { changeTypes, dbObjectTypes } from "../dbManager";
@@ -133,6 +133,7 @@ export class ObjectManager {
     * @returns {Object} data from document snapshot
     */
     async fetchData() {
+        Debugger.log("Fetching object data...");
         return new Promise(async (resolve) => {
             const docSnap = await getDoc(this.docRef);
             if (docSnap.exists()) {

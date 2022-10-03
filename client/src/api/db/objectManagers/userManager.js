@@ -1,6 +1,6 @@
-import { Add, Remove, Set } from "./dbManager";
+import { dbObjectTypes, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
-import { dbObjectTypes } from "../dbManager";
+import { Debugger } from "../../debugger";
 
 export class UserManager extends ObjectManager {
     
@@ -174,7 +174,8 @@ export class UserManager extends ObjectManager {
 
     async handleGet(field) {
         return new Promise(async (resolve, reject) => {
-            if (!this.fetched) {
+            if (!this.fetched || !this.data) {
+                Debugger.log("Need to fetch data before GET");
                 await super.fetchData();
             }
             switch(field) {
