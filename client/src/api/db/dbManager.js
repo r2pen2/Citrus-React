@@ -1,3 +1,12 @@
+import { BadgeManager } from "./objectManagers/badgeManager";
+import { BookmarkManager } from "./objectManagers/bookmarkManager";
+import { GroupManager } from "./objectManagers/groupManager";
+import { TransactionAttemptManager } from "./objectManagers/transactionAttemptManager";
+import { TransactionManager } from "./objectManagers/transactionManager";
+import { UserManager } from "./objectManagers/userManager";
+import { InvitationManager } from "./objectManagers/invitationManager";
+import { Debugger } from "../debugger";
+
 export const changeTypes = {
     SET: "set",
     REMOVE: "remove",
@@ -60,5 +69,26 @@ export class DBManager {
        return result;
     }
 
-    
+    static getObjectManager(objectType, objectId) {
+        Debugger.log("Generating object manager for: " + objectType);
+        switch (objectType) {
+            case dbObjectTypes.BOOKMARK:
+                return new BookmarkManager(objectId);
+            case dbObjectTypes.BADGE:
+                return new BadgeManager(objectId);
+            case dbObjectTypes.GROUP:
+                return new GroupManager(objectId);
+            case dbObjectTypes.INVITATION:
+                return new InvitationManager(objectId);
+            case dbObjectTypes.TRANSACTION:
+                return new TransactionManager(objectId);
+            case dbObjectTypes.TRANSACTIONATTEMPT:
+                return new TransactionAttemptManager(objectId);
+            case dbObjectTypes.USER:
+                return new UserManager(objectId);
+            default:
+                Debugger.log("DBManager was asked to return the manager for an invalid object type!");
+                break;
+        }
+    }
 }
