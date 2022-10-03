@@ -12,9 +12,12 @@ import { useState } from 'react';
 // Component imports
 import AccountTab from './AccountTab.jsx';
 
+// API imports
+import { SessionManager } from "../../../api/sessionManager";
+
 export default function Settings() {
 
-    const user = JSON.parse(localStorage.getItem("citrus:user"));
+    const user = SessionManager.getUser();
     
     // Redirect or set document title
     if (!user) {

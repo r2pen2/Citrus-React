@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getFirestore } from 'firebase/firestore'
 import { getAuth, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { clearLS } from './localStorage';
+import { SessionManager } from './sessionManager';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -40,7 +40,7 @@ export const firestore = getFirestore();
 export async function signOutUser() {
   return new Promise((resolve, reject) => {
       signOut(auth).then((result) => {
-          clearLS();
+          SessionManager.clearLS();
           resolve(null);
       }).catch((error) => {
           reject(error);

@@ -4,10 +4,11 @@ import "./newUserForm.scss";
 // Library imports
 import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";
 import { useState } from 'react';
-import { updateProfile } from 'firebase/auth'
+import { updateProfile } from 'firebase/auth';
 
 // API Imports
-import { updateDisplayNameById } from "../../../api/dbManager"
+import { updateDisplayNameById } from "../../../api/dbManager";
+import { SessionManager } from "../../../api/sessionManager";
 
 // A set of welcome messages to be displayed on the account creation page
 // Please feel free to edit these lol
@@ -49,7 +50,7 @@ const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
 export default function NewUserForm() {
 
-  const user = JSON.parse(localStorage.getItem("citrus:user"));
+  const user = SessionManager.getUser();
 
 
   // Define constants

@@ -1,3 +1,5 @@
+import { SessionManager } from "../api/sessionManager";
+
 /**
  * Test user object for signing in and out
  */
@@ -20,12 +22,13 @@ export const testUser = {
  * Create test user on localStorage
  */
 export function signInTestUser() {
-    localStorage.setItem("citrus:user", JSON.stringify(testUser));
+    const sessionManager = new SessionManager(testUser);
+    sessionManager.saveToLS();
 }
 
 /**
  * Remove test user from localStorage
  */
 export function signOutTestUser() {
-    localStorage.removeItem("citrus:user");
+    SessionManager.clearLS();
 }

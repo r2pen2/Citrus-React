@@ -1,11 +1,14 @@
 // Style imports
 import "./authCodeInput.scss";
 
-// Liibrary Imports
+// Library Imports
 import * as React from 'react';
 import { useState } from 'react';
 import { Typography, Button, Stack, TextField } from "@mui/material";
 import { NotificationManager } from 'react-notifications';
+
+// API imports
+import { SessionManager } from "../../../api/sessionManager";
 
 export default function AuthCodeInput({phoneNumber, confirmationResult, resendCode}) {
 
@@ -38,7 +41,7 @@ export default function AuthCodeInput({phoneNumber, confirmationResult, resendCo
       // Verify OTP
       console.log(confirmationResult)
       confirmationResult.confirm(authCode).then((result) => {
-        localStorage.setItem("citrus:user", JSON.stringify(result.user));
+        SessionManager.setUser(result.user);
         if (result.user.displayName) {
           // If we've logged in this user before, redirect to dashboard
           window.location = "/dashboard";

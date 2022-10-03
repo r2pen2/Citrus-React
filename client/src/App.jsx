@@ -23,7 +23,7 @@ import creditsData from './assets/json/creditsPage';
 
 // API imports
 import { syncUserDoc } from "./api/dbManager";
-import { clearLS } from "./api/localStorage";
+import { SessionManager } from "./api/sessionManager";
 
 function App() {
 
@@ -32,21 +32,20 @@ function App() {
     auth.onAuthStateChanged(u => {
       if (u) {
         syncUserDoc(u);
-        localStorage.setItem("citrus:user", JSON.stringify(u));
-        localStorage.setItem("citrus:pfpUrl", u.photoURL);
-        localStorage.setItem("citrus:displayName", u.displayName);
+        SessionManager.setUser(u);
+        SessionManager.setPfpUrl(u.photoURL);
+        SessionManager.setDisplayName(u.displayName);
       }
       else {
-        clearLS();
+        SessionManager.clearLS();
       }
     })
   }, []);
 
   // If we ever don't have a user stored in localStorage, make sure they're actually singed out!
-  if (!localStorage.getItem("citrus:user")) {
+  if (!SessionManager.LSExists()) {
     signOutUser();
   }
-  
 
   return (
     <div className="app" data-testid="app-wrapper">

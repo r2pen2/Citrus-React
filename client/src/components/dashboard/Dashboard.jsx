@@ -18,6 +18,9 @@ import Analytics from "./analytics/Analytics";
 import Bookmarks from "./bookmarks/Bookmarks";
 import Transaction from "./transaction/Transaction";
 
+// API imports
+import { SessionManager } from "../../api/sessionManager";
+
 /**
  * If we're not signed in, redirect to login.
  * Othwerwise, set the document title and continue to dashboard.
@@ -32,7 +35,7 @@ function doPageSetup(u) {
 
 export default function Dashboard() {
 
-  const user = JSON.parse(localStorage.getItem("citrus:user"));
+  const user = SessionManager.getUser();
   // Set up page
   doPageSetup(user);
 

@@ -7,9 +7,12 @@ import { Route, Routes } from "react-router-dom";
 // Component imports
 import Settings from "./settings/Settings";
 
+// API imports
+import { SessionManager } from "../../api/sessionManager";
+
 export default function UserPage() {
     
-    const user = JSON.parse(localStorage.getItem("citrus:user"));
+    const user = SessionManager.getUser();
 
     // If we have no user, redirect to login
     // Otherwise, set document title with context.

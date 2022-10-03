@@ -24,9 +24,10 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 // API Imports
 import { signOutUser } from "../../api/firebase";
 import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager";
+import { SessionManager } from "../../api/sessionManager";
 
 export default function Topbar() {
-  const user = JSON.parse(localStorage.getItem("citrus:user"));
+  const user = SessionManager.getUser();
   const [userDisplayName, setUserDisplayName] = useState(
     localStorage.getItem("citrus:displayName")
       ? localStorage.getItem("citrus:displayName")

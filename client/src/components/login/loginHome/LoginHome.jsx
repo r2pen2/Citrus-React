@@ -10,6 +10,7 @@ import GoogleLogo from "../../../assets/images/GoogleLogo.svg";
 
 // Api imports
 import { signInWithGoogle } from "../../../api/firebase";
+import { SessionManager } from "../../../api/sessionManager";
 
 export default function LoginHome() {
 
@@ -19,7 +20,7 @@ export default function LoginHome() {
    */
   async function handleSignIn() {
     signInWithGoogle().then((newUser) => {
-        localStorage.setItem("citrus:user", JSON.stringify(newUser));
+        SessionManager.setUser(newUser);
         window.location = "/dashboard";
     });
   }

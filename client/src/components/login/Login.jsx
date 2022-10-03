@@ -11,6 +11,9 @@ import NewUserForm from "./newUsers/NewUserForm";
 import LoginHome from "./loginHome/LoginHome";
 import Logo from "../../assets/images/Logo256.png";
 
+// API imports
+import { SessionManager } from "../../api/sessionManager";
+
 /**
  * Set the document title or redirect to dashboard
  * @param {Object} u current user
@@ -24,7 +27,7 @@ async function doPageSetup(u) {
 }
 
 export default function Login() {
-  const user = JSON.parse(localStorage.getItem("citrus:user"));
+  const user = SessionManager.getUser();
   doPageSetup(user)
 
   return (
