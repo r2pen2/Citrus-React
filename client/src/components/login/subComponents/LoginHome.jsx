@@ -45,7 +45,7 @@ export default function LoginHome() {
   }
 
   return (
-    <div className="login-home-wrapper" data-testid="login-home">
+    <div className="login-home-wrapper center-contents-column" data-testid="login-home">
       <Button data-testid="google-button" className="login-btn"  variant="contained" onClick={() => handleSignIn()}>
         <img src={GoogleLogo} alt="Google Logo"/>
         <Typography marginLeft="10px">Sign in with Google</Typography>
