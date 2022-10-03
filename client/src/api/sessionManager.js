@@ -24,6 +24,14 @@ export class SessionManager {
         localStorage.setItem("citrus:displayName", displayName);
     }
 
+    static getDebugMode() {
+        return JSON.parse(localStorage.getItem("citrus:debug"));
+    }
+
+    static setDebugMode(debugMode) {
+        localStorage.setItem("citrus:debug", JSON.stringify(debugMode));
+    }
+
     static log() {
         const jsonObject = {
             user: this.getUser(),
