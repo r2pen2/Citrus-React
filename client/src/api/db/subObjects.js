@@ -11,7 +11,6 @@ const emojiIds = {
     PIZZA: "&#x1F355",
     SKULL: "&#x1F480",
     ZOMBIE: "&#x1F9DF",
-    
 }
 
 // All possible invitation method strings
