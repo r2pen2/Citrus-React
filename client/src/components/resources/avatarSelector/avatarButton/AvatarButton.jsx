@@ -4,6 +4,9 @@ import "./avatarButton.scss";
 // Library imports
 import { Avatar, Box, IconButton, Typography } from "@mui/material";
 
+// API imports
+import { Debugger } from "../../../../api/debugger";
+
 // when we integrate backend, will just take user
 export default function AvatarButton({
   index,
@@ -17,8 +20,8 @@ export default function AvatarButton({
   const isSelected = selectedFriendName === firstName;
 
   function handleClick() {
-    console.log("selected friend: " + selectedFriendName);
-    console.log("this person: " + firstName);
+    Debugger.log("selected friend: " + selectedFriendName);
+    Debugger.log("this person: " + firstName);
     if (isSelected) {
       setSelectedFriendName("");
       setSelectedFriendId("");

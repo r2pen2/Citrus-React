@@ -27,4 +27,8 @@ export class Debugger {
             console.log(message);
         }
     }
+
+    static logSession() {
+        this.log(SessionManager.getJSON())
+    }
 }

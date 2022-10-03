@@ -9,6 +9,7 @@ import { NotificationManager } from 'react-notifications';
 
 // API imports
 import { SessionManager } from "../../../api/sessionManager";
+import { Debugger } from "../../../api/debugger";
 
 export default function AuthCodeInput({phoneNumber, confirmationResult, resendCode}) {
 
@@ -39,7 +40,7 @@ export default function AuthCodeInput({phoneNumber, confirmationResult, resendCo
   function checkAuthCode() {
     if (authCode.length === 6) {
       // Verify OTP
-      console.log(confirmationResult)
+      Debugger.log(confirmationResult)
       confirmationResult.confirm(authCode).then((result) => {
         SessionManager.setUser(result.user);
         if (result.user.displayName) {

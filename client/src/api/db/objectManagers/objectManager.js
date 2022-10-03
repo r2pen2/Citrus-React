@@ -109,7 +109,7 @@ export class ObjectManager {
      * Log the objectManager's data
      */
     logData() {
-        console.log(this.data);
+        Debugger.log(this.data);
     }
 
     logChangeFail(change) {

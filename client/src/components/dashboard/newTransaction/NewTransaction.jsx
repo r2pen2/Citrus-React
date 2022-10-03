@@ -9,11 +9,14 @@ import { useState } from 'react';
 import Split from "./pages/Split";
 import IOU from "./pages/IOU";
 
+// API imports
+import { Debugger } from "../../../api/debugger";
+
 export default function NewTransaction({ user }) {
   const [tabValue, setTabValue] = useState(0);
 
   function sendTransactionToDatabase() {
-    console.log("Sending transaction to database!")
+    Debugger.log("Sending transaction to database!")
   }
 
   function handleChangeTab(e, newValue) {

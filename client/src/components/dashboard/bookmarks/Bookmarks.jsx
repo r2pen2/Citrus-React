@@ -8,6 +8,8 @@ import { sortByCreatedAt } from '../../../api/sorting';
 
 import { useState, useEffect } from 'react';
 
+import { Debugger } from "../../../api/debugger";
+
 import { ColoredCard } from "../../resources/Surfaces";
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -106,7 +108,7 @@ export default function Bookmarks({user}) {
           return (
             <div className="bookmark-wrapper" key={idx} onMouseEnter={(e) => handleHoverEnter(bookmark, e)} onMouseLeave={(e) => handleHoverExit(e)}>
               <ColoredCard color={getBookmarkColor(bookmark)}>
-                <CardActionArea onClick={() => console.log("Sending transaction for bookmark: " + bookmark.id)}>
+                <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + bookmark.id)}>
                   <CardContent>
                     <div className="bookmark">
                       <div className="left">

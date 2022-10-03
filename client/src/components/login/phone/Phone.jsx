@@ -13,6 +13,9 @@ import { auth } from '../../../api/firebase';
 // Component imports
 import AuthCodeInput from './AuthCodeInput';
 
+// API imports
+import { Debugger } from "../../../api/debugger";
+
 /**
  * Removes all special characters from phone number string and adds leading "+"
  * @param {String} num number string to be formatted
@@ -47,7 +50,7 @@ export default function Phone() {
     }
 
     function generateRecapcha() {
-        console.log(auth)
+        Debugger.log(auth)
         window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
             'size': 'invisible',
             'callback': (response) => {
@@ -68,7 +71,7 @@ export default function Phone() {
         signInWithPhoneNumber(auth, num, appVerifier).then((res) => {
             setConfirmationResult(res);
         }).catch((error) => {
-            console.log(error);
+            Debugger.log(error);
         });
     }
 

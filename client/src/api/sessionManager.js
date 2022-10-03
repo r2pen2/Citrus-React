@@ -32,20 +32,20 @@ export class SessionManager {
         localStorage.setItem("citrus:debug", JSON.stringify(debugMode));
     }
 
-    static log() {
-        const jsonObject = {
-            user: this.getUser(),
-            pfpUrl: this.getPfpUrl(),
-            displayName: this.getDisplayName()
-        }
-        console.log(jsonObject);
-    }
-
     static LSExists() {
         return localStorage.getItem("citrus:user") ? true : false;
     }
 
     static clearLS() {
         localStorage.removeItem("citrus:session");
+    }
+
+    static getJSON() {
+        return {
+            user: this.getUser(),
+            pfpUrl: this.getPfpUrl(),
+            displayName: this.getDisplayName(),
+            debugMode: this.getDebugMode()
+        }
     }
 }
