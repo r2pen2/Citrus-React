@@ -23,8 +23,8 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 
 // API Imports
 import { signOutUser } from "../../api/firebase";
-import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager";
 import { SessionManager } from "../../api/sessionManager";
+import { RouteManager } from "../../api/routeManager";
 import { DBManager, dbObjectTypes } from "../../api/db/dbManager";
 
 export default function Topbar() {
@@ -41,7 +41,7 @@ export default function Topbar() {
 
   // Fetch user details on mount
   useEffect(() => {
-    
+
     async function fetchUserData() {
       let name = await userManager.getDisplayName();
       setUserDisplayName(name);
@@ -58,30 +58,11 @@ export default function Topbar() {
   });
 
   /**
-   * Checks whether a user is completely signed in based on whether or not they have a display name
-   * @returns {Boolean} whether or not the user has completed signin process
-   */
-  function getSignedIn() {
-    if (user) {
-      if (user.displayName === null) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  // Check if the user is signed in
-  const signedIn = getSignedIn();
-
-  /**
    * Log user out and redirect to homepage
    */
   async function logOut() {
     signOutUser().then(() => {
-      window.location = "/home";
+      RouteManager.redirect("/home");
     });
   }
 
@@ -131,7 +112,7 @@ export default function Topbar() {
   }
 
   // Choose which topbar to display— signedIn is displays user information
-  if (signedIn) {
+  if (SessionManager.userFullySignedIn()) {
     // Signed in, so set user vars and return detail topbar
     return (
       <div className="topbar" data-testid="topbar-wrapper">

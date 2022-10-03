@@ -5,7 +5,9 @@ import { TransactionAttemptManager } from "./objectManagers/transactionAttemptMa
 import { TransactionManager } from "./objectManagers/transactionManager";
 import { UserManager } from "./objectManagers/userManager";
 import { InvitationManager } from "./objectManagers/invitationManager";
-import { Debugger } from "../debugger";
+import { Debugger, controllerObjects } from "../debugger";
+
+const dbDebugger = new Debugger(controllerObjects.DBMANAGER);
 
 export const changeTypes = {
     SET: "set",
@@ -70,7 +72,7 @@ export class DBManager {
     }
 
     static getObjectManager(objectType, objectId) {
-        Debugger.log("Generating object manager for: " + objectType);
+        dbDebugger.logWithPrefix("Generating object manager for: " + objectType);
         switch (objectType) {
             case dbObjectTypes.BOOKMARK:
                 return new BookmarkManager(objectId);
@@ -87,7 +89,7 @@ export class DBManager {
             case dbObjectTypes.USER:
                 return new UserManager(objectId);
             default:
-                Debugger.log("DBManager was asked to return the manager for an invalid object type!");
+                dbDebugger.logWithPrefix("DBManager was asked to return the manager for an invalid object type!");
                 break;
         }
     }

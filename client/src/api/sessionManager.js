@@ -68,6 +68,25 @@ export class SessionManager {
         return localStorage.getItem("citrus:user") ? true : false;
     }
 
+
+
+    /**
+     * Checks whether a user is completely signed in based on whether or not they have a display name
+     * @returns whether or not the user has completed signin process
+     */
+    static userFullySignedIn() {
+        const user = this.getUser();
+        if (user) {
+            if (user.displayName === null) {
+              return false;
+            } else {
+              return true;
+            }
+          } else {
+            return false;
+        }
+    }
+
     /**
      * Clear all citrus related localstorage keys
      */

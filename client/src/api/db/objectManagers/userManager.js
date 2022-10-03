@@ -175,7 +175,6 @@ export class UserManager extends ObjectManager {
     async handleGet(field) {
         return new Promise(async (resolve, reject) => {
             if (!this.fetched || !this.data) {
-                Debugger.log("Need to fetch data before GET");
                 await super.fetchData();
             }
             switch(field) {

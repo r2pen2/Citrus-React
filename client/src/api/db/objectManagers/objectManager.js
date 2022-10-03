@@ -1,6 +1,6 @@
 import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
-import { Debugger } from "../../debugger";
+import { Debugger, controllerObjects } from "../../debugger";
 
 import { changeTypes, dbObjectTypes } from "../dbManager";
 
@@ -15,6 +15,29 @@ export class ObjectManager {
         this.error = false;
         this.fetched = false;
         this.changes = [];
+        this.debugger = this.getDebugger();
+    }
+
+    getDebugger() {
+        switch (this.objectType) {
+            case dbObjectTypes.BOOKMARK:
+                return new Debugger(controllerObjects.OBJECTMANAGERBOOKMARK);
+            case dbObjectTypes.GROUP:
+                return new Debugger(controllerObjects.OBJECTMANAGERGROUP);
+            case dbObjectTypes.TRANSACTIONATTEMPT:
+                return new Debugger(controllerObjects.OBJECTMANAGERTRANSACTIONATTEMPT);
+            case dbObjectTypes.TRANSACTION:
+                return new Debugger(controllerObjects.OBJECTMANAGERTRANSACTION);
+            case dbObjectTypes.INVITATION:
+                // Invitations have different collections depending on their type
+                return new Debugger(controllerObjects.OBJECTMANAGERINVITATION);
+            case dbObjectTypes.USER:
+                return new Debugger(controllerObjects.OBJECTMANAGERUSER);
+            case dbObjectTypes.BADGE:
+                return new Debugger(controllerObjects.OBJECTMANAGERBADGE);
+            default:
+                return null;
+        }
     }
 
     addChange(change) {
@@ -25,9 +48,9 @@ export class ObjectManager {
     async applyChanges() {
         return new Promise(async (resolve, reject) => {
             if (!this.fetched) {
-                Debugger.log("Fetching data to apply changes...");
+                this.debugger.logWithPrefix("Fetching data to apply changes...");
                 await this.fetchData();
-                Debugger.log("Fetch complete!");
+                this.debugger.logWithPrefix("Fetch complete!");
             }
             if (this.data) {
                 this.data = this.formatData();
@@ -43,13 +66,13 @@ export class ObjectManager {
                             this.data = this.handleSet(change, this.data);
                             break;
                         default:
-                            Debugger.log("Invalid change type when trying to apply changes!");
+                            this.debugger.logWithPrefix("Invalid change type when trying to apply changes!");
                             break;
                     }
                 }
                 resolve(true);
             } else {
-                Debugger.log("Applying changes failed because data was null!");
+                this.debugger.logWithPrefix("Applying changes failed because data was null!");
                 resolve(false);
             }
         })
@@ -109,19 +132,19 @@ export class ObjectManager {
      * Log the objectManager's data
      */
     logData() {
-        Debugger.log(this.data);
+        this.debugger.logWithPrefix(this.data);
     }
 
     logChangeFail(change) {
-        Debugger.log(change.toString + ' failed to apply on object "' + this.objectType + '" because field does not accept this kind of change!');
+        this.debugger.logWithPrefix(change.toString + ' failed to apply because field does not accept this kind of change!');
     }
 
     logInvalidChangeField(change) {
-        Debugger.log(change.toString + ' failed to apply on object "' + this.objectType + '" because the field was not recognized!');
+        this.debugger.logWithPrefix(change.toString + ' failed to apply because the field was not recognized!');
     }
 
     logInvalidGetField(field) {
-        Debugger.log('"' + field + '" is not a valid field on object "' + this.objectType + '"!');
+        this.debugger.logWithPrefix('"' + field + '" is not a valid field!');
     }
 
     getChildren() {
@@ -133,7 +156,7 @@ export class ObjectManager {
     * @returns {Object} data from document snapshot
     */
     async fetchData() {
-        Debugger.log("Fetching object data...");
+        this.debugger.logWithPrefix("Fetching object data...");
         return new Promise(async (resolve) => {
             const docSnap = await getDoc(this.docRef);
             if (docSnap.exists()) {
@@ -141,7 +164,7 @@ export class ObjectManager {
                 this.fetched = true;
                 resolve(docSnap.data());
             } else {
-                Debugger.log("Error: Document snapshot didn't exist!");
+                this.debugger.logWithPrefix("Error: Document snapshot didn't exist!");
                 this.data = null;
                 resolve(false);
             }
@@ -162,11 +185,11 @@ export class ObjectManager {
                     this.fetched = true;
                     resolve(docSnap.data());
                 } else {
-                    Debugger.log("No document with this ID exists on DB.");
+                    this.debugger.logWithPrefix("No document with this ID exists on DB.");
                     if (fetchAttempts > maxAttempts) {
                         resolve(null);
                     } else {
-                        Debugger.log("Didn't find data on attempt " + (fetchAttempts + 1));
+                        this.debugger.logWithPrefix("Didn't find data on attempt " + (fetchAttempts + 1));
                         setTimeout(() => {
                             resolve(fetchRecursive(fetchAttempts + 1));
                         }, delay);
@@ -188,10 +211,10 @@ export class ObjectManager {
             return this.data;
         } else {
             if (!this.fetched) {
-                Debugger.log("We need to fetch data first... Fetching!");
+                this.debugger.logWithPrefix("We need to fetch data first... Fetching!");
                 return this.fetchData();
             } else {
-                Debugger.log("getData() returned null AFTER fetching!");
+                this.debugger.logWithPrefix("getData() returned null AFTER fetching!");
             }
         }
     }
@@ -209,26 +232,26 @@ export class ObjectManager {
                 if (this.changed) {
                     if (this.documentId) {
                         // Document has an ID. Set data and return true
-                        Debugger.log('Applying changes to: ' + this.toString());
+                        this.debugger.logWithPrefix('Applying changes to: ' + this.toString());
                         await this.applyChanges();                    
-                        Debugger.log('Pushing changes to: ' + this.toString());
+                        this.debugger.logWithPrefix('Pushing changes to: ' + this.toString());
                         await setDoc(this.docRef, this.data);
                     } else {
                         await this.applyChanges();
                         const newDoc = await addDoc(collection(firestore, this.getCollection), this.data);
                         this.documentId = newDoc.id;
                         this.docRef = newDoc;
-                        Debugger.log('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
+                        this.debugger.logWithPrefix('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
                     }
                 } else {
-                    Debugger.log("No changes were made to: " + this.toString());
+                    this.debugger.logWithPrefix("No changes were made to: " + this.toString());
                 }
                 resolve(true);
             })
         } else {
             // Don't push if there was an error
-            Debugger.log("Error detected in objectManager: " + this.toString());
-            Debugger.log("Changes will not be pushed!");
+            this.debugger.logWithPrefix("Error detected in objectManager: " + this.toString());
+            this.debugger.logWithPrefix("Changes will not be pushed!");
         }
     }
 
@@ -249,7 +272,7 @@ export class ObjectManager {
 
     // Print no data error and return param;
     logNoDataError(retval) {
-        Debugger.log("Error! ObjectManager<" + this.objectType + "> failed to return data to child class.");
+        this.debugger.logWithPrefix("Error! Failed to return data to child class.");
         this.error = true;
         return retval;
     }
