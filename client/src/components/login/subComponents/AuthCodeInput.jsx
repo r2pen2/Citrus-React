@@ -1,6 +1,3 @@
-// Style imports
-import "./authCodeInput.scss";
-
 // Library Imports
 import * as React from 'react';
 import { useState } from 'react';
@@ -67,7 +64,7 @@ export default function AuthCodeInput({phoneNumber, confirmationResult, resendCo
   }
 
   return (
-    <div data-testid="auth-code-input">  
+    <div data-testid="auth-code-input" className="auth-code-input-page-wrapper">  
       <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
           Enter your 6 digit authentication code:
       </Typography>

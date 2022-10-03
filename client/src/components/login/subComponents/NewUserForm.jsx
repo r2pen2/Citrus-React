@@ -1,14 +1,11 @@
-// Style imports
-import "./newUserForm.scss";
-
 // Library imports
-import { Stack, TextField, Typography, Box, Button, ListItem, ListItemText, Collapse } from "@mui/material";
+import { Stack, TextField, Typography, Box, Button } from "@mui/material";
 import { useState } from 'react';
-import { updateProfile } from 'firebase/auth';
 
 // API Imports
-import { updateDisplayNameById } from "../../../api/dbManager";
 import { SessionManager } from "../../../api/sessionManager";
+import { DBManager } from "../../../api/db/dbManager";
+import { RouteManager } from "../../../api/routeManager";
 
 // A set of welcome messages to be displayed on the account creation page
 // Please feel free to edit these lol
@@ -48,10 +45,13 @@ const helloMessages = [
 // the page state is updated for any reason
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
+/**
+ * Form for new users to create their accounts
+ */
 export default function NewUserForm() {
 
+  // Get user data from localStorage (if it exists, that is)
   const user = SessionManager.getUser();
-
 
   // Define constants
   const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)
@@ -91,9 +91,10 @@ export default function NewUserForm() {
    * Submits new user data to server for account creation
    */
   function handleSubmit() {
-    updateDisplayNameById(user.uid, firstName + " " + lastName).then(() => {
-      // Profile updated!
-      window.location = "/dashboard"
+    const userManager = DBManager.getUserManager(user.uid);
+    userManager.setDisplayName(firstName + " " + lastName);
+    userManager.push().then(() => {
+      RouteManager.redirect("/dashboard");
     })
   }
 
@@ -103,7 +104,7 @@ export default function NewUserForm() {
    */
   function handleEnter(e) {
     if (e.key === "Enter") {
-      e.preventDefault();
+      e.preventDefault(); // Prevent default action of enter keypress
       if (submitEnable) {
         handleSubmit();
       }

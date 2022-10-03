@@ -65,3 +65,44 @@
         align-items: center;
     }
 }
+
+.phone-page-wrapper {
+    .phone-input-container {
+        justify-content: center;
+        margin-top: 30px;
+        display: flex;
+    }
+    
+    .call-me-button-container {
+        margin-top: 20px;
+    }
+}
+
+.auth-code-input-page-wrapper {
+    .auth-input-container {
+        justify-content: center;
+        margin-top: 30px;
+        display: flex;
+    }
+    .try-again-button-container {
+        margin-top: 10px;
+        justify-content: center;
+        display: flex;
+    }    
+}
+
+.login-home-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%; 
+    height: 100%;
+    margin-top: 80px;
+
+    .login-btn {
+        width: 100%;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+}

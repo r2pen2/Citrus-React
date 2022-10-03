@@ -2,13 +2,13 @@
 import "./login.scss"
 
 // Library Imports
-import { Stack, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
 
 // Component Imports
-import Phone from "./phone/Phone";
-import NewUserForm from "./newUsers/NewUserForm";
-import LoginHome from "./loginHome/LoginHome";
+import Phone from "./subComponents/Phone";
+import NewUserForm from "./subComponents/NewUserForm";
+import LoginHome from "./subComponents/LoginHome";
 import { SpinningLogo } from "../resources/Login";
 
 // API imports

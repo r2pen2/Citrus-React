@@ -1,6 +1,3 @@
-// Style imports
-import "./phone.scss";
-
 // Library imports
 import * as React from 'react';
 import { useState } from 'react';
@@ -19,12 +16,15 @@ import { Debugger } from "../../../api/debugger";
 /**
  * Removes all special characters from phone number string and adds leading "+"
  * @param {String} num number string to be formatted
- * @returns {String} formatted phone string to be used in DB
+ * @returns formatted phone string to be used in DB
  */
 function formatPhoneNumber(num) {
     return "+" + num.replace(/\D/g, '');
 }
 
+/**
+ * Page for users to sign in with their phone number
+ */
 export default function Phone() {
 
     // Define constants
@@ -98,7 +98,7 @@ export default function Phone() {
         return <AuthCodeInput phoneNumber={phoneNumber} confirmationResult={confirmationResult} resendCode={textMe}/>;
     } else {
         return (
-            <div data-testid="phone-input-container">  
+            <div data-testid="phone-input-container" className="phone-page-wrapper">  
                 <Typography variant="h5" component="div" align="center" sx={{ flexGrow: 1 }}>
                     Enter your phone number:
                 </Typography>

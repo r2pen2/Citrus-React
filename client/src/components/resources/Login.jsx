@@ -1,8 +1,14 @@
-import { useState } from 'react'
+// Component Imports
 import Logo from "../../assets/images/Logo256.png";
 
+/**
+ * A cute little component for login: Citrus logo that spins on click 
+ */
 export function SpinningLogo() {
 
+    /**
+     * Handle logo click
+     */
     function spin() {
         const spinner = document.getElementById("login-logo-spinner");
         spinner.classList.toggle("spin");

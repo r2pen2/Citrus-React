@@ -1,3 +1,7 @@
+/**
+ * SessionManager is a tool for interfacing with the browser's localStorage.
+ * Keeps page data consistent even after a redirect
+ */
 export class SessionManager {
 
     /**

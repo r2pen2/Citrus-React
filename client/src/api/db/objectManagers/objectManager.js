@@ -4,6 +4,10 @@ import { Debugger, controllerObjects } from "../../debugger";
 
 import { changeTypes, dbObjectTypes } from "../dbManager";
 
+/**
+ * ObjectManager is an abstract class used to standardize higher-level oprations of database objects
+ * @todo This should probably be turned into a typescript file in the future, but that would be a lot of work.
+ */
 export class ObjectManager {
 
     constructor(_objectType, _documentId, _data) {
@@ -246,7 +250,6 @@ export class ObjectManager {
                         this.debugger.logWithPrefix('Applying changes to: ' + this.toString());
                         await this.applyChanges();                    
                         this.debugger.logWithPrefix('Pushing changes to: ' + this.toString());
-                        console.log(this.data)
                         await setDoc(this.docRef, this.data);
                     } else {
                         await this.applyChanges();
