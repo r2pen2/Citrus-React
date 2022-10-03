@@ -34,3 +34,15 @@ body, ul {
 .spacer {
     margin-left: 20px;
 }
+
+.center-contents {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    &.column {
+        flex-direction: column;
+    }
+}

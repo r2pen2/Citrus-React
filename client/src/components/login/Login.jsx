@@ -9,7 +9,7 @@ import { Route, Routes } from "react-router-dom";
 import Phone from "./phone/Phone";
 import NewUserForm from "./newUsers/NewUserForm";
 import LoginHome from "./loginHome/LoginHome";
-import Logo from "../../assets/images/Logo256.png";
+import { SpinningLogo } from "../resources/Login";
 
 // API imports
 import { RouteManager } from "../../api/routeManager";
@@ -19,11 +19,9 @@ export default function Login() {
 
   return (
     <div className="background-controller" data-testid="login-background-controller">
-      <Paper className="login-content" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
-        <Stack spacing={3} alignItems="center" justifyContent="center">
-          <div className="login-logo-container"> 
-            <img src={Logo} alt="logo" className="logo" data-testid="login-logo"></img>
-          </div>
+      <Paper className="login-content" elevation={12}>
+        <div className="center-contents column">
+          <SpinningLogo />
           <div className="login-input-window">
             <Routes>
               <Route path="/" element={<LoginHome/>}/>
@@ -32,7 +30,7 @@ export default function Login() {
               <Route path="/account-creation" element={<NewUserForm/>}/>
             </Routes>
           </div>
-        </Stack>
+        </div>
       </Paper>
     </div>
   );
