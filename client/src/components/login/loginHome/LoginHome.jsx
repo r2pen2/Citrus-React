@@ -10,18 +10,38 @@ import GoogleLogo from "../../../assets/images/GoogleLogo.svg";
 
 // Api imports
 import { signInWithGoogle } from "../../../api/firebase";
+import { DBManager } from "../../../api/db/dbManager";
 import { SessionManager } from "../../../api/sessionManager";
+import { RouteManager } from "../../../api/routeManager";
 
 export default function LoginHome() {
 
   /**
    * Sign user in with google if button is pressed
-   * Set localStorage itema and redirect to dashboard
+   * Set localStorage item and redirect to dashboard
    */
   async function handleSignIn() {
-    signInWithGoogle().then((newUser) => {
+    signInWithGoogle().then(async (newUser) => {
+        // Set session details
         SessionManager.setUser(newUser);
-        window.location = "/dashboard";
+
+        // Create object manager for new user
+        const userManager = DBManager.getUserManager(newUser.uid);
+        let documentExists = await userManager.documentExists();
+        userManager.setLastLoginAt(new Date());
+        userManager.setEmailVerified(newUser.emailVerified);
+        userManager.setLocation(null);
+        if (!documentExists) {
+          // This is a new user, so we need to do init several fields
+          userManager.setCreatedAt(new Date());
+          userManager.setDisplayName(newUser.displayName);
+          userManager.setEmail(newUser.email);
+          userManager.setPhotoUrl("WOAH NEW USER");
+          userManager.setPhoneNumber(null) // We don't know phone number bc we're logging in with google instead
+        }
+        userManager.push().then(() => {
+          RouteManager.redirect("/dashboard");
+        })
     });
   }
 

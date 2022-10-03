@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import Login from '../../../components/login/Login';
 import { BrowserRouter as Router } from "react-router-dom";
 import { signInTestUser, signOutTestUser } from "../../../api/testing";
+import { BrowserManager } from "../../../api/browserManager";
 
 describe("Login render tests", () => {
 
@@ -31,7 +32,7 @@ describe("Login render tests", () => {
 
 describe("Login function tests", () => {
     test("User is redirected to dashboard if signed in", () => {
-        document.title = "Something else!";
+        BrowserManager.setTitle("Something else!");
         signInTestUser();
         render(<Router><Login/></Router>);
         expect(document.title).not.toEqual("Citrus | Login");
@@ -39,7 +40,7 @@ describe("Login function tests", () => {
     });
 
     test("User not redirected if not signed in", () => {
-        document.title = "Something else!";
+        BrowserManager.setTitle("Something else!");
         signOutTestUser();
         render(<Router><Login/></Router>);
         expect(document.title).toEqual("Citrus | Login");

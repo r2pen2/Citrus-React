@@ -17,8 +17,7 @@ export class TransactionManager extends ObjectManager {
         USERS: "users",
     }
 
-    setEmptyData() {
-
+    getEmptyData() {
         const empty = {
             active: null,           // {boolean} Whether or not this transaction is still active
             emoji: null,            // {Emoji} Emoji representation of transaction 
@@ -29,7 +28,7 @@ export class TransactionManager extends ObjectManager {
             total: null,            // {number} total value of transaction (all debts added together)
             users: [],              // {array <- transactionUser} All users referenced in this transaction
         }
-        super.setData(empty);
+        return empty;
     }
 
     handleAdd(change, data) {

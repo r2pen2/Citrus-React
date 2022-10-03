@@ -12,13 +12,13 @@ export class BadgeManager extends ObjectManager {
         EMOJI: "emoji",
     }
 
-    setEmptyData() {
+    getEmptyData() {
         const empty = {
             title: null,            // {string} Badge title 
             description: null,      // {string} Badge description 
             emoji: null,            // {Emoji} Emoji representation of badge 
         }
-        super.setData(empty);
+        return empty;
     }
 
     handleAdd(change, data) {

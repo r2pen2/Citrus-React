@@ -20,6 +20,8 @@ import Transaction from "./transaction/Transaction";
 
 // API imports
 import { SessionManager } from "../../api/sessionManager";
+import { RouteManager } from "../../api/routeManager";
+import { BrowserManager } from "../../api/browserManager";
 
 /**
  * If we're not signed in, redirect to login.
@@ -28,9 +30,9 @@ import { SessionManager } from "../../api/sessionManager";
  */
 function doPageSetup(u) {
   if (!u) {
-    window.location = "/login";
+    RouteManager.redirect("/login");
   }
-  document.title = "Citrus | Dashboard";
+  BrowserManager.setTitle("Dashboard");
 }
 
 export default function Dashboard() {

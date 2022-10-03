@@ -25,7 +25,7 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import { signOutUser } from "../../api/firebase";
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
-import { DBManager, dbObjectTypes } from "../../api/db/dbManager";
+import { DBManager } from "../../api/db/dbManager";
 
 export default function Topbar() {
   
@@ -35,7 +35,7 @@ export default function Topbar() {
   const [userPhotoUrl, setUserPhotoUrl] = useState(SessionManager.getPfpUrl());
 
   // If we're logged in, create a UserManager
-  const userManager = user ? DBManager.getObjectManager(dbObjectTypes.USER, user.uid) : null;
+  const userManager = user ? DBManager.getUserManager(user.uid) : null;
 
 
 
@@ -102,11 +102,11 @@ export default function Topbar() {
    */
   function getInitials() {
     if (user) {
-      return userDisplayName.charAt(0);
+      return userDisplayName ? userDisplayName.charAt(0) : "?";
     } else {
       // If we don't have a display name, they need to complete their profile!
       if (!window.location.toString().includes("login")) {
-        window.location = "/login/account-creation";
+        RouteManager.redirect("/login/account-creation");
       }
     }
   }

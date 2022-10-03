@@ -12,23 +12,10 @@ import LoginHome from "./loginHome/LoginHome";
 import Logo from "../../assets/images/Logo256.png";
 
 // API imports
-import { SessionManager } from "../../api/sessionManager";
-
-/**
- * Set the document title or redirect to dashboard
- * @param {Object} u current user
- */
-async function doPageSetup(u) { 
-  if (u) {
-    window.location = "/dashboard";
-  } else {
-    document.title = "Citrus | Login";
-  }
-}
+import { RouteManager } from "../../api/routeManager";
 
 export default function Login() {
-  const user = SessionManager.getUser();
-  doPageSetup(user)
+  RouteManager.redirectToDashboardOrSetTitle("Login");
 
   return (
     <div className="background-controller" data-testid="login-background-controller">

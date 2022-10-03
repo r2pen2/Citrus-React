@@ -14,6 +14,8 @@ import AccountTab from './AccountTab.jsx';
 
 // API imports
 import { SessionManager } from "../../../api/sessionManager";
+import { BrowserManager } from "../../../api/browserManager";
+import { RouteManager } from "../../../api/routeManager";
 
 export default function Settings() {
 
@@ -21,9 +23,9 @@ export default function Settings() {
     
     // Redirect or set document title
     if (!user) {
-        window.location = "/login";
+        RouteManager.redirect("/login");
     } else {
-        document.title = "Citrus | Settings";
+        BrowserManager.setTitle("Settings");
     }
 
     /**

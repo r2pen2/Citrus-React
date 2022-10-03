@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Settings from '../../../components/userPage/settings/Settings';
 import { signInTestUser, signOutTestUser } from "../../../api/testing";
+import { BrowserManager } from "../../../api/browserManager";
 
 describe("Settings render tests", () => {
 
@@ -50,7 +51,7 @@ describe("Settings function tests", () => {
 
     test('Document title is updated', () => {
         signInTestUser();
-        document.title = "Something else...";
+        BrowserManager.setTitle("Something else...");
         expect(document.title).not.toEqual("Citrus | Settings");
         render(<Settings/>);
         expect(document.title).toEqual("Citrus | Settings");

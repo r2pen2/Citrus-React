@@ -15,7 +15,7 @@ export class InvitationManager extends ObjectManager {
         INVITERLOCATION: "inviterLocation",
     }
 
-    setEmptyData() {
+    getEmptyData() {
         const empty = {
             inviteType: null,       // {InviteType} Which invite type this is (friends, groups, chip-ins)
             inviteMethod: null,     // {InviteMethod} Which invite method was used
@@ -27,7 +27,7 @@ export class InvitationManager extends ObjectManager {
                 location: null,     // --- {geoPoint} Location of the inviter when they create the invitation
             },
         }
-        super.setData(empty);
+        return empty;
     }
 
     handleAdd(change, data) {

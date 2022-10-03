@@ -53,8 +53,8 @@ export class ObjectManager {
                 this.debugger.logWithPrefix("Fetch complete!");
             }
             if (this.data) {
-                this.data = this.formatData();
                 for (const change of this.changes) {
+                    this.debugger.logWithPrefix("Making change: " + change.toString());
                     switch(change.type) {
                         case changeTypes.ADD:
                             this.data = this.handleAdd(change, this.data);
@@ -151,6 +151,17 @@ export class ObjectManager {
         return this.children;
     }
 
+    async documentExists() {
+        return new Promise(async (resolve, reject) => {
+            const docSnap = await getDoc(this.docRef);
+            if (docSnap.exists()) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        })
+    }
+
     /**
     * Fetch data from database by document reference
     * @returns {Object} data from document snapshot
@@ -164,8 +175,8 @@ export class ObjectManager {
                 this.fetched = true;
                 resolve(docSnap.data());
             } else {
-                this.debugger.logWithPrefix("Error: Document snapshot didn't exist!");
-                this.data = null;
+                this.debugger.logWithPrefix("Document snapshot didn't exist! Setting empty data...");
+                this.data = this.getEmptyData();
                 resolve(false);
             }
         })
@@ -235,6 +246,7 @@ export class ObjectManager {
                         this.debugger.logWithPrefix('Applying changes to: ' + this.toString());
                         await this.applyChanges();                    
                         this.debugger.logWithPrefix('Pushing changes to: ' + this.toString());
+                        console.log(this.data)
                         await setDoc(this.docRef, this.data);
                     } else {
                         await this.applyChanges();

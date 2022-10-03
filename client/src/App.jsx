@@ -23,20 +23,31 @@ import creditsData from './assets/json/creditsPage';
 
 // API imports
 import { syncUserDoc } from "./api/dbManager";
+import { DBManager } from "./api//db/dbManager";
 import { SessionManager } from "./api/sessionManager";
 
 function App() {
 
   // Update user when auth changes
   useEffect(() => {
-    auth.onAuthStateChanged(u => {
-      if (u) {
-        syncUserDoc(u);
-        SessionManager.setUser(u);
-        SessionManager.setPfpUrl(u.photoURL);
-        SessionManager.setDisplayName(u.displayName);
+    auth.onAuthStateChanged(async (authUser) => {
+      if (authUser) {
+        // Set session details
+        SessionManager.setUser(authUser);
+        SessionManager.setPfpUrl(authUser.photoURL);
+        SessionManager.setDisplayName(authUser.displayName);
+
+        // Sync user's DB doc
+        const userManager = DBManager.getUserManager(authUser.uid);
+        const userAlreadyExists = await userManager.documentExists();
+        if (userAlreadyExists) {
+          // User already exists on DB
+        } else {
+          // User doesn't already exist (somehow...)
+        }
       }
       else {
+        // Sign user out
         SessionManager.clearLS();
       }
     })

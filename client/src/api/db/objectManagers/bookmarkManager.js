@@ -16,7 +16,7 @@ export class BookmarkManager extends ObjectManager {
         USERS: "users",
     }
 
-    setEmptyData() {
+    getEmptyData() {
         const empty = {
             emoji: null,            // {Emoji} Emoji representation of transaction 
             createdAt: null,        // {date} Timestamp of bookmark creation 
@@ -25,7 +25,7 @@ export class BookmarkManager extends ObjectManager {
             total: null,            // {number} total value of bookmark (all debts added together)
             users: [],              // {array <- BookmarkUser} All users referenced in this bookmark
         }
-        super.setData(empty);
+        return empty;
     }
 
     handleAdd(change, data) {

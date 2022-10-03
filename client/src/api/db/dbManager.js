@@ -32,8 +32,21 @@ export class Change {
         this.value = _value;
     }
 
-    toString() {
+    /**
+     * Detailed toString function
+     * @deprecated This is old and pretty much useless
+     * @returns Terribly long representation of this change
+     */
+    toStringVerbose() {
         return 'Change of type "' + this.type + '" on field "' + this.field + '" with value "' + this.value + '"';
+    }
+
+    /**
+     * Get a string representation of this change
+     * @returns String representation of this change
+     */
+    toString() {
+        return this.type + " field: " + this.field + " val: " + this.value;
     }
 }
 
@@ -71,26 +84,35 @@ export class DBManager {
        return result;
     }
 
-    static getObjectManager(objectType, objectId) {
-        dbDebugger.logWithPrefix("Generating object manager for: " + objectType);
-        switch (objectType) {
-            case dbObjectTypes.BOOKMARK:
-                return new BookmarkManager(objectId);
-            case dbObjectTypes.BADGE:
-                return new BadgeManager(objectId);
-            case dbObjectTypes.GROUP:
-                return new GroupManager(objectId);
-            case dbObjectTypes.INVITATION:
-                return new InvitationManager(objectId);
-            case dbObjectTypes.TRANSACTION:
-                return new TransactionManager(objectId);
-            case dbObjectTypes.TRANSACTIONATTEMPT:
-                return new TransactionAttemptManager(objectId);
-            case dbObjectTypes.USER:
-                return new UserManager(objectId);
-            default:
-                dbDebugger.logWithPrefix("DBManager was asked to return the manager for an invalid object type!");
-                break;
-        }
+    /**
+     * Get object managers of correct type
+     */
+    static getBookmarkManager(id) {
+        dbDebugger.logWithPrefix("Generating bookmark manager...");
+        return new BookmarkManager(id);
+    }
+    static getBadgeManager(id) {
+        dbDebugger.logWithPrefix("Generating badge manager...");
+        return new BadgeManager(id);
+    }
+    static getGroupManager(id) {
+        dbDebugger.logWithPrefix("Generating group manager...");
+        return new GroupManager(id);
+    }
+    static getInvitationManager(id) {
+        dbDebugger.logWithPrefix("Generating invitation manager...");
+        return new InvitationManager(id);
+    }
+    static getTransactionManager(id) {
+        dbDebugger.logWithPrefix("Generating transaction manager...");
+        return new TransactionManager(id);
+    }
+    static getTransactionAttemptManager(id) {
+        dbDebugger.logWithPrefix("Generating transaciton attempt manager...");
+        return new TransactionAttemptManager(id);
+    }
+    static getUserManager(id) {
+        dbDebugger.logWithPrefix("Generating user manager...");
+        return new UserManager(id);
     }
 }

@@ -17,7 +17,7 @@ export class TransactionAttemptManager extends ObjectManager {
         USEDSUGGESTION: "usedSuggestion"
     }
 
-    setEmptyData() {
+    getEmptyData() {
         const empty = {
             createdAt: null,        // {date} When this transaction attempt was created
             creatorAttrs: {         // {map} Attributes associated with the creator
@@ -29,7 +29,7 @@ export class TransactionAttemptManager extends ObjectManager {
             isTransaction: null,    // {boolean} Whether or not this attempt turned into a full transaction
             usedSuggestion: null,   // {boolean} Whether or not they used a suggested group/individual (null if cancelled before this stage)
         }
-        super.setData(empty);
+        return empty;
     }
 
     handleAdd(change, data) {

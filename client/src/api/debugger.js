@@ -11,6 +11,7 @@ export const controllerObjects = {
     OBJECTMANAGERTRANSACTIONATTEMPT: "objectManagerTransactionAttempt",
     OBJECTMANAGERTRANSACTION: "objectManagerTransaction",
     OBJECTMANAGERUSER: "objectManagerUser",
+    BROWSERMANAGER: "browserManager",
 }
 
 export class Debugger {
@@ -45,6 +46,8 @@ export class Debugger {
                 return "[Object Manager <Transaction Attempt>]: ";
             case controllerObjects.OBJECTMANAGERUSER:
                 return "[Object Manager <User>]: ";
+            case controllerObjects.BROWSERMANAGER:
+                return "[Browser Manager]: ";
             default:
                 return "[Undefined Manager]: ";
         }

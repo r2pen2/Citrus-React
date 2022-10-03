@@ -15,7 +15,7 @@ export class GroupManager extends ObjectManager {
         USERS: "users",
     }
 
-    setEmptyData() {
+    getEmptyData() {
         const empty = {
             createdAt: null,    // {date} When the group was created
             createdBy: null,    // {string} ID of user that created the group
@@ -23,7 +23,7 @@ export class GroupManager extends ObjectManager {
             transactions: [],   // {array <- string} IDs of every transaction associated with this group
             users: [],          // {array <- string} IDs of every user in this group
         }
-        super.setData(empty);
+        return empty;
     }
 
     handleAdd(change, data) {

@@ -25,7 +25,7 @@ export class UserManager extends ObjectManager {
         SETTINGS: "settings",
     }
 
-    setEmptyData() {
+    getEmptyData() {
         const empty = {
             badges: [],                     // {array} IDs of badges that the user has earned
             bookmarks: [],                  // {array} IDs of bookmarks that the user has created
@@ -42,14 +42,14 @@ export class UserManager extends ObjectManager {
                 displayName: null,          // --- {string} User's display name
                 email: null,                // --- {string} User's email address
                 phoneNumber: null,          // --- {PhoneNumber} User's phone number
-                profilePictureUrl: null,    // --- {string} URL of user's prophile photo
+                profilePictureUrl: null,    // --- {string} URL of user's profile photo
             },
             settings: {                     // {map} User's current settings
                 darkMode: null,             // --- {boolean} Whether the user is in darkMode or not
                 language: null,             // --- {string <- languageId} User's language choice
             },
         }
-        super.setData(empty);
+        return empty;
     }
 
     handleAdd(change, data) {

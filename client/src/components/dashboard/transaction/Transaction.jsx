@@ -3,6 +3,7 @@ import React from 'react'
 import { Route, Routes } from "react-router-dom"
 import { TransactionDetail, TransactionConversation } from "../../resources/Transactions";
 import { getTransactionTitleById } from "../../../api/dbManager";
+import { BrowserManager } from "../../../api/browserManager";
 import { useState } from "react";
 
 /**
@@ -12,7 +13,7 @@ import { useState } from "react";
     const params = new URLSearchParams(window.location.search);
     const transactionId = params.get("id");
     let transactionTitle = await getTransactionTitleById(transactionId);
-    document.title = transactionTitle;
+    BrowserManager.setTitleNoPrefix(transactionTitle);
 }
 
 export default function Transaction({user}) {

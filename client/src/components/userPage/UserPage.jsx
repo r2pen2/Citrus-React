@@ -9,6 +9,8 @@ import Settings from "./settings/Settings";
 
 // API imports
 import { SessionManager } from "../../api/sessionManager";
+import { RouteManager } from "../../api/routeManager";
+import { BrowserManager } from "../../api/browserManager";
 
 export default function UserPage() {
     
@@ -17,9 +19,9 @@ export default function UserPage() {
     // If we have no user, redirect to login
     // Otherwise, set document title with context.
     if (!user) {
-        window.location = "/login";
+        RouteManager.redirect("/login");
     } else {
-        document.title = "Cirtus | " + user.firstName;
+        BrowserManager.setTitle(user.firstName)
     }
 
     return (
