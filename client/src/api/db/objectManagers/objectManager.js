@@ -15,7 +15,6 @@ export class ObjectManager {
         this.documentId = _documentId;
         this.data = null;
         this.docRef = doc(firestore, this.getCollection(), _documentId);
-        this.children = [];
         this.error = false;
         this.fetched = false;
         this.changes = [];
@@ -151,10 +150,6 @@ export class ObjectManager {
         this.debugger.logWithPrefix('"' + field + '" is not a valid field!');
     }
 
-    getChildren() {
-        return this.children;
-    }
-
     async documentExists() {
         return new Promise(async (resolve, reject) => {
             const docSnap = await getDoc(this.docRef);
@@ -239,8 +234,11 @@ export class ObjectManager {
         this.data = newData;
     }
 
-    // Send only the top (this) to database
-    async pushSingle() {
+    /**
+     * Push changes on this object to the DB
+     * @returns whether or not push was successful
+     */
+    async push() {
         if (!this.error) {
             // Assuming everything was OK, we push
             return new Promise(async (resolve) => {
@@ -270,24 +268,9 @@ export class ObjectManager {
         }
     }
 
-    // Send this, children, and children of children to the database
-    async push() {
-        return new Promise(async (resolve) => {
-            let selfPushed = await this.pushSingle();
-            if (selfPushed) {
-                for (const childManager of this.children) {
-                    await childManager.push();
-                }
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        })
-    }
-
     // Print no data error and return param;
     logNoDataError(retval) {
-        this.debugger.logWithPrefix("Error! Failed to return data to child class.");
+        this.debugger.logWithPrefix("Error! Failed to return data to subclass.");
         this.error = true;
         return retval;
     }
@@ -296,14 +279,5 @@ export class ObjectManager {
         const matchingTypes = objectManager.getObjectType() === this.getObjectType();
         const matchingIds = objectManager.getObjectId() === this.getObjectId();
         return matchingTypes && matchingIds;
-    }
-
-    addChild(objectManager) {
-        this.children.push(objectManager);
-    }
-
-    removeChild(objectManager) {
-        const newChildren = this.children.filter(child => !child.equals(objectManager));
-        this.children = newChildren;
     }
 }

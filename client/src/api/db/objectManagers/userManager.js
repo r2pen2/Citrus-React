@@ -1,6 +1,5 @@
 import { dbObjectTypes, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
-import { Debugger } from "../../debugger";
 
 export class UserManager extends ObjectManager {
     
