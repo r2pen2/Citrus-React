@@ -1,22 +1,14 @@
 import "./bookmarks.scss";
 import { Breadcrumbs } from "../../resources/Navigation";
+import { BookmarkCard } from "../../resources/Bookmarks";
 import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, CardContent, CardActionArea, IconButton, TextField } from '@mui/material';
 import { getBookmarksById, removeBookmarkFromUser, createBookmarkOnUser } from '../../../api/dbManager';
 import { DBManager } from '../../../api/db/dbManager';
-import { getSlashDateString, cutAtIndex } from '../../../api/strings';
-import formatter from '../../../api/formatter';
 import { sortByCreatedAt } from '../../../api/sorting';
 
 import { useState, useEffect } from 'react';
 
-import { Debugger } from "../../../api/debugger";
-
-import { ColoredCard } from "../../resources/Surfaces";
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import UploadIcon from '@mui/icons-material/Upload';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import NotesIcon from '@mui/icons-material/Notes';
 
 function renderLoadingBox(marks) {
   if (!marks) {
@@ -103,6 +95,7 @@ export default function Bookmarks({user}) {
       userManager.addBookmark(newBookmarkDocRef.id); 
       await userManager.push();
       fetchBookmarks();
+      setAddModalOpen(false);
     }
 
     return (
@@ -155,125 +148,4 @@ export default function Bookmarks({user}) {
       </div>
     </div>
   );
-}
-
-function BookmarkCard({id, index, user, fetchBookmarks}) {
-
-  const userManager = DBManager.getUserManager(user.uid);
-  const bookmarkManager = DBManager.getBookmarkManager(id);
-
-  async function fetchBookmarkData() {
-    const bookmarkData = await bookmarkManager.fetchData();
-    setData(bookmarkData);
-    const bookmarkColor = await bookmarkManager.getColor();
-    setColor(bookmarkColor);
-    const bookmarkCreatedAt = await bookmarkManager.getCreatedAt();
-    setCreatedAt(bookmarkCreatedAt);
-    const bookmarkTitle = await bookmarkManager.getTitle();
-    setTitle(bookmarkTitle);
-    const bookmarkTotal = await bookmarkManager.getTotal();
-    setTotal(bookmarkTotal);
-  }
-
-  useEffect(() => {
-    fetchBookmarkData();
-  }, [])
-  
-  const [data, setData] = useState();
-  const [color, setColor] = useState("#fafafa");
-  const [createdAt, setCreatedAt] = useState(new Date());
-  const [title, setTitle] = useState(null);
-  const [total, setTotal] = useState(null);
-
-  function blankIfNull(s) {
-    return s ? s : "";
-  }
-
-  function deleteBookmark() {
-    userManager.removeBookmark(id);
-    userManager.push().then((pushSuccess) => {
-      if (pushSuccess) {
-        bookmarkManager.deleteDocument();
-        fetchBookmarks();
-      }
-    });
-  }
-
-  if (!data) {
-    return (
-      <div className="bookmark-wrapper" key={index}>
-        <ColoredCard color={color}>
-          <CardActionArea>
-            <CardContent>
-              <div className="bookmark">
-                <div className="left">
-                  <div className="delete-button">
-                    <Tooltip title="Delete Bookmark">
-                      <IconButton>
-                        <DeleteIcon fontSize="medium"/>
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                  <div className="left-data">
-                    <div className="date">
-                    </div>
-                  </div>
-                </div>
-                <div className="center">
-                  <div className="title">
-                  </div>
-                </div>
-                <div className="note-container">
-                  <NotesIcon fontSize="medium"/>
-                </div>
-                <div className="right">
-                  <div className="amount">
-                  </div>
-                </div>
-              </div>
-            </CardContent>  
-          </CardActionArea>
-        </ColoredCard>
-      </div>
-    )
-  }
-  return (
-    <div className="bookmark-wrapper" key={index}>
-      <ColoredCard color={color}>
-        <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + id)}>
-          <CardContent>
-            <div className="bookmark">
-              <div className="left">
-                <div className="delete-button">
-                  <Tooltip title="Delete Bookmark">
-                    <IconButton onClick={() => deleteBookmark(id)}>
-                      <DeleteIcon fontSize="medium"/>
-                    </IconButton>
-                  </Tooltip>
-                </div>
-                <div className="left-data">
-                  <div className="date">
-                    {getSlashDateString(createdAt)}
-                  </div>
-                </div>
-              </div>
-              <div className="center">
-                <div className="title">
-                  {blankIfNull(title)}
-                </div>
-              </div>
-              <div className="note-container">
-                <NotesIcon fontSize="medium"/>
-              </div>
-              <div className="right">
-                <div className="amount">
-                  {blankIfNull(formatter.format(total))}
-                </div>
-              </div>
-            </div>
-          </CardContent>  
-        </CardActionArea>
-      </ColoredCard>
-    </div>
-  )
 }
