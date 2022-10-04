@@ -15,12 +15,13 @@ import { SpinningLogo } from "../resources/Login";
 import { RouteManager } from "../../api/routeManager";
 
 export default function Login() {
-  RouteManager.redirectToDashboardOrSetTitle("Login");
+  // Redirect if needed
+  RouteManager.setTitleOrRedirectToDashboard("Login");
 
   return (
     <div className="background-controller" data-testid="login-background-controller">
       <Paper className="login-content" elevation={12}>
-        <div className="center-contents column">
+        <div className="center-contents-column">
           <SpinningLogo />
           <div className="login-input-window">
             <Routes>

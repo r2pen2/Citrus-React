@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AvatarGroup, Avatar, Tooltip, Typography } from "@mui/material";
-import { getDisplayNameById, getPhotoUrlById } from "../../api/dbManager";
+import { DBManager } from "../../api/db/dbManager";
 import "./resources.scss";
-import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 
 export function AvatarStack({featured, secondary, checked}) {
@@ -35,9 +34,10 @@ export function AvatarStackItem(props) {
     const [name, setName] = useState(null);
 
     async function fetchUserData() {
-        let photo = await getPhotoUrlById(props.userId);
+        const userManager = DBManager.getUserManager(props.userId);
+        let photo = await userManager.getPhotoUrl();
         setPfpUrl(photo);
-        let displayName = await getDisplayNameById(props.userId);
+        let displayName = await userManager.getDisplayName();
         setName(displayName);
     }
 
@@ -80,13 +80,15 @@ export function AvatarIcon(props) {
 
     useEffect(() => {
 
+        const userManager = DBManager.getUserManager(props.id);
+
         async function fetchUserData() {
             if (!props.src) {
-                let url = await getPhotoUrlById(props.id);
+                let url = await userManager.getPhotoUrl();
                 setPfpUrl(url);
             }
             if (!props.alt) {
-                let name = await getDisplayNameById(props.id);
+                let name = await userManager.getDisplayName();
                 setAlt(name);
             }
         }

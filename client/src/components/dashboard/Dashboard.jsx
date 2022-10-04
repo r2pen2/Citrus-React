@@ -21,25 +21,13 @@ import Transaction from "./transaction/Transaction";
 // API imports
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
-import { BrowserManager } from "../../api/browserManager";
-
-/**
- * If we're not signed in, redirect to login.
- * Othwerwise, set the document title and continue to dashboard.
- * @param {Object} user The current user (if it exists)
- */
-function doPageSetup(u) {
-  if (!u) {
-    RouteManager.redirect("/login");
-  }
-  BrowserManager.setTitle("Dashboard");
-}
 
 export default function Dashboard() {
 
+  RouteManager.setTitleOrRedirectToLogin("Dashboard");
+
+  // Get user from session
   const user = SessionManager.getUser();
-  // Set up page
-  doPageSetup(user);
 
   const [shortcutActive, setShortcutActive] = useState(false);        // Whether or not new transaction shortcut is active
   const [bookmarksDeployed, setBookmarksDeployed] = useState(false);  // Whether or not bookmarks are displayed in shortcut

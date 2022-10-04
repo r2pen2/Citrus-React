@@ -1,12 +1,14 @@
 import "./resources.scss";
 import { CircularProgress, Typography, Button, CardContent, CardActionArea, Tooltip } from '@mui/material';
 import { useState, useEffect} from 'react';
-import { getActiveTransactionsByUserId, getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../api/dbManager"
+import { getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../api/dbManager"
 import React from 'react'
 import { OutlinedCard } from "./Surfaces";
 import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
 import { sortByUTDate } from "../../api/sorting";
+import { DBManager } from "../../api/db/dbManager";
+import { transactionUserRoles } from "../../api/db/objectManagers/transactionManager";
 import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
 import { AvatarStack } from "./Avatars";
 import { SectionTitle } from "./Labels";
@@ -14,14 +16,15 @@ import { Breadcrumbs } from "./Navigation";
 
 export function TransactionList(props) {
     
-    const [activeTransactions, setActiveTransactions] = useState(null);
+    const [transactions, setTransactions] = useState(null);
 
     async function fetchUserTransactions() {
-      let t = await getActiveTransactionsByUserId(props.user.uid);
+      const userManager = DBManager.getUserManager(props.user.uid);
+      const t = await userManager.getTransactions();
       if (props.numDisplayed) {
-        setActiveTransactions(t.slice(0, props.numDisplayed));
+        setTransactions(t.slice(0, props.numDisplayed));
       } else {
-        setActiveTransactions(t);
+        setTransactions(t);
       }
     }
   
@@ -36,7 +39,7 @@ export function TransactionList(props) {
    */
    function renderTransactions(unsortedArray) {
 
-    const a = sortByUTDate(unsortedArray);
+    const a = sortByUTDate(unsortedArray); // Sort transactions by date
     
     function renderTransactionCard(transaction, index) {
       return (
@@ -48,115 +51,83 @@ export function TransactionList(props) {
       )
     }
 
-    if (!a) {
+    if (!a) { // If we don't yet have a list of transactions, just display a little loading circle
         return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
       }
   
-      if (a.length > 0) {
-        // Populate bracket arrays
-        const DAY = 86400000;
-        var brackets = [[], [], [], [], [], []];
-        const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
-        // Assign each transaction to a bracket associated with time since transcation creation 
-        if (a) {
-          for (const t of a) {
-            const ageInDays = (new Date().getTime() - t.date.toDate().getTime()) / DAY;
-            if (ageInDays <= 1) {
-              brackets[0].push(t);
-            } else if (ageInDays <= 2) {
-              brackets[1].push(t);
-            } else if (ageInDays <= 7) {
-              brackets[2].push(t);
-            } else if (ageInDays <= 30) {
-              brackets[3].push(t);
-            } else if (ageInDays <= 365) {
-              brackets[4].push(t);
-            } else {
-              brackets[5].push(t);
-            }
+      if (a.length <= 0) { // If there are no transactions on a user, display a message to indicate
+        return    (     
+          <div className="empty">
+            <Typography>
+              User has no transactions.
+            </Typography>
+          </div>
+          )
+      }
+
+      // Otherwise, we have to display the transaction list
+
+      // Populate bracket arrays
+      const DAY = 86400000;
+      var brackets = [[], [], [], [], [], []];
+      const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
+      // Assign each transaction to a bracket associated with time since transcation creation 
+      if (a) {
+        for (const t of a) {
+          const ageInDays = (new Date().getTime() - t.date.toDate().getTime()) / DAY;
+          if (ageInDays <= 1) {
+            brackets[0].push(t);
+          } else if (ageInDays <= 2) {
+            brackets[1].push(t);
+          } else if (ageInDays <= 7) {
+            brackets[2].push(t);
+          } else if (ageInDays <= 30) {
+            brackets[3].push(t);
+          } else if (ageInDays <= 365) {
+            brackets[4].push(t);
+          } else {
+            brackets[5].push(t);
           }
         }
-        return brackets.map((bracket, bracketIdx) => {
-
-          return (
-            <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
-              { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
-              { bracket.map((t, idx) => {
-                return renderTransactionCard(t, idx)
-              }) }
-            </div>
-          )
-        })
-      } else {
-        return    (     
-        <div className="empty">
-          <Typography>
-            User has no transactions.
-          </Typography>
-        </div>
-        )
       }
+
+      // for each time bracket, render a bracket label and all of the transactions in it
+      return brackets.map((bracket, bracketIdx) => { 
+        return (
+          <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
+            { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
+            { bracket.map((t, idx) => {
+              return renderTransactionCard(t, idx)
+            }) }
+          </div>
+        )
+      })
   }
     
     return (
         <div className="transaction-list">
-            { renderTransactions(activeTransactions) }
+            { renderTransactions(transactions) }
         </div>
         );
 }
 
+/**
+ * Render a transaction card from passed user's perspective
+ * @param {string} id transaction id 
+ * @param {object} user user viewing the transaction
+ */
 export function TransactionCard({id, user}) {
     
     const [context, setContext] = useState(null);
-    const [partnerPhoto, setPartnerPhoto] = useState("");
-    const [partnerName, setPartnerName] = useState("");
 
     /**
-     * Fetches partner details from database for avatar + tooltip
-     */
-    async function fetchPartnerDetails() {
-        if (context) {
-            let url = await getPhotoUrlById(context.partner)
-            setPartnerPhoto(url);
-            let name = await getDisplayNameById(context.partner)
-            setPartnerName(name);
-        }
-    }
-
-    /**
-    * Get's an object represesnting a transaction from the current user's perspective
-    * @returns {Object} transaction from current user's perspective
+    * Get transaction context from user's perspective
     */
     async function getTransactionContext() {
-        let transaction = await getTransactionById(id);
-        if (userIsFronter(transaction, user.uid)) {
-            setContext({
-                role: "fronter",
-                title: transaction.title,
-                fronters: transaction.fronters,
-                payers: transaction.payers,
-                debt: getFronterDebt(transaction, user.uid),
-                credit: getFronterCredit(transaction, user.uid),
-                date: transaction.createdAt,
-                total: transaction.total
-            })
-        } else {
-            setContext({
-                role: "payer",
-                title: transaction.title,
-                fronters: transaction.fronters,
-                payers: getOtherPayers(transaction, user.uid),
-                debt: getPayerDebt(transaction, user.uid),
-                credit: getPayerCredit(transaction, user.uid),
-                date: transaction.createdAt,
-                total: transaction.total
-            })
-        }
+      const transactionManager = DBManager.getTransactionManager(id);
+      const transactionContext = await transactionManager.getContext(user.uid);
+      setContext(transactionContext);
     }
-
-    useEffect(() => {
-        fetchPartnerDetails();
-    }, [context]);
 
     useEffect(() => {
         getTransactionContext();
@@ -168,12 +139,12 @@ export function TransactionCard({id, user}) {
             var payerIds = [];
             var settledPayers = [];
             for (const fronter of context.fronters) {
-                fronterIds.push(fronter.userId);
+                fronterIds.push(fronter.id);
             }
             for (const payer of context.payers) {
-                payerIds.push(payer.userId);
-                if (payer.credit >= payer.weight * context.total) {
-                  settledPayers.push(payer.userId)
+                payerIds.push(payer.id);
+                if (payer.settled) {
+                  settledPayers.push(payer.id)
                 }
             }
 

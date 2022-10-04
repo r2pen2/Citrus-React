@@ -1,3 +1,5 @@
+import { touchRippleClasses } from "@mui/material";
+import { Debugger } from "../../debugger";
 import { dbObjectTypes, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
@@ -233,21 +235,127 @@ export class TransactionManager extends ObjectManager {
         const userRemoval = new Remove(this.fields.USERS, userId);
         super.addChange(userRemoval);
     }
+
+    // ================= Sub-Object Functions ================= //
+
+    /**
+     * Get user's view of transaciton
+     * @param {string} userId userId to create context for
+     * @returns TransactionContext object
+     */
+    async getContext(userId) {
+        return new Promise(async (resolve, reject) => {
+
+            // Get user's role
+            const fronters = await this.getFronters();
+            const payers = await this.getPayers();
+            let currentUser = null;
+            let role = null;
+
+            for (const fronter of fronters) {
+                if (fronter.id === userId) {
+                    role = TransactionUser.roles.FRONTER;
+                    currentUser = fronter;
+                }
+            }
+            for (const payer of payers) {
+                if (payer.id === userId) {
+                    role = TransactionUser.roles.PAYER;
+                    currentUser = payer;
+                }
+            }
+            if (!role) {
+                this.debugger.logWithPrefix("Failed to get context for user because they're neither a fronter nor a payer.");
+                resolve(null);
+            }
+            resolve(new TransactionContext(currentUser, fronters, payers));
+        })
+    }
+
+    createFronter(userId) {
+        return new TransactionUser(userId, transactionUserRoles.FRONTER);
+    }
+
+    createPayer(userId) {
+        return new TransactionUser(userId, transactionUserRoles.PAYER);
+    }
+
+    async getFronters() {
+        const transactionUsers = await this.getUsers();
+        let transactionFronters = [];
+        for (const user of transactionUsers) {
+            if (user.role === TransactionUser.roles.FRONTER) {
+                transactionFronters.push(user);
+            }
+        }
+        return transactionFronters
+    }
+
+    async getPayers() {
+        const transactionUsers = await this.getUsers();
+        let transactionPayers = [];
+        for (const user of transactionUsers) {
+            if (user.role === TransactionUser.roles.PAYER) {
+                transactionPayers.push(user);
+            }
+        }
+        return transactionPayers
+    }
 }
 
-export class TransactionUser {
-    constructor(_id) {
+export const transactionUserRoles = {
+    FRONTER: "fronter",
+    PAYER: "payer",
+    BYSTANDER: "bystander", // Bystander is currently unused
+}
+
+class TransactionUser {
+    constructor(_id, _role) {
         this.id = _id;
         this.initialBalance = null;
         this.currentBalance = null;
+        this.role = _role;
+        this.settled = null;
     }
 
+    /**
+     * Set inital balance of transaction user
+     * @param {number} bal new initial balance
+     */
     setInitialBalance(bal) {
         this.initialBalance = bal;
     }
     
+    /**
+     * Update transaction user's current balance
+     * @param {number} bal new balance
+     */
     setCurrentBalance(bal) {
         this.currentBalance = bal;
+    }
+
+    /**
+     * Checks whether or not this user should be settled in a transaction
+     */
+    checkSettled() {
+        if (this.isPayer()) {
+            if (this.currentBalance >= 0) {
+                this.settled = true;
+            }
+        }
+        if (this.isFronter()) {
+            if (this.currentBalance <= 0) {
+                this.settled = true;
+            }
+        }
+    }
+
+    /**
+     * Directly set this transaction user's settled value
+     * @param {boolean} bool new settled value
+     */
+    setSettled(bool) {
+        this.settled = bool;
     }
 
     /**
@@ -266,5 +374,30 @@ export class TransactionUser {
      */
     getRemainingProgress() {
         return this.currentBalance / this.initialBalance;
+    }
+
+    /**
+     * Boolean if transaction user is a fronter
+     */
+    isFronter() {
+        return (this.role === transactionUserRoles.FRONTER);
+    }
+
+    /**
+     * Boolean if transaction user is a payer
+     */
+    isPayer() {
+        return (this.role === transactionUserRoles.PAYER);
+    }
+}
+
+/**
+ * Current user's view of transaction
+ */
+class TransactionContext {
+    constructor(_user, _fronters, _payers) {
+        this.user = _user; 
+        this.fronters = _fronters;
+        this.payers = _payers;
     }
 }

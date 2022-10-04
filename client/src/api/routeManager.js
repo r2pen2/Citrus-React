@@ -25,7 +25,7 @@ export class RouteManager {
      * Check if user is logged in and send them to login if not
      * @param {string} title document title
      */
-    static redirectToLoginOrSetTitle(title) {
+    static setTitleOrRedirectToLogin(title) {
         const user = SessionManager.getUser();
         if (!user) {
             RouteManager.redirect("/login");
@@ -38,7 +38,7 @@ export class RouteManager {
      * Check if user is logged in and send them to dashboard if so
      * @param {string} title document title
      */
-    static redirectToDashboardOrSetTitle(title) {
+    static setTitleOrRedirectToDashboard(title) {
         const user = SessionManager.getUser();
         if (user) {
             RouteManager.redirect("/dashboard");
