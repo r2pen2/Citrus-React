@@ -7,25 +7,23 @@ import { UserManager } from "./objectManagers/userManager";
 import { InvitationManager } from "./objectManagers/invitationManager";
 import { Debugger, controllerObjects } from "../debugger";
 
+// Create debugger for DBManager
 const dbDebugger = new Debugger(controllerObjects.DBMANAGER);
 
-export const changeTypes = {
-    SET: "set",
-    REMOVE: "remove",
-    ADD: "add",
-};
-
-export const dbObjectTypes = {
-    BOOKMARK: "bookmark",
-    INVITATION: "invitations",
-    GROUP: "group",
-    TRANSACTIONATTEMPT: "transactionAttempt",
-    TRANSACTION: "transaction",
-    USER: "user",
-    BADGE: "badge",
-};
-
+/**
+ * Superclass for all changes— objects that store fields and values to update on ObjectManagers
+ */
 export class Change {
+
+    /**
+     * All possible types for Changes
+     */
+    static changeTypes = {
+        SET: "set",
+        REMOVE: "remove",
+        ADD: "add",
+    };
+
     constructor(_type, _field, _value) {
         this.type = _type;
         this.field = _field;
@@ -50,25 +48,52 @@ export class Change {
     }
 }
 
+/**
+ * A Change object for setting the value of a field
+ */
 export class Set extends Change {
     constructor(_field, _newValue) {
-        super(changeTypes.SET, _field, _newValue);
+        super(Change.changeTypes.SET, _field, _newValue);
     }
 }
 
+/**
+ * A Change object for adding an object to an array
+ */
 export class Remove extends Change {
     constructor(_field, _value) {
-        super(changeTypes.REMOVE, _field, _value);
+        super(Change.changeTypes.REMOVE, _field, _value);
     }
 }
 
+/**
+ * A Change object for removing an object from an array
+ */
 export class Add extends Change {
     constructor(_field, _newValue) {
-        super(changeTypes.ADD, _field, _newValue);
+        super(Change.changeTypes.ADD, _field, _newValue);
     }
 }
 
+/**
+ * DBManager is a database management factory object. It generates ObjectManagers for whichever object type it may need.
+ */
 export class DBManager {
+
+
+    /**
+     * All possible types for ObjectManagers
+     */
+    static objectTypes = {
+        BOOKMARK: "bookmark",
+        INVITATION: "invitations",
+        GROUP: "group",
+        TRANSACTIONATTEMPT: "transactionAttempt",
+        TRANSACTION: "transaction",
+        USER: "user",
+        BADGE: "badge",
+    }
+
     /**
     * Generates a random id string of a given length
     * @param {Number} length length of id to be created 

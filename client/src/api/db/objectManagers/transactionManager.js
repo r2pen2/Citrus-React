@@ -1,9 +1,9 @@
-import { dbObjectTypes, Add, Remove, Set } from "../dbManager";
+import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
 export class TransactionManager extends ObjectManager {
     constructor(_id) {
-        super(dbObjectTypes.TRANSACTION, _id);
+        super(DBManager.objectTypes.TRANSACTION, _id);
     }
 
     fields = {

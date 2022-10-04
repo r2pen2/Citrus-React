@@ -1,9 +1,9 @@
 import { ObjectManager } from "./objectManager";
-import { dbObjectTypes, Set } from "../dbManager";
+import { DBManager, Set } from "../dbManager";
 
 export class BadgeManager extends ObjectManager {
     constructor(_id) {
-        super(dbObjectTypes.BADGE, _id);
+        super(DBManager.objectTypes.BADGE, _id);
     }
 
     fields = {

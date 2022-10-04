@@ -1,10 +1,10 @@
-import { dbObjectTypes, Add, Remove, Set } from "../dbManager";
+import { Add, Remove, Set, DBManager } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
 export class BookmarkManager extends ObjectManager {
 
     constructor(_id) {
-        super(dbObjectTypes.BOOKMARK, _id);
+        super(DBManager.objectTypes.BOOKMARK, _id);
     }
 
     fields = {

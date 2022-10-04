@@ -1,16 +1,16 @@
-import { doc, collection, addDoc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, collection, addDoc, getDoc, setDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { Debugger, controllerObjects } from "../../debugger";
-
-import { changeTypes, dbObjectTypes } from "../dbManager";
+import { Change, DBManager } from "../dbManager";
 
 /**
  * ObjectManager is an abstract class used to standardize higher-level oprations of database objects
  * @todo This should probably be turned into a typescript file in the future, but that would be a lot of work.
+ * @param {string} _objectType type of object to manager
+ * @param {string} _documentId id of document on database
  */
 export class ObjectManager {
-
-    constructor(_objectType, _documentId, _data) {
+    constructor(_objectType, _documentId) {
         this.objectType = _objectType;
         this.documentId = _documentId;
         this.data = null;
@@ -21,33 +21,45 @@ export class ObjectManager {
         this.debugger = this.getDebugger();
     }
 
+    /**
+     * Get a debugger for the current object
+     * @returns Debugger with the correct prefix
+     */
     getDebugger() {
         switch (this.objectType) {
-            case dbObjectTypes.BOOKMARK:
+            case DBManager.objectTypes.BOOKMARK:
                 return new Debugger(controllerObjects.OBJECTMANAGERBOOKMARK);
-            case dbObjectTypes.GROUP:
+            case DBManager.objectTypes.GROUP:
                 return new Debugger(controllerObjects.OBJECTMANAGERGROUP);
-            case dbObjectTypes.TRANSACTIONATTEMPT:
+            case DBManager.objectTypes.TRANSACTIONATTEMPT:
                 return new Debugger(controllerObjects.OBJECTMANAGERTRANSACTIONATTEMPT);
-            case dbObjectTypes.TRANSACTION:
+            case DBManager.objectTypes.TRANSACTION:
                 return new Debugger(controllerObjects.OBJECTMANAGERTRANSACTION);
-            case dbObjectTypes.INVITATION:
+            case DBManager.objectTypes.INVITATION:
                 // Invitations have different collections depending on their type
                 return new Debugger(controllerObjects.OBJECTMANAGERINVITATION);
-            case dbObjectTypes.USER:
+            case DBManager.objectTypes.USER:
                 return new Debugger(controllerObjects.OBJECTMANAGERUSER);
-            case dbObjectTypes.BADGE:
+            case DBManager.objectTypes.BADGE:
                 return new Debugger(controllerObjects.OBJECTMANAGERBADGE);
             default:
                 return null;
         }
     }
 
+    /**
+     * Add a change to this object
+     * @param {Change} change change to add
+     */
     addChange(change) {
         this.changed = true;
         this.changes.push(change);
     }
 
+    /**
+     * Apply all changes to this object
+     * @returns a promise resolved when the changes are applied
+     */
     async applyChanges() {
         return new Promise(async (resolve, reject) => {
             if (!this.fetched) {
@@ -59,13 +71,13 @@ export class ObjectManager {
                 for (const change of this.changes) {
                     this.debugger.logWithPrefix("Making change: " + change.toString());
                     switch(change.type) {
-                        case changeTypes.ADD:
+                        case Change.changeTypes.ADD:
                             this.data = this.handleAdd(change, this.data);
                             break;
-                        case changeTypes.REMOVE:
+                        case Change.changeTypes.REMOVE:
                             this.data = this.handleRemove(change, this.data);
                             break;
-                        case changeTypes.SET:
+                        case Change.changeTypes.SET:
                             this.data = this.handleSet(change, this.data);
                             break;
                         default:
@@ -73,6 +85,7 @@ export class ObjectManager {
                             break;
                     }
                 }
+                this.changes = [];
                 resolve(true);
             } else {
                 this.debugger.logWithPrefix("Applying changes failed because data was null!");
@@ -87,20 +100,20 @@ export class ObjectManager {
      */
     getCollection() {
         switch(this.objectType) {
-            case dbObjectTypes.BOOKMARK:
+            case DBManager.objectTypes.BOOKMARK:
                 return "bookmarks";
-            case dbObjectTypes.GROUP:
+            case DBManager.objectTypes.GROUP:
                 return "groups";
-            case dbObjectTypes.TRANSACTIONATTEMPT:
+            case DBManager.objectTypes.TRANSACTIONATTEMPT:
                 return "transactionAttempts";
-            case dbObjectTypes.TRANSACTION:
+            case DBManager.objectTypes.TRANSACTION:
                 return "transactions";
-            case dbObjectTypes.INVITATION:
+            case DBManager.objectTypes.INVITATION:
                 // Invitations have different collections depending on their type
                 return this.data.inviteType.getCollection();
-            case dbObjectTypes.USER:
+            case DBManager.objectTypes.USER:
                 return "users";
-            case dbObjectTypes.BADGE:
+            case DBManager.objectTypes.BADGE:
                 return "badges";
             default:
                 return null;
@@ -138,18 +151,34 @@ export class ObjectManager {
         this.debugger.logWithPrefix(this.data);
     }
 
+    /**
+     * Log a change application fail arror
+     * @param {Change} change change to log
+     */
     logChangeFail(change) {
         this.debugger.logWithPrefix(change.toString + ' failed to apply because field does not accept this kind of change!');
     }
 
+    /**
+     * Log an invalid change field error
+     * @param {Change} change change to log
+     */
     logInvalidChangeField(change) {
         this.debugger.logWithPrefix(change.toString + ' failed to apply because the field was not recognized!');
     }
 
+    /**
+     * Log an invalid field error
+     * @param {string} field invalid field 
+     */
     logInvalidGetField(field) {
         this.debugger.logWithPrefix('"' + field + '" is not a valid field!');
     }
 
+    /**
+     * Check if document exists already in the database
+     * @returns Whether or not doc exists on DB
+     */
     async documentExists() {
         return new Promise(async (resolve, reject) => {
             const docSnap = await getDoc(this.docRef);
@@ -263,13 +292,22 @@ export class ObjectManager {
         }
     }
 
-    // Print no data error and return param;
+    /**
+     * Log no data error and return passed in value
+     * @param {anything} retval value to return from
+     * @returns value passed into method
+     */
     logNoDataError(retval) {
         this.debugger.logWithPrefix("Error! Failed to return data to subclass.");
         this.error = true;
         return retval;
     }
 
+    /**
+     * Compare method for ObjectManagers
+     * @param {ObjectManager} objectManager ObjectManager to compare
+     * @returns whether or not the ObjectManagers are equivilant
+     */
     equals(objectManager) {
         const matchingTypes = objectManager.getObjectType() === this.getObjectType();
         const matchingIds = objectManager.getObjectId() === this.getObjectId();

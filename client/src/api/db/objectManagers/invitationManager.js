@@ -1,10 +1,10 @@
-import { dbObjectTypes, Set } from "../dbManager";
+import { DBManager, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
 export class InvitationManager extends ObjectManager {
 
     constructor(_id) {
-        super(dbObjectTypes.INVITATION, _id);
+        super(DBManager.objectTypes.INVITATION, _id);
     }
 
     fields = {

@@ -1,10 +1,10 @@
-import { dbObjectTypes, Set } from "../dbManager";
+import { DBManager, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
 export class TransactionAttemptManager extends ObjectManager {
 
     constructor(_id) {
-        super(dbObjectTypes.TRANSACTIONATTEMPT, _id);
+        super(DBManager.objectTypes.TRANSACTIONATTEMPT, _id);
     }
 
     fields = {
