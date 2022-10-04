@@ -442,6 +442,22 @@ export class UserManager extends ObjectManager {
         const transactionRemoval = new Remove(this.fields.TRANSACTIONS, transactionId);
         super.addChange(transactionRemoval);
     }
+
+    // ================= Misc. Methods ================= //
+    /**
+     * Get a user's initials by displayName
+     * @returns User's initials
+     */
+    async getInitials() {
+        return new Promise(async (resolve, reject) => {
+            const fullName = await this.getDisplayName()
+            if (fullName) {
+                resolve(fullName.charAt(0))
+            } else {
+                resolve("?");
+            }
+        })
+    }
 }
 
 export class UserPhoneNumber {

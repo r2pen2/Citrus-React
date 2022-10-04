@@ -1,3 +1,7 @@
+// API Imports
+import { signOutUser } from "./firebase";
+import { RouteManager } from "./routeManager";
+
 /**
  * SessionManager is a tool for interfacing with the browser's localStorage.
  * Keeps page data consistent even after a redirect
@@ -113,5 +117,14 @@ export class SessionManager {
             displayName: this.getDisplayName(),
             debugMode: this.getDebugMode()
         }
+    }
+
+    /**
+     * Completely sign out user with firebase and redirect to /home
+     */
+    static signOut() {
+        signOutUser().then(() => {
+            RouteManager.redirect("/home");
+        });
     }
 }
