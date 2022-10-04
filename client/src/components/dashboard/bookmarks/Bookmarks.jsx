@@ -36,10 +36,7 @@ export default function Bookmarks({user}) {
   const [userBookmarks, setUserBookmarks] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(null);
-  const [newWho, setNewWho] = useState(null);
   const [newTotal, setNewTotal] = useState(null);
-  const [newNote, setNewNote] = useState(null);
-  const [newReceiptUrl, setNewReceiptUrl] = useState(null);
 
   /**
    * Fetch bookmark list for current user
@@ -112,9 +109,7 @@ export default function Bookmarks({user}) {
       <Stack component="form" sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }} noValidate autoComplete="off" alignItems="center" display="flex" justifyContent="center" data-testid="new-bookmark-form-wrapper">
         <div className="fields">
           <TextField id="title" label="Title (optional)" onChange={e => setNewTitle(e.target.value)} data-testid="new-title-input" onKeyDown={(e) => handleEnter(e)}/>
-          <TextField id="who" label="Who (optional)" onChange={e => setNewWho(e.target.value)} data-testid="new-who-input" onKeyDown={(e) => handleEnter(e)}/>
           <TextField id="total" label="Total (optional)" onChange={e => setNewTotal(e.target.value)} data-testid="new-total-input" onKeyDown={(e) => handleEnter(e)}/>
-          <TextField id="note" label="Note (optional)" onChange={e => setNewNote(e.target.value)} data-testid="new-note-input" onKeyDown={(e) => handleEnter(e)}/>
         </div>
         <div className="submit-button">
           <Button variant="contained" component="div" onClick={() => handleSubmit()} data-testid="submit-button">
