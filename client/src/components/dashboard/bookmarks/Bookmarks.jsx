@@ -12,12 +12,10 @@ import { useState, useEffect } from 'react';
 import { Debugger } from "../../../api/debugger";
 
 import { ColoredCard } from "../../resources/Surfaces";
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import UploadIcon from '@mui/icons-material/Upload';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import NoteIcon from '@mui/icons-material/Note';
 import NotesIcon from '@mui/icons-material/Notes';
 
 function renderLoadingBox(marks) {
@@ -32,41 +30,34 @@ function renderLoadingBox(marks) {
 }
 
 export default function Bookmarks({user}) {
+
+  const userManager = DBManager.getUserManager(user.uid);
   
   const [userBookmarks, setUserBookmarks] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState(null);
   const [newWho, setNewWho] = useState(null);
-  const [newAmount, setNewAmount] = useState(null);
+  const [newTotal, setNewTotal] = useState(null);
   const [newNote, setNewNote] = useState(null);
   const [newReceiptUrl, setNewReceiptUrl] = useState(null);
 
   /**
    * Fetch bookmark list for current user
-   * @param {string} userId current user's id
    */
-  async function fetchBookmarks(userId) {
-    const userManager = DBManager.getUserManager(userId);
+  async function fetchBookmarks() {
     const userBookmarks = await userManager.getBookmarks();
-    let bookmarkManagers = [];
-    for (const bookmarkId of userBookmarks) {
-      bookmarkManagers.push(DBManager.getBookmarkManager(bookmarkId));
-    }
-    bookmarkManagers = sortByCreatedAt(bookmarkManagers).reverse();
-    setUserBookmarks(bookmarkManagers);
+    setUserBookmarks(userBookmarks);
   }
 
   /**
    * Renders bookmark slides based on given array
    * @param {Array} a bookmarks for user
-   * @param {String} uid user ID for delete bookmark function
    */
-   function renderBookmarks(a, uid)  {
+  function renderBookmarks(a)  {
 
-    function blankIfNull(s) {
-      return s ? s : "";
+    if (!a) { // If we don't yet have a list of bookmarks, just display a little loading circle
+      return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
     }
-
     if (a.length <= 0) {
       //dbManager returned string "none", meaning the user has no bookmarks.
       return (
@@ -80,45 +71,9 @@ export default function Bookmarks({user}) {
     // Otherwise, we have bookmarks from DB and should display cards accordingly
     if (a) {
       return (
-        a.map((bookmarkManager, idx) => {
+        a.map((bookmarkId, idx) => {
           return (
-            <div className="bookmark-wrapper" key={idx}>
-              <ColoredCard color={bookmarkManager.getColor()}>
-                <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + bookmarkManager.getDocumentId())}>
-                  <CardContent>
-                    <div className="bookmark">
-                      <div className="left">
-                        <div className="delete-button">
-                          <Tooltip title="Delete Bookmark">
-                            <IconButton onClick={() => removeBookmarkFromUser(uid, bookmarkManager.getDocumentId()).then(() => fetchBookmarks(uid))}>
-                              <DeleteIcon fontSize="medium"/>
-                            </IconButton>
-                          </Tooltip>
-                        </div>
-                        <div className="left-data">
-                          <div className="date">
-                            {getSlashDateString(bookmarkManager.getCreatedAt().toDate())}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="center">
-                        <div className="title">
-                          {blankIfNull(bookmarkManager.getTitle())}
-                        </div>
-                      </div>
-                      <div className="note-container">
-                        <NotesIcon fontSize="medium"/>
-                      </div>
-                      <div className="right">
-                        <div className="amount">
-                          {blankIfNull(formatter.format(bookmarkManager.getTotal()))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>  
-                </CardActionArea>
-              </ColoredCard>
-            </div>
+            <BookmarkCard id={bookmarkId} index={idx} user={user} fetchBookmarks={fetchBookmarks}/>
           )
         })
       )
@@ -127,10 +82,8 @@ export default function Bookmarks({user}) {
 
   /**
    * Render new bookmark form in modal
-   * @param {String} uid current user's ID 
-   * @returns 
    */
-  function renderNewBookmarkForm(uid) {
+  function renderNewBookmarkForm() {
 
     function handleEnter(e) {
       if (e.key === "Enter") {
@@ -140,17 +93,19 @@ export default function Bookmarks({user}) {
     }
 
     async function handleSubmit() {
-      const newBookmark = {
-        title: newTitle,
-        who: newWho,
-        amount: newAmount,
-        note: newNote,
-        receiptUrl: newReceiptUrl,
+      const bookmarkManager = DBManager.getBookmarkManager();
+      if (newTitle) {
+        bookmarkManager.setTitle(newTitle);
       }
-      createBookmarkOnUser(uid, newBookmark).then(() => {
-        fetchBookmarks(uid);
-      });
-      setAddModalOpen(false);
+      if (newTotal) {
+        bookmarkManager.setTotal(newTotal);
+      }
+      bookmarkManager.setCreatedAt(new Date());
+      bookmarkManager.setCreatedBy(user.uid);
+      const newBookmarkDocRef = await bookmarkManager.push();
+      userManager.addBookmark(newBookmarkDocRef.id); 
+      await userManager.push();
+      fetchBookmarks();
     }
 
     return (
@@ -158,19 +113,8 @@ export default function Bookmarks({user}) {
         <div className="fields">
           <TextField id="title" label="Title (optional)" onChange={e => setNewTitle(e.target.value)} data-testid="new-title-input" onKeyDown={(e) => handleEnter(e)}/>
           <TextField id="who" label="Who (optional)" onChange={e => setNewWho(e.target.value)} data-testid="new-who-input" onKeyDown={(e) => handleEnter(e)}/>
-          <TextField id="amount" label="Amount (optional)" onChange={e => setNewAmount(e.target.value)} data-testid="new-amount-input" onKeyDown={(e) => handleEnter(e)}/>
+          <TextField id="total" label="Total (optional)" onChange={e => setNewTotal(e.target.value)} data-testid="new-total-input" onKeyDown={(e) => handleEnter(e)}/>
           <TextField id="note" label="Note (optional)" onChange={e => setNewNote(e.target.value)} data-testid="new-note-input" onKeyDown={(e) => handleEnter(e)}/>
-        </div>
-        <div className="receipt">
-          <Typography>{newReceiptUrl ? "Receipt ✓" : "Receipt (optional)"}</Typography>
-          <div className="receipt-methods">
-            <IconButton onClick={() => setNewReceiptUrl("Receipt added by upload")}>
-              <UploadIcon fontSize="large"/>
-            </IconButton>
-            <IconButton onClick={() => setNewReceiptUrl("Receipt added by camera")}>
-              <PhotoCameraIcon fontSize="large"/>
-            </IconButton>
-          </div>
         </div>
         <div className="submit-button">
           <Button variant="contained" component="div" onClick={() => handleSubmit()} data-testid="submit-button">
@@ -183,7 +127,7 @@ export default function Bookmarks({user}) {
 
   // Fetch bookmarks by ID on mount
   useEffect(() => {
-    fetchBookmarks(user.uid);
+    fetchBookmarks();
   }, []);
 
   return (
@@ -216,4 +160,125 @@ export default function Bookmarks({user}) {
       </div>
     </div>
   );
+}
+
+function BookmarkCard({id, index, user, fetchBookmarks}) {
+
+  const userManager = DBManager.getUserManager(user.uid);
+  const bookmarkManager = DBManager.getBookmarkManager(id);
+
+  async function fetchBookmarkData() {
+    const bookmarkData = await bookmarkManager.fetchData();
+    setData(bookmarkData);
+    const bookmarkColor = await bookmarkManager.getColor();
+    setColor(bookmarkColor);
+    const bookmarkCreatedAt = await bookmarkManager.getCreatedAt();
+    setCreatedAt(bookmarkCreatedAt);
+    const bookmarkTitle = await bookmarkManager.getTitle();
+    setTitle(bookmarkTitle);
+    const bookmarkTotal = await bookmarkManager.getTotal();
+    setTotal(bookmarkTotal);
+  }
+
+  useEffect(() => {
+    fetchBookmarkData();
+  }, [])
+  
+  const [data, setData] = useState();
+  const [color, setColor] = useState("#fafafa");
+  const [createdAt, setCreatedAt] = useState(new Date());
+  const [title, setTitle] = useState(null);
+  const [total, setTotal] = useState(null);
+
+  function blankIfNull(s) {
+    return s ? s : "";
+  }
+
+  function deleteBookmark() {
+    userManager.removeBookmark(id);
+    userManager.push().then((pushSuccess) => {
+      if (pushSuccess) {
+        bookmarkManager.deleteDocument();
+        fetchBookmarks();
+      }
+    });
+  }
+
+  if (!data) {
+    return (
+      <div className="bookmark-wrapper" key={index}>
+        <ColoredCard color={color}>
+          <CardActionArea>
+            <CardContent>
+              <div className="bookmark">
+                <div className="left">
+                  <div className="delete-button">
+                    <Tooltip title="Delete Bookmark">
+                      <IconButton>
+                        <DeleteIcon fontSize="medium"/>
+                      </IconButton>
+                    </Tooltip>
+                  </div>
+                  <div className="left-data">
+                    <div className="date">
+                    </div>
+                  </div>
+                </div>
+                <div className="center">
+                  <div className="title">
+                  </div>
+                </div>
+                <div className="note-container">
+                  <NotesIcon fontSize="medium"/>
+                </div>
+                <div className="right">
+                  <div className="amount">
+                  </div>
+                </div>
+              </div>
+            </CardContent>  
+          </CardActionArea>
+        </ColoredCard>
+      </div>
+    )
+  }
+  return (
+    <div className="bookmark-wrapper" key={index}>
+      <ColoredCard color={color}>
+        <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + id)}>
+          <CardContent>
+            <div className="bookmark">
+              <div className="left">
+                <div className="delete-button">
+                  <Tooltip title="Delete Bookmark">
+                    <IconButton onClick={() => deleteBookmark(id)}>
+                      <DeleteIcon fontSize="medium"/>
+                    </IconButton>
+                  </Tooltip>
+                </div>
+                <div className="left-data">
+                  <div className="date">
+                    {getSlashDateString(createdAt)}
+                  </div>
+                </div>
+              </div>
+              <div className="center">
+                <div className="title">
+                  {blankIfNull(title)}
+                </div>
+              </div>
+              <div className="note-container">
+                <NotesIcon fontSize="medium"/>
+              </div>
+              <div className="right">
+                <div className="amount">
+                  {blankIfNull(formatter.format(total))}
+                </div>
+              </div>
+            </div>
+          </CardContent>  
+        </CardActionArea>
+      </ColoredCard>
+    </div>
+  )
 }

@@ -61,7 +61,7 @@
  * @returns {String} date formatted as a string
  */
  export function getSlashDateString(date) {
-    const d = new Date(date)
+    const d = date.toDate();
     const day = d.getUTCDate();
     const month = d.getMonth();
     const year = d.getFullYear();

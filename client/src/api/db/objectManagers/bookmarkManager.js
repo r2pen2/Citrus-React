@@ -194,6 +194,11 @@ export class BookmarkManager extends ObjectManager {
         const titleChange = new Set(this.fields.TITLE, newTitle);
         super.addChange(titleChange);
     }
+    
+    setTotal(newTotal) {
+        const totalChange = new Set(this.fields.TOTAL, newTotal);
+        super.addChange(totalChange);
+    }
 
     // ================= Add Operations ================= //
     
@@ -216,7 +221,7 @@ export class BookmarkManager extends ObjectManager {
      */
     getAge() {
         const now = new Date();
-        const delta = now.getTime() - this.createdAt.toDate().getTime();
+        const delta = now.getTime() - new Date(this.createdAt).getTime();
         const seconds = delta/1000;
         const minutes = seconds/60;
         const hours = minutes/60;

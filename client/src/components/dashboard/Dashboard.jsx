@@ -83,8 +83,6 @@ export default function Dashboard() {
         return <AllTransactions user={user} />;
       case "analytics":
         return <Analytics user={user} />;
-      case "bookmarks":
-        return <Bookmarks user={user} />;
       default:
         return <Home user={user} />;
     }
@@ -98,6 +96,7 @@ export default function Dashboard() {
           <Route path="/" element={ renderTab() }/>
           <Route path="/home" element={ renderTab() }/>
           <Route path="/transaction" element={<Transaction user={user} />}/>
+          <Route path="/bookmarks" element={<Bookmarks user={user} />}/>
         </Routes>
       </div>
       <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} setActiveTab={setActiveTab}/>

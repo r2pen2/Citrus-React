@@ -1,4 +1,4 @@
-import { doc, collection, addDoc, getDoc, setDoc } from "firebase/firestore";
+import { doc, collection, addDoc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { Debugger } from "../../debugger";
 import { Change, DBManager } from "../dbManager";
@@ -14,7 +14,7 @@ export class ObjectManager {
         this.objectType = _objectType;
         this.documentId = _documentId;
         this.data = null;
-        this.docRef = doc(firestore, this.getCollection(), _documentId);
+        this.docRef = this.documentId ? doc(firestore, this.getCollection(), _documentId) : null;
         this.error = false;
         this.fetched = false;
         this.changes = [];
@@ -181,6 +181,12 @@ export class ObjectManager {
      */
     async documentExists() {
         return new Promise(async (resolve, reject) => {
+            if (!this.docRef) {
+                resolve(false);
+            }
+            if (!this.documentId) {
+                resolve(false);
+            }
             const docSnap = await getDoc(this.docRef);
             if (docSnap.exists()) {
                 resolve(true);
@@ -197,15 +203,21 @@ export class ObjectManager {
     async fetchData() {
         this.debugger.logWithPrefix("Fetching object data...");
         return new Promise(async (resolve) => {
-            const docSnap = await getDoc(this.docRef);
-            if (docSnap.exists()) {
-                this.data = docSnap.data();
-                this.fetched = true;
-                resolve(docSnap.data());
-            } else {
-                this.debugger.logWithPrefix("Document snapshot didn't exist! Setting empty data...");
+            if (!this.docRef) {
+                this.debugger.logWithPrefix("No document Id! Setting empty data...");
                 this.data = this.getEmptyData();
                 resolve(false);
+            } else {
+                const docSnap = await getDoc(this.docRef);
+                if (docSnap.exists()) {
+                    this.data = docSnap.data();
+                    this.fetched = true;
+                    resolve(docSnap.data());
+                } else {
+                    this.debugger.logWithPrefix("Document snapshot didn't exist! Setting empty data...");
+                    this.data = this.getEmptyData();
+                    resolve(false);
+                }
             }
         })
     }
@@ -218,20 +230,26 @@ export class ObjectManager {
     async fetchDataAndRetry(maxAttempts, delay) {
         async function fetchRecursive(fetchAttempts) {
             return new Promise(async (resolve) => {
-                const docSnap = await getDoc(this.docRef);
-                if (docSnap.exists()) {
-                    this.data = docSnap.data();
-                    this.fetched = true;
-                    resolve(docSnap.data());
+                if (!this.docRef) {
+                    this.debugger.logWithPrefix("No document Id! Setting empty data...");
+                    this.data = this.getEmptyData();
+                    resolve(false);
                 } else {
-                    this.debugger.logWithPrefix("No document with this ID exists on DB.");
-                    if (fetchAttempts > maxAttempts) {
-                        resolve(null);
+                    const docSnap = await getDoc(this.docRef);
+                    if (docSnap.exists()) {
+                        this.data = docSnap.data();
+                        this.fetched = true;
+                        resolve(docSnap.data());
                     } else {
-                        this.debugger.logWithPrefix("Didn't find data on attempt " + (fetchAttempts + 1));
-                        setTimeout(() => {
-                            resolve(fetchRecursive(fetchAttempts + 1));
-                        }, delay);
+                        this.debugger.logWithPrefix("No document with this ID exists on DB.");
+                        if (fetchAttempts > maxAttempts) {
+                            resolve(null);
+                        } else {
+                            this.debugger.logWithPrefix("Didn't find data on attempt " + (fetchAttempts + 1));
+                            setTimeout(() => {
+                                resolve(fetchRecursive(fetchAttempts + 1));
+                            }, delay);
+                        }
                     }
                 }
             })
@@ -274,21 +292,24 @@ export class ObjectManager {
                         this.debugger.logWithPrefix('Pushing changes to: ' + this.toString());
                         await setDoc(this.docRef, this.data);
                     } else {
+                        this.debugger.logWithPrefix("No document id. Creating new document.")
                         await this.applyChanges();
-                        const newDoc = await addDoc(collection(firestore, this.getCollection), this.data);
+                        const newDoc = await addDoc(collection(firestore, this.getCollection()), this.data);
                         this.documentId = newDoc.id;
                         this.docRef = newDoc;
                         this.debugger.logWithPrefix('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
                     }
+                    resolve(this.docRef);
                 } else {
                     this.debugger.logWithPrefix("No changes were made to: " + this.toString());
+                    resolve(null);
                 }
-                resolve(this.docRef);
             })
         } else {
             // Don't push if there was an error
             this.debugger.logWithPrefix("Error detected in objectManager: " + this.toString());
             this.debugger.logWithPrefix("Changes will not be pushed!");
+            return null;
         }
     }
 
@@ -312,5 +333,22 @@ export class ObjectManager {
         const matchingTypes = objectManager.getObjectType() === this.getObjectType();
         const matchingIds = objectManager.getObjectId() === this.getObjectId();
         return matchingTypes && matchingIds;
+    }
+
+    /**
+     * Delete object's document on the database
+     * @returns A promise resolved when the document is deleted
+     */
+    async deleteDocument() {
+        return new Promise(async (resolve, reject) => {
+            const docExists = await this.documentExists();
+            if (!docExists) {
+                this.debugger.logWithPrefix("Cannot delete document because the reference doesn't exist!");
+                resolve(false);
+            } else {
+                await deleteDoc(this.docRef);
+                resolve(true);
+            }
+        })
     }
 }
