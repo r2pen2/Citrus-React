@@ -5,10 +5,10 @@ import { TransactionAttemptManager } from "./objectManagers/transactionAttemptMa
 import { TransactionManager } from "./objectManagers/transactionManager";
 import { UserManager } from "./objectManagers/userManager";
 import { InvitationManager } from "./objectManagers/invitationManager";
-import { Debugger, controllerObjects } from "../debugger";
+import { Debugger } from "../debugger";
 
 // Create debugger for DBManager
-const dbDebugger = new Debugger(controllerObjects.DBMANAGER);
+const dbDebugger = new Debugger(Debugger.controllerObjects.DBMANAGER);
 
 /**
  * Superclass for all changes— objects that store fields and values to update on ObjectManagers

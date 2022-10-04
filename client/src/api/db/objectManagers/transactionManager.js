@@ -271,11 +271,11 @@ export class TransactionManager extends ObjectManager {
     }
 
     createFronter(userId) {
-        return new TransactionUser(userId, transactionUserRoles.FRONTER);
+        return new TransactionUser(userId, TransactionUser.roles.FRONTER);
     }
 
     createPayer(userId) {
-        return new TransactionUser(userId, transactionUserRoles.PAYER);
+        return new TransactionUser(userId, TransactionUser.roles.PAYER);
     }
 
     async getFronters() {
@@ -301,19 +301,18 @@ export class TransactionManager extends ObjectManager {
     }
 }
 
-export const transactionUserRoles = {
-    FRONTER: "fronter",
-    PAYER: "payer",
-    BYSTANDER: "bystander", // Bystander is currently unused
-}
-
-class TransactionUser {
+export class TransactionUser {
     constructor(_id, _role) {
         this.id = _id;
         this.initialBalance = null;
         this.currentBalance = null;
         this.role = _role;
         this.settled = null;
+    }
+
+    static roles = {
+        FRONTER: "fronter",
+        PAYER: "payer",
     }
 
     /**
@@ -378,14 +377,14 @@ class TransactionUser {
      * Boolean if transaction user is a fronter
      */
     isFronter() {
-        return (this.role === transactionUserRoles.FRONTER);
+        return (this.role === TransactionUser.roles.FRONTER);
     }
 
     /**
      * Boolean if transaction user is a payer
      */
     isPayer() {
-        return (this.role === transactionUserRoles.PAYER);
+        return (this.role === TransactionUser.roles.PAYER);
     }
 }
 

@@ -208,6 +208,36 @@ export class BookmarkManager extends ObjectManager {
         const userRemoval = new Remove(this.fields.USERS, userId);
         super.addChange(userRemoval);
     }
+
+    // ================= Misc. Functions ================= //
+    /**
+     * Get age of bookmark in days
+     * @returns num days since creation
+     */
+    getAge() {
+        const now = new Date();
+        const delta = now.getTime() - this.createdAt.toDate().getTime();
+        const seconds = delta/1000;
+        const minutes = seconds/60;
+        const hours = minutes/60;
+        const days = hours/24;
+        return Math.floor(days);
+    }
+  
+    /**
+     * Get a color representing the age of this bookmark
+     * @returns Color's hex code
+     */
+    getColor() {
+        const age = this.getAge();
+        if (age < 3) {
+          return "#bfd679"; // citrus green
+        }
+        if (age < 7) {
+          return "#FDB90F"; // citrus orange
+        }
+        return "#EA4236"; // citrus red
+      }
 }
 
 export class BookmarkUser {

@@ -2,6 +2,7 @@ import "./bookmarks.scss";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, CardContent, CardActionArea, IconButton, TextField } from '@mui/material';
 import { getBookmarksById, removeBookmarkFromUser, createBookmarkOnUser } from '../../../api/dbManager';
+import { DBManager } from '../../../api/db/dbManager';
 import { getSlashDateString, cutAtIndex } from '../../../api/strings';
 import formatter from '../../../api/formatter';
 import { sortByCreatedAt } from '../../../api/sorting';
@@ -42,11 +43,17 @@ export default function Bookmarks({user}) {
 
   /**
    * Fetch bookmark list for current user
-   * @param {Object} u current user
+   * @param {string} userId current user's id
    */
-  async function fetchBookmarks(uid) {
-    const bm = await getBookmarksById(uid);
-    setUserBookmarks(bm !== "none" ? sortByCreatedAt(bm).reverse() : bm);
+  async function fetchBookmarks(userId) {
+    const userManager = DBManager.getUserManager(userId);
+    const userBookmarks = await userManager.getBookmarks();
+    let bookmarkManagers = [];
+    for (const bookmarkId of userBookmarks) {
+      bookmarkManagers.push(DBManager.getBookmarkManager(bookmarkId));
+    }
+    bookmarkManagers = sortByCreatedAt(bookmarkManagers).reverse();
+    setUserBookmarks(bookmarkManagers);
   }
 
   /**
@@ -56,42 +63,11 @@ export default function Bookmarks({user}) {
    */
    function renderBookmarks(a, uid)  {
 
-    function getBookmarkAge(bookmark) {
-      const now = new Date();
-      const delta = now.getTime() - bookmark.createdAt.toDate().getTime();
-      const seconds = delta/1000;
-      const minutes = seconds/60;
-      const hours = minutes/60;
-      const days = hours/24;
-      return Math.floor(days);
-    }
-
-    function getBookmarkColor(bookmark) {
-      const age = getBookmarkAge(bookmark);
-      if (age < 3) {
-        return "#bfd679"; // citrus green
-      }
-      if (age < 7) {
-        return "#FDB90F"; // citrus orange
-      }
-      return "#EA4236"; // citrus red
-    }
-
     function blankIfNull(s) {
       return s ? s : "";
     }
 
-    function handleHoverEnter(mark, e) {
-      if (mark.note) {
-        e.currentTarget.classList.add("hover");
-      }
-    }
-
-    function handleHoverExit(e) {
-      e.currentTarget.classList.remove("hover");
-    }
-
-    if (a === "none") {
+    if (a.length <= 0) {
       //dbManager returned string "none", meaning the user has no bookmarks.
       return (
         <div className="empty">
@@ -104,52 +80,38 @@ export default function Bookmarks({user}) {
     // Otherwise, we have bookmarks from DB and should display cards accordingly
     if (a) {
       return (
-        a.map((bookmark, idx) => {
+        a.map((bookmarkManager, idx) => {
           return (
-            <div className="bookmark-wrapper" key={idx} onMouseEnter={(e) => handleHoverEnter(bookmark, e)} onMouseLeave={(e) => handleHoverExit(e)}>
-              <ColoredCard color={getBookmarkColor(bookmark)}>
-                <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + bookmark.id)}>
+            <div className="bookmark-wrapper" key={idx}>
+              <ColoredCard color={bookmarkManager.getColor()}>
+                <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + bookmarkManager.getDocumentId())}>
                   <CardContent>
                     <div className="bookmark">
                       <div className="left">
                         <div className="delete-button">
                           <Tooltip title="Delete Bookmark">
-                            <IconButton onClick={() => removeBookmarkFromUser(uid, bookmark.id).then(() => fetchBookmarks(uid))}>
+                            <IconButton onClick={() => removeBookmarkFromUser(uid, bookmarkManager.getDocumentId()).then(() => fetchBookmarks(uid))}>
                               <DeleteIcon fontSize="medium"/>
                             </IconButton>
                           </Tooltip>
                         </div>
                         <div className="left-data">
                           <div className="date">
-                            {getSlashDateString(bookmark.createdAt.toDate())}
-                          </div>
-                          <div className="icons">
-                            <div className="receipt">
-                              {bookmark.receiptUrl ? <Tooltip title="Receipt Uploaded"><ReceiptLongIcon fontSize="medium"/></Tooltip> : <div/>}
-                            </div>
-                            <div className="note">
-                              {bookmark.note ? <Tooltip title="Note Attached"><NoteIcon fontSize="medium"/></Tooltip> : <div/>}
-                            </div>
+                            {getSlashDateString(bookmarkManager.getCreatedAt().toDate())}
                           </div>
                         </div>
                       </div>
                       <div className="center">
                         <div className="title">
-                          {blankIfNull(bookmark.title)}
-                        </div>
-                        <div className="who">
-                          {blankIfNull(bookmark.who)}
+                          {blankIfNull(bookmarkManager.getTitle())}
                         </div>
                       </div>
                       <div className="note-container">
                         <NotesIcon fontSize="medium"/>
-                        <div className="text">
-                          {blankIfNull(bookmark.note)}
-                        </div>
                       </div>
                       <div className="right">
                         <div className="amount">
-                          {blankIfNull(formatter.format(bookmark.amount))}
+                          {blankIfNull(formatter.format(bookmarkManager.getTotal()))}
                         </div>
                       </div>
                     </div>

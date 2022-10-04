@@ -1,20 +1,20 @@
 import { SessionManager } from "./sessionManager";
 
-export const controllerObjects = {
-    ROUTEMANAGER: "routeManager",
-    DBMANAGER: "dbManager",
-    OBJECTMANAGER: "objectManager",
-    OBJECTMANAGERBADGE: "objectManagerBadge",
-    OBJECTMANAGERBOOKMARK: "objectManagerBookmark",
-    OBJECTMANAGERGROUP: "objectManagerGroup",
-    OBJECTMANAGERINVITATION: "objectManagerInvitation",
-    OBJECTMANAGERTRANSACTIONATTEMPT: "objectManagerTransactionAttempt",
-    OBJECTMANAGERTRANSACTION: "objectManagerTransaction",
-    OBJECTMANAGERUSER: "objectManagerUser",
-    BROWSERMANAGER: "browserManager",
-}
-
 export class Debugger {
+
+    static controllerObjects = {
+        ROUTEMANAGER: "routeManager",
+        DBMANAGER: "dbManager",
+        OBJECTMANAGER: "objectManager",
+        OBJECTMANAGERBADGE: "objectManagerBadge",
+        OBJECTMANAGERBOOKMARK: "objectManagerBookmark",
+        OBJECTMANAGERGROUP: "objectManagerGroup",
+        OBJECTMANAGERINVITATION: "objectManagerInvitation",
+        OBJECTMANAGERTRANSACTIONATTEMPT: "objectManagerTransactionAttempt",
+        OBJECTMANAGERTRANSACTION: "objectManagerTransaction",
+        OBJECTMANAGERUSER: "objectManagerUser",
+        BROWSERMANAGER: "browserManager",
+    };
 
     /**
      * Debugger that can be turned on and off by using setDebugMode()
@@ -26,27 +26,27 @@ export class Debugger {
 
     getControllerPrefix() {
         switch (this.controllerObject) {
-            case controllerObjects.ROUTEMANAGER:
+            case Debugger.controllerObjects.ROUTEMANAGER:
                 return "[Route Manager]: ";
-            case controllerObjects.DBMANAGER:
+            case Debugger.controllerObjects.DBMANAGER:
                 return "[DB Manager]: ";
-            case controllerObjects.OBJECTMANAGER:
+            case Debugger.controllerObjects.OBJECTMANAGER:
                 return "[Object Manager]: ";
-            case controllerObjects.OBJECTMANAGERBADGE:
+            case Debugger.controllerObjects.OBJECTMANAGERBADGE:
                 return "[Object Manager <Badge>]: ";
-            case controllerObjects.OBJECTMANAGERBOOKMARK:
+            case Debugger.controllerObjects.OBJECTMANAGERBOOKMARK:
                 return "[Object Manager <Bookmark>]: ";
-            case controllerObjects.OBJECTMANAGERGROUP:
+            case Debugger.controllerObjects.OBJECTMANAGERGROUP:
                 return "[Object Manager <Group>]: ";
-            case controllerObjects.OBJECTMANAGERINVITATION:
+            case Debugger.controllerObjects.OBJECTMANAGERINVITATION:
                 return "[Object Manager <Invitation>]: ";
-            case controllerObjects.OBJECTMANAGERTRANSACTION:
+            case Debugger.controllerObjects.OBJECTMANAGERTRANSACTION:
                 return "[Object Manager <Transaction>]: ";
-            case controllerObjects.OBJECTMANAGERTRANSACTIONATTEMPT:
+            case Debugger.controllerObjects.OBJECTMANAGERTRANSACTIONATTEMPT:
                 return "[Object Manager <Transaction Attempt>]: ";
-            case controllerObjects.OBJECTMANAGERUSER:
+            case Debugger.controllerObjects.OBJECTMANAGERUSER:
                 return "[Object Manager <User>]: ";
-            case controllerObjects.BROWSERMANAGER:
+            case Debugger.controllerObjects.BROWSERMANAGER:
                 return "[Browser Manager]: ";
             default:
                 return "[Undefined Manager]: ";

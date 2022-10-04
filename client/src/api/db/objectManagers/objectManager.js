@@ -1,13 +1,13 @@
 import { doc, collection, addDoc, getDoc, setDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
-import { Debugger, controllerObjects } from "../../debugger";
+import { Debugger } from "../../debugger";
 import { Change, DBManager } from "../dbManager";
 
 /**
  * ObjectManager is an abstract class used to standardize higher-level oprations of database objects
  * @todo This should probably be turned into a typescript file in the future, but that would be a lot of work.
  * @param {string} _objectType type of object to manager
- * @param {string} _documentId id of document on database
+ * @param {string} _documentId id of document on database <- can be ignored if the document doesn't already exist
  */
 export class ObjectManager {
     constructor(_objectType, _documentId) {
@@ -28,20 +28,20 @@ export class ObjectManager {
     getDebugger() {
         switch (this.objectType) {
             case DBManager.objectTypes.BOOKMARK:
-                return new Debugger(controllerObjects.OBJECTMANAGERBOOKMARK);
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERBOOKMARK);
             case DBManager.objectTypes.GROUP:
-                return new Debugger(controllerObjects.OBJECTMANAGERGROUP);
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERGROUP);
             case DBManager.objectTypes.TRANSACTIONATTEMPT:
-                return new Debugger(controllerObjects.OBJECTMANAGERTRANSACTIONATTEMPT);
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERTRANSACTIONATTEMPT);
             case DBManager.objectTypes.TRANSACTION:
-                return new Debugger(controllerObjects.OBJECTMANAGERTRANSACTION);
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERTRANSACTION);
             case DBManager.objectTypes.INVITATION:
                 // Invitations have different collections depending on their type
-                return new Debugger(controllerObjects.OBJECTMANAGERINVITATION);
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERINVITATION);
             case DBManager.objectTypes.USER:
-                return new Debugger(controllerObjects.OBJECTMANAGERUSER);
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERUSER);
             case DBManager.objectTypes.BADGE:
-                return new Debugger(controllerObjects.OBJECTMANAGERBADGE);
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERBADGE);
             default:
                 return null;
         }
@@ -260,7 +260,7 @@ export class ObjectManager {
 
     /**
      * Push changes on this object to the DB
-     * @returns whether or not push was successful
+     * @returns a promise resolved with a DocumentReference pointing to the object in the database
      */
     async push() {
         if (!this.error) {
@@ -283,7 +283,7 @@ export class ObjectManager {
                 } else {
                     this.debugger.logWithPrefix("No changes were made to: " + this.toString());
                 }
-                resolve(true);
+                resolve(this.docRef);
             })
         } else {
             // Don't push if there was an error

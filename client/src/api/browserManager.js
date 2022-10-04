@@ -1,6 +1,6 @@
-import { Debugger, controllerObjects } from "./debugger";
+import { Debugger } from "./debugger";
 
-const browserManagerDebugger = new Debugger(controllerObjects.BROWSERMANAGER);
+const browserManagerDebugger = new Debugger(Debugger.controllerObjects.BROWSERMANAGER);
 
 export class BrowserManager {
     static setTitle(pageTitle) {    

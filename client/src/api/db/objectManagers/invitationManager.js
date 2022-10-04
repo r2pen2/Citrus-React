@@ -185,25 +185,15 @@ export class InvitationManager extends ObjectManager {
 }
 
 
-
-// All possible invitation method strings
-const inviteMethods = {
-    QRCODE: "qrCode",
-    CODE: "numericalCode",
-    LINK: "link",
-}
-
-// All possible invitation type strings
-const inviteTypes = {
-    FRIEND: "friend",
-    GROUP: "group",
-    CHIPIN: "chipIn",
-}
-
-
 export class InviteMethod {
     constructor(_inviteMethod) {
         this.method = _inviteMethod;
+    }
+
+    static methods = {
+        QRCODE: "qrCode",
+        CODE: "numericalCode",
+        LINK: "link",
     }
 }
 
@@ -212,17 +202,23 @@ export class InviteType {
         this.type = _inviteType;
     }
 
+    static types = {
+        FRIEND: "friend",
+        GROUP: "group",
+        CHIPIN: "chipIn",
+    }
+
     /**
      * Get collection associated with invitation type
      * @returns {string} invitation collection
      */
     getCollection() {
         switch(this.type) {
-            case inviteTypes.FRIEND:
+            case InviteType.types.FRIEND:
                 return "friendInvites";
-            case inviteTypes.GROUP:
+            case InviteType.types.GROUP:
                 return "groupInvites";
-            case inviteTypes.CHIPIN:
+            case InviteType.types.CHIPIN:
                 return "chipInInvites";
             default:
                 return null;

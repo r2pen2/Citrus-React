@@ -1,10 +1,10 @@
 // API Imports
-import { Debugger, controllerObjects } from "./debugger";
+import { Debugger } from "./debugger";
 import { SessionManager } from "./sessionManager";
 import { BrowserManager } from "./browserManager";
 
 // Init debugger with RouteManager prefix
-const routeDebugger = new Debugger(controllerObjects.ROUTEMANAGER);
+const routeDebugger = new Debugger(Debugger.controllerObjects.ROUTEMANAGER);
 
 /**
  * RouteManager is a tool for redirecting the user. Includes several abstractions like logging redirects and 
