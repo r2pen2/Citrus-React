@@ -229,11 +229,6 @@ export class ObjectManager {
         }
     }
 
-    // Set document data
-    setData(newData) {
-        this.data = newData;
-    }
-
     /**
      * Push changes on this object to the DB
      * @returns whether or not push was successful
