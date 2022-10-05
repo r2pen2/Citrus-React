@@ -1,46 +1,43 @@
-// Style imports
-import "./accountTab.scss";
-
 // Library imports
 import { Typography, TextField, Avatar, Button, IconButton } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useState, useEffect } from 'react'
 
 // API imports
-import { getDisplayNameById, getPhoneNumberById, getPhotoUrlById } from "../../../api/dbManager"
+import { SessionManager } from "../../api/sessionManager";
+import { DBManager } from "../../api/db/dbManager";
 
 /**
- * Get a user's initials by first and last name
- * @param {String} f first name
- * @param {String} l last name
- * @returns {String} initials
+ * Settings page account tab
  */
- function getInitials(name) {
-    return name.charAt(0);
-}
+export function AccountTab() {
 
-export default function AccountTab({ user }) {
+    // Create UserManager
+    const userManager = DBManager.getUserManager(SessionManager.getUserId());
 
-    const [userDisplayName, setUserDisplayName] = useState(localStorage.getItem("citrus:displayName") ? localStorage.getItem("citrus:displayName") : "");
-    const [userPhotoUrl, setUserPhotoUrl] = useState(localStorage.getItem("citrus:photoUrl") ? localStorage.getItem("citrus:photoUrl") : "");
-    const [userPhoneNumber, setUserPhoneNumber] = useState(localStorage.getItem("citrus:phoneNumber") ? localStorage.getItem("citrus:phoneNumber") : "");
-
-    /**
-     * Get user details from DB and replace blank values
-     */
-    async function fetchUserDetails() {
-        let name = await getDisplayNameById(user.uid);
-        setUserDisplayName(name);
-        let number = await getPhoneNumberById(user.uid);
-        setUserPhoneNumber(number);
-        let photo = await getPhotoUrlById(user.uid);
-        setUserPhotoUrl(photo);
-    }
+    const [userDisplayName, setUserDisplayName] = useState(SessionManager.getDisplayName());
+    const [userPhotoUrl, setUserPhotoUrl] = useState(SessionManager.getPfpUrl());
+    const [userPhoneNumber, setUserPhoneNumber] = useState(SessionManager.getPhoneNumber());
+    const [userInitials, setUserInitials] = useState("");
 
     // Fetch user details on mount
     useEffect(() => {
+         /**
+        * Get user details from DB and replace blank values
+        */
+        async function fetchUserDetails() {
+            const name = await userManager.getDisplayName();
+            setUserDisplayName(name);
+            const number = await userManager.getPhoneNumber();
+            setUserPhoneNumber(number);
+            const photo = await userManager.getPhotoUrl();
+            setUserPhotoUrl(photo);
+            const initials = await userManager.getInitials();
+            setUserInitials(initials);
+        }
+
         fetchUserDetails();
-    }, [])
+    }, [userManager])
 
     return (
     <div className="account-content" data-testid="account-content">
@@ -50,9 +47,9 @@ export default function AccountTab({ user }) {
         <div className="avatar-container">
             <div className="col"></div>
             <IconButton className="col avatar-button" aria-label="account of current user" data-testid="settings-avatar">
-                <Avatar src={userPhotoUrl} className="avatar" alt={userDisplayName} size="large">
+                <Avatar src={userPhotoUrl} className="avatar" alt={userDisplayName ? userDisplayName : ""} size="large">
                     <Typography variant="h3">
-                        {getInitials(userDisplayName)}
+                        {userInitials}
                     </Typography>
                 </Avatar>
             </IconButton>
@@ -64,10 +61,10 @@ export default function AccountTab({ user }) {
         </div>
         <div className="fields-container">
             <div className="field long-field">
-                <TextField id="display-name" label="Display Name" data-testid="display-name-input" value={userDisplayName}/>
+                <TextField id="display-name" label="Display Name" data-testid="display-name-input" value={userDisplayName ? userDisplayName : ""}/>
             </div>
             <div className="field long-field">
-                <TextField id="phone-number" label="Phone Number" data-testid="phone-number-input" value={userPhoneNumber}/>
+                <TextField id="phone-number" label="Phone Number" data-testid="phone-number-input" value={userPhoneNumber ? userPhoneNumber : ""}/>
             </div>
             <div className="field long-field">
                 <TextField id="address" label="Address" data-testid="address-input" value="1600 Pennsylvania Avenue NW"/>

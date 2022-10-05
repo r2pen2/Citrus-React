@@ -17,6 +17,15 @@ export class SessionManager {
     }
 
     /**
+     * Get user id from user in localstorage
+     * @returns user id or null
+     */
+    static getUserId() {
+        const user = JSON.parse(localStorage.getItem("citrus:user"));
+        return user ? user.uid : null;
+    }
+
+    /**
      * Set user object saved in localStorage
      */
     static setUser(user) {
@@ -51,6 +60,21 @@ export class SessionManager {
      */
     static setDisplayName(displayName) {
         localStorage.setItem("citrus:displayName", displayName);
+    }
+
+    /**
+     * Get phone number saved in localStorage
+     * @returns phone number or empty string
+     */
+    static getPhoneNumber() {
+        return localStorage.getItem("citrus:phoneNumber") ? localStorage.getItem("citrus:phoneNumber") : "";
+    }
+
+    /**
+     * Set phone number saved in localStorage
+     */
+    static setPhoneNumber(phoneNumber) {
+        localStorage.setItem("citrus:phoneNumber", phoneNumber);
     }
 
     /**

@@ -5,13 +5,17 @@ import "./userPage.scss";
 import { Route, Routes } from "react-router-dom";
 
 // Component imports
-import Settings from "./settings/Settings";
+import Settings from "./routes/Settings"
 
 // API imports
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
 import { BrowserManager } from "../../api/browserManager";
 
+/**
+ * Route controller for all pages related to current user:
+ * Ex) Settings
+ */
 export default function UserPage() {
     
     const user = SessionManager.getUser();

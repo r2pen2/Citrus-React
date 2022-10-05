@@ -10,23 +10,20 @@ import LinkIcon from '@mui/icons-material/Link';
 import { useState } from 'react';
 
 // Component imports
-import AccountTab from './AccountTab.jsx';
+import { AccountTab } from '../../resources/UserPage';
 
 // API imports
 import { SessionManager } from "../../../api/sessionManager";
-import { BrowserManager } from "../../../api/browserManager";
 import { RouteManager } from "../../../api/routeManager";
 
+/**
+ * Settings route controller
+ */
 export default function Settings() {
 
     const user = SessionManager.getUser();
-    
-    // Redirect or set document title
-    if (!user) {
-        RouteManager.redirect("/login");
-    } else {
-        BrowserManager.setTitle("Settings");
-    }
+
+    RouteManager.setTitleOrRedirectToLogin("Settings");
 
     /**
      * Sets hash constant to the hash value or account if none
@@ -80,7 +77,7 @@ export default function Settings() {
     function getSettingsPageByHash(currentUser) {
         switch (hash) {
             case "#account":
-                return <AccountTab user={currentUser} />;
+                return <AccountTab />;
             case "#appearance":
                 return renderUnimplementedPage("Appearance", <ColorLensIcon color="primary" fontSize="large"/>);
             case "#connections":
@@ -134,10 +131,9 @@ export default function Settings() {
                 { /* list / links */ }
                 <List>
                     {menuItems.map(item => (
-                    <div>
+                    <div key={item.text}>
                         <ListItem 
-                            button 
-                            key={item.text} 
+                            button  
                             onClick={() => handleDrawerClick(item.path)} 
                             data-testid={"drawer-item-" + item.text} 
                             className={isElementActive(item.text) ? "active" : ""}
