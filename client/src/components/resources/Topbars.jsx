@@ -95,20 +95,21 @@ export function UserTopbar({user}) {
     setAnchorElement(null);
   }
 
-  // Fetch user details on mount
-  async function fetchUserData() {
-    let name = await userManager.getDisplayName();
-    setUserDisplayName(name);
-    let url = await userManager.getPhotoUrl();
-    setUserPhotoUrl(url);
-    let userInitials = await userManager.getInitials();
-    setInitials(userInitials);
-    SessionManager.setPfpUrl(url);
-    SessionManager.setDisplayName(name);
-  }
+
   useEffect(() => {
+    // Fetch user details on mount
+    async function fetchUserData() {
+      let name = await userManager.getDisplayName();
+      setUserDisplayName(name);
+      let url = await userManager.getPhotoUrl();
+      setUserPhotoUrl(url);
+      let userInitials = await userManager.getInitials();
+      setInitials(userInitials);
+      SessionManager.setPfpUrl(url);
+      SessionManager.setDisplayName(name);
+    }
     fetchUserData();
-  }, []);
+  }, [userManager]);
 
   /**
    * Close user account menu and send the user to anotehr page
