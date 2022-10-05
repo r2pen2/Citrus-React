@@ -59,9 +59,9 @@ export default function Bookmarks({user}) {
     // Otherwise, we have bookmarks from DB and should display cards accordingly
     if (a) {
       return (
-        a.map((bookmarkId, idx) => {
+        a.map((bookmarkId) => {
           return (
-            <BookmarkCard id={bookmarkId} index={idx} user={user} fetchBookmarks={fetchBookmarks}/>
+            <BookmarkCard id={bookmarkId} fetchBookmarks={fetchBookmarks}/>
           )
         })
       )

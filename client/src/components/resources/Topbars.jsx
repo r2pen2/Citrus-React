@@ -22,7 +22,6 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 
 // API Imports
-import { DBManager } from "../../api/db/dbManager";
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
 

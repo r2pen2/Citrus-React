@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react'
 
 // API imports
 import { SessionManager } from "../../api/sessionManager";
-import { DBManager } from "../../api/db/dbManager";
 
 /**
  * Settings page account tab

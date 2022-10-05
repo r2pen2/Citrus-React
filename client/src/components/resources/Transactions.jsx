@@ -1,7 +1,6 @@
 import "./resources.scss";
-import { CircularProgress, Typography, Button, CardContent, CardActionArea, Tooltip } from '@mui/material';
+import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip } from '@mui/material';
 import { useState, useEffect} from 'react';
-import { getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../api/dbManager"
 import React from 'react'
 import { OutlinedCard } from "./Surfaces";
 import { getDateString } from "../../api/strings";
@@ -16,21 +15,22 @@ import { Breadcrumbs } from "./Navigation";
 export function TransactionList(props) {
     
     const [transactions, setTransactions] = useState(null);
-
-    async function fetchUserTransactions() {
-      const userManager = SessionManager.getCurrentUserManager();
-      const t = await userManager.getTransactions();
-      if (props.numDisplayed) {
-        setTransactions(t.slice(0, props.numDisplayed));
-      } else {
-        setTransactions(t);
-      }
-    }
   
     // Fetch transactions on mount
     useEffect(() => {
+
+      async function fetchUserTransactions() {
+        const userManager = SessionManager.getCurrentUserManager();
+        const t = await userManager.getTransactions();
+        if (props.numDisplayed) {
+          setTransactions(t.slice(0, props.numDisplayed));
+        } else {
+          setTransactions(t);
+        }
+      }
+
       fetchUserTransactions();
-    }, [])
+    }, [props.numDisplayed])
 
     /**
    * Renders cards for each of the user's transactions
@@ -44,7 +44,7 @@ export function TransactionList(props) {
       return (
         <div>
           <div className="transaction-card" key={index} data-testid={"transaction-card-" + transaction}>
-            <TransactionCard id={transaction.transactionId} user={props.user} />
+            <TransactionCard id={transaction.transactionId} />
           </div>
         </div>
       )
@@ -111,26 +111,26 @@ export function TransactionList(props) {
 }
 
 /**
- * Render a transaction card from passed user's perspective
- * @param {string} id transaction id 
- * @param {object} user user viewing the transaction
+ * Render a transaction card from current user's perspective
+ * @param {string} transactionId transaction id 
  */
-export function TransactionCard({id, user}) {
+export function TransactionCard({transactionId}) {
     
     const [context, setContext] = useState(null);
 
-    /**
-    * Get transaction context from user's perspective
-    */
-    async function getTransactionContext() {
-      const transactionManager = DBManager.getTransactionManager(id);
-      const transactionContext = await transactionManager.getContext(user.uid);
-      setContext(transactionContext);
-    }
-
     useEffect(() => {
-        getTransactionContext();
-    }, [])
+
+      /**
+      * Get transaction context from user's perspective
+      */
+      async function getTransactionContext() {
+        const transactionManager = DBManager.getTransactionManager(transactionId);
+        const transactionContext = await transactionManager.getContext(SessionManager.getUserId());
+        setContext(transactionContext);
+      }
+
+      getTransactionContext();
+    }, [transactionId])
 
     function renderAvatarStack() {
         if (context) {
@@ -165,8 +165,8 @@ export function TransactionCard({id, user}) {
 
     if (context) {
         return (
-            <OutlinedCard key={id}>
-                <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + id}>
+            <OutlinedCard key={transactionId}>
+                <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + transactionId}>
                     <CardContent>
                         <div className="transaction-card-content-container">
                             <div className="left">

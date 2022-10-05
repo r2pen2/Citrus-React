@@ -7,7 +7,7 @@ import "./assets/style/notifications.css";
 import { ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { NotificationContainer } from 'react-notifications';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Component Imports
 import Login from "./components/login/Login";
@@ -21,7 +21,6 @@ import UserPage from "./components/userPage/UserPage";
 import { creditsData } from './assets/json/creditsPage';
 
 // API imports
-import { DBManager } from "./api//db/dbManager";
 import { SessionManager } from "./api/sessionManager";
 import { auth } from "./api/firebase";
 
