@@ -1,4 +1,3 @@
-import "./transaction.scss";
 import React from 'react'
 import { Route, Routes } from "react-router-dom"
 import { TransactionDetail, TransactionConversation } from "../../resources/Transactions";

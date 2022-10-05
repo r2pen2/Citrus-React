@@ -1,4 +1,3 @@
-import "./bookmarks.scss";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { BookmarkCard } from "../../resources/Bookmarks";
 import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, IconButton, TextField } from '@mui/material';
@@ -119,7 +118,7 @@ export default function Bookmarks() {
   }, []);
 
   return (
-    <div>
+    <div className="bookmarks-page-wrapper">
       <Modal
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}

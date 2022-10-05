@@ -10,7 +10,7 @@ export default function Groups() {
   return (
     <div>
         <Routes>
-            <Route path="/" element={<GroupHome />}/>
+            <Route path="*" element={<GroupHome />}/>
             <Route path="/join" element={<JoinGroup />}/>
             <Route path="/new" element={<NewGroup />}/>
             <Route path="/group/*" element={<Group />}/>

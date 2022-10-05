@@ -15,8 +15,8 @@ import Groups from "./groups/Groups";
 import Owe from "./owe/Owe";
 import AllTransactions from "./allTransactions/AllTransactions";
 import Analytics from "./analytics/Analytics";
-import Bookmarks from "./bookmarks/Bookmarks";
-import Transaction from "./transaction/Transaction";
+import Bookmarks from "./routes/Bookmarks";
+import Transaction from "./routes/Transaction";
 
 // API imports
 import { RouteManager } from "../../api/routeManager";
@@ -27,7 +27,7 @@ export default function Dashboard() {
 
   const [shortcutActive, setShortcutActive] = useState(false);        // Whether or not new transaction shortcut is active
   const [bookmarksDeployed, setBookmarksDeployed] = useState(false);  // Whether or not bookmarks are displayed in shortcut
-  const [activeTab, setActiveTab] = useState("home");                 // Active tab for content selection
+  const [activeTab, setActiveTab] = useState(RouteManager.getHash() ? RouteManager.getHash() : "home");                 // Active tab for content selection
 
   /**
    * Close shortcut on mouseup

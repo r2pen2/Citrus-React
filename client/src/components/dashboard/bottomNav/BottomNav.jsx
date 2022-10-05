@@ -10,6 +10,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 
 // API imports
 import { SessionManager } from "../../../api/sessionManager";
+import { RouteManager } from "../../../api/routeManager";
 
 /**
  * Navigation tool on the bottom of the screen for all of the dashboard
@@ -42,10 +43,18 @@ export default function BottomNav({ setShortcutActive, activeTab, setBookmarksDe
     event.preventDefault();
 
     setValue(newValue);
-    if (activeTab !== newValue) {
-      setActiveTab(newValue);
+    setActiveTab(newValue);
+    
+    if (offBaseDashboard()) {
+      RouteManager.redirectWithHash("/dashboard", newValue);
+    } else {
+      RouteManager.setHash(newValue);
     }
   };
+
+  function offBaseDashboard() {
+    return window.location.toString().includes("bookmarks") || window.location.toString().includes("transaction");
+  }
 
   /**
    * Display the shortcut menu on mousedown 
