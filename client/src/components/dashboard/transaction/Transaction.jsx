@@ -2,30 +2,18 @@ import "./transaction.scss";
 import React from 'react'
 import { Route, Routes } from "react-router-dom"
 import { TransactionDetail, TransactionConversation } from "../../resources/Transactions";
-import { getTransactionTitleById } from "../../../api/dbManager";
 import { BrowserManager } from "../../../api/browserManager";
-import { useState } from "react";
 
-/**
- * Set document title to transaction title
- */
-    async function doPageSetup() {
-    const params = new URLSearchParams(window.location.search);
-    const transactionId = params.get("id");
-    let transactionTitle = await getTransactionTitleById(transactionId);
-    BrowserManager.setTitleNoPrefix(transactionTitle);
-}
-
-export default function Transaction({user}) {
+export default function Transaction() {
     // Set up page
-    doPageSetup();
+    BrowserManager.setTransactionTitleFromURL();
 
     return (
         <div className="transaction-wrapper">
             <div className="transaction-pane">
                 <Routes>
-                    <Route path="/" element={<TransactionDetail user={user}/>}/>
-                    <Route path="/conversation" element={<TransactionConversation user={user}/>}/>
+                    <Route path="/" element={<TransactionDetail />}/>
+                    <Route path="/conversation" element={<TransactionConversation />}/>
                 </Routes>
             </div>
         </div>

@@ -194,7 +194,7 @@ export function TransactionCard({transactionId}) {
     }
 }
 
-export function TransactionDetail({ user }) {
+export function TransactionDetail() {
   const params = new URLSearchParams(window.location.search);
   const transactionId = params.get("id");
 
@@ -232,7 +232,7 @@ export function TransactionDetail({ user }) {
   );
 }
 
-export function TransactionConversation({ user }) {
+export function TransactionConversation() {
   const params = new URLSearchParams(window.location.search);
   const transactionId = params.get("id");
 

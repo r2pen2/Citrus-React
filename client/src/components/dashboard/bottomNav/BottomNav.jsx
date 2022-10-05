@@ -8,10 +8,17 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import GroupsIcon from '@mui/icons-material/Groups';
 
-export default function BottomNav({ user, setShortcutActive, setBookmarksDeployed, setActiveTab, onBaseDashboard }) {
+// API imports
+import { SessionManager } from "../../../api/sessionManager";
 
-  // Display only if we have a current user
-  const active = user ? true : false;
+/**
+ * Navigation tool on the bottom of the screen for all of the dashboard
+ * @param {function} setShortcutActive function for setting whether or not the shortcut feature is current active
+ * @param {function} setBookmarksDeployed function for setting whether or not bookmarks are displayed in shortcut
+ * @param {function} setActiveTab function for setting which dashboard page is active 
+ * @returns 
+ */
+export default function BottomNav({ setShortcutActive, setBookmarksDeployed, setActiveTab }) {
 
   // Define constants
   const [value, setValue] = useState(getValueFromWindowLocation()); // Which element on the bottom is highlighted
@@ -32,6 +39,7 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
    * @param {String} newValue the value of the new active element
    */
   const handleChange = (event, newValue) => {
+    event.preventDefault();
     
     function onBaseDashboard() {
       return window.location.toString().includes("/dashboard/home");
@@ -61,8 +69,8 @@ export default function BottomNav({ user, setShortcutActive, setBookmarksDeploye
   }
 
   // Only display if there's a user logged in
-  if (active) {
-    return(
+  if (SessionManager.userFullySignedIn()) {
+    return (
       <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }} data-testid="bottomnav">
         <BottomNavigation sx={{ widthi: '100%' }} value={value} onChange={handleChange}>
           <BottomNavigationAction

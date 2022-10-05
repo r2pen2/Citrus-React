@@ -2,7 +2,7 @@
 import "./analyticsPreview.scss";
 
 // Library imports
-import { Stack, Typography, Button } from "@mui/material"
+import { Stack, Button } from "@mui/material"
 import { Bar } from "react-chartjs-2";
 // eslint-disable-next-line no-unused-vars
 import Chart from 'chart.js/auto';

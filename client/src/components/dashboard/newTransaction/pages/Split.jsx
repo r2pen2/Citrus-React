@@ -1,41 +1,46 @@
 import { useState, useEffect } from 'react';
-import { Button, IconButton, Select, InputLabel, FormControl, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress } from '@mui/material';
+import { Button, Select, InputLabel, FormControl, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
-import { getGroupsByUserId, getGroupNameById, getFriendsById, getDisplayNameById, getPhotoUrlById, getUsersByGroupId } from "../../../../api/dbManager";
-import { AvatarToggle, AvatarIcon } from '../../../resources/Avatars';
+import { getDisplayNameById, getPhotoUrlById, getUsersByGroupId } from "../../../../api/dbManager";
+import { SessionManager } from "../../../../api/sessionManager";
+import { DBManager } from "../../../../api/db/dbManager";
+import { AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
 
 export default function Split(props) {
 
+    // Get user manager
+    const userManager = SessionManager.getCurrentUserManager();
+
     const [splitPage, setSplitPage] = useState(props.splitPage ? props.splitPage : "add-people");
-    const [userGroups, setUserGroups] = useState(null);
     const [groupPicklistContent, setGroupPicklistContent] = useState(null);
     const [currentGroup, setCurrentGroup] = useState("");
+    // eslint-disable-next-line no-unused-vars
     const [peopleInvolved, setPeopleInvolved] = useState([]);
     const [transactionTitle, setTransactionTitle] = useState(null);
     const [transactionAmount, setTransactionAmount] = useState(null);
 
-    async function fetchUserData() {
-        let groups = await getGroupsByUserId(props.user.uid);
-        setUserGroups(groups);
-        // Also get the names of each group
-        var groupObjects = [];
-        for (const groupId of groups) {
-            let groupName = await getGroupNameById(groupId);
-            groupObjects.push({id: groupId, name: groupName })
-        }
-        setGroupPicklistContent(groupObjects);
-    }
-
     useEffect(() => {
+        async function fetchUserData() {
+            const groups = await userManager.getGroups();
+            // Also get the names of each group
+            var groupObjects = [];
+            for (const groupId of groups) {
+                const groupManager = DBManager.getGroupManager(groupId);
+                const groupName = await groupManager.getName();
+                groupObjects.push({id: groupId, name: groupName })
+            }
+            setGroupPicklistContent(groupObjects);
+        }
+
         fetchUserData();
-    }, [])
+    }, [userManager])
 
     function renderSplitPage() {
         switch (splitPage) {
             case "add-people":
-                return <AddPeoplePage user={props.user} setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
+                return <AddPeoplePage setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
             case "transaction-details":
                 return <TransactionDetailsPage transactionAmount={transactionAmount} setTransactionAmount={setTransactionAmount} currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} transactionTitle={transactionTitle} setTransactionTitle={setTransactionTitle}/>;
             case "set-weights":
@@ -54,8 +59,10 @@ export default function Split(props) {
     )
 }
 
-function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
+function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
 
+    // Get user manager
+    const userManager = SessionManager.getCurrentUserManager();
     
     const [searchString, setSearchString] = useState("");               // Contents of search box
     const [friends, setFriends] = useState(null);                       // List of user's friends (stored as objects)
@@ -86,24 +93,23 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
         setFriendsLoaded(true);
     }
 
-    /**
-     * Get a list of user's friends and store their ID's, along with template information
-     */
-    async function fetchFriends() {
-        let friendsFromDB = await getFriendsById(user.uid);
-        var userFriends = [];
-        for (const friend of friendsFromDB) {
-            userFriends.push({id: friend, displayName: "", pfpUrl: null, selected: false})
-        }
-        const sortedFriends = sortByDisplayName(userFriends);
-        setFriends(sortedFriends);
-        fetchFriendDetails(userFriends);
-    }
-
     // Fetch user's friends on component mount
     useEffect(() => {
+        /**
+         * Get a list of user's friends and store their ID's, along with template information
+         */
+        async function fetchFriends() {
+            const friendsFromDB = await userManager.getFriends();
+            var userFriends = [];
+            for (const friendId of friendsFromDB) {
+                userFriends.push({id: friendId, displayName: "", pfpUrl: null, selected: false})
+            }
+            const sortedFriends = sortByDisplayName(userFriends);
+            setFriends(sortedFriends);
+            fetchFriendDetails(userFriends);
+        }
         fetchFriends();
-    }, [])
+    }, [userManager])
 
     /**
      * Populate group select box with the names of each group the user belongs to
@@ -200,57 +206,56 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
      * @returns {Component} populated friend search results
      */
     function populateFriendScroller() {
-        if (friends) {
-            if (friendsLoaded) {
-                if (searchExpanded) {
-                    return friends.map((friend, index) => {
-                        if (friend.displayName.toLowerCase().includes(searchString.toLowerCase())) {
-                            return (                            
-                                <div 
-                                    className="friend-container" 
-                                    key={index} 
-                                    onClick={() => { 
-                                        toggleSelectedFriend(friend.id);
-                                        clearSearch();
-                                    }
-                                }>
-                                    <AvatarToggle 
-                                        outlined={friend.selected} 
-                                        id={friend.id} 
-                                        src={friend.pfpUrl}
-                                        displayName={friend.displayName}
-                                    />
-                                </div> 
-                            )
-                        }
-                    })
-                } else {
-                    return friends.slice(0, 5).map((friend, index) => {
-                        return (
-                            <div 
-                               className="friend-container" 
-                               key={index} 
-                               onClick={() => {
-                                toggleSelectedFriend(friend.id);
-                               }}
-                            >
-                                <AvatarToggle 
-                                   outlined={friend.selected} 
-                                   id={friend.id} 
-                                   displayName={friend.displayName}
-                               />
-                            </div>
-                        )
-                   })
-                }
-            } else {
-                return (
-                    <div className="friend-container">
-                        <CircularProgress/>
-                    </div>
-                )
-            }
+        if (!friends) {
+            return;
         }
+        if (!friendsLoaded) {
+            return (
+                <div className="friend-container">
+                    <CircularProgress/>
+                </div>
+            );
+        }
+        if (searchExpanded) { // Friends exist and search is expanded
+            const searchIncludedFriends = friends.filter(f => f.displayName.toLowerCase().includes(searchString.toLowerCase()));
+            return searchIncludedFriends.map((friend, index) => {
+                return (                            
+                    <div 
+                        className="friend-container" 
+                        key={index} 
+                        onClick={() => { 
+                            toggleSelectedFriend(friend.id);
+                            clearSearch();
+                        }
+                    }>
+                        <AvatarToggle 
+                            outlined={friend.selected} 
+                            id={friend.id} 
+                            src={friend.pfpUrl}
+                            displayName={friend.displayName}
+                        />
+                    </div> 
+                );
+            });
+        } 
+        // Friends exist but the list is not expanded
+        return friends.slice(0, 5).map((friend, index) => {
+            return (
+                <div 
+                   className="friend-container" 
+                   key={index} 
+                   onClick={() => {
+                    toggleSelectedFriend(friend.id);
+                   }}
+                >
+                    <AvatarToggle 
+                       outlined={friend.selected} 
+                       id={friend.id} 
+                       displayName={friend.displayName}
+                   />
+                </div>
+            )
+        });
     }
 
     /** 
@@ -292,6 +297,7 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
         setSearchExpanded(someoneIsSelected || searchString.length > 0);
         setGroupsExpanded(currentGroup.length > 0);
         checkNextEnabled();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [someoneIsSelected, someoneIsSelectedInGroup, searchString, currentGroup])
 
     /**
@@ -299,6 +305,7 @@ function AddPeoplePage({user, setSplitPage, groupPicklistContent, currentGroup, 
      */
     useEffect(() => {
         fetchCurrentGroupUsers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentGroup])
 
     /**

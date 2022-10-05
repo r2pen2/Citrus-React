@@ -95,11 +95,11 @@ export default function Dashboard() {
         <Routes>
           <Route path="/" element={ renderTab() }/>
           <Route path="/home" element={ renderTab() }/>
-          <Route path="/transaction" element={<Transaction user={user} />}/>
-          <Route path="/bookmarks" element={<Bookmarks user={user} />}/>
+          <Route path="/transaction" element={<Transaction />}/>
+          <Route path="/bookmarks" element={<Bookmarks />}/>
         </Routes>
       </div>
-      <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} setActiveTab={setActiveTab}/>
+      <BottomNav setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} setActiveTab={setActiveTab}/>
     </div>
   );
 }

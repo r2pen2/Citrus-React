@@ -1,7 +1,7 @@
 import "./bookmarks.scss";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { BookmarkCard } from "../../resources/Bookmarks";
-import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, CardContent, CardActionArea, IconButton, TextField } from '@mui/material';
+import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, IconButton, TextField } from '@mui/material';
 import { DBManager } from '../../../api/db/dbManager';
 import { SessionManager } from '../../../api/sessionManager';
 
@@ -20,7 +20,7 @@ function renderLoadingBox(marks) {
   )
 }
 
-export default function Bookmarks({user}) {
+export default function Bookmarks() {
 
   const userManager = SessionManager.getCurrentUserManager();
   
@@ -89,7 +89,7 @@ export default function Bookmarks({user}) {
         bookmarkManager.setTotal(newTotal);
       }
       bookmarkManager.setCreatedAt(new Date());
-      bookmarkManager.setCreatedBy(user.uid);
+      bookmarkManager.setCreatedBy(SessionManager.getUserId());
       const newBookmarkDocRef = await bookmarkManager.push();
       userManager.addBookmark(newBookmarkDocRef.id); 
       await userManager.push();
@@ -115,6 +115,7 @@ export default function Bookmarks({user}) {
   // Fetch bookmarks by ID on mount
   useEffect(() => {
     fetchBookmarks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -128,7 +129,7 @@ export default function Bookmarks({user}) {
           <Typography id="modal-modal-title" variant="h6" component="h2" marginTop="10px">
             New Bookmark
           </Typography>
-          { renderNewBookmarkForm(user.uid) }
+          { renderNewBookmarkForm() }
         </Box>
       </Modal>
       <Breadcrumbs path="Dashboard/Bookmarks" />
@@ -136,7 +137,7 @@ export default function Bookmarks({user}) {
         { renderLoadingBox(userBookmarks) }
       </div>
       <div className="bookmarks">
-        { renderBookmarks(userBookmarks, user.uid) }
+        { renderBookmarks(userBookmarks) }
         <div className={"add-button " + (userBookmarks ? "" : "hidden")}>
           <Tooltip title="Add Bookmark">
             <IconButton onClick={() => setAddModalOpen(true)} >

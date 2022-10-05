@@ -2,7 +2,7 @@
 import "./newtransaction.scss";
 
 // Library imports;
-import { Typography, Paper, Select, Tabs, Tab, Box, FormControl, MenuItem, InputLabel } from "@mui/material";
+import { Paper, Tabs, Tab } from "@mui/material";
 import { useState } from 'react';
 
 // Component Imports
@@ -15,6 +15,7 @@ import { Debugger } from "../../../api/debugger";
 export default function NewTransaction({ user }) {
   const [tabValue, setTabValue] = useState(0);
 
+  // eslint-disable-next-line no-unused-vars
   function sendTransactionToDatabase() {
     Debugger.log("Sending transaction to database!")
   }
