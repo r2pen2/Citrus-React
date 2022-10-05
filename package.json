@@ -1,8 +1,25 @@
 {
-  "dependencies": {
-    "firebase": "^9.8.4"
-  },
+  "name": "citrus-financial",
+  "version": "1.0.0",
+  "description": "![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-%20-blue?style=for-the-badge&logo=visual-studio-code&logoColor=white&color=007acc) ![GitHub](https://img.shields.io/badge/Github-%20-blue?style=for-the-badge&logo=github&logoColor=white&color=181717) ![React](https://img.shields.io/badge/React-%20-blue?style=for-the-badge&logo=react&logoColor=white&color=61dafb) ![Node.js](https://img.shields.io/badge/NodeJs-%20-blue?style=for-the-badge&logo=node.js&logoColor=white&color=339933) ![Git](https://img.shields.io/badge/git-%20-blue?style=for-the-badge&logo=git&logoColor=white&color=F05032)",
+  "main": "server.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r2pen2/Citrus-React.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/r2pen2/Citrus-React/issues"
+  },
+  "homepage": "https://github.com/r2pen2/Citrus-React#readme",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.1"
   }
 }

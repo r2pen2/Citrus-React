@@ -51,11 +51,6 @@ function App() {
     })
   }, []);
 
-  // If we ever don't have a user stored in localStorage, make sure they're actually singed out!
-  if (!SessionManager.userInLS()) {
-    SessionManager.signOut();
-  }
-
   // I present to you: Citrus Financial
   return (
     <div className="app" data-testid="app-wrapper">
