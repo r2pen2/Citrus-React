@@ -110,6 +110,7 @@ export function UserTopbar() {
       SessionManager.setDisplayName(name);
     }
     fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

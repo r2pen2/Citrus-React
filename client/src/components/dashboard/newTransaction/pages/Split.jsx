@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { Button, Select, InputLabel, FormControl, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
-import { getDisplayNameById, getPhotoUrlById, getUsersByGroupId } from "../../../../api/dbManager";
 import { SessionManager } from "../../../../api/sessionManager";
 import { DBManager } from "../../../../api/db/dbManager";
 import { AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
 
 export default function Split(props) {
-    
+
     const userManager = SessionManager.getCurrentUserManager();
 
     const [splitPage, setSplitPage] = useState(props.splitPage ? props.splitPage : "add-people");
@@ -35,6 +34,7 @@ export default function Split(props) {
         }
 
         fetchUserData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     function renderSplitPage() {
@@ -82,9 +82,10 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     async function fetchFriendDetails(friendsList) {
         for (var i = 0; i < friendsList.length; i++) {
             const currentFriend = friendsList[i];
-            let displayName = await getDisplayNameById(currentFriend.id);
+            const friendManager = DBManager.getUserManager(currentFriend)
+            let displayName = await friendManager.getDisplayName();
             currentFriend.displayName = displayName;
-            let url = await getPhotoUrlById(currentFriend.id);
+            let url = await friendManager.getPhotoUrl();
             currentFriend.pfpUrl = url;
             friendsList[i] = currentFriend;
         }
@@ -109,6 +110,7 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
             fetchFriendDetails(userFriends);
         }
         fetchFriends();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     /**
@@ -312,7 +314,8 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
      * Get current group's users from DB and set local array
      */
     async function fetchCurrentGroupUsers() {
-        let users = await getUsersByGroupId(currentGroup);
+        const groupManager = DBManager.getGroupManager(currentGroup);
+        let users = await groupManager.getUsers();
         var usersInGroup = [];
         for (const user of users) {
             usersInGroup.push({id: user, selected: true, displayName: null, pfpUrl: null})
@@ -326,9 +329,13 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
      */
     async function loadCurrentGroupUsers() {
         var loadedUsers = [];
+        if (!currentGroupUsers) {
+            return;
+        }
         for (const user of currentGroupUsers) {
-            let name = await getDisplayNameById(user.id);
-            let url = await getPhotoUrlById(user.id);
+            const groupUserManager = DBManager.getUserManager(user.id);
+            let name = await groupUserManager.getDisplayName();
+            let url = await groupUserManager.getPhotoUrl();
             loadedUsers.push({id: user.id, displayName: name, selected: true, pfpUrl: url})
         }
         setCurrentGroupUsers(loadedUsers);

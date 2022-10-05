@@ -29,6 +29,7 @@ export function TransactionList(props) {
       }
     }
     fetchUserTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
    /**

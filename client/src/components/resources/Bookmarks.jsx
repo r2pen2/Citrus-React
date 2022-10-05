@@ -40,6 +40,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
     }
 
     fetchBookmarkData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const [data, setData] = useState();

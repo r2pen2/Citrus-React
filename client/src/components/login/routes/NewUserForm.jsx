@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 // API Imports
 import { SessionManager } from "../../../api/sessionManager";
-import { DBManager } from "../../../api/db/dbManager";
 import { RouteManager } from "../../../api/routeManager";
 
 // A set of welcome messages to be displayed on the account creation page
