@@ -13,7 +13,7 @@ import { DBManager } from "../../api/db/dbManager";
 export function AccountTab() {
 
     // Create UserManager
-    const userManager = DBManager.getUserManager(SessionManager.getUserId());
+    const userManager = SessionManager.getCurrentUserManager();
 
     const [userDisplayName, setUserDisplayName] = useState(SessionManager.getDisplayName());
     const [userPhotoUrl, setUserPhotoUrl] = useState(SessionManager.getPfpUrl());

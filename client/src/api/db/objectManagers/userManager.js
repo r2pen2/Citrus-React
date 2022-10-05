@@ -6,8 +6,13 @@ import { ObjectManager } from "./objectManager";
  */
 export class UserManager extends ObjectManager {
     
-    constructor(_id) {
+    // Optional data param for loading currentUserManager from localstorage
+    constructor(_id, _data) {
         super(DBManager.objectTypes.USER, _id);
+        if (_data) {
+            this.data = _data;
+            this.fetched = true;
+        }
     }
     
     fields = {

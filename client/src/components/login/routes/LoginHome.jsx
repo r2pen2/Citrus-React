@@ -25,11 +25,16 @@ export default function LoginHome() {
         SessionManager.setUser(newUser);
 
         // Create object manager for new user
+        // We're not trying to get a UserManager from LocalStorage becuase we know that the user was signed out before this moment
         const userManager = DBManager.getUserManager(newUser.uid);
-        let documentExists = await userManager.documentExists();
+
+        // Set these fields even if this isn't a first-time login
         userManager.setLastLoginAt(new Date());
         userManager.setEmailVerified(newUser.emailVerified);
         userManager.setLocation(null);
+        
+        // See if document exists in DB (meaning we've signed this user in before)
+        let documentExists = await userManager.documentExists();
         if (!documentExists) {
           // This is a new user, so we need to do init several fields
           userManager.setCreatedAt(new Date());
@@ -39,6 +44,8 @@ export default function LoginHome() {
           userManager.setPhoneNumber(null) // We don't know phone number bc we're logging in with google instead
         }
         userManager.push().then(() => {
+          // Save this UserManager to localstorage and redirect to dashboard
+          SessionManager.setCurrentUserManager(userManager);
           RouteManager.redirect("/dashboard");
         })
     });

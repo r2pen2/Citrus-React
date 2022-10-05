@@ -65,10 +65,10 @@ export function MinimalTopbar() {
   )
 }
 
-export function UserTopbar({user}) {
+export function UserTopbar() {
 
   // We're logged in, so create a UserManager
-  const userManager = user ? DBManager.getUserManager(user.uid) : null;
+  const userManager = SessionManager.getCurrentUserManager();
   
   // Get as much data from SessionManager as possible
   const [userDisplayName, setUserDisplayName] = useState(SessionManager.getDisplayName());
@@ -99,12 +99,14 @@ export function UserTopbar({user}) {
   useEffect(() => {
     // Fetch user details on mount
     async function fetchUserData() {
+      console.log(userManager);
       let name = await userManager.getDisplayName();
       setUserDisplayName(name);
       let url = await userManager.getPhotoUrl();
       setUserPhotoUrl(url);
       let userInitials = await userManager.getInitials();
       setInitials(userInitials);
+      // Cache/update these just in case we need them again soon
       SessionManager.setPfpUrl(url);
       SessionManager.setDisplayName(name);
     }

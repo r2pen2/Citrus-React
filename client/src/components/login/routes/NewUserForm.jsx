@@ -91,9 +91,11 @@ export default function NewUserForm() {
    * Submits new user data to server for account creation
    */
   function handleSubmit() {
-    const userManager = DBManager.getUserManager(user.uid);
+    const userManager = SessionManager.getCurrentUserManager();
     userManager.setDisplayName(firstName + " " + lastName);
     userManager.push().then(() => {
+      // Apply changes to UserManager in localstorage and redirect to dashboard
+      SessionManager.setCurrentUserManager(userManager);
       RouteManager.redirect("/dashboard");
     })
   }

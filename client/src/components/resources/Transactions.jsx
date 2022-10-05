@@ -8,8 +8,7 @@ import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
 import { sortByUTDate } from "../../api/sorting";
 import { DBManager } from "../../api/db/dbManager";
-import { transactionUserRoles } from "../../api/db/objectManagers/transactionManager";
-import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
+import { SessionManager } from "../../api/sessionManager";
 import { AvatarStack } from "./Avatars";
 import { SectionTitle } from "./Labels";
 import { Breadcrumbs } from "./Navigation";
@@ -19,7 +18,7 @@ export function TransactionList(props) {
     const [transactions, setTransactions] = useState(null);
 
     async function fetchUserTransactions() {
-      const userManager = DBManager.getUserManager(props.user.uid);
+      const userManager = SessionManager.getCurrentUserManager();
       const t = await userManager.getTransactions();
       if (props.numDisplayed) {
         setTransactions(t.slice(0, props.numDisplayed));

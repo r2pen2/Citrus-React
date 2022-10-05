@@ -13,6 +13,6 @@ export default function Topbar() {
   }
   // Signed in, so set user vars and return detail topbar
   return (
-    <UserTopbar user={SessionManager.getUser()} />
+    <UserTopbar />
   );
 }

@@ -37,7 +37,7 @@ function App() {
         SessionManager.setDisplayName(authUser.displayName);
 
         // Sync user's DB doc
-        const userManager = DBManager.getUserManager(authUser.uid);
+        const userManager = SessionManager.getCurrentUserManager();
         const userAlreadyExists = await userManager.documentExists();
         if (userAlreadyExists) {
           // User already exists on DB

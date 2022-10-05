@@ -10,11 +10,12 @@ import { ColoredCard } from "./Surfaces";
 import { DBManager } from '../../api/db/dbManager';
 import formatter from '../../api/formatter';
 import { Debugger } from "../../api/debugger";
+import { SessionManager } from "../../api/sessionManager";
 import { getSlashDateString } from '../../api/strings';
 
 export function BookmarkCard({id, index, user, fetchBookmarks}) {
 
-  const userManager = DBManager.getUserManager(user.uid);
+  const userManager = SessionManager.getCurrentUserManager();
   const bookmarkManager = DBManager.getBookmarkManager(id);
 
   async function fetchBookmarkData() {
@@ -49,6 +50,7 @@ export function BookmarkCard({id, index, user, fetchBookmarks}) {
     userManager.push().then((pushSuccess) => {
       if (pushSuccess) {
         bookmarkManager.deleteDocument();
+        SessionManager.setCurrentUserManager(userManager);
         fetchBookmarks();
       }
     });

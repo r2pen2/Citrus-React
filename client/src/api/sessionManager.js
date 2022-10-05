@@ -1,10 +1,15 @@
 // API Imports
 import { signOutUser } from "./firebase";
 import { RouteManager } from "./routeManager";
+import { DBManager } from "./db/dbManager";
+import { Debugger } from "./debugger";
+
+const sessionManagerDebugger = new Debugger(Debugger.controllerObjects.SESSIONMANAGER);
 
 /**
  * SessionManager is a tool for interfacing with the browser's localStorage.
  * Keeps page data consistent even after a redirect
+ * Allows us to limit DB calls
  */
 export class SessionManager {
 
@@ -17,19 +22,49 @@ export class SessionManager {
     }
 
     /**
+     * Set user object saved in localStorage
+     */
+    static setUser(user) {
+        localStorage.setItem("citrus:user", JSON.stringify(user));
+    }
+
+    /**
+     * Get UserManager saved in localStorage or make a new one
+     * @returns UserManager or new UserManager
+     */
+    static getCurrentUserManager() {
+        const data = JSON.parse(localStorage.getItem("citrus:currentUserManagerData"));
+        if (data) {
+            sessionManagerDebugger.logWithPrefix("Found current user manager!");
+            // This is kinda fucked...
+            // We have to harvest the data from the found manager and put it into a new one
+            // Just a quirk of how localStorage handles classes. Without doing this we'd get an object with no methods attached to it
+            // for whatever reason >:(
+            return DBManager.createUserManagerFromLocalStorage(this.getUserId(), data);
+            // Holy shit that worked! This is kind of an ugly solution but hey, it's only gross under the hood. 
+            // Implementing this method now works beautifully.
+        }
+        sessionManagerDebugger.logWithPrefix("Couldn't find a current user object manager. Making a new one...");
+        const newManager = DBManager.getUserManager(this.getUserId());
+        SessionManager.setCurrentUserManager(newManager);
+        return newManager;
+    }
+
+    /**
+     * Set UserManager saved in localStorage
+     */
+    static setCurrentUserManager(manager) {
+        // Here's a magic trick! We're actually just saving the data field from this userManager.
+        localStorage.setItem("citrus:currentUserManagerData", JSON.stringify(manager.data));
+    }
+
+    /**
      * Get user id from user in localstorage
      * @returns user id or null
      */
     static getUserId() {
         const user = JSON.parse(localStorage.getItem("citrus:user"));
         return user ? user.uid : null;
-    }
-
-    /**
-     * Set user object saved in localStorage
-     */
-    static setUser(user) {
-        localStorage.setItem("citrus:user", JSON.stringify(user));
     }
 
     /**
@@ -107,7 +142,7 @@ export class SessionManager {
      * @returns whether or not the user has completed signin process
      */
     static userFullySignedIn() {
-        const user = this.getUser();
+        const user = SessionManager.getUser();
         if (user) {
             if (user.displayName === null) {
               return false;
@@ -127,6 +162,7 @@ export class SessionManager {
         localStorage.removeItem("citrus:debug");
         localStorage.removeItem("citrus:pfpUrl");
         localStorage.removeItem("citrus:displayName");
+        localStorage.removeItem("citrus:currentUserManager");
     }
 
     /**
@@ -139,7 +175,9 @@ export class SessionManager {
             user: this.getUser(),
             pfpUrl: this.getPfpUrl(),
             displayName: this.getDisplayName(),
-            debugMode: this.getDebugMode()
+            debugMode: this.getDebugMode(),
+            userId: this.getUserId(),
+            currentUserManager: this.getCurrentUserManager()
         }
     }
 

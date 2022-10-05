@@ -2,9 +2,8 @@ import "./bookmarks.scss";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { BookmarkCard } from "../../resources/Bookmarks";
 import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, CardContent, CardActionArea, IconButton, TextField } from '@mui/material';
-import { getBookmarksById, removeBookmarkFromUser, createBookmarkOnUser } from '../../../api/dbManager';
 import { DBManager } from '../../../api/db/dbManager';
-import { sortByCreatedAt } from '../../../api/sorting';
+import { SessionManager } from '../../../api/sessionManager';
 
 import { useState, useEffect } from 'react';
 
@@ -23,7 +22,7 @@ function renderLoadingBox(marks) {
 
 export default function Bookmarks({user}) {
 
-  const userManager = DBManager.getUserManager(user.uid);
+  const userManager = SessionManager.getCurrentUserManager();
   
   const [userBookmarks, setUserBookmarks] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
