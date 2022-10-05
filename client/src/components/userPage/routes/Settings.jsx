@@ -1,6 +1,3 @@
-// Style imports
-import "./settings.scss"
-
 // Library imports
 import { ListItem, Drawer, List, Paper, Divider, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -115,11 +112,8 @@ export default function Settings() {
     ]
 
     return (
-      <div className="user-settings" data-testid="user-settings-wrapper">
+      <div className="user-settings-wrapper" data-testid="user-settings-wrapper">
         <Paper className="settings-content" data-testid="settings-paper" elevation={12} sx={{ backgroundColor: '#fafafa', borderRadius: "10px"}}>
-
-            
-            { /* side drawer */ }
             <Drawer
                 className="side-drawer"
                 variant="permanent"
@@ -127,8 +121,6 @@ export default function Settings() {
                 classes={{ paper: "drawer-paper" }}
                 data-testid="settings-drawer"
             >
-                
-                { /* list / links */ }
                 <List>
                     {menuItems.map(item => (
                     <div key={item.text}>
@@ -146,10 +138,7 @@ export default function Settings() {
                     </div>
                     ))}
                 </List>
-
             </Drawer>
-
-            { /* Then display the right page based on the url */ }
             { getSettingsPageByHash(user) }
         </Paper>
       </div>
