@@ -1,29 +1,66 @@
 // Style imports
-import "./landingPage.scss"
+import "./style/homePage.scss";
 
-// Library imports
-import React from 'react'
+// Library Imports
 import { Typography, Button, Stack, IconButton, Tooltip } from '@mui/material'
+import React from 'react'
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 
 // Component imports
-import down from "../../../assets/images/down.png"
+import down from "../../assets/images/down.png";
 
 /**
- * Generates a blinking arrow that acts an an anchor to #footer
- * @param {Boolean} show whether or not to show the arrow
- * @returns {Component} an anchor element that directs the user to the footer
+ * Homepage footer containing links to all informational pages
  */
-function generateArrow(show) {
-  return (show ? <a href="#footer" data-testid="landing-page-down-arrow"><img src={down} alt="down"></img></a> : <div></div>);
+export function Footer() {
+    return (
+      <div className="home-page-footer-wrapper" id="footer" data-testid="footer">
+          <div className="column" data-testid="column1">
+            <Typography variant="h4">PRODUCT</Typography>
+            <Typography component="a" href="/">Home</Typography>
+            <Typography component="a" href="/features">Features</Typography>
+            <Typography component="a" href="/apps">Apps</Typography>
+            <Typography component="a" href="/pricing">Pricing</Typography>
+            <Typography component="a" href="/faq">FAQs</Typography>
+          </div>
+          <div className="column" data-testid="column2">
+            <Typography variant="h4">RESOURCES</Typography>
+            <Typography component="a" href="/billing">Billing Portal</Typography>
+            <Typography component="a" href="/roadmap">Roadmap</Typography>
+            <Typography component="a" href="/blog">Blog</Typography>
+            <Typography component="a" href="/support">Support</Typography>
+            <Typography component="a" href="/status">Status Page</Typography>
+          </div>
+          <div className="column" data-testid="column3">
+            <Typography variant="h4">LEGAL</Typography>
+            <Typography component="a" href="/privacy">Privacy Policy</Typography>
+            <Typography component="a" href="/terms">Terms of Use</Typography>
+            <Typography component="a" href="/eula">EULA</Typography>
+            <Typography component="a" href="/credits">Credits</Typography>
+          </div>
+      </div>
+    )
 }
 
-export default function LandingPage() {
+/**
+ * Homepage landing page containing link to dashboard/signin
+ */
+export function LandingPage() {
+
+    /**
+    * Generates a blinking arrow that acts an an anchor to #footer
+    * @param {Boolean} show whether or not to show the arrow
+    * @returns {Component} an anchor element that directs the user to the footer
+    */
+    function generateArrow(show) {
+        return (show ? <a href="#footer" data-testid="landing-page-down-arrow"><img src={down} alt="down"></img></a> : <div></div>);
+    }
+
   return (
-    <div className="background-wave" data-testid="landing-page">
+    <div className="home-page-landing-page-wrapper" data-testid="landing-page">
       <div className="landingpage" id="landingpage">
         <div className="column left">
           <div className="left-wrapper" data-testid="landing-page-left">

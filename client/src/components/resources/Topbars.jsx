@@ -1,3 +1,6 @@
+// Style imports
+import "./style/topbar.scss";
+
 // Library imports
 import { useState, useEffect } from "react";
 import {

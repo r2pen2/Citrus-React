@@ -1,6 +1,9 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
+/**
+ * Object Manager for users
+ */
 export class UserManager extends ObjectManager {
     
     constructor(_id) {

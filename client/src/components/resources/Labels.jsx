@@ -1,4 +1,4 @@
-import React from 'react'
+import "./style/labels.scss";
 import { Typography } from "@mui/material";
 
 export function SectionTitle(props) {

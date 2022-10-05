@@ -1,13 +1,12 @@
-// Style imports
-import "./homePage.scss";
-
 // Component imports
-import LandingPage from "./landingPage/LandingPage";
-import Footer from "./Footer";
+import { Footer, LandingPage } from "../resources/HomePage";
 
+/**
+ * Citrus Financial homepage— pretty much just static HTML
+ */
 export default function Home() {
   return (
-    <div className="homepage" data-testid="homepage">
+    <div className="home-page-wrapper" data-testid="homepage">
       <LandingPage />
       <Footer />
     </div>

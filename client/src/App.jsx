@@ -8,7 +8,6 @@ import { ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { NotificationContainer } from 'react-notifications';
 import { useState, useEffect } from 'react';
-import { auth, signOutUser } from "./api/firebase";
 
 // Component Imports
 import Login from "./components/login/Login";
@@ -19,12 +18,12 @@ import DataPage from "./components/dataPage/DataPage";
 import UserPage from "./components/userPage/UserPage";
 
 // Data Imports
-import creditsData from './assets/json/creditsPage';
+import { creditsData } from './assets/json/creditsPage';
 
 // API imports
-import { syncUserDoc } from "./api/dbManager";
 import { DBManager } from "./api//db/dbManager";
 import { SessionManager } from "./api/sessionManager";
+import { auth } from "./api/firebase";
 
 function App() {
 
@@ -55,9 +54,10 @@ function App() {
 
   // If we ever don't have a user stored in localStorage, make sure they're actually singed out!
   if (!SessionManager.userInLS()) {
-    signOutUser();
+    SessionManager.signOut();
   }
 
+  // I present to you: Citrus Financial
   return (
     <div className="app" data-testid="app-wrapper">
       <Router>

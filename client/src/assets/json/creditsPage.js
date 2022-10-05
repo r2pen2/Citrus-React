@@ -1,4 +1,4 @@
-const creditsData = {
+export const creditsData = {
     pageTitle: "Credits",
     sections: [
         {
@@ -13,5 +13,3 @@ const creditsData = {
         }
     ]
 };
-
-module.exports = creditsData;

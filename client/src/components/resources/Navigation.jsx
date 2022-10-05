@@ -1,6 +1,11 @@
-import "./resources.scss";
+import "./style/navigation.scss";
 import {Breadcrumbs as MUIBreadcrumbs, Link} from "@mui/material"
 
+/**
+ * Renders a text-based description of user's current location in the app
+ * @param {string} path User's location path split by slashes (/) 
+ * @returns 
+ */
 export function Breadcrumbs({path}) {
 
     function mapPath(p) {

@@ -14,6 +14,9 @@ import { SpinningLogo } from "../resources/Login";
 // API imports
 import { RouteManager } from "../../api/routeManager";
 
+/**
+ * Wrapper for all Login related routes
+ */
 export default function Login() {
   // Redirect if needed
   RouteManager.setTitleOrRedirectToDashboard("Login");

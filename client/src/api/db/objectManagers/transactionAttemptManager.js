@@ -1,6 +1,9 @@
 import { DBManager, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
+/**
+ * Object Manager for transaction attempts
+ */
 export class TransactionAttemptManager extends ObjectManager {
 
     constructor(_id) {

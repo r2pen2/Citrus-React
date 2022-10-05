@@ -1,6 +1,9 @@
 import { DBManager, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
+/**
+ * Object Manager for invitations
+ */
 export class InvitationManager extends ObjectManager {
 
     constructor(_id) {
