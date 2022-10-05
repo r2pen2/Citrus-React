@@ -11,7 +11,7 @@ import AnalyticsPreview from "./analyticsPreview/AnalyticsPreview";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { SectionTitle } from "../../resources/Labels";
 
-export default function Home({ user, setActiveTab }) {
+export default function Home({ setActiveTab }) {
   return (
     <Stack spacing={3} className="dashboard-home-container">
       <Breadcrumbs path="Dashboard/Home" />
@@ -27,7 +27,6 @@ export default function Home({ user, setActiveTab }) {
           <Button variant="contained" onClick={() => setActiveTab("transactions")}>View All Transactions</Button>
         </SectionTitle>
         <TransactionList
-          user={user}
           numDisplayed={2}
         />
       </div>

@@ -9,15 +9,15 @@ function getPos() {
     return (direction === "in") ? true : false;
 }
 
-export default function Owe({user}) {
+export default function Owe() {
 
     const pos = getPos();
 
   return (
     <div>
         <Routes>
-            <Route path="/" element={<AllDues positive={pos} user={user}/>}/>
-            <Route path="/individual" element={<PersonalDues positive={pos} user={user}/>}/>
+            <Route path="/" element={<AllDues positive={pos} />}/>
+            <Route path="/individual" element={<PersonalDues positive={pos} />}/>
         </Routes>
     </div>
   )

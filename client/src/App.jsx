@@ -59,7 +59,7 @@ function App() {
           <Topbar/>
             <div className="content" data-testid="app-content">
               <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route path="*" element={<HomePage />} />
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/login/*" element={<Login/>} />
                 <Route path="/dashboard/*" element={<Dashboard/>} />

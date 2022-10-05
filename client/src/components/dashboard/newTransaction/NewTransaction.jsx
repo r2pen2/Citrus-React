@@ -12,7 +12,7 @@ import IOU from "./pages/IOU";
 // API imports
 import { Debugger } from "../../../api/debugger";
 
-export default function NewTransaction({ user }) {
+export default function NewTransaction() {
   const [tabValue, setTabValue] = useState(0);
 
   // eslint-disable-next-line no-unused-vars
@@ -27,7 +27,7 @@ export default function NewTransaction({ user }) {
   function renderTab() {
     if (tabValue === 0) {
       return (
-        <Split user={user}/>
+        <Split />
       )
     }
     if (tabValue === 1) {

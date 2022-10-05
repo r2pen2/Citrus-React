@@ -51,7 +51,7 @@ const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 export default function NewUserForm() {
 
   // Get user data from localStorage (if it exists, that is)
-  const user = SessionManager.getUser();
+  const userManager = SessionManager.getCurrentUserManager();
 
   // Define constants
   const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)
@@ -91,7 +91,6 @@ export default function NewUserForm() {
    * Submits new user data to server for account creation
    */
   function handleSubmit() {
-    const userManager = SessionManager.getCurrentUserManager();
     userManager.setDisplayName(firstName + " " + lastName);
     userManager.push().then(() => {
       // Apply changes to UserManager in localstorage and redirect to dashboard

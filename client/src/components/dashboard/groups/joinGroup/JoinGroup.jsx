@@ -1,7 +1,7 @@
 import "./joinGroup.scss";
 import {Breadcrumbs} from "../../../resources/Navigation";
 
-export default function JoinGroup({ user }) {
+export default function JoinGroup() {
   return (
     <div>
       <Breadcrumbs path="Dashboard/Groups/Join" />

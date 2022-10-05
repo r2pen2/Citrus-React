@@ -12,7 +12,7 @@ export default function Transaction() {
         <div className="transaction-wrapper">
             <div className="transaction-pane">
                 <Routes>
-                    <Route path="/" element={<TransactionDetail />}/>
+                    <Route path="*" element={<TransactionDetail />}/>
                     <Route path="/conversation" element={<TransactionConversation />}/>
                 </Routes>
             </div>

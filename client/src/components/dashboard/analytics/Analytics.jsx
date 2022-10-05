@@ -1,7 +1,7 @@
 import "./analytics.scss";
 import { Breadcrumbs } from "../../resources/Navigation";
 
-export default function Analytics({ user }) {
+export default function Analytics() {
   return (
     <div>
       <Breadcrumbs path="Dashboard/Analytics" />

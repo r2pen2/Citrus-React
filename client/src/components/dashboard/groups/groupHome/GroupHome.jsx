@@ -1,7 +1,7 @@
 import "./groupHome.scss";
 import {Breadcrumbs} from "../../../resources/Navigation";
 
-export default function GroupHome({ user }) {
+export default function GroupHome() {
   return (
     <div>
       <Breadcrumbs path="Dashboard/Groups" />

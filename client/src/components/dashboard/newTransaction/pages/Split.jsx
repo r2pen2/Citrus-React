@@ -9,8 +9,7 @@ import { AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
 
 export default function Split(props) {
-
-    // Get user manager
+    
     const userManager = SessionManager.getCurrentUserManager();
 
     const [splitPage, setSplitPage] = useState(props.splitPage ? props.splitPage : "add-people");
@@ -23,6 +22,7 @@ export default function Split(props) {
 
     useEffect(() => {
         async function fetchUserData() {
+            // Get user manager
             const groups = await userManager.getGroups();
             // Also get the names of each group
             var groupObjects = [];
@@ -35,7 +35,7 @@ export default function Split(props) {
         }
 
         fetchUserData();
-    }, [userManager])
+    }, [])
 
     function renderSplitPage() {
         switch (splitPage) {
@@ -60,8 +60,7 @@ export default function Split(props) {
 }
 
 function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
-
-    // Get user manager
+    
     const userManager = SessionManager.getCurrentUserManager();
     
     const [searchString, setSearchString] = useState("");               // Contents of search box
@@ -99,6 +98,7 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
          * Get a list of user's friends and store their ID's, along with template information
          */
         async function fetchFriends() {
+            // Get user manager
             const friendsFromDB = await userManager.getFriends();
             var userFriends = [];
             for (const friendId of friendsFromDB) {
@@ -109,7 +109,7 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
             fetchFriendDetails(userFriends);
         }
         fetchFriends();
-    }, [userManager])
+    }, [])
 
     /**
      * Populate group select box with the names of each group the user belongs to

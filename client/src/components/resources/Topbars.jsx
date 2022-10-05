@@ -110,7 +110,7 @@ export function UserTopbar() {
       SessionManager.setDisplayName(name);
     }
     fetchUserData();
-  }, [userManager]);
+  }, []);
 
   /**
    * Close user account menu and send the user to anotehr page

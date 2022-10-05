@@ -40,7 +40,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
     }
 
     fetchBookmarkData();
-  }, [bookmarkManager]);
+  }, []);
   
   const [data, setData] = useState();
   const [color, setColor] = useState("#fafafa");

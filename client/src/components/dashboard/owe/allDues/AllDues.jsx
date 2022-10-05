@@ -1,7 +1,7 @@
 import "./allDues.scss";
 import {Breadcrumbs} from "../../../resources/Navigation";
 
-export default function AllDues({ positive, user }) {
+export default function AllDues({ positive }) {
   return (
     <div>
       <Breadcrumbs path={"Dashboard/IOU/" + (positive ? "Owe Me" : "I Owe")} />

@@ -19,15 +19,11 @@ import Bookmarks from "./bookmarks/Bookmarks";
 import Transaction from "./transaction/Transaction";
 
 // API imports
-import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
 
 export default function Dashboard() {
 
   RouteManager.setTitleOrRedirectToLogin("Dashboard");
-
-  // Get user from session
-  const user = SessionManager.getUser();
 
   const [shortcutActive, setShortcutActive] = useState(false);        // Whether or not new transaction shortcut is active
   const [bookmarksDeployed, setBookmarksDeployed] = useState(false);  // Whether or not bookmarks are displayed in shortcut
@@ -72,19 +68,19 @@ export default function Dashboard() {
   function renderTab() {
     switch(activeTab) {
       case "home":
-        return <Home user={user} setActiveTab={setActiveTab}/>;
+        return <Home setActiveTab={setActiveTab}/>;
       case "new-transaction":
-        return <NewTransaction user={user} />;
+        return <NewTransaction />;
       case "groups":
-        return <Groups user={user} />;
+        return <Groups />;
       case "owe":
-        return <Owe user={user} />;
+        return <Owe />;
       case "transactions":
-        return <AllTransactions user={user} />;
+        return <AllTransactions />;
       case "analytics":
-        return <Analytics user={user} />;
+        return <Analytics />;
       default:
-        return <Home user={user} />;
+        return <Home setActiveTab={setActiveTab} />;
     }
   }
   
@@ -93,13 +89,12 @@ export default function Dashboard() {
       {renderShortcut()}
       <div className="dashboard-pane">
         <Routes>
-          <Route path="/" element={ renderTab() }/>
-          <Route path="/home" element={ renderTab() }/>
+          <Route path="*" element={ renderTab() }/>
           <Route path="/transaction" element={<Transaction />}/>
           <Route path="/bookmarks" element={<Bookmarks />}/>
         </Routes>
       </div>
-      <BottomNav setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} setActiveTab={setActiveTab}/>
+      <BottomNav activeTab={activeTab} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} setActiveTab={setActiveTab}/>
     </div>
   );
 }

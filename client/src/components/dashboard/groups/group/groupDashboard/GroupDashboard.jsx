@@ -1,7 +1,7 @@
 import "./groupDashboard.scss";
 import {Breadcrumbs} from "../../../../resources/Navigation";
 
-export default function GroupDashboard({ user }) {
+export default function GroupDashboard() {
   const params = new URLSearchParams(window.location.search);
   const groupId = params.get("id");
 

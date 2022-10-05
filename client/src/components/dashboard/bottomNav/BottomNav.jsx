@@ -18,7 +18,7 @@ import { SessionManager } from "../../../api/sessionManager";
  * @param {function} setActiveTab function for setting which dashboard page is active 
  * @returns 
  */
-export default function BottomNav({ setShortcutActive, setBookmarksDeployed, setActiveTab }) {
+export default function BottomNav({ setShortcutActive, activeTab, setBookmarksDeployed, setActiveTab }) {
 
   // Define constants
   const [value, setValue] = useState(getValueFromWindowLocation()); // Which element on the bottom is highlighted
@@ -40,17 +40,10 @@ export default function BottomNav({ setShortcutActive, setBookmarksDeployed, set
    */
   const handleChange = (event, newValue) => {
     event.preventDefault();
-    
-    function onBaseDashboard() {
-      return window.location.toString().includes("/dashboard/home");
-    }
 
     setValue(newValue);
-    setActiveTab(newValue);
-    if (newValue === "home") {
-      if (!onBaseDashboard()) {
-        window.location = "/dashboard/" + newValue;
-      }
+    if (activeTab !== newValue) {
+      setActiveTab(newValue);
     }
   };
 

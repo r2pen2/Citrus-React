@@ -30,7 +30,7 @@ export default function UserPage() {
 
     return (
         <Routes>
-            <Route path="/" element={<div data-testid="user-profile">User Profile</div>}/>
+            <Route path="*" element={<div data-testid="user-profile">User Profile</div>}/>
             <Route path="/settings" element={<Settings/>}/>
         </Routes>
     )

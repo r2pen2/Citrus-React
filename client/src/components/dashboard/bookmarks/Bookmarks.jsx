@@ -21,7 +21,7 @@ function renderLoadingBox(marks) {
 }
 
 export default function Bookmarks() {
-
+  
   const userManager = SessionManager.getCurrentUserManager();
   
   const [userBookmarks, setUserBookmarks] = useState(null);
