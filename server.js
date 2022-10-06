@@ -18,15 +18,50 @@ app.listen(process.env.PORT || 3000, () => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Serve React build
-app.use(express.static(__dirname + "/client/build"));
-
 // Serve static files
-app.use(express.static(__dirname + "/static"));
+app.use(express.static(__dirname + "/static/"));
 app.get("/credits", (req, res) => {
     res.sendFile(__dirname + "/static/credits.html");
 })
+app.get("/features", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/apps", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/pricing", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/faq", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/billing", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/roadmap", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/blog", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/support", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/status", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/privacy", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/terms", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
+app.get("/eula", (req, res) => {
+    res.sendFile(__dirname + "/static/pageUnderConstruction.html");
+})
 
+// Serve React build
+app.use(express.static(__dirname + "/client/build"));
 // Serve react app
 app.get("*", (req, res) => {
     res.sendFile(__dirname + "/client/build/index.html");
