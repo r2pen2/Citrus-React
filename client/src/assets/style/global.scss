@@ -3,11 +3,75 @@
     src: url("../../assets/fonts//FredokaOne-Regular.ttf"); /*URL to font*/
 }
 
-$citrus-green: #bfd679;
-$citrus-yellow: #f0e358;
+// Citrus colors
+$citrus-green: #BFD679;
+$citrus-yellow: #F0E358;
 $citrus-orange: #FDB90F;
 $citrus-pink: #F4A09A;
 $citrus-red: #EA4236;
 $citrus-tan: #FDB90F33;
+$citrus-background: #FFFFFF;
 
+// Misc Style Colors
+$line-color: lightgrey;
+$text-light: #FFFFFF;
 $dashboard-content-width: 50vw;
+
+.app {
+    zoom: reset;
+}
+
+body, ul {
+    // Apparently this needs to be defined OUTSIDE of the app component in order to take effect
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+
+    // Disable scrollbar
+    &::-webkit-scrollbar {display:none;}
+}
+
+.fill-line {
+    margin-left: 10px;
+    height: 0px;
+    flex: 1;
+    border: 1px dotted $line-color;
+    
+    &.margin-right {
+        margin-right: 10px;
+    }
+
+    &.line-style-solid {
+        border: 1px solid $line-color;
+    }
+
+    &.line-style-none {
+        border: 0px dotted $line-color;
+    }
+}
+
+.spacer {
+    margin-left: 20px;
+}
+
+.center-contents-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.center-contents-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.column-btn {
+    width: 100%;
+    font-weight: bold;
+    margin-bottom: 30px;
+}

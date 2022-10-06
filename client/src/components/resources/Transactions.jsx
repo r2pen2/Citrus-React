@@ -1,4 +1,4 @@
-import "./resources.scss";
+import "./style/transactions.scss";
 import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip } from '@mui/material';
 import { useState, useEffect} from 'react';
 import React from 'react'

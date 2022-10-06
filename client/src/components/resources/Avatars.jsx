@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AvatarGroup, Avatar, Tooltip, Typography } from "@mui/material";
 import { DBManager } from "../../api/db/dbManager";
-import "./resources.scss";
+import "./style/avatars.scss";
 import Badge from '@mui/material/Badge';
 
 export function AvatarStack({featured, secondary, checked}) {
