@@ -212,7 +212,7 @@ export function UserTopbar() {
                   edge="start"
                   color="inherit"
                   aria-label="bookmarks-icon"
-                  href="/dashboard/bookmarks"
+                  href="/dashboard#bookmarks"
                 >
                   <BookmarksIcon />
                 </IconButton>
