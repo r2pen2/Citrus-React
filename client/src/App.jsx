@@ -50,7 +50,7 @@ function App() {
       }
     })
   }, []);
-  const reload = () => window.location.reload();
+  
   // I present to you: Citrus Financial
   return (
     <div className="app" data-testid="app-wrapper">
