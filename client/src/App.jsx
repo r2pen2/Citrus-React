@@ -14,11 +14,7 @@ import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import Topbar from "./components/topbar/Topbar";
 import HomePage from "./components/homePage/HomePage";
-import DataPage from "./components/dataPage/DataPage";
 import UserPage from "./components/userPage/UserPage";
-
-// Data Imports
-import { creditsData } from './assets/json/creditsPage';
 
 // API imports
 import { SessionManager } from "./api/sessionManager";
@@ -50,7 +46,7 @@ function App() {
       }
     })
   }, []);
-  
+
   // I present to you: Citrus Financial
   return (
     <div className="app" data-testid="app-wrapper">
