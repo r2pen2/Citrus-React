@@ -1,3 +1,6 @@
+$current-breadcrumb-color: black;
+$first-breadcrumb-color: lightslategray;
+
 .breadcrumbs {
     display: flex;
     flex-direction: row;
@@ -5,11 +8,11 @@
     justify-content: flex-start;
     margin-bottom: 20px;
     
-    &.current {
-        color: black;
+    .current {
+        color: $current-breadcrumb-color;
     }
 
-    &.first {
-        color: lightslategray;
+    .first {
+        color: $first-breadcrumb-color;
     }
 }

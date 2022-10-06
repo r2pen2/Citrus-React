@@ -44,7 +44,7 @@ export function MinimalTopbar() {
             <img
               src={LogoBlack}
               alt="logo"
-              style={{ width: "40px" }}
+              className="topbar-logo"
             ></img>
           </IconButton>
           <Typography
@@ -52,7 +52,7 @@ export function MinimalTopbar() {
             component="a"
             href="/home"
             fontFamily="FredokaOne"
-            sx={{ flexGrow: 1 }}
+            className="topbar-citrus-title"
           >
             Citrus
           </Typography>
@@ -134,14 +134,18 @@ export function UserTopbar() {
               aria-label="logo"
               href="/home"
             >
-              <img src={LogoBlack} alt="logo" style={{ width: "40px" }}></img>
+              <img 
+                src={LogoBlack} 
+                alt="logo" 
+                className="topbar-logo"
+              ></img>
             </IconButton>
             <Typography
               variant="h4"
               component="a"
               href="/home"
               fontFamily="FredokaOne"
-              sx={{ flexGrow: 1 }}
+              className="topbar-citrus-title"
             >
               Citrus
             </Typography>
