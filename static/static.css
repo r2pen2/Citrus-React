@@ -1,0 +1,10 @@
+body, ul {
+    margin: 0;
+    padding: 0;
+    zoom: reset;
+}
+
+.footer-page {
+    background-position: bottom left;
+    background-repeat: no-repeat;
+}

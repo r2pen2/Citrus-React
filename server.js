@@ -21,6 +21,13 @@ app.use(bodyParser.json());
 // Serve React build
 app.use(express.static(__dirname + "/client/build"));
 
+// Serve static files
+app.use(express.static(__dirname + "/static"));
+app.get("/credits", (req, res) => {
+    res.sendFile(__dirname + "/static/credits.html");
+})
+
+// Serve react app
 app.get("*", (req, res) => {
-    res.sendFile(__dirname + "/client/build/index.html")
+    res.sendFile(__dirname + "/client/build/index.html");
 });

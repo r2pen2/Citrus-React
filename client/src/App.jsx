@@ -50,7 +50,7 @@ function App() {
       }
     })
   }, []);
-
+  const reload = () => window.location.reload();
   // I present to you: Citrus Financial
   return (
     <div className="app" data-testid="app-wrapper">
@@ -64,7 +64,6 @@ function App() {
                 <Route path="/login/*" element={<Login/>} />
                 <Route path="/dashboard/*" element={<Dashboard/>} />
                 <Route path="/user/*" element={<UserPage/>}/>
-                <Route path="/credits" element={<DataPage data={creditsData}/>} />
               </Routes>
             </div>
         </ThemeProvider>
