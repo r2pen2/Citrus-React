@@ -1,8 +1,13 @@
+// Style imports
+import "./style/avatars.scss";
+
+// Library imports
 import { useState, useEffect } from 'react';
 import { AvatarGroup, Avatar, Tooltip, Typography } from "@mui/material";
-import { DBManager } from "../../api/db/dbManager";
-import "./style/avatars.scss";
 import Badge from '@mui/material/Badge';
+
+// API imports
+import { DBManager } from "../../api/db/dbManager";
 
 export function AvatarStack({featured, secondary, checked}) {
     

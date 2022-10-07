@@ -64,7 +64,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
     });
   }
 
-  if (!data) {
+  if (!data) { // Render unloaded bookmark
     return (
       <div className="bookmark-wrapper" key={bookmarkId}>
         <ColoredCard color={color}>
@@ -100,7 +100,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
         </ColoredCard>
       </div>
     )
-  }
+  } // Render loaded bookmark
   return (
     <div className="bookmark-wrapper" key={bookmarkId}>
       <ColoredCard color={color}>

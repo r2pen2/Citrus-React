@@ -1,4 +1,7 @@
+// Style imports
 import "./style/navigation.scss";
+
+// Library imports
 import {Breadcrumbs as MUIBreadcrumbs, Link} from "@mui/material"
 
 /**

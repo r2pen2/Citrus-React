@@ -1,16 +1,22 @@
+// Style imports
 import "./style/transactions.scss";
+
+// Library imports
 import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip } from '@mui/material';
 import { useState, useEffect} from 'react';
-import React from 'react'
 import { OutlinedCard } from "./Surfaces";
+
+// Component imports
+import { AvatarStack } from "./Avatars";
+import { SectionTitle } from "./Labels";
+import { Breadcrumbs } from "./Navigation";
+
+// API imports
 import { getDateString } from "../../api/strings";
 import formatter from "../../api/formatter";
 import { sortByUTDate } from "../../api/sorting";
 import { DBManager } from "../../api/db/dbManager";
 import { SessionManager } from "../../api/sessionManager";
-import { AvatarStack } from "./Avatars";
-import { SectionTitle } from "./Labels";
-import { Breadcrumbs } from "./Navigation";
 
 export function TransactionList(props) {
   
