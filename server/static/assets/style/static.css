@@ -7,7 +7,7 @@ body, ul {
 .under-construction-page {
     height: 100vh;
     width: 100vw;
-    background-image: url("../assets/svg/blobs1.svg");
+    background-image: url("../images/blobs1.svg");
     background-position: bottom left;
     background-repeat: no-repeat;
     background-size: cover;
