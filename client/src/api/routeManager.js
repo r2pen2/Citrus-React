@@ -22,6 +22,16 @@ export class RouteManager {
     }
 
     /**
+     * Redirect user with hash and log in debugger
+     * @param {string} destination window.location to send user to
+     * @param {string} hash hash to add to end of redirect
+     */
+    static redirectWithHash(destination, hash) {
+        routeDebugger.logWithPrefix("Redirecting user to " + destination + "#" + hash);
+        window.location = destination + "#" + hash;
+    }
+
+    /**
      * Check if user is logged in and send them to login if not
      * @param {string} title document title
      */
@@ -46,4 +56,24 @@ export class RouteManager {
             BrowserManager.setTitle(title);
         }
     } 
+
+    /**
+     * Get the hash from end of a window.location
+     * @returns hash or null
+     */
+    static getHash() {
+        const hash = window.location.hash;
+        if (hash.length > 0) {
+            return hash.substring(1);
+        }
+        return null;
+    }
+
+    /**
+     * Purely cosmetic- set hash in url without redirect
+     * @param {string} hash hash to set
+     */
+    static setHash(hash) {
+        window.location.assign("#" + hash);
+    }
 }

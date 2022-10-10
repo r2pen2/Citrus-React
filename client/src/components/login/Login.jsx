@@ -6,14 +6,17 @@ import { Paper } from "@mui/material";
 import { Route, Routes } from "react-router-dom";
 
 // Component Imports
-import Phone from "./subComponents/Phone";
-import NewUserForm from "./subComponents/NewUserForm";
-import LoginHome from "./subComponents/LoginHome";
+import Phone from "./routes/Phone";
+import NewUserForm from "./routes/NewUserForm";
+import LoginHome from "./routes/LoginHome";
 import { SpinningLogo } from "../resources/Login";
 
 // API imports
 import { RouteManager } from "../../api/routeManager";
 
+/**
+ * Wrapper for all Login related routes
+ */
 export default function Login() {
   // Redirect if needed
   RouteManager.setTitleOrRedirectToDashboard("Login");

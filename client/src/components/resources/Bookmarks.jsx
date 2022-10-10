@@ -10,29 +10,38 @@ import { ColoredCard } from "./Surfaces";
 import { DBManager } from '../../api/db/dbManager';
 import formatter from '../../api/formatter';
 import { Debugger } from "../../api/debugger";
+import { SessionManager } from "../../api/sessionManager";
 import { getSlashDateString } from '../../api/strings';
 
-export function BookmarkCard({id, index, user, fetchBookmarks}) {
+/**
+ * A card displaying data for one of a user's bookmarks
+ * @param {string} bookmarkId id of bookmark to render card for
+ * @param {function} fetchBookmarks bookmark fetch function to be called after deletion 
+ * @returns 
+ */
+export function BookmarkCard({bookmarkId, fetchBookmarks}) {
 
-  const userManager = DBManager.getUserManager(user.uid);
-  const bookmarkManager = DBManager.getBookmarkManager(id);
-
-  async function fetchBookmarkData() {
-    const bookmarkData = await bookmarkManager.fetchData();
-    setData(bookmarkData);
-    const bookmarkCreatedAt = await bookmarkManager.getCreatedAt();
-    setCreatedAt(bookmarkCreatedAt);
-    const bookmarkColor = getColor(bookmarkCreatedAt);
-    setColor(bookmarkColor);
-    const bookmarkTitle = await bookmarkManager.getTitle();
-    setTitle(bookmarkTitle);
-    const bookmarkTotal = await bookmarkManager.getTotal();
-    setTotal(bookmarkTotal);
-  }
+  const userManager = SessionManager.getCurrentUserManager();
+  const bookmarkManager = DBManager.getBookmarkManager(bookmarkId);
 
   useEffect(() => {
+
+    async function fetchBookmarkData() {
+      const bookmarkData = await bookmarkManager.fetchData();
+      setData(bookmarkData);
+      const bookmarkCreatedAt = await bookmarkManager.getCreatedAt();
+      setCreatedAt(bookmarkCreatedAt);
+      const bookmarkColor = getColor(bookmarkCreatedAt);
+      setColor(bookmarkColor);
+      const bookmarkTitle = await bookmarkManager.getTitle();
+      setTitle(bookmarkTitle);
+      const bookmarkTotal = await bookmarkManager.getTotal();
+      setTotal(bookmarkTotal);
+    }
+
     fetchBookmarkData();
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   const [data, setData] = useState();
   const [color, setColor] = useState("#fafafa");
@@ -45,18 +54,19 @@ export function BookmarkCard({id, index, user, fetchBookmarks}) {
   }
 
   function deleteBookmark() {
-    userManager.removeBookmark(id);
+    userManager.removeBookmark(bookmarkId);
     userManager.push().then((pushSuccess) => {
       if (pushSuccess) {
         bookmarkManager.deleteDocument();
+        SessionManager.setCurrentUserManager(userManager);
         fetchBookmarks();
       }
     });
   }
 
-  if (!data) {
+  if (!data) { // Render unloaded bookmark
     return (
-      <div className="bookmark-wrapper" key={index}>
+      <div className="bookmark-wrapper" key={bookmarkId}>
         <ColoredCard color={color}>
           <CardActionArea>
             <CardContent>
@@ -90,17 +100,17 @@ export function BookmarkCard({id, index, user, fetchBookmarks}) {
         </ColoredCard>
       </div>
     )
-  }
+  } // Render loaded bookmark
   return (
-    <div className="bookmark-wrapper" key={index}>
+    <div className="bookmark-wrapper" key={bookmarkId}>
       <ColoredCard color={color}>
-        <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + id)}>
+        <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + bookmarkId)}>
           <CardContent>
             <div className="bookmark">
               <div className="left">
                 <div className="delete-button">
                   <Tooltip title="Delete Bookmark">
-                    <IconButton onClick={() => deleteBookmark(id)}>
+                    <IconButton onClick={() => deleteBookmark(bookmarkId)}>
                       <DeleteIcon fontSize="medium"/>
                     </IconButton>
                   </Tooltip>

@@ -1,6 +1,9 @@
 import { Add, Remove, Set, DBManager } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
+/**
+ * Object Manager for bookmarks
+ */
 export class BookmarkManager extends ObjectManager {
 
     constructor(_id) {

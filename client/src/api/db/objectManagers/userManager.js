@@ -1,10 +1,18 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
+/**
+ * Object Manager for users
+ */
 export class UserManager extends ObjectManager {
     
-    constructor(_id) {
+    // Optional data param for loading currentUserManager from localstorage
+    constructor(_id, _data) {
         super(DBManager.objectTypes.USER, _id);
+        if (_data) {
+            this.data = _data;
+            this.fetched = true;
+        }
     }
     
     fields = {
@@ -441,6 +449,22 @@ export class UserManager extends ObjectManager {
     removeTransaction(transactionId) {
         const transactionRemoval = new Remove(this.fields.TRANSACTIONS, transactionId);
         super.addChange(transactionRemoval);
+    }
+
+    // ================= Misc. Methods ================= //
+    /**
+     * Get a user's initials by displayName
+     * @returns User's initials
+     */
+    async getInitials() {
+        return new Promise(async (resolve, reject) => {
+            const fullName = await this.getDisplayName()
+            if (fullName) {
+                resolve(fullName.charAt(0))
+            } else {
+                resolve("?");
+            }
+        })
     }
 }
 

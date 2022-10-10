@@ -4,34 +4,32 @@ import "./dashboard.scss";
 // Library imports
 import { Backdrop } from "@mui/material"
 import { Route, Routes } from "react-router-dom";
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Component imports
-import BottomNav from "./bottomNav/BottomNav";
-import Home from "./home/Home";
-import NewTransaction from "./newTransaction/NewTransaction";
-import Shortcut from "./shortcut/Shortcut";
-import Groups from "./groups/Groups";
-import Owe from "./owe/Owe";
-import AllTransactions from "./allTransactions/AllTransactions";
-import Analytics from "./analytics/Analytics";
-import Bookmarks from "./bookmarks/Bookmarks";
-import Transaction from "./transaction/Transaction";
+import BottomNav from "./navigation/BottomNav";
+import Home from "./tabs/Home";
+import NewTransaction from "./tabs/NewTransaction";
+import Shortcut from "./tabs/Shortcut";
+import UserGroups from "./tabs/UserGroups";
+import OweOneDirection from "./tabs/OweOneDirection";
+import AllTransactions from "./tabs/AllTransactions";
+import Analytics from "./tabs/Analytics";
+import Bookmarks from "./tabs/Bookmarks";
+import Transaction from "./routes/Transaction";
+import Groups from "./routes/Groups";
+import Friends from "./routes/Friends";
 
 // API imports
-import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
 
 export default function Dashboard() {
 
   RouteManager.setTitleOrRedirectToLogin("Dashboard");
 
-  // Get user from session
-  const user = SessionManager.getUser();
-
   const [shortcutActive, setShortcutActive] = useState(false);        // Whether or not new transaction shortcut is active
   const [bookmarksDeployed, setBookmarksDeployed] = useState(false);  // Whether or not bookmarks are displayed in shortcut
-  const [activeTab, setActiveTab] = useState("home");                 // Active tab for content selection
+  const [activeTab, setActiveTab] = useState(RouteManager.getHash() ? RouteManager.getHash() : "home");                 // Active tab for content selection
 
   /**
    * Close shortcut on mouseup
@@ -43,6 +41,13 @@ export default function Dashboard() {
       setBookmarksDeployed(false);
     }
   }
+
+  // Enable back button!
+  useEffect(() => {
+    window.onpopstate = e => {
+      setActiveTab(RouteManager.getHash() ? RouteManager.getHash() : "home")
+    };
+  });
 
   /**
    * Render shortcut page when active
@@ -72,19 +77,23 @@ export default function Dashboard() {
   function renderTab() {
     switch(activeTab) {
       case "home":
-        return <Home user={user} setActiveTab={setActiveTab}/>;
+        return <Home />;
       case "new-transaction":
-        return <NewTransaction user={user} />;
+        return <NewTransaction />;
+      case "bookmarks":
+        return <Bookmarks />;
       case "groups":
-        return <Groups user={user} />;
-      case "owe":
-        return <Owe user={user} />;
+        return <UserGroups />;
+      case "owe-positive":
+        return <OweOneDirection positive={true}/>;
+      case "owe-negative":
+        return <OweOneDirection positive={false}/>;
       case "transactions":
-        return <AllTransactions user={user} />;
+        return <AllTransactions />;
       case "analytics":
-        return <Analytics user={user} />;
+        return <Analytics />;
       default:
-        return <Home user={user} />;
+        return <Home />;
     }
   }
   
@@ -93,13 +102,13 @@ export default function Dashboard() {
       {renderShortcut()}
       <div className="dashboard-pane">
         <Routes>
-          <Route path="/" element={ renderTab() }/>
-          <Route path="/home" element={ renderTab() }/>
-          <Route path="/transaction" element={<Transaction user={user} />}/>
-          <Route path="/bookmarks" element={<Bookmarks user={user} />}/>
+          <Route path="*" element={ renderTab() }/>
+          <Route path="/transactions/*" element={<Transaction />}/>
+          <Route path="/groups/*" element={<Groups />}/>
+          <Route path="/friends/*" element={<Friends />}/>
         </Routes>
       </div>
-      <BottomNav user={user} setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed} setActiveTab={setActiveTab}/>
+      <BottomNav setShortcutActive={setShortcutActive} setBookmarksDeployed={setBookmarksDeployed}/>
     </div>
   );
 }

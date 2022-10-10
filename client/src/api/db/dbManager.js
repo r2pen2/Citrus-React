@@ -140,4 +140,10 @@ export class DBManager {
         dbDebugger.logWithPrefix("Generating user manager...");
         return new UserManager(id);
     }
+
+    // For use by SessionManager and SessionManager only!
+    static createUserManagerFromLocalStorage(id, data) {
+        dbDebugger.logWithPrefix("Generating user manager with data from localStorage...");
+        return new UserManager(id, data);
+    }
 }

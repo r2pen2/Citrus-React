@@ -1,25 +1,32 @@
-import "./resources.scss";
-import { CircularProgress, Typography, Button, CardContent, CardActionArea, Tooltip } from '@mui/material';
+// Style imports
+import "./style/transactions.scss";
+
+// Library imports
+import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip } from '@mui/material';
 import { useState, useEffect} from 'react';
-import { getPhotoUrlById, getTransactionById, getDisplayNameById } from "../../api/dbManager"
-import React from 'react'
 import { OutlinedCard } from "./Surfaces";
-import { getDateString } from "../../api/strings";
-import formatter from "../../api/formatter";
-import { sortByUTDate } from "../../api/sorting";
-import { DBManager } from "../../api/db/dbManager";
-import { transactionUserRoles } from "../../api/db/objectManagers/transactionManager";
-import { userIsFronter, getOtherPayers, getPayerDebt, getPayerCredit, getFronterDebt, getFronterCredit } from "../../api/transactions";
+
+// Component imports
 import { AvatarStack } from "./Avatars";
 import { SectionTitle } from "./Labels";
 import { Breadcrumbs } from "./Navigation";
 
-export function TransactionList(props) {
-    
-    const [transactions, setTransactions] = useState(null);
+// API imports
+import { getDateString } from "../../api/strings";
+import formatter from "../../api/formatter";
+import { sortByUTDate } from "../../api/sorting";
+import { DBManager } from "../../api/db/dbManager";
+import { SessionManager } from "../../api/sessionManager";
 
+export function TransactionList(props) {
+  
+  const userManager = SessionManager.getCurrentUserManager();
+    
+  const [transactions, setTransactions] = useState(null);
+  
+  // Fetch transactions on mount
+  useEffect(() => {
     async function fetchUserTransactions() {
-      const userManager = DBManager.getUserManager(props.user.uid);
       const t = await userManager.getTransactions();
       if (props.numDisplayed) {
         setTransactions(t.slice(0, props.numDisplayed));
@@ -27,111 +34,107 @@ export function TransactionList(props) {
         setTransactions(t);
       }
     }
-  
-    // Fetch transactions on mount
-    useEffect(() => {
-      fetchUserTransactions();
-    }, [])
+    fetchUserTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    /**
-   * Renders cards for each of the user's transactions
-   * @param {Array} a array of user's transactions
-   */
-   function renderTransactions(unsortedArray) {
-
-    const a = sortByUTDate(unsortedArray); // Sort transactions by date
-    
-    function renderTransactionCard(transaction, index) {
-      return (
+   /**
+  * Renders cards for each of the user's transactions
+  * @param {Array} a array of user's transactions
+  */
+  function renderTransactions(unsortedArray) {
+   const a = sortByUTDate(unsortedArray); // Sort transactions by date
+   
+   function renderTransactionCard(transaction, index) {
+     return (
         <div>
           <div className="transaction-card" key={index} data-testid={"transaction-card-" + transaction}>
-            <TransactionCard id={transaction.transactionId} user={props.user} />
+            <TransactionCard id={transaction.transactionId} />
           </div>
         </div>
       )
     }
 
     if (!a) { // If we don't yet have a list of transactions, just display a little loading circle
-        return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
-      }
+      return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
+    }
   
-      if (a.length <= 0) { // If there are no transactions on a user, display a message to indicate
-        return    (     
-          <div className="empty">
-            <Typography>
-              User has no transactions.
-            </Typography>
-          </div>
-          )
-      }
+    if (a.length <= 0) { // If there are no transactions on a user, display a message to indicate
+      return    (     
+        <div className="empty">
+          <Typography>
+            User has no transactions.
+          </Typography>
+        </div>
+        )
+    }
 
-      // Otherwise, we have to display the transaction list
-
-      // Populate bracket arrays
-      const DAY = 86400000;
-      var brackets = [[], [], [], [], [], []];
-      const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
-      // Assign each transaction to a bracket associated with time since transcation creation 
-      if (a) {
-        for (const t of a) {
-          const ageInDays = (new Date().getTime() - t.date.toDate().getTime()) / DAY;
-          if (ageInDays <= 1) {
-            brackets[0].push(t);
-          } else if (ageInDays <= 2) {
-            brackets[1].push(t);
-          } else if (ageInDays <= 7) {
-            brackets[2].push(t);
-          } else if (ageInDays <= 30) {
-            brackets[3].push(t);
-          } else if (ageInDays <= 365) {
-            brackets[4].push(t);
-          } else {
-            brackets[5].push(t);
-          }
+    // Otherwise, we have to display the transaction list
+    // Populate bracket arrays
+    const DAY = 86400000;
+    var brackets = [[], [], [], [], [], []];
+    const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
+    // Assign each transaction to a bracket associated with time since transcation creation 
+    if (a) {
+      for (const t of a) {
+        const ageInDays = (new Date().getTime() - t.date.toDate().getTime()) / DAY;
+        if (ageInDays <= 1) {
+          brackets[0].push(t);
+        } else if (ageInDays <= 2) {
+          brackets[1].push(t);
+        } else if (ageInDays <= 7) {
+          brackets[2].push(t);
+        } else if (ageInDays <= 30) {
+          brackets[3].push(t);
+        } else if (ageInDays <= 365) {
+          brackets[4].push(t);
+        } else {
+          brackets[5].push(t);
         }
       }
+    }
 
-      // for each time bracket, render a bracket label and all of the transactions in it
-      return brackets.map((bracket, bracketIdx) => { 
-        return (
-          <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
-            { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
-            { bracket.map((t, idx) => {
-              return renderTransactionCard(t, idx)
-            }) }
-          </div>
-        )
-      })
+    // for each time bracket, render a bracket label and all of the transactions in it
+    return brackets.map((bracket, bracketIdx) => { 
+      return (
+        <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
+          { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
+          { bracket.map((t, idx) => {
+            return renderTransactionCard(t, idx)
+          }) }
+        </div>
+      )
+    })
   }
     
-    return (
-        <div className="transaction-list">
-            { renderTransactions(transactions) }
-        </div>
-        );
+  return (
+    <div className="transaction-list">
+      { renderTransactions(transactions) }
+    </div>
+  );
 }
 
 /**
- * Render a transaction card from passed user's perspective
- * @param {string} id transaction id 
- * @param {object} user user viewing the transaction
+ * Render a transaction card from current user's perspective
+ * @param {string} transactionId transaction id 
  */
-export function TransactionCard({id, user}) {
+export function TransactionCard({transactionId}) {
     
     const [context, setContext] = useState(null);
 
-    /**
-    * Get transaction context from user's perspective
-    */
-    async function getTransactionContext() {
-      const transactionManager = DBManager.getTransactionManager(id);
-      const transactionContext = await transactionManager.getContext(user.uid);
-      setContext(transactionContext);
-    }
-
     useEffect(() => {
-        getTransactionContext();
-    }, [])
+
+      /**
+      * Get transaction context from user's perspective
+      */
+      async function getTransactionContext() {
+        const transactionManager = DBManager.getTransactionManager(transactionId);
+        const transactionContext = await transactionManager.getContext(SessionManager.getUserId());
+        setContext(transactionContext);
+      }
+
+      getTransactionContext();
+    }, [transactionId])
 
     function renderAvatarStack() {
         if (context) {
@@ -166,8 +169,8 @@ export function TransactionCard({id, user}) {
 
     if (context) {
         return (
-            <OutlinedCard key={id}>
-                <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + id}>
+            <OutlinedCard key={transactionId}>
+                <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + transactionId}>
                     <CardContent>
                         <div className="transaction-card-content-container">
                             <div className="left">
@@ -195,7 +198,7 @@ export function TransactionCard({id, user}) {
     }
 }
 
-export function TransactionDetail({ user }) {
+export function TransactionDetail() {
   const params = new URLSearchParams(window.location.search);
   const transactionId = params.get("id");
 
@@ -233,7 +236,7 @@ export function TransactionDetail({ user }) {
   );
 }
 
-export function TransactionConversation({ user }) {
+export function TransactionConversation() {
   const params = new URLSearchParams(window.location.search);
   const transactionId = params.get("id");
 

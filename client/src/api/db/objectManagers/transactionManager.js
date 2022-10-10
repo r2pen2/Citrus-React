@@ -1,6 +1,9 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
+/**
+ * Object Manager for transactions
+ */
 export class TransactionManager extends ObjectManager {
     constructor(_id) {
         super(DBManager.objectTypes.TRANSACTION, _id);

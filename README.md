@@ -78,7 +78,7 @@ Routes work like a switch statement that returns a component based on the curren
 Take a look at how routing works in Login.jsx:
 ```jsx
 <Routes>
-  <Route path="/" element={<PhoneInput />}/>
+  <Route path="*" element={<PhoneInput />}/>
   <Route path="/phone-number" element={<PhoneInput />}/>
   <Route path="/authentication/*" element={<Authentication setUserById={setUserById}/>}/>
   <Route path="/account-creation" element={<NewUserForm setUserById={setUserById}/>}/>

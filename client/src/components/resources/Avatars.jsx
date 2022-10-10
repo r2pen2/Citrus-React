@@ -1,8 +1,13 @@
+// Style imports
+import "./style/avatars.scss";
+
+// Library imports
 import { useState, useEffect } from 'react';
 import { AvatarGroup, Avatar, Tooltip, Typography } from "@mui/material";
-import { DBManager } from "../../api/db/dbManager";
-import "./resources.scss";
 import Badge from '@mui/material/Badge';
+
+// API imports
+import { DBManager } from "../../api/db/dbManager";
 
 export function AvatarStack({featured, secondary, checked}) {
     
@@ -33,17 +38,18 @@ export function AvatarStackItem(props) {
     const [pfpUrl, setPfpUrl] = useState(null);
     const [name, setName] = useState(null);
 
-    async function fetchUserData() {
-        const userManager = DBManager.getUserManager(props.userId);
-        let photo = await userManager.getPhotoUrl();
-        setPfpUrl(photo);
-        let displayName = await userManager.getDisplayName();
-        setName(displayName);
-    }
-
     useEffect(() => {
+
+        async function fetchUserData() {
+            const userManager = DBManager.getUserManager(props.userId);
+            let photo = await userManager.getPhotoUrl();
+            setPfpUrl(photo);
+            let displayName = await userManager.getDisplayName();
+            setName(displayName);
+        }
+
         fetchUserData();
-    }, [])
+    }, [props.userId]);
 
     function renderBadgedAvatar() {
         
@@ -95,7 +101,7 @@ export function AvatarIcon(props) {
 
         fetchUserData();
         
-    }, [props.id])
+    }, [props.id, props.src, props.alt]);
 
     return <Avatar src={pfpUrl} alt={alt} />
 }

@@ -14,6 +14,7 @@ export class Debugger {
         OBJECTMANAGERTRANSACTION: "objectManagerTransaction",
         OBJECTMANAGERUSER: "objectManagerUser",
         BROWSERMANAGER: "browserManager",
+        SESSIONMANAGER: "sessionManager",
     };
 
     /**
@@ -48,6 +49,8 @@ export class Debugger {
                 return "[Object Manager <User>]: ";
             case Debugger.controllerObjects.BROWSERMANAGER:
                 return "[Browser Manager]: ";
+            case Debugger.controllerObjects.SESSIONMANAGER:
+                return "[Session Manager]: ";
             default:
                 return "[Undefined Manager]: ";
         }

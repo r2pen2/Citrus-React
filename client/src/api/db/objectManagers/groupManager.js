@@ -1,6 +1,9 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 
+/**
+ * Object Manager for groups
+ */
 export class GroupManager extends ObjectManager {
 
     constructor(_id) {

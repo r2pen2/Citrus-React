@@ -7,24 +7,18 @@ import "./assets/style/notifications.css";
 import { ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { NotificationContainer } from 'react-notifications';
-import { useState, useEffect } from 'react';
-import { auth, signOutUser } from "./api/firebase";
+import { useEffect } from 'react';
 
 // Component Imports
 import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import Topbar from "./components/topbar/Topbar";
 import HomePage from "./components/homePage/HomePage";
-import DataPage from "./components/dataPage/DataPage";
 import UserPage from "./components/userPage/UserPage";
 
-// Data Imports
-import creditsData from './assets/json/creditsPage';
-
 // API imports
-import { syncUserDoc } from "./api/dbManager";
-import { DBManager } from "./api//db/dbManager";
 import { SessionManager } from "./api/sessionManager";
+import { auth } from "./api/firebase";
 
 function App() {
 
@@ -38,7 +32,7 @@ function App() {
         SessionManager.setDisplayName(authUser.displayName);
 
         // Sync user's DB doc
-        const userManager = DBManager.getUserManager(authUser.uid);
+        const userManager = SessionManager.getCurrentUserManager();
         const userAlreadyExists = await userManager.documentExists();
         if (userAlreadyExists) {
           // User already exists on DB
@@ -53,11 +47,7 @@ function App() {
     })
   }, []);
 
-  // If we ever don't have a user stored in localStorage, make sure they're actually singed out!
-  if (!SessionManager.userInLS()) {
-    signOutUser();
-  }
-
+  // I present to you: Citrus Financial
   return (
     <div className="app" data-testid="app-wrapper">
       <Router>
@@ -65,12 +55,11 @@ function App() {
           <Topbar/>
             <div className="content" data-testid="app-content">
               <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route path="*" element={<HomePage />} />
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/login/*" element={<Login/>} />
                 <Route path="/dashboard/*" element={<Dashboard/>} />
                 <Route path="/user/*" element={<UserPage/>}/>
-                <Route path="/credits" element={<DataPage data={creditsData}/>} />
               </Routes>
             </div>
         </ThemeProvider>
