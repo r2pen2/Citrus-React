@@ -15,6 +15,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Topbar from "./components/topbar/Topbar";
 import HomePage from "./components/homePage/HomePage";
 import UserPage from "./components/userPage/UserPage";
+import InviteHandler from "./components/inviteHandler/InviteHandler";
 
 // API imports
 import { SessionManager } from "./api/sessionManager";
@@ -60,6 +61,7 @@ function App() {
                 <Route path="/login/*" element={<Login/>} />
                 <Route path="/dashboard/*" element={<Dashboard/>} />
                 <Route path="/user/*" element={<UserPage/>}/>
+                <Route path="/invite" element={<InviteHandler />} />
               </Routes>
             </div>
         </ThemeProvider>

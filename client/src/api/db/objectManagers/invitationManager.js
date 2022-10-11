@@ -1,4 +1,5 @@
 import { DBManager, Set } from "../dbManager";
+import { RouteManager } from "../../routeManager";
 import { ObjectManager } from "./objectManager";
 
 /**
@@ -16,6 +17,8 @@ export class InvitationManager extends ObjectManager {
         INVITEDAT: "invitedAt",
         INVITEELOCATION: "inviteeLocation",
         INVITERLOCATION: "inviterLocation",
+        USED: "used",
+        TARGET: "target",
     }
 
     getEmptyData() {
@@ -29,6 +32,8 @@ export class InvitationManager extends ObjectManager {
             inviterAttrs: {         // {map} Attributes associated with inviter
                 location: null,     // --- {geoPoint} Location of the inviter when they create the invitation
             },
+            used: false,            // {boolean} Whether or not this invitation was used
+            target: null,           // {string} id of document that this invite points to
         }
         return empty;
     }
@@ -40,6 +45,8 @@ export class InvitationManager extends ObjectManager {
             case this.fields.INVITEDAT:
             case this.fields.INVITEELOCATION:
             case this.fields.INVITERLOCATION:
+            case this.fields.USED:
+            case this.fields.TARGET:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -55,6 +62,8 @@ export class InvitationManager extends ObjectManager {
             case this.fields.INVITEDAT:
             case this.fields.INVITEELOCATION:
             case this.fields.INVITERLOCATION:
+            case this.fields.USED:
+            case this.fields.TARGET:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -79,6 +88,12 @@ export class InvitationManager extends ObjectManager {
                 return data;
             case this.fields.INVITERLOCATION:
                 data.inviterAttrs.location = change.value;
+                return data;
+            case this.fields.USED:
+                data.used = change.value;
+                return data;
+            case this.fields.TARGET:
+                data.target = change.value;
                 return data;
             default:
                 super.logInvalidChangeField(change);
@@ -106,6 +121,12 @@ export class InvitationManager extends ObjectManager {
                     break;
                 case this.fields.INVITERLOCATION:
                     resolve(this.data.inviterAttrs.location);
+                    break;
+                case this.fields.USED:
+                    resolve(this.data.used);
+                    break;
+                case this.fields.TARGET:
+                    resolve(this.data.target);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -156,6 +177,22 @@ export class InvitationManager extends ObjectManager {
         })
     }
 
+    async getUsed() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.USED).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getTarget() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.TARGET).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
     // ================= Set Operations ================= //
     setInviteType(newInviteType) {
         const inviteTypeChange = new Set(this.fields.INVITETYPE, newInviteType);
@@ -182,9 +219,48 @@ export class InvitationManager extends ObjectManager {
         super.addChange(inviterLocationChange);
     }
 
+    setUsed(newUsed) {
+        const usedChange = new Set(this.fields.USED, newUsed);
+        super.addChange(usedChange);
+    }
+    
+    setTarget(newTarget) {
+        const targetChange = new Set(this.fields.TARGET, newTarget);
+        super.addChange(targetChange);
+    }
     // ================= Add Operations ================= //
 
     // ================= Remove Operations ================= //
+
+    // ================= Misc. Operations ================= //
+    /**
+     * Go to url that this invite references
+     */
+    goTo() {
+        RouteManager.redirect(`/invite?type=${this.inviteType.type}&id=${this.documentId}`);
+    }
+
+    /**
+     * Check if this invitation exists on DB and has passed in ID + Type
+     * @param {string} id id of invitation
+     * @param {string} type invitation type 
+     * @returns a promise resolved a string (either "valid" or "invalid")
+     */
+    async validate(id, type) {
+        return new Promise(async (resolve, reject) => {
+            await this.fetchData();
+            if (!this.data) {
+                resolve("invalid");
+            }
+            if (id !== this.documentId) {
+                resolve("invalid");
+            }
+            if (type !== this.inviteType) {
+                resolve("invalid");
+            }
+            resolve("valid");
+        })
+    }
 }
 
 
@@ -208,7 +284,7 @@ export class InviteType {
     static types = {
         FRIEND: "friend",
         GROUP: "group",
-        CHIPIN: "chipIn",
+        USER: "user",
     }
 
     /**
@@ -218,11 +294,11 @@ export class InviteType {
     getCollection() {
         switch(this.type) {
             case InviteType.types.FRIEND:
-                return "friendInvites";
+                return "invitations";
             case InviteType.types.GROUP:
-                return "groupInvites";
-            case InviteType.types.CHIPIN:
-                return "chipInInvites";
+                return "invitations";
+            case InviteType.types.USER:
+                return "invitations";
             default:
                 return null;
         }
