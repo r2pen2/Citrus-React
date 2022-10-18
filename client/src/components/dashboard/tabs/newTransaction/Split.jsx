@@ -550,13 +550,13 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
                                 onChange={handleTotalChange}
                                 onBlur={checkSubmitEnable}
                                 onFocus={checkSubmitEnable}
-                                label="ex. $100"
+                                label="ex. 100"
                             >
                             </TextField>
                         </FormControl>
                     </div>
                 </div>
-                <div className={"total-error " + (totalError ? "" : "hidden")}>
+                <div className={"number-error " + (totalError ? "" : "hidden")}>
                     <Typography variant="subtitle2" color="red">Total must be whole number greater than $5</Typography>
                 </div>
                 <div className="split-section">                
@@ -591,6 +591,7 @@ function WeightSelection({transactionTitle, transactionAmount, manual, peopleInv
             <div className="header">
                 <Typography variant="h6">{transactionTitle}</Typography>
                 <Typography variant="h6">Total: ${transactionAmount}</Typography>
+                <Typography variant="h6">Users endered: {currentPerson}/{peopleInvolved.length}</Typography>
             </div>
             { renderCurrentCard() }
         </div>
@@ -646,11 +647,11 @@ function WeightCard({manual, person, weightedUsers, someoneFronted, setSomeoneFr
 
 function RoleSelect({person, handleRoleSelect, someoneFronted}) {
     return (
-        <div className="fronted-question">
+        <div className="split-question">
             <Typography variant="subtitle1">Did {person.displayName.substring(0, person.displayName.indexOf(" "))}{someoneFronted ? " also " : " "}front this payment?</Typography>
             <div className="fronted-buttons">
-                    <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("fronter")}}>Yes</Button>
-                    <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("payer")}}>No</Button>
+                <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("fronter")}}>Yes</Button>
+                <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("payer")}}>No</Button>
             </div>
         </div>
     )
@@ -679,9 +680,59 @@ function HowMuch({person, weightedUsers}) {
         }
     }
 
+    const [userAmount, setUserAmount] = useState(null);
+    const [amountError, setAmountError] = useState(false);
+    const [submitEnable, setSubmitEnable] = useState(false);
+
+    function handleAmountChange(e) {
+        const result = e.target.value.replace(/\D+/g, '');
+        setUserAmount(result);
+        let errored = false;
+        if (parseInt(result) <= 5) {
+            errored = true;
+            setAmountError(true);
+        } else {
+            setAmountError(false);
+        }
+        setSubmitEnable(result.length > 0 && !errored)
+    }
+
+    function checkSubmitEnable() {
+        if (!userAmount) {
+            return;
+        }
+        if (!amountError && userAmount.length > 0) {
+            setSubmitEnable(true);
+        } else {
+            setSubmitEnable(false);
+        }
+    }
+
+    function handleNext() {
+        
+    }
+
     return (
-        <div className="how-much-question">
+        <div className="split-question">
             <Typography variant="subtitle1">{getQuestionByRole()}</Typography>
+            <div className="amount-input">
+                <FormControl className="title-text-field">
+                    <TextField
+                        value={userAmount ? userAmount : ""}
+                        onChange={handleAmountChange}
+                        onBlur={checkSubmitEnable}
+                        onFocus={checkSubmitEnable}
+                        label="$"
+                    >
+                    </TextField>
+                </FormControl>
+            </div>
+            <div className={"number-error " + (amountError ? "" : "hidden")}>
+                <Typography variant="subtitle2" color="red">Total must be whole number</Typography>
+            </div>
+            <div className="next-button">
+                <Button variant="contained" disabled={!submitEnable} onClick={() => handleNext()}>Next</Button>
+            </div>
         </div>
     )
 }

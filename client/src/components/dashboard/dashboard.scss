@@ -629,28 +629,19 @@
             flex-direction: row;
             width: 50%;
             align-items: center;
+            gap: 10px;
             justify-content: space-between;
 
             .form-input {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 10px;
                 width: 100%;
             }
         }
 
         .header {
             margin-bottom: 30px;
-        }
-
-        .total-error {
-            user-select: none;
-            transition: all 0.5s ease;
-            margin-top: 5px;
-            &.hidden {
-                opacity: 0;
-            }
         }
 
         .split-section {
@@ -673,6 +664,15 @@
                     width: 45%;
                 }
             }
+        }
+    }
+
+    .number-error {
+        user-select: none;
+        transition: all 0.5s ease;
+        margin-top: 5px;
+        &.hidden {
+            opacity: 0;
         }
     }
 
@@ -705,7 +705,35 @@
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
+                gap: 20px;
             }
+
+            .split-question {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+                height: 100%;
+
+                .fronted-buttons {
+                    width: 60%;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+
+                    .fronted-button {
+                        width: 45%;
+                    }
+                }
+
+                .amount-input {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                }
+            }
+            
         }
     }
 }
