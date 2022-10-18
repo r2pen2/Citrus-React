@@ -82,7 +82,7 @@ export function AvatarStackItem(props) {
 
 export function AvatarIcon(props) {
     const [pfpUrl, setPfpUrl] = useState(props.src ? props.src : null);
-    const [alt, setAlt] = useState(props.alt ? props.alt : "");
+    const [displayName, setDisplayName] = useState(props.displayName ? props.displayName : null);
 
     useEffect(() => {
 
@@ -93,17 +93,17 @@ export function AvatarIcon(props) {
                 let url = await userManager.getPhotoUrl();
                 setPfpUrl(url);
             }
-            if (!props.alt) {
+            if (!props.displayName) {
                 let name = await userManager.getDisplayName();
-                setAlt(name);
+                setDisplayName(name);
             }
         }
 
         fetchUserData();
         
-    }, [props.id, props.src, props.alt]);
+    }, [props.id, props.src, props.displayName]);
 
-    return <Avatar src={pfpUrl} alt={alt} />
+    return <Avatar src={pfpUrl} alt={displayName} />
 }
 
 export function AvatarToggle(props) {
@@ -120,7 +120,7 @@ export function AvatarToggle(props) {
     return (
         <div className="avatar-toggle">
             <div className={"avatar-toggle-icon-element " + (props.outlined ? "outlined" : "")}>
-                <AvatarIcon id={props.id} src={props.src ? props.src : null}/>
+                <AvatarIcon id={props.id} src={props.src ? props.src : null} displayName={props.displayName ? props.displayName : null}/>
             </div>
             { renderName() }
         </div>

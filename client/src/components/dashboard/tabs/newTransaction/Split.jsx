@@ -87,7 +87,6 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     async function fetchFriendDetails(friendsList) {
         for (var i = 0; i < friendsList.length; i++) {
             const currentFriend = friendsList[i];
-            console.log(currentFriend)
             const friendManager = DBManager.getUserManager(currentFriend.id)
             let displayName = await friendManager.getDisplayName();
             currentFriend.displayName = displayName;
@@ -259,6 +258,7 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
                     <AvatarToggle 
                        outlined={friend.selected} 
                        id={friend.id} 
+                       src={friend.pfpUrl}
                        displayName={friend.displayName}
                    />
                 </div>
