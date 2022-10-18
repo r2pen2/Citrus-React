@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useState } from 'react';
 import MuiPhoneNumber from 'material-ui-phone-number';
 import { Typography, Button, Stack } from "@mui/material";
-import { NotificationManager } from 'react-notifications';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { auth } from '../../../api/firebase';
 

@@ -1,5 +1,5 @@
 // Library imports
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AppBar, BottomNavigation, BottomNavigationAction } from "@mui/material"
 import HomeIcon from '@mui/icons-material/Home';
 import AddBoxIcon from '@mui/icons-material/AddBox';
