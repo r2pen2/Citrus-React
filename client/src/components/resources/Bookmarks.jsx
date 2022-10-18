@@ -1,7 +1,7 @@
 // Library Imports
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useState, useEffect } from 'react';
-import { CardContent, CardActionArea, Tooltip, IconButton } from '@mui/material';
+import { CardContent, CardActionArea, Tooltip } from '@mui/material';
 
 // Component Imports
 import { ColoredCard } from "./Surfaces";
@@ -21,7 +21,7 @@ import { getSlashDateString } from '../../api/strings';
  */
 export function BookmarkCard({bookmarkId, fetchBookmarks}) {
 
-  const userManager = SessionManager.getCurrentUserManager();
+  // Fetch our bookmark manager
   const bookmarkManager = DBManager.getBookmarkManager(bookmarkId);
 
   useEffect(() => {
@@ -54,6 +54,8 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
   }
 
   function deleteBookmark() {
+    // We only need the user manager if we're doing anything on the user's document. No need to make one if we're not gonna edit this bookmark.
+    const userManager = SessionManager.getCurrentUserManager();
     userManager.removeBookmark(bookmarkId);
     userManager.push().then((pushSuccess) => {
       if (pushSuccess) {
@@ -66,7 +68,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
 
   if (!data) { // Render unloaded bookmark
     return (
-      <div className="bookmark-wrapper" key={bookmarkId}>
+      <div className="bookmark-wrapper">
         <ColoredCard color={color}>
           <CardActionArea>
             <CardContent>
@@ -74,9 +76,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
                 <div className="left">
                   <div className="delete-button">
                     <Tooltip title="Delete Bookmark">
-                      <IconButton>
                         <DeleteIcon fontSize="medium"/>
-                      </IconButton>
                     </Tooltip>
                   </div>
                   <div className="left-data">
@@ -102,7 +102,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
     )
   } // Render loaded bookmark
   return (
-    <div className="bookmark-wrapper" key={bookmarkId}>
+    <div className="bookmark-wrapper">
       <ColoredCard color={color}>
         <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + bookmarkId)}>
           <CardContent>
@@ -110,9 +110,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
               <div className="left">
                 <div className="delete-button">
                   <Tooltip title="Delete Bookmark">
-                    <IconButton onClick={() => deleteBookmark(bookmarkId)}>
-                      <DeleteIcon fontSize="medium"/>
-                    </IconButton>
+                    <DeleteIcon fontSize="medium" onClick={() => deleteBookmark(bookmarkId)}/>
                   </Tooltip>
                 </div>
                 <div className="left-data">

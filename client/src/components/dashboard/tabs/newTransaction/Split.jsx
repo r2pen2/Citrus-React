@@ -7,17 +7,24 @@ import { DBManager } from "../../../../api/db/dbManager";
 import { AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
 
+// Get user mananger from LS (which we know exists becuase we made it to this page)
+const userManager = SessionManager.getCurrentUserManager();
+
+/**
+ * Wrapper component for split new transaction
+ * @param {Props} props Currently unused
+ */
 export default function Split(props) {
 
-    const userManager = SessionManager.getCurrentUserManager();
-
+    // Keep track of which page we're on
     const [splitPage, setSplitPage] = useState(props.splitPage ? props.splitPage : "add-people");
-    const [groupPicklistContent, setGroupPicklistContent] = useState(null);
-    const [currentGroup, setCurrentGroup] = useState("");
+
+    const [groupPicklistContent, setGroupPicklistContent] = useState(null); // Map of groups in the picklist
+    const [currentGroup, setCurrentGroup] = useState("");                   // Currently selected group (by id)
     // eslint-disable-next-line no-unused-vars
-    const [peopleInvolved, setPeopleInvolved] = useState([]);
-    const [transactionTitle, setTransactionTitle] = useState(null);
-    const [transactionAmount, setTransactionAmount] = useState(null);
+    const [peopleInvolved, setPeopleInvolved] = useState([]);               // Currently selected users (by id)
+    const [transactionTitle, setTransactionTitle] = useState(null);         // Title of this transaction
+    const [transactionAmount, setTransactionAmount] = useState(null);       // Total amount of this transaction
 
     useEffect(() => {
         async function fetchUserData() {
@@ -61,8 +68,6 @@ export default function Split(props) {
 
 function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
     
-    const userManager = SessionManager.getCurrentUserManager();
-    
     const [searchString, setSearchString] = useState("");               // Contents of search box
     const [friends, setFriends] = useState(null);                       // List of user's friends (stored as objects)
     const [friendsLoaded, setFriendsLoaded] = useState(false);          // Whether or not friends have loaded personal information yet
@@ -82,7 +87,8 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     async function fetchFriendDetails(friendsList) {
         for (var i = 0; i < friendsList.length; i++) {
             const currentFriend = friendsList[i];
-            const friendManager = DBManager.getUserManager(currentFriend)
+            console.log(currentFriend)
+            const friendManager = DBManager.getUserManager(currentFriend.id)
             let displayName = await friendManager.getDisplayName();
             currentFriend.displayName = displayName;
             let url = await friendManager.getPhotoUrl();

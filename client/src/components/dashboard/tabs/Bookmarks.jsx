@@ -1,5 +1,6 @@
 import { Breadcrumbs } from "../../resources/Navigation";
 import { BookmarkCard } from "../../resources/Bookmarks";
+import { LoadingBoxIfNull } from "../../resources/Feedback";
 import { CircularProgress, Button, Stack, Tooltip, Modal, Box, Typography, IconButton, TextField } from '@mui/material';
 import { DBManager } from '../../../api/db/dbManager';
 import { SessionManager } from '../../../api/sessionManager';
@@ -8,20 +9,10 @@ import { useState, useEffect } from 'react';
 
 import AddIcon from '@mui/icons-material/Add';
 
-function renderLoadingBox(marks) {
-  if (!marks) {
-    return (
-      <CircularProgress />
-    )
-  }
-  return (
-      <div/>
-  )
-}
+// Get user manager from LS
+const userManager = SessionManager.getCurrentUserManager();
 
 export default function Bookmarks() {
-  
-  const userManager = SessionManager.getCurrentUserManager();
   
   const [userBookmarks, setUserBookmarks] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -58,9 +49,9 @@ export default function Bookmarks() {
     // Otherwise, we have bookmarks from DB and should display cards accordingly
     if (a) {
       return (
-        a.map((bookmarkId) => {
+        a.map((bookmarkId, index) => {
           return (
-            <BookmarkCard id={bookmarkId} fetchBookmarks={fetchBookmarks}/>
+            <BookmarkCard key={index} bookmarkId={bookmarkId} fetchBookmarks={fetchBookmarks}/>
           )
         })
       )
@@ -133,7 +124,7 @@ export default function Bookmarks() {
       </Modal>
       <Breadcrumbs path="Dashboard/Bookmarks" />
       <div className={"loading-box " + (userBookmarks ? "hidden" : "")}>
-        { renderLoadingBox(userBookmarks) }
+        <LoadingBoxIfNull object={userBookmarks} />
       </div>
       <div className="bookmarks">
         { renderBookmarks(userBookmarks) }
