@@ -484,11 +484,20 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
     }
 
     function checkSubmitEnable() {
+        if (!newTitle) {
+            return;
+        }
+        if (!newTotal) {
+            return;
+        }
         setSubmitEnable(newTitle.length > 0 && newTotal.length > 0 && !totalError)
     }
 
     function handleTitleChange(e) {
         setNewTitle(e.target.value);
+        if (!newTotal) {
+            return;
+        }
         setSubmitEnable(e.target.value.length > 0 && newTotal.length > 0 && !totalError)
     }
 
@@ -501,6 +510,9 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
             setTotalError(true);
         } else {
             setTotalError(false);
+        }
+        if (!newTitle) {
+            return;
         }
         setSubmitEnable(newTitle.length > 0 && result.length > 0 && !errored)
     }
@@ -565,13 +577,13 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
 
 function WeightSelection({transactionTitle, transactionAmount, manual, peopleInvolved}) {
 
-    const peopleMap = new Map();
+    const [weightedUsers, setWeightedUsers] = useState([]);
 
     const [currentPerson, setCurrentPerson] = useState(0);
     const [someoneFronted, setSomeoneFronted] = useState(false);
 
     function renderCurrentCard() {
-        return <WeightCard setCurrentPerson={setCurrentPerson} currentPerson={currentPerson} someoneFronted={someoneFronted} setSomeoneFronted={setSomeoneFronted} key={currentPerson} manual={manual} person={peopleInvolved[currentPerson]} map={peopleMap} />
+        return <WeightCard setCurrentPerson={setCurrentPerson} currentPerson={currentPerson} someoneFronted={someoneFronted} setSomeoneFronted={setSomeoneFronted} key={currentPerson} manual={manual} person={peopleInvolved[currentPerson]} weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers} />
     }
 
     return (
@@ -586,7 +598,7 @@ function WeightSelection({transactionTitle, transactionAmount, manual, peopleInv
 }
 
 
-function WeightCard({manual, person, map, someoneFronted, setSomeoneFronted, currentPerson, setCurrentPerson}) {
+function WeightCard({manual, person, weightedUsers, someoneFronted, setSomeoneFronted, currentPerson, setCurrentPerson, setWeightedUsers}) {
 
     const [cardPage, setCardPage] = useState("role-select");
 
@@ -594,14 +606,30 @@ function WeightCard({manual, person, map, someoneFronted, setSomeoneFronted, cur
         if (roleType === "fronter") {
             setSomeoneFronted(true);
         }
-        map.set(person.id, {
+        const array = weightedUsers;
+        array.push({
+            id: person.id,
             role: roleType,
-            amount: null,
-        })
+            amount: null  
+        });
+        setWeightedUsers(array);
         if (!manual) {
             setCurrentPerson(currentPerson + 1);
         } else {
             setCardPage("how-much");
+        }
+    }
+
+    function renderCardPage() {
+        switch (cardPage) {
+            case "role-select":
+                return <RoleSelect person={person} handleRoleSelect={handleRoleSelect} someoneFronted={someoneFronted}/>;
+            case "how-much":
+                return <HowMuch person={person} weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers}/>;
+            case "summary":
+                return <WeightSummary />;
+            default:
+                return <div>Error: Invalid card page.</div>;
         }
     }
 
@@ -611,14 +639,57 @@ function WeightCard({manual, person, map, someoneFronted, setSomeoneFronted, cur
                 <AvatarIcon src={person.pfpUrl} displayName={person.displayName} size={100} />
                 <Typography variant="h6">{person.displayName}</Typography>
             </div>
-            <div className="fronted-question">
-                <Typography variant="subtitle1">Did {person.displayName.substring(0, person.displayName.indexOf(" "))}{someoneFronted ? " also " : " "}front this payment?</Typography>
-                <div className="fronted-buttons">
-                        <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("fronter")}}>Yes</Button>
-                        <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("payer")}}>No</Button>
-                </div>
-            </div>
+            { renderCardPage() }
         </Paper>
+    )
+}
+
+function RoleSelect({person, handleRoleSelect, someoneFronted}) {
+    return (
+        <div className="fronted-question">
+            <Typography variant="subtitle1">Did {person.displayName.substring(0, person.displayName.indexOf(" "))}{someoneFronted ? " also " : " "}front this payment?</Typography>
+            <div className="fronted-buttons">
+                    <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("fronter")}}>Yes</Button>
+                    <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("payer")}}>No</Button>
+            </div>
+        </div>
+    )
+}
+
+function HowMuch({person, weightedUsers}) {
+
+    console.log(weightedUsers);
+    
+    function getQuestionByRole() {
+
+        let currentUser = null;
+
+        for (const user of weightedUsers) {
+            if (user.id === person.id) {
+                currentUser = user;
+            }
+        }
+
+        if (currentUser) {
+            const fronter =  (currentUser.role === "fronter") ? true : false;
+            if (fronter) {
+                return `How much is ${person.displayName.substring(0, person.displayName.indexOf(" "))} owed?`;
+            }
+            return `How much does ${person.displayName.substring(0, person.displayName.indexOf(" "))} owe?`;
+        }
+    }
+
+    return (
+        <div className="how-much-question">
+            <Typography variant="subtitle1">{getQuestionByRole()}</Typography>
+        </div>
+    )
+}
+
+function WeightSummary() {
+    return (
+        <div className="weight-summary">Summary!
+        </div>
     )
 }
 
