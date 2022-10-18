@@ -30,8 +30,8 @@ export class SessionManager {
 
     /**
      * Get UserManager saved in localStorage or make a new one
-     * @returns UserManager from LocalStorage, new UserManager from ID in LocalStorage, or if neither of those keys exist we just redirect to "/login"
-     * @usage This method is usually called at the TOP of a component's file. There's no need for it to be called again when anything updates beacuase it effectively
+     * @returns UserManager from LocalStorage, new UserManager from ID in LocalStorage, or if neither of those keys exist.
+     * @usage This method is frequently called at the TOP of a component's file. There's no need for it to be called again when anything updates beacuase it effectively
      * keeps track of itself. Putting this method inside a component will make the component fetch a new UserManager from LocalStorage any time anything changes.
      * That's not REALLY a problem, but it's bad practice and clutters the shit out of the console.
      */
@@ -50,7 +50,6 @@ export class SessionManager {
         const id = this.getUserId(); // Get user ID from LS
         if (!id) {
             sessionManagerDebugger.logWithPrefix("Couldn't find a current user Id. Redirecting to /login!'");
-            RouteManager.redirect("/login");
             return null;
         }
         const newManager = DBManager.getUserManager(id);
