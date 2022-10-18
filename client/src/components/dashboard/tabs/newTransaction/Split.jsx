@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Button, Select, InputLabel, FormControl, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress } from '@mui/material';
+import { Button, Select, FormControlLabel, Checkbox, InputLabel, FormControl, Switch, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress, Paper } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import { SessionManager } from "../../../../api/sessionManager";
 import { DBManager } from "../../../../api/db/dbManager";
-import { AvatarToggle } from '../../../resources/Avatars';
+import { AvatarIcon, AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
+import e from 'express';
 
 // Get user mananger from LS (which we know exists becuase we made it to this page)
 const userManager = SessionManager.getCurrentUserManager();
@@ -49,11 +50,12 @@ export default function Split(props) {
             case "add-people":
                 return <AddPeoplePage setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
             case "transaction-details":
-                return <TransactionDetailsPage transactionAmount={transactionAmount} setTransactionAmount={setTransactionAmount} currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} transactionTitle={transactionTitle} setTransactionTitle={setTransactionTitle}/>;
-            case "set-weights":
-                return <SetWeightsPage setSplitPage={setSplitPage}/>;
-            case "money-entry":
-                return <MoneyEntryPage />;
+                return <TransactionDetailsPage setTransactionAmount={setTransactionAmount} currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} setTransactionTitle={setTransactionTitle} peopleInvolved={peopleInvolved}/>;
+            case "even-split":
+                return <WeightSelection manual={false} transactionTitle={transactionTitle} transactionAmount={transactionAmount} peopleInvolved={peopleInvolved}/>;
+            case "manual-split":
+                return <WeightSelection manual={true} transactionTitle={transactionTitle} transactionAmount={transactionAmount} peopleInvolved={peopleInvolved}/>;
+            case "summary":
             default:
                 return <div>Error: invalid split page!</div>
         }
@@ -198,7 +200,7 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     * Check if the next button should be enabled
     */
     function checkNextEnabled() {
-        setNextEnabled(someoneIsSelected || (currentGroup.length > 0 && someoneIsSelectedInGroup));
+        setNextEnabled(someoneIsSelected || (currentGroup && someoneIsSelectedInGroup));
     }
 
     /**
@@ -270,25 +272,42 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
      * Handle next button press, passing on information to next page
      */
     function handleNext() {
+
+        const myself = {
+            id: SessionManager.getUserId(),
+            pfpUrl: SessionManager.getPfpUrl(),
+            displayName: SessionManager.getDisplayName(),
+        }
+
         var contextSet = false;
         if (searchExpanded) {
             var friendsSelected = [];
             for (const friend of friends) {
                 if (friend.selected) {
-                    friendsSelected.push(friend.id);
+                    friendsSelected.push({
+                        id: friend.id,
+                        pfpUrl: friend.pfpUrl,
+                        displayName: friend.displayName
+                    });
                 }
             }
+            friendsSelected.push(myself);
             setPeopleInvolved(friendsSelected);
             contextSet = true;
         }
         if (groupsExpanded) {
-            var userSelected = [];
+            var usersSelected = [];
             for (const user of currentGroupUsers) {
                 if (user.selected) {
-                    userSelected.push(user.id);
+                    usersSelected.push({
+                        id: user.id,
+                        pfpUrl: user.pfpUrl,
+                        displayName: user.displayName
+                    });
                 }
             }
-            setPeopleInvolved(userSelected);
+            usersSelected.push(myself);
+            setPeopleInvolved(usersSelected);
             contextSet = true;
         }
         if (contextSet) {
@@ -303,7 +322,7 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     */
     useEffect(() => {
         setSearchExpanded(someoneIsSelected || searchString.length > 0);
-        setGroupsExpanded(currentGroup.length > 0);
+        setGroupsExpanded(currentGroup ? true : false);
         checkNextEnabled();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [someoneIsSelected, someoneIsSelectedInGroup, searchString, currentGroup])
@@ -398,14 +417,14 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
                     </Input>
                 </FormControl>
             </div>
-            <div className={"friend-preview " + (searchExpanded ? "expanded" : "") + (groupsExpanded ? "hidden" : "")}>
+            <div className={"friend-preview " + (searchExpanded ? "expanded" : "") + (groupsExpanded ? "hidden" : "")} disabled={groupsExpanded}>
                 <div className="avatar-container">
                     <div className="scroller">
                         { populateFriendScroller() }
                     </div>
                 </div>
             </div>
-            <div className={"group-select " + (searchExpanded ? "hidden " : "") + (groupsExpanded ? "expanded" : "")}>
+            <div className={"group-select " + (searchExpanded ? "hidden " : "") + (groupsExpanded ? "expanded" : "")} disabled={searchExpanded}>
                 <div className="divider">
                     <Typography variant="subtitle2">or</Typography>
                 </div>
@@ -438,12 +457,18 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     )
 }
 
-function TransactionDetailsPage({setSplitPage, transactionTitle, transactionAmount, setTransactionAmount, setTransactionTitle, currentGroup, groupPicklistContent}) {
+function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransactionTitle, currentGroup, groupPicklistContent}) {
 
-    const [backButtonHover, setBackButtonHover] = useState(false);  // Whether or not mouse is over the back button
+    const [newTitle, setNewTitle] = useState("");                   // New transaction's title
+    const [newTotal, setNewTotal] = useState(null);                 // New transcation total
+    const [submitEnable, setSubmitEnable] = useState(false);
+    const [totalError, setTotalError] = useState(false);
 
     function renderHeader() {
-        if (currentGroup) {
+        if (currentGroup) { 
+            // Since currentGroup is just an Id, we traverse through the picklist to get the group's name
+            // This is an annoying quirk of how the actual picklist element works. It's a pain in the ass 
+            // but I think this is the best way to get around it at the moment.
             if (currentGroup.length > 0) {
                 for (const group of groupPicklistContent) {
                     if (group.id === currentGroup) {
@@ -460,48 +485,146 @@ function TransactionDetailsPage({setSplitPage, transactionTitle, transactionAmou
         }
     }
 
-    function handleTitleChange(e) {
-        setTransactionTitle(e.target.value);
+    function checkSubmitEnable() {
+        setSubmitEnable(newTitle.length > 0 && newTotal.length > 0 && !totalError)
     }
 
-    function handleAmountChange(e) {
-        setTransactionTitle(e.target.value);
+    function handleTitleChange(e) {
+        setNewTitle(e.target.value);
+        setSubmitEnable(e.target.value.length > 0 && newTotal.length > 0 && !totalError)
+    }
+
+    function handleTotalChange(e) {
+        const result = e.target.value.replace(/\D+/g, '');
+        setNewTotal(result);
+        let errored = false;
+        if (parseInt(result) <= 5 || e.target.value.includes(".")) {
+            errored = true;
+            setTotalError(true);
+        } else {
+            setTotalError(false);
+        }
+        setSubmitEnable(newTitle.length > 0 && result.length > 0 && !errored)
+    }
+
+    function setTransactionDetails() {
+        setTransactionAmount(newTotal);
+        setTransactionTitle(newTitle);
     }
 
     return (
         <div className="split-page-content">
-            <div className={"back-button " + (backButtonHover ? "hover" : "")} onClick={() => setSplitPage("add-people")} onMouseEnter={() => setBackButtonHover(true)} onMouseLeave={() => setBackButtonHover(false)}>
-                <ArrowBackIcon />
-                <Typography marginLeft="5px" variant="subtitle1">Go Back</Typography>
-            </div>
-            <div className="header">
-                { renderHeader() }
-            </div>
-            <div className="transaction-detail-form">
-                <Typography variant="subtitle1">Transaction Title</Typography>
-                <FormControl className="title-text-field">
-                    <TextField
-                        value={transactionTitle}
-                        onChange={handleTitleChange}
-                        label="ex. My Transaction"
-                    >
-                    </TextField>
-                </FormControl>
-                <Typography variant="subtitle1">Total Price</Typography>
-                <FormControl className="title-text-field">
-                    <TextField
-                        value={transactionAmount}
-                        onChange={handleAmountChange}
-                        label="ex. $100"
-                    >
-                    </TextField>
-                </FormControl>
+            <div className="transaction-detail-page">
+                <div className="header">
+                    { renderHeader() }
+                </div>
+                <div className="transaction-detail-form">
+                    <div className="form-input">
+                        <Typography variant="subtitle1">Title:</Typography>
+                        <FormControl className="title-text-field">
+                            <TextField
+                                value={newTitle}
+                                onChange={handleTitleChange}
+                                onBlur={checkSubmitEnable}
+                                onFocus={checkSubmitEnable}
+                                label="ex. My Transaction"
+                            >
+                            </TextField>
+                        </FormControl>
+                    </div>
+                    <div className="form-input">
+                        <Typography variant="subtitle1">Total:</Typography>
+                        <FormControl className="title-text-field">
+                            <TextField
+                                value={newTotal ? newTotal : ""}
+                                onChange={handleTotalChange}
+                                onBlur={checkSubmitEnable}
+                                onFocus={checkSubmitEnable}
+                                label="ex. $100"
+                            >
+                            </TextField>
+                        </FormControl>
+                    </div>
+                </div>
+                <div className={"total-error " + (totalError ? "" : "hidden")}>
+                    <Typography variant="subtitle2" color="red">Total must be whole number greater than $5</Typography>
+                </div>
+                <div className="split-section">                
+                    <Typography variant="h6">How do you want to split this payment?</Typography>
+                    <div className="split-type-buttons">
+                        <Button variant="contained" disabled={!submitEnable} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("even-split")}}>Evenly</Button>
+                        <Button variant="contained" disabled={!submitEnable} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("manual-split")}}>Manually</Button>
+                    </div>
+                </div>
+                <div className="back-button" onClick={() => setSplitPage("add-people")}>
+                    <ArrowBackIcon />
+                    <Typography marginLeft="5px" variant="subtitle1">Go Back</Typography>
+                </div>
             </div>
         </div>
     )
 }
 
-function SetWeightsPage({setSplitPage}) {
+function WeightSelection({transactionTitle, transactionAmount, manual, peopleInvolved}) {
+
+    const peopleMap = new Map();
+
+    const [currentPerson, setCurrentPerson] = useState(0);
+    const [someoneFronted, setSomeoneFronted] = useState(false);
+
+    function renderCurrentCard() {
+        return <WeightCard setCurrentPerson={setCurrentPerson} currentPerson={currentPerson} someoneFronted={someoneFronted} setSomeoneFronted={setSomeoneFronted} key={currentPerson} manual={manual} person={peopleInvolved[currentPerson]} map={peopleMap} />
+    }
+
+    return (
+        <div className="weight-selection-page-wrapper">
+            <div className="header">
+                <Typography variant="h6">{transactionTitle}</Typography>
+                <Typography variant="h6">Total: ${transactionAmount}</Typography>
+            </div>
+            { renderCurrentCard() }
+        </div>
+    )
+}
+
+
+function WeightCard({manual, person, map, someoneFronted, setSomeoneFronted, currentPerson, setCurrentPerson}) {
+
+    const [cardPage, setCardPage] = useState("role-select");
+
+    function handleRoleSelect(roleType) {
+        if (roleType === "fronter") {
+            setSomeoneFronted(true);
+        }
+        map.set(person.id, {
+            role: roleType,
+            amount: null,
+        })
+        if (!manual) {
+            setCurrentPerson(currentPerson + 1);
+        } else {
+            setCardPage("how-much");
+        }
+    }
+
+    return (
+        <Paper className="weight-card" elevation={3}>
+            <div className="user-identification">
+                <AvatarIcon src={person.pfpUrl} displayName={person.displayName} size={100} />
+                <Typography variant="h6">{person.displayName}</Typography>
+            </div>
+            <div className="fronted-question">
+                <Typography variant="subtitle1">Did {person.displayName.substring(0, person.displayName.indexOf(" "))}{someoneFronted ? " also " : " "}front this payment?</Typography>
+                <div className="fronted-buttons">
+                        <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("fronter")}}>Yes</Button>
+                        <Button variant="contained" className="fronted-button" onClick={() => {handleRoleSelect("payer")}}>No</Button>
+                </div>
+            </div>
+        </Paper>
+    )
+}
+
+function SummaryPage({setSplitPage}) {
     return (
         <div className="split-page-content">
             <div className="back-button" onClick={() => setSplitPage("split-type")}>
@@ -513,11 +636,5 @@ function SetWeightsPage({setSplitPage}) {
                 <Button variant="contained">Friends</Button>
             </div>
         </div>
-    )
-}
-
-function MoneyEntryPage() {
-    return (
-        <div>Input finances:</div>
     )
 }

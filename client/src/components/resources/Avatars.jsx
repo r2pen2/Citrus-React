@@ -103,6 +103,10 @@ export function AvatarIcon(props) {
         
     }, [props.id, props.src, props.displayName]);
 
+    // If we've declared a size, return one with sx attr
+    if (props.size) {    
+        return <Avatar src={pfpUrl} alt={displayName} sx={{width: props.size, height: props.size}} />
+    }
     return <Avatar src={pfpUrl} alt={displayName} />
 }
 

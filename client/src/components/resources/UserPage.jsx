@@ -36,7 +36,7 @@ export function AccountTab() {
         }
 
         fetchUserDetails();
-    }, [userManager])
+    }, [])
 
     return (
     <div className="account-content" data-testid="account-content">
