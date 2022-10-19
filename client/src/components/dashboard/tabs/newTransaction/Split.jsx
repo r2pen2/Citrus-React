@@ -577,7 +577,7 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
 
 function WeightSelection({transactionTitle, transactionAmount, manual, peopleInvolved}) {
 
-    const [weightedUsers, setWeightedUsers] = useState([]);
+    const [weightedUsers, setWeightedUsers] = useState(new Map());
 
     const [currentPerson, setCurrentPerson] = useState(0);
     const [someoneFronted, setSomeoneFronted] = useState(false);
@@ -604,20 +604,27 @@ function WeightCard({manual, person, weightedUsers, someoneFronted, setSomeoneFr
     const [cardPage, setCardPage] = useState("role-select");
 
     function handleRoleSelect(roleType) {
-        if (roleType === "fronter") {
-            setSomeoneFronted(true);
-        }
-        const array = weightedUsers;
-        array.push({
-            id: person.id,
-            role: roleType,
-            amount: null  
-        });
-        setWeightedUsers(array);
+        setWeightedUsers(new Map(weightedUsers.set(person.id, {role: roleType, amount: null})));
         if (!manual) {
             setCurrentPerson(currentPerson + 1);
+            if (roleType === "fronter") {
+                setSomeoneFronted(true);
+            }
         } else {
             setCardPage("how-much");
+        }
+    }
+
+    function handleAmountInput(userAmount) {
+        const existingRole = weightedUsers.get(person.id).role;
+        setWeightedUsers(new Map(weightedUsers.set(person.id, {role: existingRole, amount: userAmount})));
+        setCardPage("summary");
+    }
+
+    function handleSummarySubmit() {
+        setCurrentPerson(currentPerson + 1);
+        if (weightedUsers.get(person.id).role === "fronter") {
+            setSomeoneFronted(true);
         }
     }
 
@@ -626,9 +633,9 @@ function WeightCard({manual, person, weightedUsers, someoneFronted, setSomeoneFr
             case "role-select":
                 return <RoleSelect person={person} handleRoleSelect={handleRoleSelect} someoneFronted={someoneFronted}/>;
             case "how-much":
-                return <HowMuch person={person} weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers}/>;
+                return <HowMuch person={person} handleAmountInput={handleAmountInput} role={weightedUsers.get(person.id).role} setCardPage={setCardPage}/>;
             case "summary":
-                return <WeightSummary />;
+                return <WeightSummary person={person} handleSummarySubmit={handleSummarySubmit} weightedUsers={weightedUsers} setCardPage={setCardPage}/>;
             default:
                 return <div>Error: Invalid card page.</div>;
         }
@@ -657,27 +664,17 @@ function RoleSelect({person, handleRoleSelect, someoneFronted}) {
     )
 }
 
-function HowMuch({person, weightedUsers}) {
-
-    console.log(weightedUsers);
+function HowMuch({person, role, handleAmountInput, setCardPage}) {
     
-    function getQuestionByRole() {
-
-        let currentUser = null;
-
-        for (const user of weightedUsers) {
-            if (user.id === person.id) {
-                currentUser = user;
-            }
+    /**
+     * Gets question string by role (fronter or payer)
+     * @returns String representing question
+     */
+    function getQuestion() {
+        if (role === "fronter") {
+            return `How much is ${person.displayName.substring(0, person.displayName.indexOf(" "))} owed?`;
         }
-
-        if (currentUser) {
-            const fronter =  (currentUser.role === "fronter") ? true : false;
-            if (fronter) {
-                return `How much is ${person.displayName.substring(0, person.displayName.indexOf(" "))} owed?`;
-            }
-            return `How much does ${person.displayName.substring(0, person.displayName.indexOf(" "))} owe?`;
-        }
+        return `How much does ${person.displayName.substring(0, person.displayName.indexOf(" "))} owe?`;
     }
 
     const [userAmount, setUserAmount] = useState(null);
@@ -708,13 +705,9 @@ function HowMuch({person, weightedUsers}) {
         }
     }
 
-    function handleNext() {
-        
-    }
-
     return (
         <div className="split-question">
-            <Typography variant="subtitle1">{getQuestionByRole()}</Typography>
+            <Typography variant="subtitle1">{getQuestion()}</Typography>
             <div className="amount-input">
                 <FormControl className="title-text-field">
                     <TextField
@@ -731,15 +724,42 @@ function HowMuch({person, weightedUsers}) {
                 <Typography variant="subtitle2" color="red">Total must be whole number</Typography>
             </div>
             <div className="next-button">
-                <Button variant="contained" disabled={!submitEnable} onClick={() => handleNext()}>Next</Button>
+                <Button variant="contained" disabled={!submitEnable} onClick={() => handleAmountInput(parseInt(userAmount))}>Next</Button>
+            </div>
+            <div className="back-button" onClick={() => setCardPage("role-select")}>
+                <ArrowBackIcon />
+                <Typography marginLeft="5px" variant="subtitle1">Edit</Typography>
             </div>
         </div>
     )
 }
 
-function WeightSummary() {
+function WeightSummary({weightedUsers, person, handleSummarySubmit, setCardPage}) {
+
+    function getSummaryRole() {
+        const role = weightedUsers.get(person.id).role;
+        if (role === "fronter") {
+            return `${person.displayName.substring(0, person.displayName.indexOf(" "))} is owed`;
+        }
+        return `${person.displayName.substring(0, person.displayName.indexOf(" "))} owes`;
+    }
+
+    function getSummaryAmount() {
+        const amount = weightedUsers.get(person.id).amount;
+        return `$${amount}`;
+    }
+
     return (
-        <div className="weight-summary">Summary!
+        <div className="split-question">
+            <Typography variant="subtitle1">{getSummaryRole()}</Typography>
+            <Typography variant="h5">{getSummaryAmount()}</Typography>
+            <div className="next-button">
+                <Button variant="contained" onClick={() => handleSummarySubmit()}>Submit</Button>
+            </div>
+            <div className="back-button" onClick={() => setCardPage("how-much")}>
+                <ArrowBackIcon />
+                <Typography marginLeft="5px" variant="subtitle1">Edit</Typography>
+            </div>
         </div>
     )
 }
