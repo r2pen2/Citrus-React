@@ -311,6 +311,7 @@ export class TransactionUser {
         this.currentBalance = null;
         this.role = _role;
         this.settled = null;
+        this.relations = [];
     }
 
     static roles = {
@@ -389,7 +390,33 @@ export class TransactionUser {
     isPayer() {
         return (this.role === TransactionUser.roles.PAYER);
     }
+
+    addRelation(relation) {
+        this.relations.push(relation);
+    }
+
+    removeRelation(relation) {
+        this.relations = this.relations.filter(r => r.id !== relation.id);
+    }
+
+    getRelation(relationId) {
+        for (const r of this.relations) {
+            if (r.id === relationId) {
+                return r;
+            }
+        }
+    }
 }
+
+export class TransactionRelation {
+    constructor(_fromUser, _toUser, _amount) {
+        this.id = DBManager.generateId(16);
+        this.from = _fromUser;
+        this.to = _toUser;
+        this.amount = _amount;
+    }
+}
+
 
 /**
  * Current user's view of transaction
