@@ -9,6 +9,7 @@ import { SessionManager } from "../../../../api/sessionManager";
 import { DBManager } from "../../../../api/db/dbManager";
 import { AvatarIcon, AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
+import { TransactionRelation } from "../../../../api/db/objectManagers/transactionManager";
 
 // Get user mananger from LS (which we know exists becuase we made it to this page)
 const userManager = SessionManager.getCurrentUserManager();
@@ -53,13 +54,13 @@ export default function Split(props) {
             case "add-people":
                 return <AddPeoplePage setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
             case "transaction-details":
-                return <TransactionDetailsPage setTransactionAmount={setTransactionAmount} currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} setTransactionTitle={setTransactionTitle} peopleInvolved={peopleInvolved}/>;
+                return <TransactionDetailsPage transactionTitle={transactionTitle} transactionAmount={transactionAmount} setTransactionAmount={setTransactionAmount} currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} setTransactionTitle={setTransactionTitle} peopleInvolved={peopleInvolved}/>;
             case "even-split":
                 return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={false} transactionTitle={transactionTitle} transactionAmount={transactionAmount} peopleInvolved={peopleInvolved}/>;
             case "manual-split":
                 return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={true} transactionTitle={transactionTitle} transactionAmount={transactionAmount} peopleInvolved={peopleInvolved}/>;
             case "transaction-summary":
-                return <TransactionSummaryPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} transactionAmount={transactionAmount}/>;
+                return <TransactionSummaryPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} transactionAmount={transactionAmount} setSplitPage={setSplitPage}/>;
             default:
                 return <div>Error: invalid split page!</div>
         }
@@ -474,10 +475,10 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     )
 }
 
-function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransactionTitle, currentGroup, groupPicklistContent}) {
+function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransactionTitle, currentGroup, groupPicklistContent, transactionTitle, transactionAmount}) {
 
-    const [newTitle, setNewTitle] = useState("");                   // New transaction's title
-    const [newTotal, setNewTotal] = useState(null);                 // New transcation total
+    const [newTitle, setNewTitle] = useState(transactionTitle ? transactionTitle : "");                   // New transaction's title
+    const [newTotal, setNewTotal] = useState(transactionAmount ? transactionAmount : null);                 // New transcation total
     const [submitEnable, setSubmitEnable] = useState(false);
     const [totalError, setTotalError] = useState(false);
 
@@ -490,14 +491,14 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
                 for (const group of groupPicklistContent) {
                     if (group.id === currentGroup) {
                         return (
-                            <Typography variant="h6">{group.name}</Typography>
+                            <Typography variant="h6">{group.name}{newTitle.length > 0 ? (": " + newTitle) : ""}</Typography>
                         )
                     }
                 }
             }
         } else {
             return (
-                <Typography variant="h6">New Transaciton with Friends</Typography>
+                newTitle.length > 0 ? <Typography variant="h6">{newTitle}</Typography> : <Typography variant="h6">New Transaciton with Friends</Typography>
             )
         }
     }
@@ -543,7 +544,7 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
 
     return (
         <div className="split-page-content">
-            <div className="transaction-detail-page">
+            <div className="transaction-detail-page" onLoad={() => checkSubmitEnable()}>
                 <div className="header">
                     { renderHeader() }
                 </div>
@@ -889,11 +890,75 @@ function WeightSummary({weightedUsers, person, handleSubmit, goBack}) {
     )
 }
 
-function TransactionSummaryPage({weightedUsers, transactionTitle, transactionAmount}) {
-    
-    console.log(weightedUsers);
+function TransactionSummaryPage({weightedUsers, transactionTitle, transactionAmount, setSplitPage}) {
+
+    const [relations, setRelations] = useState([]);
+
+    useEffect(() => { // Make the relations on component mount
+        let newRelations = [];
+        let fronters = [];
+        let payers = [];
+        let totalOwedToFronters = 0;
+
+        // First, get all fronters and all payers...
+        // Also update totals
+        for (const key of weightedUsers) {
+            const user = key[1];
+            if (user.role === "fronter") {
+                // This is a fronter
+                fronters.push(user);
+                totalOwedToFronters += parseInt(user.amount);
+            } else {
+                // This is a payer
+                payers.push(user);
+            }
+        }
+
+        // Now that we've calculated how much is owed in total, we can start splitting dues evenly.
+        // If person A is owed 50 dollars, person B is owed 30 dollars, person C owes 20 dollars, and person D owes 60 dollars,
+        // we need to make sure that whatever C or D are pay A and B is relative to how much of the total they fronted
+        // The total fronted is "totalOwedToFronters"
+        // Let's make a map that keeps track of fronter ids and how much of the total they paid
+        const fronterRatios = new Map();
+        for (const fronter of fronters) {
+            fronterRatios.set(fronter.id, fronter.amount / totalOwedToFronters);
+        }
+
+        // Now, for each payer, we see how much they owe to each fronter
+        for (const payer of payers) {
+            for (const key of fronterRatios) {
+                const fronterId = key[0];
+                const ratio = key[1];
+                // Calc amt to this fronter...
+                const amountOwedToFronter = payer.amount * ratio;
+                // Make a TransactionRelation...
+                const relation = new TransactionRelation(payer.id, fronterId, amountOwedToFronter);
+                newRelations.push(relation);
+            }
+        }
+        
+        setRelations(newRelations);
+    }, [])
+
+    function renderRelations() {
+        return (<div>Test</div>)
+    }
 
     return (
-        <div>Te</div>
+        <div className="split-page-content">
+            <div className="transaction-summary-page">
+                <div className="header">
+                    <Typography variant="h6">{transactionTitle}</Typography>
+                    <Typography variant="h6">Total: ${transactionAmount}</Typography>
+                </div>
+                <div className="relations">
+                    { renderRelations() }
+                </div>
+                <div className="back-button" onClick={() => setSplitPage("transaction-details")}>
+                    <ArrowBackIcon />
+                    <Typography marginLeft="5px" variant="subtitle1">Cancel</Typography>
+                </div>
+            </div>
+        </div>
     )
 }
