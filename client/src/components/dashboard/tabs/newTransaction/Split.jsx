@@ -1,8 +1,11 @@
 // Library imports
 import { useState, useEffect } from 'react';
-import { Button, Select, FormControlLabel, Checkbox, InputLabel, FormControl, Switch, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress, Paper } from '@mui/material';
+import { Button, Select, CardContent, InputLabel, FormControl, InputAdornment, Input, MenuItem, Typography, TextField, CircularProgress, Paper, TableContainer, TableHead, Table, TableRow, TableCell, TableBody } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
+
+// Component imports
+import { OutlinedCard } from "../../../resources/Surfaces";
 
 // API imports
 import { SessionManager } from "../../../../api/sessionManager";
@@ -10,6 +13,7 @@ import { DBManager } from "../../../../api/db/dbManager";
 import { AvatarIcon, AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
 import { TransactionRelation } from "../../../../api/db/objectManagers/transactionManager";
+import { makeNumeric, cutAtSpace } from '../../../../api/strings';
 
 // Get user mananger from LS (which we know exists becuase we made it to this page)
 const userManager = SessionManager.getCurrentUserManager();
@@ -28,7 +32,6 @@ export default function Split(props) {
     // eslint-disable-next-line no-unused-vars
     const [peopleInvolved, setPeopleInvolved] = useState([]);               // Currently selected users (by id)
     const [transactionTitle, setTransactionTitle] = useState(null);         // Title of this transaction
-    const [transactionAmount, setTransactionAmount] = useState(null);       // Total amount of this transaction
     const [weightedUsers, setWeightedUsers] = useState(new Map());          // Map for keeping track of user roles and amounts
 
     useEffect(() => {
@@ -54,13 +57,15 @@ export default function Split(props) {
             case "add-people":
                 return <AddPeoplePage setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
             case "transaction-details":
-                return <TransactionDetailsPage transactionTitle={transactionTitle} transactionAmount={transactionAmount} setTransactionAmount={setTransactionAmount} currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} setTransactionTitle={setTransactionTitle} peopleInvolved={peopleInvolved}/>;
+                return <TransactionDetailsPage transactionTitle={transactionTitle}currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} setTransactionTitle={setTransactionTitle} peopleInvolved={peopleInvolved}/>;
             case "even-split":
-                return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={false} transactionTitle={transactionTitle} transactionAmount={transactionAmount} peopleInvolved={peopleInvolved}/>;
+                return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={false} transactionTitle={transactionTitle} peopleInvolved={peopleInvolved}/>;
             case "manual-split":
-                return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={true} transactionTitle={transactionTitle} transactionAmount={transactionAmount} peopleInvolved={peopleInvolved}/>;
+                return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={true} transactionTitle={transactionTitle} peopleInvolved={peopleInvolved}/>;
+            case "transaction-amount-error":
+                return <TransactionAmountErrorPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             case "transaction-summary":
-                return <TransactionSummaryPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} transactionAmount={transactionAmount} setSplitPage={setSplitPage}/>;
+                return <TransactionSummaryPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             default:
                 return <div>Error: invalid split page!</div>
         }
@@ -75,15 +80,15 @@ export default function Split(props) {
 
 function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
     
-    const [searchString, setSearchString] = useState("");               // Contents of search box
-    const [friends, setFriends] = useState(null);                       // List of user's friends (stored as objects)
-    const [friendsLoaded, setFriendsLoaded] = useState(false);          // Whether or not friends have loaded personal information yet
-    const [searchExpanded, setSearchExpanded] = useState(false);        // Whether or not search is expanded
-    const [nextEnabled, setNextEnabled] = useState(false);              // Whether or not the "next" button is enabled
-    const [someoneIsSelected, setSomeoneIsSelected] = useState(false);  // Whether or not anyone is currently selected
-    const [groupsExpanded, setGroupsExpanded] = useState(false);        // Whether or not the groups section is expanded
-    const [currentGroupUsers, setCurrentGroupUsers] = useState(null);   // All users in currently selected group
-    const [currentGroupLoaded, setCurrentGroupLoaded] = useState(false);// Whether or not data for users in current group is loaded
+    const [searchString, setSearchString] = useState("");                           // Contents of search box
+    const [friends, setFriends] = useState(null);                                   // List of user's friends (stored as objects)
+    const [friendsLoaded, setFriendsLoaded] = useState(false);                      // Whether or not friends have loaded personal information yet
+    const [searchExpanded, setSearchExpanded] = useState(false);                    // Whether or not search is expanded
+    const [nextEnabled, setNextEnabled] = useState(false);                          // Whether or not the "next" button is enabled
+    const [someoneIsSelected, setSomeoneIsSelected] = useState(false);              // Whether or not anyone is currently selected
+    const [groupsExpanded, setGroupsExpanded] = useState(false);                    // Whether or not the groups section is expanded
+    const [currentGroupUsers, setCurrentGroupUsers] = useState(null);               // All users in currently selected group
+    const [currentGroupLoaded, setCurrentGroupLoaded] = useState(false);            // Whether or not data for users in current group is loaded
     const [someoneIsSelectedInGroup, setSomeoneIsSelectedInGroup] = useState(true); // Flag if a group has nobody selected in it
 
     /**
@@ -475,12 +480,19 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
     )
 }
 
-function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransactionTitle, currentGroup, groupPicklistContent, transactionTitle, transactionAmount}) {
+/**
+ * 
+ * @param {function} setSplitPage used for moving on to the next page of new transaction
+ * @param {string} transactionTitle title of new transaction (possibly filled in from back button press) 
+ * @param {function} setTransactionTitle set title of transaction to input
+ * @param {string} currentGroup id of current group or null
+ * @param {array<object>} groupPicklistContent all groups and some information about them (name, id, people)
+ * @returns 
+ */
+function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup, groupPicklistContent, transactionTitle}) {
 
-    const [newTitle, setNewTitle] = useState(transactionTitle ? transactionTitle : "");                   // New transaction's title
-    const [newTotal, setNewTotal] = useState(transactionAmount ? transactionAmount : null);                 // New transcation total
-    const [submitEnable, setSubmitEnable] = useState(false);
-    const [totalError, setTotalError] = useState(false);
+    const [newTitle, setNewTitle] = useState(transactionTitle ? transactionTitle : "");     // New transaction's title
+    const [submitEnable, setSubmitEnable] = useState(false);                                // Whether or not submit button is enabled
 
     function renderHeader() {
         if (currentGroup) { 
@@ -507,38 +519,15 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
         if (!newTitle) {
             return;
         }
-        if (!newTotal) {
-            return;
-        }
-        setSubmitEnable(newTitle.length > 0 && newTotal.length > 0 && !totalError)
+        return newTitle.length > 0;
     }
 
     function handleTitleChange(e) {
         setNewTitle(e.target.value);
-        if (!newTotal) {
-            return;
-        }
-        setSubmitEnable(e.target.value.length > 0 && newTotal.length > 0 && !totalError)
-    }
-
-    function handleTotalChange(e) {
-        const result = e.target.value.replace(/\D+/g, '');
-        setNewTotal(result);
-        let errored = false;
-        if (parseInt(result) <= 5 || e.target.value.includes(".")) {
-            errored = true;
-            setTotalError(true);
-        } else {
-            setTotalError(false);
-        }
-        if (!newTitle) {
-            return;
-        }
-        setSubmitEnable(newTitle.length > 0 && result.length > 0 && !errored)
+        setSubmitEnable(e.target.value.length > 0);
     }
 
     function setTransactionDetails() {
-        setTransactionAmount(newTotal);
         setTransactionTitle(newTitle);
     }
 
@@ -562,28 +551,12 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
                             </TextField>
                         </FormControl>
                     </div>
-                    <div className="form-input">
-                        <Typography variant="subtitle1">Total:</Typography>
-                        <FormControl className="title-text-field">
-                            <TextField
-                                value={newTotal ? newTotal : ""}
-                                onChange={handleTotalChange}
-                                onBlur={checkSubmitEnable}
-                                onFocus={checkSubmitEnable}
-                                label="ex. 100"
-                            >
-                            </TextField>
-                        </FormControl>
-                    </div>
-                </div>
-                <div className={"number-error " + (totalError ? "" : "hidden")}>
-                    <Typography variant="subtitle2" color="red">Total must be whole number greater than $5</Typography>
                 </div>
                 <div className="split-section">                
                     <Typography variant="h6">How do you want to split this payment?</Typography>
                     <div className="split-type-buttons">
-                        <Button variant="contained" disabled={!submitEnable} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("even-split")}}>Evenly</Button>
-                        <Button variant="contained" disabled={!submitEnable} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("manual-split")}}>Manually</Button>
+                        <Button variant="contained" disabled={!checkSubmitEnable()} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("even-split")}}>Evenly</Button>
+                        <Button variant="contained" disabled={!checkSubmitEnable()} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("manual-split")}}>Manually</Button>
                     </div>
                 </div>
                 <div className="back-button" onClick={() => setSplitPage("add-people")}>
@@ -599,13 +572,12 @@ function TransactionDetailsPage({setSplitPage, setTransactionAmount, setTransact
  * Page for entering each user's role (and if manual how much everyone is owed/owes)
  * @param {function} setSplitPage function for setting current split page (used for back button on first question)
  * @param {string} transactionTitle title of this transaction
- * @param {number} transactionAmount total amount of transaction
  * @param {boolean} manual whether or not this transaction will be weighted manually
  * @param {array<Object>} peopleInvolved an array of all people involved in this transaction (id, displayName, and pfpUrl)
  * @param {Map} weightedUsers map of all processed users in this transaction
  * @param {function} setWeightedUsers setter function for weightedUsers
  */
-function WeightSelection({setSplitPage, transactionTitle, transactionAmount, manual, peopleInvolved, weightedUsers, setWeightedUsers}) {
+function WeightSelection({setSplitPage, transactionTitle, manual, peopleInvolved, weightedUsers, setWeightedUsers}) {
 
     const [currentPerson, setCurrentPerson] = useState(0);          // Int for keeping track of which person in the list of people we're currently looking at
     const [someoneFronted, setSomeoneFronted] = useState(false);    // Boolean representing whether or not someone has been declared as a fronter yet
@@ -621,7 +593,6 @@ function WeightSelection({setSplitPage, transactionTitle, transactionAmount, man
         <div className="weight-selection-page-wrapper">
             <div className="header">
                 <Typography variant="h6">{transactionTitle}</Typography>
-                <Typography variant="h6">Total: ${transactionAmount}</Typography>
                 <Typography variant="h6">Users endered: {currentPerson}/{peopleInvolved.length}</Typography>
             </div>
             { renderCurrentCard() }
@@ -644,7 +615,7 @@ function WeightSelection({setSplitPage, transactionTitle, transactionAmount, man
  */
 function WeightCard({setSplitPage, manual, person, weightedUsers, setWeightedUsers, someoneFronted, setSomeoneFronted, currentPerson, setCurrentPerson, totalPeople}) {
 
-    const [cardPage, setCardPage] = useState("role-select");    // Id of current page to display (role-select, how-much, or summary)
+    const [cardPage, setCardPage] = useState("how-much");    // Id of current page to display (how-much or summary)
 
     /**
      * Set current user's role in map and either move on to how-much or next person if this transaction isn't weighted manually
@@ -668,11 +639,11 @@ function WeightCard({setSplitPage, manual, person, weightedUsers, setWeightedUse
 
     /**
      * Set a current user's amount owed in the map and move on to summary
-     * @param {number} userAmount amount of money that this user is owed/owes 
+     * @param {number} amountPaid amount of money that this user paid
+     * @param {number} amountShouldHavePaid amount of money that this user should have paid 
      */
-    function handleAmountInput(userAmount) {
-        const existingRole = weightedUsers.get(person.id).role;
-        setWeightedUsers(new Map(weightedUsers.set(person.id, {role: existingRole, amount: userAmount})));
+    function handleAmountInput(amountPaid, amountShouldHavePaid) {
+        setWeightedUsers(new Map(weightedUsers.set(person.id, {paid: amountPaid, shouldHavePaid: amountShouldHavePaid})));
         setCardPage("weight-summary");
     }
 
@@ -680,11 +651,24 @@ function WeightCard({setSplitPage, manual, person, weightedUsers, setWeightedUse
      * Confirm user details and move on to next person
      */
     function handleSummarySubmit() {
-        if (weightedUsers.get(person.id).role === "fronter") {
-            setSomeoneFronted(true);
+
+        function checkWeightedUsersValid() {
+            let totalPaid = 0;
+            let totalShouldHavePaid = 0;
+            for (const key of weightedUsers) {
+                const user = key[1];
+                totalPaid += user.paid;
+                totalShouldHavePaid += user.shouldHavePaid;
+            }
+            return (totalPaid === totalShouldHavePaid);
         }
+
         if (currentPerson + 1 >= totalPeople) {
-            setSplitPage("transaction-summary");
+            if (checkWeightedUsersValid()) {
+                setSplitPage("transaction-summary");
+            } else {
+                setSplitPage("transaction-amount-error")
+            }
         } else {
             setCurrentPerson(currentPerson + 1);
         }
@@ -692,10 +676,8 @@ function WeightCard({setSplitPage, manual, person, weightedUsers, setWeightedUse
 
     function renderCardPage() {
         switch (cardPage) {
-            case "role-select":
-                return <RoleSelect person={person} handleSubmit={handleRoleSelect} someoneFronted={someoneFronted} goBack={() => setSplitPage("transaction-details")}/>;
             case "how-much":
-                return <HowMuch person={person} handleSubmit={handleAmountInput} role={weightedUsers.get(person.id).role} goBack={() => setCardPage("role-select")}/>;
+                return <HowMuch person={person} handleSubmit={handleAmountInput} goBack={() => setSplitPage("transaction-details")}/>;
             case "weight-summary":
                 return <WeightSummary person={person} handleSubmit={handleSummarySubmit} weightedUsers={weightedUsers} goBack={() => setCardPage("how-much")}/>;
             default:
@@ -716,76 +698,45 @@ function WeightCard({setSplitPage, manual, person, weightedUsers, setWeightedUse
 }
 
 /**
- * Page asking whether current person is a fronter or a payer in this transaction
- * @param {object} person object containing current person's id, displayName, and pfpUrl
- * @param {boolean} someoneFronted whether or not anyone has been declared as a fronter in this transaction yet
- * @param {function} handleSubmit function to be called on submit butt on press
- * @param {function} goBack function to be called on back button press
- * @returns 
- */
-function RoleSelect({person, someoneFronted, handleSubmit, goBack}) {
-    
-    /**
-     * Returns string asking if user fronter or not
-     */
-    function getQuestionString() {
-        const name = person.self ? "you" : person.displayName.substring(0, person.displayName.indexOf(" "))
-        const also = someoneFronted ? "also" : "";
-        return `Did ${name} ${also} front this payment?`;
-    }
-    
-    return (
-        <div className="split-question">
-            <Typography variant="subtitle1">{getQuestionString()}</Typography>
-            <div className="fronted-buttons">
-                <Button variant="contained" className="fronted-button" onClick={() => {handleSubmit("fronter")}}>Yes</Button>
-                <Button variant="contained" className="fronted-button" onClick={() => {handleSubmit("payer")}}>No</Button>
-            </div>
-            <div className="back-button" onClick={() => goBack()}>
-                <ArrowBackIcon />
-                <Typography marginLeft="5px" variant="subtitle1">Edit</Typography>
-            </div>
-        </div>
-    )
-}
-
-/**
  * Page asking how much each user is owed/owes
  * @param {object} person object containing person's id, displayName, and pfpUrl 
- * @param {role} string current person's role in this transaction 
  * @param {function} handleSubmit function to be called on submit button press
  * @param {function} goBack cardPage setter function (abstracted w/ different name)  
  * @returns 
  */
-function HowMuch({person, role, handleSubmit, goBack}) {
+function HowMuch({person, handleSubmit, goBack}) {
 
-    const [userAmount, setUserAmount] = useState(null);         // Value of amount input box
-    const [submitEnable, setSubmitEnable] = useState(false);    // Whether or not submit button is enabled
+    const [amountPaid, setAmountPaid] = useState(null);                     // Value of paid input box
+    const [amountShouldHavePaid, setAmountShouldHavePaid] = useState(null); // Value of should have paid input box
+    const [submitEnable, setSubmitEnable] = useState(false);                // Whether or not submit button is enabled
     
     /**
-     * Gets question string by role (fronter or payer)
+     * Gets paid question string
      * @returns String representing question
      */
-    function getQuestion() {
-        const toOwe = (role === "fronter") ? "owed" : "owe";
-        const name = person.self ? "you" : person.displayName.substring(0, person.displayName.indexOf(" "));
-        if (person.self) {
-            const toBe = (role === "fronter") ? "are" : "do";
-            return `How much ${toBe} ${name} ${toOwe}?`;
-        } else {
-            const toBe = (role === "fronter") ? "is" : "does";
-            return `How much ${toBe} ${name} ${toOwe}?`;
-        }
+    function getPaidQuestion() {
+        const name = person.self ? "you" : cutAtSpace(person.displayName);
+        return `How much did ${name} pay?`;
+    }
+
+    /**
+     * Gets should have paid string
+     * @returns String representing question
+     */
+    function getShouldHavePaidQuestion() {
+        const name = person.self ? "you" : cutAtSpace(person.displayName);
+        return `How much should ${name} have paid?`;
     }
 
     /**
      * Format string and set userAmount to new value
      * Check for errors and check if submit can be enabled
      * @param {event} e keypress event that triggered this function
+     * @param {function} setter function for setting new val
      */
-    function handleAmountChange(e) {
-        const result = e.target.value.replace(/\D+/g, '');
-        setUserAmount(result);
+    function handleAmountChange(e, setter) {
+        const result = makeNumeric(e.target.value);
+        setter(result);
         setSubmitEnable(result.length > 0)
     }
 
@@ -795,29 +746,42 @@ function HowMuch({person, role, handleSubmit, goBack}) {
      * @returns whether or not submit button should be enabled
      */
     function checkSubmitEnable() {
-        if (!userAmount) {
+        if (!amountPaid || !amountShouldHavePaid) {
             return;
         }
-        setSubmitEnable(userAmount.length > 0);
+        setSubmitEnable(amountPaid.length > 0 && amountShouldHavePaid.length > 0);
     }
 
     return (
         <div className="split-question">
-            <Typography variant="subtitle1">{getQuestion()}</Typography>
+            <Typography variant="subtitle1">{getPaidQuestion()}</Typography>
             <div className="amount-input">
                 <FormControl className="title-text-field">
                     <TextField
-                        value={userAmount ? userAmount : ""}
-                        onChange={handleAmountChange}
+                        value={amountPaid ? amountPaid : ""}
+                        onChange={(e) => handleAmountChange(e, setAmountPaid)}
                         onBlur={checkSubmitEnable}
                         onFocus={checkSubmitEnable}
-                        label="$"
+                        label="$ Paid"
+                    >
+                    </TextField>
+                </FormControl>
+            </div>
+            <Typography variant="subtitle1">{getShouldHavePaidQuestion()}</Typography>
+            <div className="amount-input">
+                <FormControl className="title-text-field">
+                    <TextField
+                        value={amountShouldHavePaid ? amountShouldHavePaid : ""}
+                        onChange={(e) => handleAmountChange(e, setAmountShouldHavePaid)}
+                        onBlur={checkSubmitEnable}
+                        onFocus={checkSubmitEnable}
+                        label="$ Ideal"
                     >
                     </TextField>
                 </FormControl>
             </div>
             <div className="next-button">
-                <Button variant="contained" disabled={!submitEnable} onClick={() => handleSubmit(parseInt(userAmount))}>Next</Button>
+                <Button variant="contained" disabled={!submitEnable} onClick={() => handleSubmit(parseInt(amountPaid), parseInt(amountShouldHavePaid))}>Next</Button>
             </div>
             <div className="back-button" onClick={() => goBack()}>
                 <ArrowBackIcon />
@@ -837,31 +801,19 @@ function HowMuch({person, role, handleSubmit, goBack}) {
 function WeightSummary({weightedUsers, person, handleSubmit, goBack}) {
 
     /**
-     * Get a string representing whether or not the user is owed money or owes money
-     * @returns Role string
-     */
-    function getSummaryRole() {
-        const role = weightedUsers.get(person.id).role;
-        if (role === "fronter") {
-            return `${person.displayName.substring(0, person.displayName.indexOf(" "))} is owed`;
-        }
-        return `${person.displayName.substring(0, person.displayName.indexOf(" "))} owes`;
-    }
-
-    /**
      * Gets question string by role (fronter or payer)
      * @returns String representing question
      */
     function getSummaryRole() {
-        const role = weightedUsers.get(person.id).role;
-        const name = person.self ? "You" : person.displayName.substring(0, person.displayName.indexOf(" "));
+        const owed = (weightedUsers.get(person.id).paid > weightedUsers.get(person.id).shouldHavePaid);
+        const name = person.self ? "You" : cutAtSpace(person.displayName);
         if (person.self) {
-            const toOwe = (role === "fronter") ? "owed" : "owe";
-            const toBe = (role === "fronter") ? " are " : " ";
+            const toOwe = owed ? "owed" : "owe";
+            const toBe = owed ? " are " : " ";
             return `${name}${toBe}${toOwe}`;
         } else {
-            const toOwe = (role === "fronter") ? "owed" : "owes";
-            const toBe = (role === "fronter") ? " is " : " ";
+            const toOwe = owed ? "owed" : "owes";
+            const toBe = owed ? " is " : " ";
             return `${name}${toBe}${toOwe}`;
         }
     }
@@ -871,7 +823,7 @@ function WeightSummary({weightedUsers, person, handleSubmit, goBack}) {
      * @returns Amount string
      */
     function getSummaryAmount() {
-        const amount = weightedUsers.get(person.id).amount;
+        const amount = Math.abs((weightedUsers.get(person.id).paid - weightedUsers.get(person.id).shouldHavePaid));
         return `$${amount}`;
     }
 
@@ -890,58 +842,47 @@ function WeightSummary({weightedUsers, person, handleSubmit, goBack}) {
     )
 }
 
-function TransactionSummaryPage({weightedUsers, transactionTitle, transactionAmount, setSplitPage}) {
+function TransactionAmountErrorPage({weightedUsers, transactionTitle, setSplitPage, peopleInvolved}) {
 
-    const [relations, setRelations] = useState([]);
+    const [totalPaid, setTotalPaid] = useState(0);
+    const [totalShouldHavePaid, setTotalShouldHavePaid] = useState(0);
 
-    useEffect(() => { // Make the relations on component mount
-        let newRelations = [];
-        let fronters = [];
-        let payers = [];
-        let totalOwedToFronters = 0;
+    function createData(displayName, amountPaid, amountShouldHavePaid, userId) {
+        return { displayName, amountPaid, amountShouldHavePaid, userId };
+    }
 
-        // First, get all fronters and all payers...
-        // Also update totals
+    const [tableRows, setTableRows] = useState(initRows());
+
+    function initRows() {
+        // Create rows for table
+        let newTableData = [];
         for (const key of weightedUsers) {
             const user = key[1];
-            if (user.role === "fronter") {
-                // This is a fronter
-                fronters.push(user);
-                totalOwedToFronters += parseInt(user.amount);
-            } else {
-                // This is a payer
-                payers.push(user);
+            let displayName = "";
+            for (const p of peopleInvolved) {
+                if (p.id === key[0]) {
+                    displayName = p.displayName;
+                }
             }
+            newTableData.push(createData(displayName, user.paid, user.shouldHavePaid, key[0]));
         }
+        return newTableData;
+    }
 
-        // Now that we've calculated how much is owed in total, we can start splitting dues evenly.
-        // If person A is owed 50 dollars, person B is owed 30 dollars, person C owes 20 dollars, and person D owes 60 dollars,
-        // we need to make sure that whatever C or D are pay A and B is relative to how much of the total they fronted
-        // The total fronted is "totalOwedToFronters"
-        // Let's make a map that keeps track of fronter ids and how much of the total they paid
-        const fronterRatios = new Map();
-        for (const fronter of fronters) {
-            fronterRatios.set(fronter.id, fronter.amount / totalOwedToFronters);
+    useEffect(() => { // Make count totals on mount
+        let tp = 0;
+        let tshp = 0;
+        for (const key of weightedUsers) {
+            const user = key[1];
+            tp += user.paid;
+            tshp += user.shouldHavePaid;
         }
+        setTotalPaid(tp);
+        setTotalShouldHavePaid(tshp);
+    }, [weightedUsers])
 
-        // Now, for each payer, we see how much they owe to each fronter
-        for (const payer of payers) {
-            for (const key of fronterRatios) {
-                const fronterId = key[0];
-                const ratio = key[1];
-                // Calc amt to this fronter...
-                const amountOwedToFronter = payer.amount * ratio;
-                // Make a TransactionRelation...
-                const relation = new TransactionRelation(payer.id, fronterId, amountOwedToFronter);
-                newRelations.push(relation);
-            }
-        }
-        
-        setRelations(newRelations);
-    }, [])
+    function handleCellChange(event, changeField, id) {
 
-    function renderRelations() {
-        return (<div>Test</div>)
     }
 
     return (
@@ -949,7 +890,164 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, transactionAmo
             <div className="transaction-summary-page">
                 <div className="header">
                     <Typography variant="h6">{transactionTitle}</Typography>
-                    <Typography variant="h6">Total: ${transactionAmount}</Typography>
+                    <Typography variant="subtitle1">Oh no! There's something wrong!</Typography>
+                </div>
+                <div className="table">
+                    <TableContainer component={Paper}>
+                      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+                        <caption>Edit values so that these totals are the same.</caption>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>User</TableCell>
+                            <TableCell align="right">$ Paid</TableCell>
+                            <TableCell align="right">$ Should Pay</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {tableRows.map((row) => (
+                                <TableRow key={row.displayName} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} >
+                                    <TableCell component="th" scope="row">
+                                        {row.displayName}
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        <div className="cell-input">
+                                            <FormControl className="title-text-field">
+                                                <TextField
+                                                    value={row.amountPaid}
+                                                    onChange={(e) => handleCellChange(e, row.userId, "paid")}
+                                                    label="$ Paid"
+                                                >
+                                                </TextField>
+                                            </FormControl>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell align="right">
+                                        {row.amountShouldHavePaid}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            <TableRow>
+                                <TableCell colSpan={1} align="right">Totals</TableCell>
+                                <TableCell align="right">{totalPaid}</TableCell>
+                                <TableCell align="right">{totalShouldHavePaid}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                </div>
+                <div className="back-button" onClick={() => setSplitPage("transaction-details")}>
+                    <ArrowBackIcon />
+                    <Typography marginLeft="5px" variant="subtitle1">Cancel</Typography>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, peopleInvolved}) {
+
+    const [relations, setRelations] = useState([]);
+    const [transactionTotal, setTransactionTotal] = useState(0);
+
+    useEffect(() => { // Make the relations on component mount
+        let newRelations = [];
+        let bystanders = [];
+        let negativeUsers = [];
+        let positiveUsers = [];
+        let totalOwed = 0;
+        let totalPaid = 0;
+
+        // First, get all fronters and all payers...
+        // Also update totals
+        for (const key of weightedUsers) {
+            const user = key[1];
+            totalPaid += user.paid;
+            if (user.paid === user.shouldHavePaid) {
+                // This is a bystander lol
+                bystanders.push(key);
+            } else {
+                if (user.paid > user.shouldHavePaid) {
+                    // This person is owed money
+                    totalOwed += user.paid - user.shouldHavePaid;
+                    negativeUsers.push(key);
+                } else {
+                    // This person owes money
+                    positiveUsers.push(key);
+                }
+            }
+        }
+
+        // Create a map of the ratios between a how much a user is owed and the total amount owed
+        const ratioMap = new Map();
+        for (const key of negativeUsers) {
+            const user = key[1];
+            ratioMap.set(key[0], (user.paid - user.shouldHavePaid) / totalOwed);
+        }
+
+        // Now create relations from all people who owe money to those who are owed
+        for (const senderKey of positiveUsers) {
+            const senderId = senderKey[0];
+            const sender = senderKey[1];
+            for (const receiverKey of negativeUsers) {
+                const receiverId = receiverKey[0];
+                console.log(senderKey)
+                const amountToSend = (sender.shouldHavePaid - sender.paid) * ratioMap.get(receiverId);
+                const relation = new TransactionRelation(senderId, receiverId, amountToSend);
+                newRelations.push(relation);
+            }
+        }
+        console.log(newRelations)
+        setRelations(newRelations);
+        setTransactionTotal(totalPaid);
+    }, [weightedUsers])
+
+    function renderRelations() {
+
+        function getName(userId) {
+            for (const user of peopleInvolved) {
+                if (user.id === userId) {
+                    return user.displayName;
+                }
+            }
+        }
+
+        function getSrc(userId) {
+            for (const user of peopleInvolved) {
+                if (user.id === userId) {
+                    return user.pfpUrl;
+                }
+            }
+        }
+
+        return (
+            relations.map((relation, index) => {
+                return (
+                    <OutlinedCard key={index}>
+                        <CardContent>
+                            <div className="relation-card-content-container">
+                                <div className="relation-content">
+                                    <AvatarIcon src={getSrc(relation.from)} alt={"From user photo"}/>
+                                    <Typography variant="subtitle1" color="primary">${relation.amount}</Typography>
+                                    <Typography variant="subtitle1" color="primary">⟹</Typography>
+                                    <AvatarIcon src={getSrc(relation.from)} alt={"To user photo"}/>
+                                </div>
+                                <div className="relation-content">
+                                    <Typography>{cutAtSpace(getName(relation.from))} owes {cutAtSpace(getName(relation.to))} ${relation.amount}</Typography>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </OutlinedCard>
+                )
+            })
+        )
+    }
+
+    return (
+        <div className="split-page-content">
+            <div className="transaction-summary-page">
+                <div className="header">
+                    <Typography variant="h6">{transactionTitle}</Typography>
+                    <Typography variant="h6">Total Paid: ${transactionTotal}</Typography>
                 </div>
                 <div className="relations">
                     { renderRelations() }

@@ -272,44 +272,13 @@ export class TransactionManager extends ObjectManager {
             resolve(new TransactionContext(currentUser, fronters, payers));
         })
     }
-
-    createFronter(userId) {
-        return new TransactionUser(userId, TransactionUser.roles.FRONTER);
-    }
-
-    createPayer(userId) {
-        return new TransactionUser(userId, TransactionUser.roles.PAYER);
-    }
-
-    async getFronters() {
-        const transactionUsers = await this.getUsers();
-        let transactionFronters = [];
-        for (const user of transactionUsers) {
-            if (user.role === TransactionUser.roles.FRONTER) {
-                transactionFronters.push(user);
-            }
-        }
-        return transactionFronters
-    }
-
-    async getPayers() {
-        const transactionUsers = await this.getUsers();
-        let transactionPayers = [];
-        for (const user of transactionUsers) {
-            if (user.role === TransactionUser.roles.PAYER) {
-                transactionPayers.push(user);
-            }
-        }
-        return transactionPayers
-    }
 }
 
 export class TransactionUser {
-    constructor(_id, _role) {
+    constructor(_id) {
         this.id = _id;
         this.initialBalance = null;
         this.currentBalance = null;
-        this.role = _role;
         this.settled = null;
         this.relations = [];
     }

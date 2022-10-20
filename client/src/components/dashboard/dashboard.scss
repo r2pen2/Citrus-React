@@ -747,12 +747,43 @@
     }
 
     .transaction-summary-page {
+        width: 100%;
+        height: 100%;
         .header {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+        }
+
+        .relations {
+            padding-left: 5vw;
+            padding-right: 5vw;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            height: 60%;
+
+            .relation-card-content-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+                justify-content: space-between;
+
+                .relation-content {
+                    gap: 10px;
+                    display: flex;
+                    flex-direction: row;
+                    height: 100%;
+                    justify-content: center;
+                    align-items: center;
+                }
+            }
+        }
+
+        .table {
+            padding: 20px;
         }
     }
 }

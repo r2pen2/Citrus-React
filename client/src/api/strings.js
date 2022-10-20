@@ -122,3 +122,21 @@ export function cutAtIndex(string, index) {
         return string.slice(0, index) + "...";
     }
 }
+
+/**
+ * Remove all non-numeric characters from a string
+ * @param {string} string string to remove all non-numeric chars
+ * @returns string w/ only numbers
+ */
+export function makeNumeric(string) {
+    return string.replace(/\D+/g, '');
+}
+
+/**
+ * Return everything in a string up until the first space
+ * @param {string} string string to cut
+ * @returns string cut at first space
+ */
+export function cutAtSpace(string) {
+    return string.substring(0, string.indexOf(" "))
+}
