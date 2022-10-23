@@ -784,6 +784,15 @@
 
         .table {
             padding: 20px;
+
+            .cell-input {
+            }
+        }
+
+        .next-button {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
         }
     }
 }

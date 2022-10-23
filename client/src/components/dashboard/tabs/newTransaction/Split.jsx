@@ -63,7 +63,7 @@ export default function Split(props) {
             case "manual-split":
                 return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={true} transactionTitle={transactionTitle} peopleInvolved={peopleInvolved}/>;
             case "transaction-amount-error":
-                return <TransactionAmountErrorPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
+                return <TransactionAmountErrorPage weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             case "transaction-summary":
                 return <TransactionSummaryPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             default:
@@ -657,8 +657,8 @@ function WeightCard({setSplitPage, manual, person, weightedUsers, setWeightedUse
             let totalShouldHavePaid = 0;
             for (const key of weightedUsers) {
                 const user = key[1];
-                totalPaid += user.paid;
-                totalShouldHavePaid += user.shouldHavePaid;
+                totalPaid += parseInt(user.paid);
+                totalShouldHavePaid += parseInt(user.shouldHavePaid);
             }
             return (totalPaid === totalShouldHavePaid);
         }
@@ -762,6 +762,7 @@ function HowMuch({person, handleSubmit, goBack}) {
                         onChange={(e) => handleAmountChange(e, setAmountPaid)}
                         onBlur={checkSubmitEnable}
                         onFocus={checkSubmitEnable}
+                        type="number"
                         label="$ Paid"
                     >
                     </TextField>
@@ -775,7 +776,8 @@ function HowMuch({person, handleSubmit, goBack}) {
                         onChange={(e) => handleAmountChange(e, setAmountShouldHavePaid)}
                         onBlur={checkSubmitEnable}
                         onFocus={checkSubmitEnable}
-                        label="$ Ideal"
+                        type="number"
+                        label="$ Should Pay"
                     >
                     </TextField>
                 </FormControl>
@@ -842,7 +844,7 @@ function WeightSummary({weightedUsers, person, handleSubmit, goBack}) {
     )
 }
 
-function TransactionAmountErrorPage({weightedUsers, transactionTitle, setSplitPage, peopleInvolved}) {
+function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactionTitle, setSplitPage, peopleInvolved}) {
 
     const [totalPaid, setTotalPaid] = useState(0);
     const [totalShouldHavePaid, setTotalShouldHavePaid] = useState(0);
@@ -851,9 +853,29 @@ function TransactionAmountErrorPage({weightedUsers, transactionTitle, setSplitPa
         return { displayName, amountPaid, amountShouldHavePaid, userId };
     }
 
-    const [tableRows, setTableRows] = useState(initRows());
+    const [tableRows, setTableRows] = useState([]);
 
-    function initRows() {
+
+
+    /**
+     * Submit new map and move on to summary
+     */
+     function handleSubmit() {
+        // Inputs will always be valid if submit button is enabled
+        setSplitPage("transaction-summary");
+    }
+
+    useEffect(() => { // Make count totals on mount
+        let tp = 0;
+        let tshp = 0;
+        for (const key of weightedUsers) {
+            const user = key[1];
+            tp += parseInt(user.paid);
+            tshp += parseInt(user.shouldHavePaid);
+        }
+        setTotalPaid(tp);
+        setTotalShouldHavePaid(tshp);
+        
         // Create rows for table
         let newTableData = [];
         for (const key of weightedUsers) {
@@ -866,23 +888,23 @@ function TransactionAmountErrorPage({weightedUsers, transactionTitle, setSplitPa
             }
             newTableData.push(createData(displayName, user.paid, user.shouldHavePaid, key[0]));
         }
-        return newTableData;
-    }
+        setTableRows(newTableData);
 
-    useEffect(() => { // Make count totals on mount
-        let tp = 0;
-        let tshp = 0;
-        for (const key of weightedUsers) {
-            const user = key[1];
-            tp += user.paid;
-            tshp += user.shouldHavePaid;
+    }, [weightedUsers, peopleInvolved])
+
+    function handleCellChange(event, id, changeField) {
+        const inputVal = parseInt(makeNumeric(event.target.value));
+        console.log(changeField)
+        if (changeField === "paid") {
+            // This is the "paid" input
+            weightedUsers.set(id, {paid: inputVal, shouldHavePaid: weightedUsers.get(id).shouldHavePaid});
+            setWeightedUsers(new Map(weightedUsers));
+
+        } else if (changeField === "should-have-paid") {
+            // This is the "should have paid" input
+            weightedUsers.set(id, {paid: weightedUsers.get(id).paid, shouldHavePaid: inputVal});
+            setWeightedUsers(new Map(weightedUsers));
         }
-        setTotalPaid(tp);
-        setTotalShouldHavePaid(tshp);
-    }, [weightedUsers])
-
-    function handleCellChange(event, changeField, id) {
-
     }
 
     return (
@@ -911,18 +933,31 @@ function TransactionAmountErrorPage({weightedUsers, transactionTitle, setSplitPa
                                     </TableCell>
                                     <TableCell align="right">
                                         <div className="cell-input">
-                                            <FormControl className="title-text-field">
+                                            <FormControl className="table-field">
                                                 <TextField
                                                     value={row.amountPaid}
                                                     onChange={(e) => handleCellChange(e, row.userId, "paid")}
+                                                    inputProps={{min: 0, style: { textAlign: 'center' }}}
                                                     label="$ Paid"
+                                                    type="number"
                                                 >
                                                 </TextField>
                                             </FormControl>
                                         </div>
                                     </TableCell>
                                     <TableCell align="right">
-                                        {row.amountShouldHavePaid}
+                                        <div className="cell-input">
+                                            <FormControl className="table-field">
+                                                <TextField
+                                                    value={row.amountShouldHavePaid}
+                                                    onChange={(e) => handleCellChange(e, row.userId, "should-have-paid")}
+                                                    inputProps={{min: 0,  style: { textAlign: 'center' }}}
+                                                    type="number"
+                                                    label="$ Should Pay"
+                                                >
+                                                </TextField>
+                                            </FormControl>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -934,6 +969,9 @@ function TransactionAmountErrorPage({weightedUsers, transactionTitle, setSplitPa
                         </TableBody>
                       </Table>
                     </TableContainer>
+                </div>
+                <div className="next-button">
+                    <Button variant="contained" disabled={(totalPaid !== totalShouldHavePaid)} onClick={() => {handleSubmit()}}>Submit</Button>
                 </div>
                 <div className="back-button" onClick={() => setSplitPage("transaction-details")}>
                     <ArrowBackIcon />
