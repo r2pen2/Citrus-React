@@ -1,5 +1,6 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
+import { SessionManager } from "../../sessionManager";
 
 /**
  * Object Manager for transactions
@@ -254,6 +255,11 @@ export class TransactionManager extends ObjectManager {
         super.addChange(titleChange);
     }
     
+    setTotal(newTotal) {
+        const totalChange = new Set(this.fields.TOTAL, newTotal);
+        super.addChange(totalChange);
+    }
+    
     setGroup(newGroup) {
         const groupChange = new Set(this.fields.GROUP, newGroup);
         super.addChange(groupChange);
@@ -276,46 +282,67 @@ export class TransactionManager extends ObjectManager {
     // ================= Sub-Object Functions ================= //
 
     /**
-     * Get user's view of transaciton
-     * @param {string} userId userId to create context for
-     * @returns TransactionContext object
-     */
-    async getContext(userId) {
-        return new Promise(async (resolve, reject) => {
-
-            // Get user's role
-            const fronters = await this.getFronters();
-            const payers = await this.getPayers();
-            let currentUser = null;
-            let role = null;
-
-            for (const fronter of fronters) {
-                if (fronter.id === userId) {
-                    role = TransactionUser.roles.FRONTER;
-                    currentUser = fronter;
-                }
-            }
-            for (const payer of payers) {
-                if (payer.id === userId) {
-                    role = TransactionUser.roles.PAYER;
-                    currentUser = payer;
-                }
-            }
-            if (!role) {
-                this.debugger.logWithPrefix("Failed to get context for user because they're neither a fronter nor a payer.");
-                resolve(null);
-            }
-            resolve(new TransactionContext(currentUser, fronters, payers));
-        })
-    }
-
-    /**
      * Get group manager for this transaction
      */
     async getGroupManager() {
         return new Promise(async (resolve, reject) => {
             const group = await this.getGroup();
             resolve(DBManager.getGroupManager(group));
+        })
+    }
+
+    /**
+     * Get a certain user in this transaction
+     * @param userId id of user to lookup
+     */
+    async getUser(userId) {
+        return new Promise(async (resolve, reject) => {
+            const allUsers = await this.getUsers();
+            let retVal = null;
+            for (const u of allUsers) {
+                if (u.id === userId) {
+                    retVal = u;
+                }
+            }
+            resolve(retVal);
+        })
+    }
+
+    /**
+     * Add this transaction to every user in its USER array
+     * @returns a promise resolved with either true or false when the pushes are complete
+     */
+    async addToAllUsers() {
+        return new Promise(async (resolve, reject) => {
+            const transactionUsers = await this.getUsers();
+            for (const transactionUser of transactionUsers) {
+                // Check if this is the current user
+                let transactionUserManager = null;
+                let wasCurrentUser = false;
+                if (transactionUser.id === SessionManager.getUserId()) {
+                    transactionUserManager = SessionManager.getCurrentUserManager();
+                    wasCurrentUser = true;
+                } else {
+                    transactionUserManager = DBManager.getUserManager(transactionUser.id);
+                }
+                // Add transaction to user
+                transactionUserManager.addTransaction(this.getDocumentId());
+                // Push changes to userManager
+                let pushSuccessful = await transactionUserManager.push();
+                // Make sure pushes to userManager worked
+                if (!pushSuccessful) {
+                    this.debugger.logWithPrefix("Error: User manager failed to push to database");
+                    resolve(false);
+                } else {
+                    // Push was successful
+                    // Check if this was the currentUser and update localStorage accordingly
+                    if (wasCurrentUser) {
+                        SessionManager.setCurrentUserManager(transactionUserManager);
+                    }
+                }
+            }
+            // If we made it this far, we succeeded
+            resolve(true);
         })
     }
 }
@@ -364,6 +391,14 @@ export class TransactionUser {
     }
 
     /**
+     * Check whether or not this user is settled in this transaction
+     * @param {boolean} bool settled value
+     */
+    getSettled() {
+        return this.settled;
+    }
+
+    /**
      * Add a relation to this transaction user
      * @param {TransactionRelation} relation relation to add to user 
      */
@@ -393,6 +428,14 @@ export class TransactionUser {
                 return new TransactionRelation(r.from, r.to, r.amount, r.id, {displayName: r.from.displayName, pfpUrl: r.from.pfpUrl}, {displayName: r.to.displayName, pfpUrl: r.to.pfpUrl});
             }
         }
+    }
+
+    /**
+     * Get all TransactionRelations from a TransactionUser
+     * @returns array of TransactionRelations
+     */
+    getRelations() {
+        return this.relations;
     }
 
     /**
@@ -426,7 +469,7 @@ export class TransactionRelation {
     constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData) {
         this.id = _id ? _id : DBManager.generateId(16);
         this.from = {
-            id: _toUserId,
+            id: _fromUserId,
             displayName: _fromData ? _fromData.displayName : null,
             pfpUrl: _fromData ? _fromData.pfpUrl : null,
         };
@@ -481,17 +524,5 @@ export class TransactionRelation {
      */
     setToDisplayName(name) {
         this.to.displayName = name;
-    }
-}
-
-
-/**
- * Helper object for organizing transaction data from the current user's perspective
- */
-class TransactionContext {
-    constructor(_user, _fronters, _payers) {
-        this.user = _user; 
-        this.fronters = _fronters;
-        this.payers = _payers;
     }
 }

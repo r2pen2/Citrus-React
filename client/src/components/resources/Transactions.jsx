@@ -14,7 +14,7 @@ import { Breadcrumbs } from "./Navigation";
 // API imports
 import { getDateString, cutAtSpace } from "../../api/strings";
 import formatter from "../../api/formatter";
-import { sortByUTDate } from "../../api/sorting";
+import { sortByCreatedAt } from "../../api/sorting";
 import { DBManager } from "../../api/db/dbManager";
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
@@ -23,18 +23,23 @@ export function TransactionList(props) {
   
   const userManager = SessionManager.getCurrentUserManager();
     
-  const [transactions, setTransactions] = useState(null);
+  const [transactionManagers, setTransactionManagers] = useState([]);
   
   // Fetch transactions on mount
   useEffect(() => {
     async function fetchUserTransactions() {
-      const t = await userManager.getTransactions();
+      let transactionIds = await userManager.getTransactions();
+      let newTransactionManagers = [];
       if (props.numDisplayed) {
-        setTransactions(t.slice(0, props.numDisplayed));
-      } else {
-        setTransactions(t);
+        transactionIds = transactionIds.slice(0, props.numDisplayed);
       }
+      for (const transactionId of transactionIds) {
+        newTransactionManagers.push(DBManager.getTransactionManager(transactionId));
+      }
+      newTransactionManagers = sortByCreatedAt(newTransactionManagers);
+      setTransactionManagers(newTransactionManagers);
     }
+
     fetchUserTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -43,24 +48,13 @@ export function TransactionList(props) {
   * Renders cards for each of the user's transactions
   * @param {Array} a array of user's transactions
   */
-  function renderTransactions(unsortedArray) {
-   const a = sortByUTDate(unsortedArray); // Sort transactions by date
-   
-   function renderTransactionCard(transaction, index) {
-     return (
-        <div>
-          <div className="transaction-card" key={index} data-testid={"transaction-card-" + transaction}>
-            <TransactionCard id={transaction.transactionId} />
-          </div>
-        </div>
-      )
-    }
+  function renderTransactions() {
 
-    if (!a) { // If we don't yet have a list of transactions, just display a little loading circle
+    if (!transactionManagers) { // If we don't yet have a list of transactions, just display a little loading circle
       return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
     }
   
-    if (a.length <= 0) { // If there are no transactions on a user, display a message to indicate
+    if (transactionManagers.length <= 0) { // If there are no transactions on a user, display a message to indicate
       return    (     
         <div className="empty">
           <Typography>
@@ -76,21 +70,21 @@ export function TransactionList(props) {
     var brackets = [[], [], [], [], [], []];
     const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
     // Assign each transaction to a bracket associated with time since transcation creation 
-    if (a) {
-      for (const t of a) {
-        const ageInDays = (new Date().getTime() - t.date.toDate().getTime()) / DAY;
+    if (transactionManagers) {
+      for (const transactionManager of transactionManagers) {
+        const ageInDays = (new Date().getTime() - new Date(transactionManager.createdAt).getTime()) / DAY;
         if (ageInDays <= 1) {
-          brackets[0].push(t);
+          brackets[0].push(transactionManager);
         } else if (ageInDays <= 2) {
-          brackets[1].push(t);
+          brackets[1].push(transactionManager);
         } else if (ageInDays <= 7) {
-          brackets[2].push(t);
+          brackets[2].push(transactionManager);
         } else if (ageInDays <= 30) {
-          brackets[3].push(t);
+          brackets[3].push(transactionManager);
         } else if (ageInDays <= 365) {
-          brackets[4].push(t);
+          brackets[4].push(transactionManager);
         } else {
-          brackets[5].push(t);
+          brackets[5].push(transactionManager);
         }
       }
     }
@@ -100,8 +94,12 @@ export function TransactionList(props) {
       return (
         <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
           { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
-          { bracket.map((t, idx) => {
-            return renderTransactionCard(t, idx)
+          { bracket.map((transactionManager, idx) => {
+            return (
+              <div key={idx} className="transaction-card" data-testid={"transaction-card-" + transactionManager.getDocumentId()}>
+                <TransactionCard transactionManager={transactionManager} />
+              </div>
+            )
           }) }
         </div>
       )
@@ -110,18 +108,24 @@ export function TransactionList(props) {
     
   return (
     <div className="transaction-list">
-      { renderTransactions(transactions) }
+      { renderTransactions() }
     </div>
   );
 }
 
 /**
  * Render a transaction card from current user's perspective
- * @param {string} transactionId transaction id 
+ * @param {string} transactionManager TransactionManager for this transaction 
  */
-export function TransactionCard({transactionId}) {
+export function TransactionCard({transactionManager}) {
     
-    const [context, setContext] = useState(null);
+    const [context, setContext] = useState({
+      title: "",
+      amountOwed: 0,
+      allUsers: [],
+      settledUsers: [],
+      createdAt: new Date()
+    });
 
     useEffect(() => {
 
@@ -129,74 +133,74 @@ export function TransactionCard({transactionId}) {
       * Get transaction context from user's perspective
       */
       async function getTransactionContext() {
-        const transactionManager = DBManager.getTransactionManager(transactionId);
-        const transactionContext = await transactionManager.getContext(SessionManager.getUserId());
-        setContext(transactionContext);
+        const title = await transactionManager.getTitle();
+        const transactionUser = await transactionManager.getUser(SessionManager.getUserId());
+        const relations = transactionUser.getRelations();
+        const createdAt = await transactionManager.getCreatedAt();
+        let amountOwed = 0;
+        let allUsers = [];
+        let settledUsers = [];
+        // Get all relations that this user is a part of and find out their debts
+        // Also collect a list of all other users in this transaction
+        for (const relation of relations) {
+          if (relation.to.id === SessionManager.getUserId()) {
+            amountOwed += relation.amount;
+          }
+          if (relation.from.id === SessionManager.getUserId()) {
+            amountOwed -= relation.amount;
+          }
+        }
+        // Go through tranasctions and pick out all users that aren't current user
+        // Also populate "settled" array
+        const transactionUsers = await transactionManager.getUsers();
+        for (const transactionUser of transactionUsers) {
+          if (transactionUser.id !== SessionManager.getUserId()) {
+            allUsers.push(transactionUser.id);
+          }
+          if (transactionUser.getSettled()) {
+            settledUsers.push(transactionUser.id);
+          }
+        }
+        allUsers.unshift(SessionManager.getUserId());
+        setContext({
+          title: title,
+          amountOwed: amountOwed,
+          allUsers: allUsers,
+          settledUsers: settledUsers,
+          createdAt: createdAt,
+        });
       }
 
       getTransactionContext();
-    }, [transactionId])
+    }, [transactionManager]);
 
-    function renderAvatarStack() {
-        if (context) {
-            var fronterIds = [];
-            var payerIds = [];
-            var settledPayers = [];
-            for (const fronter of context.fronters) {
-                fronterIds.push(fronter.id);
-            }
-            for (const payer of context.payers) {
-                payerIds.push(payer.id);
-                if (payer.settled) {
-                  settledPayers.push(payer.id)
-                }
-            }
-
-            return (
-                <AvatarStack featured={fronterIds} secondary={payerIds} checked={settledPayers}/>
-            )
-        }
-    }
-
-    function generateDebtTooltip() {
-        if (context) {
-            if (context.role === "payer") {
-                return "You still owe " + formatter.format(context.debt - context.credit) + " in this transaction.";
-            } else if (context.role === "fronter") {
-                return "You are still owed " + formatter.format(context.debt - context.credit) + " in this transaction.";
-            }
-        }
-    }
-
-    if (context) {
-        return (
-            <OutlinedCard key={transactionId}>
-                <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + transactionId}>
-                    <CardContent>
-                        <div className="transaction-card-content-container">
-                            <div className="left">
-                                { renderAvatarStack() }
-                            </div>
-                            <div className="center">
-                                <div className="text-container">
-                                    <Typography variant="h6" component="div">{context.title}</Typography>
-                                    <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(context.date.toDate())}</Typography>
-                                </div>
-                            </div>
-                            <div className="right">
-                                <Tooltip title={generateDebtTooltip()}>
-                                    <div className="amount-container">
-                                       <Typography align="right" variant="h5" component="div" color={context.role === "payer" ? "#ec6a60" : "#bfd679"}>{formatter.format(context.debt - context.credit)}</Typography>
-                                       <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(context.debt)}</Typography>
-                                    </div>
-                                </Tooltip>
+    return (
+        <OutlinedCard key={transactionManager.getDocumentId()}>
+            <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + transactionManager.getDocumentId()}>
+                <CardContent>
+                    <div className="transaction-card-content-container">
+                        <div className="left">
+                          <AvatarStack ids={context.allUsers} checked={context.settledUsers}/>
+                        </div>
+                        <div className="center">
+                            <div className="text-container">
+                                <Typography variant="h6" component="div">{context.title}</Typography>
+                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(new Date(context.createdAt))}</Typography>
                             </div>
                         </div>
-                    </CardContent>
-                </CardActionArea>
-            </OutlinedCard>
-        )
-    }
+                        <div className="right">
+                            <Tooltip title="Tooltip">
+                                <div className="amount-container">
+                                   <Typography align="right" variant="h5" component="div" color={context.role === "payer" ? "#ec6a60" : "#bfd679"}>{formatter.format(context.debt - context.credit)}</Typography>
+                                   <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(context.debt)}</Typography>
+                                </div>
+                            </Tooltip>
+                        </div>
+                    </div>
+                </CardContent>
+            </CardActionArea>
+        </OutlinedCard>
+    )
 }
 
 export function TransactionDetail() {

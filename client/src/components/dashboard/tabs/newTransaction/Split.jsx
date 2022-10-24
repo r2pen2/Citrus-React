@@ -68,7 +68,7 @@ export default function Split(props) {
             case "transaction-amount-error":
                 return <TransactionAmountErrorPage weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             case "transaction-summary":
-                return <TransactionSummaryPage weightedUsers={weightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
+                return <TransactionSummaryPage currentGroup={currentGroup} weightedUsers={weightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             default:
                 return <div>Error: invalid split page!</div>
         }
@@ -735,12 +735,25 @@ function HowMuch({person, handleSubmit, goBack}) {
      * Format string and set userAmount to new value
      * Check for errors and check if submit can be enabled
      * @param {event} e keypress event that triggered this function
-     * @param {function} setter function for setting new val
+     * @param {string} setType which field should be set
      */
-    function handleAmountChange(e, setter) {
+    function handleAmountChange(e, setType) {
         const result = makeNumeric(e.target.value);
-        setter(result);
-        setSubmitEnable(result.length > 0)
+        if (setType === "paid") {
+            setAmountPaid(result);
+            if (amountShouldHavePaid) {
+                setSubmitEnable(result.length > 0 && amountShouldHavePaid.length > 0);
+            } else {
+                setSubmitEnable(false);
+            }
+        } else if (setType === "should-have-paid") {
+            setAmountShouldHavePaid(result);
+            if (amountPaid) {
+                setSubmitEnable(result.length > 0 && amountPaid.length > 0);
+            } else {
+                setSubmitEnable(false);
+            }
+        }
     }
 
     /**
@@ -750,9 +763,10 @@ function HowMuch({person, handleSubmit, goBack}) {
      */
     function checkSubmitEnable() {
         if (!amountPaid || !amountShouldHavePaid) {
-            return;
+            setSubmitEnable(false);
+        } else {
+            setSubmitEnable(amountPaid.length > 0 && amountShouldHavePaid.length > 0);
         }
-        setSubmitEnable(amountPaid.length > 0 && amountShouldHavePaid.length > 0);
     }
 
     return (
@@ -762,7 +776,7 @@ function HowMuch({person, handleSubmit, goBack}) {
                 <FormControl className="title-text-field">
                     <TextField
                         value={amountPaid ? amountPaid : ""}
-                        onChange={(e) => handleAmountChange(e, setAmountPaid)}
+                        onChange={(e) => handleAmountChange(e, "paid")}
                         onBlur={checkSubmitEnable}
                         onFocus={checkSubmitEnable}
                         type="number"
@@ -776,7 +790,7 @@ function HowMuch({person, handleSubmit, goBack}) {
                 <FormControl className="title-text-field">
                     <TextField
                         value={amountShouldHavePaid ? amountShouldHavePaid : ""}
-                        onChange={(e) => handleAmountChange(e, setAmountShouldHavePaid)}
+                        onChange={(e) => handleAmountChange(e, "should-have-paid")}
                         onBlur={checkSubmitEnable}
                         onFocus={checkSubmitEnable}
                         type="number"
@@ -897,7 +911,6 @@ function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactio
 
     function handleCellChange(event, id, changeField) {
         const inputVal = parseInt(makeNumeric(event.target.value));
-        console.log(changeField)
         if (changeField === "paid") {
             // This is the "paid" input
             weightedUsers.set(id, {paid: inputVal, shouldHavePaid: weightedUsers.get(id).shouldHavePaid});
@@ -985,7 +998,7 @@ function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactio
     )
 }
 
-function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, peopleInvolved}) {
+function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, peopleInvolved, currentGroup}) {
 
     const [relations, setRelations] = useState([]);
     const [transactionTotal, setTransactionTotal] = useState(0);
@@ -1058,7 +1071,7 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         }
         setRelations(newRelations);
         setTransactionTotal(totalPaid);
-    }, [weightedUsers])
+    }, [weightedUsers, peopleInvolved])
 
     function renderRelations() {
         return (
@@ -1068,13 +1081,13 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         )
     }
 
-    function handleSubmit() {
+    async function handleSubmit() {
         const transactionManager = DBManager.getTransactionManager();
         const newTransactionUsers = new Map();
         for (const relation of relations) {
             // Get toUser and fromUser if they already exist
-            let toUser = newTransactionUsers.get(relation.to) ? newTransactionUsers.get(relation.to) : new TransactionUser(relation.to);
-            let fromUser = newTransactionUsers.get(relation.from) ? newTransactionUsers.get(relation.from) : new TransactionUser(relation.from);
+            let toUser = newTransactionUsers.get(relation.to.id) ? newTransactionUsers.get(relation.to.id) : new TransactionUser(relation.to.id);
+            let fromUser = newTransactionUsers.get(relation.from.id) ? newTransactionUsers.get(relation.from.id) : new TransactionUser(relation.from.id);
             // Add relation to users
             toUser.addRelation(relation);
             fromUser.addRelation(relation);
@@ -1088,42 +1101,29 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             transactionManager.addUser(transactionUser);
         }
         // Transaction should now be populated with users
-        transactionManager.push().then(async (transactionRef) => {
-            // Apply changes to transactionManager then add that transaction to new users (if push worked)
-            if (!transactionRef) {
-                Debugger.log("Error: New transaction failed to push to database!");
-                return;
-            }
-            const newTransactionId = await transactionManager.getDocumentId(); 
-            const transactionUsers = await transactionManager.getUsers();
-            for (const transactionUser of transactionUsers) {
-                // Check if this is the current user
-                let transactionUserManager = null;
-                let wasCurrentUser = false;
-                if (transactionUser.id === SessionManager.getUserId()) {
-                    transactionUserManager = SessionManager.getCurrentUserManager();
-                    wasCurrentUser = true;
-                } else {
-                    transactionUserManager = DBManager.getUserManager(transactionUser.id);
-                }
-                // Add transaction to user
-                transactionUserManager.addTransaction(newTransactionId);
-                // Push changes to userManager
-                transactionUserManager.push().then((userRef) => {
-                    // Make sure pushes to userManager worked
-                    if (!userRef) {
-                        Debugger.log("Error: User manager failed to push to database");
-                        return;
-                    }
-                    // Check if this was the currentUser and update localStorage accordingly
-                    if (wasCurrentUser) {
-                        SessionManager.setCurrentUserManager(transactionUserManager);
-                    }
-                })
-            }
+        // Add transaction data
+        transactionManager.setTitle(transactionTitle);
+        transactionManager.set(transactionTotal);
+        transactionManager.setGroup(currentGroup.length > 0 ? currentGroup : null)
+        // Add transaction metadata
+        transactionManager.setActive(true);
+        transactionManager.setCreatedAt(new Date());
+        transactionManager.setCreatedBy(SessionManager.getUserId());
+        // Push transaction to DB
+        // Apply changes to transactionManager then add that transaction to new users (if push worked)
+        let transactionRef = await transactionManager.push();    
+        if (!transactionRef) {
+            Debugger.log("Error: New transaction failed to push to database!");
+            return;
+        }
+        const newTransactionId = transactionManager.getDocumentId(); 
+        
+        // Add new transaction to all users involved
+        let addedToUsers = await transactionManager.addToAllUsers();
+        if (addedToUsers) {
             // Take user to the new transaciton's page
             RouteManager.redirectToTransaction(newTransactionId);
-          })
+        }
     }
 
     return (

@@ -9,13 +9,13 @@ import Badge from '@mui/material/Badge';
 // API imports
 import { DBManager } from "../../api/db/dbManager";
 
-export function AvatarStack({featured, secondary, checked}) {
+export function AvatarStack({ids, checked}) {
     
-    function renderAvatarStackItems(ids, featured) {
+    function renderAvatarStackItems() {
         return (
             <AvatarGroup>
                 { ids.map((id, key) => {
-                    return <AvatarStackItem userId={id} index={key} featured={featured} checked={checked}/>
+                    return <AvatarStackItem userId={id} key={key} checked={checked}/>
                 })}
             </AvatarGroup>
         )
@@ -24,10 +24,7 @@ export function AvatarStack({featured, secondary, checked}) {
     return (
       <div className="avatar-stack-wrapper">
           <div className="featured">
-            { renderAvatarStackItems(featured, true) }
-          </div>
-          <div className="secondary">
-            { renderAvatarStackItems(secondary, false) }
+            { renderAvatarStackItems() }
           </div>
       </div>
     )
@@ -60,7 +57,7 @@ export function AvatarStackItem(props) {
                         <Avatar 
                         src={pfpUrl ? pfpUrl : ""} 
                         alt={name ? name : ""} 
-                        className={"pfp " + (!props.featured ? "small" : "")}
+                        className="pfp"
                         imgProps={{referrerPolicy: "no-referrer" }}/>
                     </Badge>   
                 )
@@ -69,7 +66,7 @@ export function AvatarStackItem(props) {
         return <Avatar 
         src={pfpUrl ? pfpUrl : ""} 
         alt={name ? name : ""} 
-        className={"pfp " + (!props.featured ? "small" : "")}
+        className="pfp"
         imgProps={{referrerPolicy: "no-referrer" }}/>
     }
 

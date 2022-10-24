@@ -297,7 +297,7 @@ export class ObjectManager {
                         const newDoc = await addDoc(collection(firestore, this.getCollection()), this.data);
                         this.documentId = newDoc.id;
                         this.docRef = newDoc;
-                        this.debugger.logWithPrefix('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
+                        this.debugger.logWithPrefix('Created new object of type" ' + this.objectType + '" with id "' + this.documentId + '"');
                     }
                     resolve(this.docRef);
                 } else {
