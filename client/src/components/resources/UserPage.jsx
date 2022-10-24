@@ -6,13 +6,13 @@ import { useState, useEffect } from 'react'
 // API imports
 import { SessionManager } from "../../api/sessionManager";
 
+// Create UserManager
+const userManager = SessionManager.getCurrentUserManager();
+
 /**
  * Settings page account tab
  */
 export function AccountTab() {
-
-    // Create UserManager
-    const userManager = SessionManager.getCurrentUserManager();
 
     const [userDisplayName, setUserDisplayName] = useState(SessionManager.getDisplayName());
     const [userPhotoUrl, setUserPhotoUrl] = useState(SessionManager.getPfpUrl());
@@ -36,7 +36,7 @@ export function AccountTab() {
         }
 
         fetchUserDetails();
-    }, [userManager])
+    }, [])
 
     return (
     <div className="account-content" data-testid="account-content">

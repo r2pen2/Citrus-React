@@ -13,12 +13,12 @@ export class ObjectManager {
     constructor(_objectType, _documentId) {
         this.objectType = _objectType;
         this.documentId = _documentId;
-        this.data = null;
         this.docRef = this.documentId ? doc(firestore, this.getCollection(), _documentId) : null;
         this.error = false;
         this.fetched = false;
         this.changes = [];
         this.debugger = this.getDebugger();
+        this.data = this.getEmptyData();
     }
 
     /**
@@ -297,7 +297,7 @@ export class ObjectManager {
                         const newDoc = await addDoc(collection(firestore, this.getCollection()), this.data);
                         this.documentId = newDoc.id;
                         this.docRef = newDoc;
-                        this.debugger.logWithPrefix('Created new object of type"' + this.objectType + '" with id "' + this.documentId + '"');
+                        this.debugger.logWithPrefix('Created new object of type" ' + this.objectType + '" with id "' + this.documentId + '"');
                     }
                     resolve(this.docRef);
                 } else {
@@ -350,5 +350,13 @@ export class ObjectManager {
                 resolve(true);
             }
         })
+    }
+
+    /**
+     * Return whether or not this ObjectManager has fetched from DB yet
+     * @returns boolean whether or not this ObjectManager has fetched from DB
+     */
+    hasFetched() {
+        return this.fetched;
     }
 }

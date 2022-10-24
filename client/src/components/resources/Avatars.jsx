@@ -9,13 +9,13 @@ import Badge from '@mui/material/Badge';
 // API imports
 import { DBManager } from "../../api/db/dbManager";
 
-export function AvatarStack({featured, secondary, checked}) {
+export function AvatarStack({ids, checked}) {
     
-    function renderAvatarStackItems(ids, featured) {
+    function renderAvatarStackItems() {
         return (
             <AvatarGroup>
                 { ids.map((id, key) => {
-                    return <AvatarStackItem userId={id} index={key} featured={featured} checked={checked}/>
+                    return <AvatarStackItem userId={id} key={key} checked={checked}/>
                 })}
             </AvatarGroup>
         )
@@ -24,10 +24,7 @@ export function AvatarStack({featured, secondary, checked}) {
     return (
       <div className="avatar-stack-wrapper">
           <div className="featured">
-            { renderAvatarStackItems(featured, true) }
-          </div>
-          <div className="secondary">
-            { renderAvatarStackItems(secondary, false) }
+            { renderAvatarStackItems() }
           </div>
       </div>
     )
@@ -60,7 +57,7 @@ export function AvatarStackItem(props) {
                         <Avatar 
                         src={pfpUrl ? pfpUrl : ""} 
                         alt={name ? name : ""} 
-                        className={"pfp " + (!props.featured ? "small" : "")}
+                        className="pfp"
                         imgProps={{referrerPolicy: "no-referrer" }}/>
                     </Badge>   
                 )
@@ -69,7 +66,7 @@ export function AvatarStackItem(props) {
         return <Avatar 
         src={pfpUrl ? pfpUrl : ""} 
         alt={name ? name : ""} 
-        className={"pfp " + (!props.featured ? "small" : "")}
+        className="pfp"
         imgProps={{referrerPolicy: "no-referrer" }}/>
     }
 
@@ -82,7 +79,7 @@ export function AvatarStackItem(props) {
 
 export function AvatarIcon(props) {
     const [pfpUrl, setPfpUrl] = useState(props.src ? props.src : null);
-    const [alt, setAlt] = useState(props.alt ? props.alt : "");
+    const [displayName, setDisplayName] = useState(props.displayName ? props.displayName : null);
 
     useEffect(() => {
 
@@ -93,17 +90,21 @@ export function AvatarIcon(props) {
                 let url = await userManager.getPhotoUrl();
                 setPfpUrl(url);
             }
-            if (!props.alt) {
+            if (!props.displayName) {
                 let name = await userManager.getDisplayName();
-                setAlt(name);
+                setDisplayName(name);
             }
         }
 
         fetchUserData();
         
-    }, [props.id, props.src, props.alt]);
+    }, [props.id, props.src, props.displayName]);
 
-    return <Avatar src={pfpUrl} alt={alt} />
+    // If we've declared a size, return one with sx attr
+    if (props.size) {    
+        return <Avatar src={pfpUrl} alt={displayName} sx={{width: props.size, height: props.size}} />
+    }
+    return <Avatar src={pfpUrl} alt={displayName} />
 }
 
 export function AvatarToggle(props) {
@@ -120,7 +121,7 @@ export function AvatarToggle(props) {
     return (
         <div className="avatar-toggle">
             <div className={"avatar-toggle-icon-element " + (props.outlined ? "outlined" : "")}>
-                <AvatarIcon id={props.id} src={props.src ? props.src : null}/>
+                <AvatarIcon id={props.id} src={props.src ? props.src : null} displayName={props.displayName ? props.displayName : null}/>
             </div>
             { renderName() }
         </div>

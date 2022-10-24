@@ -1,5 +1,6 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
+import { SessionManager } from "../../sessionManager";
 
 /**
  * Object Manager for transactions
@@ -18,6 +19,7 @@ export class TransactionManager extends ObjectManager {
         TITLE: "title",
         TOTAL: "total",
         USERS: "users",
+        GROUP: "group",
     }
 
     getEmptyData() {
@@ -30,6 +32,7 @@ export class TransactionManager extends ObjectManager {
             title: null,            // {string} title of transaction
             total: null,            // {number} total value of transaction (all debts added together)
             users: [],              // {array <- transactionUser} All users referenced in this transaction
+            group: null,            // {string} id of group that this transaction belongs to (if any)
         }
         return empty;
     }
@@ -37,8 +40,15 @@ export class TransactionManager extends ObjectManager {
     handleAdd(change, data) {
         switch(change.field) {
             case this.fields.USERS:
-                if (!data.users.includes(change.value)) {    
-                    data.users.push(change.value);
+                const jsonUser = change.value.toJson();
+                let foundUser = false;
+                for (const transactionUser of data.users) {
+                    if (transactionUser.id === jsonUser.id) {
+                        foundUser = true;
+                    }
+                }
+                if (!foundUser) {
+                    this.data.users.push(jsonUser);
                 }
                 return data;
             case this.fields.ACTIVE:
@@ -47,6 +57,7 @@ export class TransactionManager extends ObjectManager {
             case this.fields.CREATEDBY:
             case this.fields.TITLE:
             case this.fields.TOTAL:
+            case this.fields.GROUP:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -58,7 +69,8 @@ export class TransactionManager extends ObjectManager {
     handleRemove(change, data) {
         switch(change.field) {
             case this.fields.USERS:
-                data.users = data.users.filter(user => user !== change.value);
+                // The "change.value" should just be a user's id, so we can handle all of this in JSON
+                data.users = data.users.filter(user => user.id !== change.value);
                 return data;
             case this.fields.ACTIVE:
             case this.fields.EMOJI:
@@ -66,6 +78,7 @@ export class TransactionManager extends ObjectManager {
             case this.fields.CREATEDBY:
             case this.fields.TITLE:
             case this.fields.TOTAL:
+            case this.fields.GROUP:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -93,6 +106,9 @@ export class TransactionManager extends ObjectManager {
                 return data;
             case this.fields.TOTAL:
                 data.total = change.value;
+                return data;
+            case this.fields.GROUP:
+                data.group = change.value;
                 return data;
             case this.fields.USERS:
                 super.logInvalidChangeType(change);
@@ -129,6 +145,9 @@ export class TransactionManager extends ObjectManager {
                     break;
                 case this.fields.USERS:
                     resolve(this.data.users);
+                    break;
+                case this.fields.GROUP:
+                    resolve(this.data.group);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -191,6 +210,19 @@ export class TransactionManager extends ObjectManager {
     async getUsers() {
         return new Promise(async (resolve, reject) => {
             this.handleGet(this.fields.USERS).then((val) => {
+                // Process list of users (in JSON format) and spit out a list of transactionUser objects
+                let transactionUsers = [];
+                for (const jsonUser of val) {
+                    transactionUsers.push(new TransactionUser(jsonUser.id, jsonUser))
+                }
+                resolve(transactionUsers);
+            })
+        })
+    }
+
+    async getGroup() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.GROUP).then((val) => {
                 resolve(val);
             })
         })
@@ -222,6 +254,16 @@ export class TransactionManager extends ObjectManager {
         const titleChange = new Set(this.fields.TITLE, newTitle);
         super.addChange(titleChange);
     }
+    
+    setTotal(newTotal) {
+        const totalChange = new Set(this.fields.TOTAL, newTotal);
+        super.addChange(totalChange);
+    }
+    
+    setGroup(newGroup) {
+        const groupChange = new Set(this.fields.GROUP, newGroup);
+        super.addChange(groupChange);
+    }
 
     // ================= Add Operations ================= //
     
@@ -240,82 +282,88 @@ export class TransactionManager extends ObjectManager {
     // ================= Sub-Object Functions ================= //
 
     /**
-     * Get user's view of transaciton
-     * @param {string} userId userId to create context for
-     * @returns TransactionContext object
+     * Get group manager for this transaction
      */
-    async getContext(userId) {
+    async getGroupManager() {
         return new Promise(async (resolve, reject) => {
-
-            // Get user's role
-            const fronters = await this.getFronters();
-            const payers = await this.getPayers();
-            let currentUser = null;
-            let role = null;
-
-            for (const fronter of fronters) {
-                if (fronter.id === userId) {
-                    role = TransactionUser.roles.FRONTER;
-                    currentUser = fronter;
-                }
-            }
-            for (const payer of payers) {
-                if (payer.id === userId) {
-                    role = TransactionUser.roles.PAYER;
-                    currentUser = payer;
-                }
-            }
-            if (!role) {
-                this.debugger.logWithPrefix("Failed to get context for user because they're neither a fronter nor a payer.");
-                resolve(null);
-            }
-            resolve(new TransactionContext(currentUser, fronters, payers));
+            const group = await this.getGroup();
+            resolve(DBManager.getGroupManager(group));
         })
     }
 
-    createFronter(userId) {
-        return new TransactionUser(userId, TransactionUser.roles.FRONTER);
-    }
-
-    createPayer(userId) {
-        return new TransactionUser(userId, TransactionUser.roles.PAYER);
-    }
-
-    async getFronters() {
-        const transactionUsers = await this.getUsers();
-        let transactionFronters = [];
-        for (const user of transactionUsers) {
-            if (user.role === TransactionUser.roles.FRONTER) {
-                transactionFronters.push(user);
+    /**
+     * Get a certain user in this transaction
+     * @param userId id of user to lookup
+     */
+    async getUser(userId) {
+        return new Promise(async (resolve, reject) => {
+            const allUsers = await this.getUsers();
+            let retVal = null;
+            for (const u of allUsers) {
+                if (u.id === userId) {
+                    retVal = u;
+                }
             }
-        }
-        return transactionFronters
+            resolve(retVal);
+        })
     }
 
-    async getPayers() {
-        const transactionUsers = await this.getUsers();
-        let transactionPayers = [];
-        for (const user of transactionUsers) {
-            if (user.role === TransactionUser.roles.PAYER) {
-                transactionPayers.push(user);
+    /**
+     * Add this transaction to every user in its USER array
+     * @returns a promise resolved with either true or false when the pushes are complete
+     */
+    async addToAllUsers() {
+        return new Promise(async (resolve, reject) => {
+            const transactionUsers = await this.getUsers();
+            for (const transactionUser of transactionUsers) {
+                // Check if this is the current user
+                let transactionUserManager = null;
+                let wasCurrentUser = false;
+                if (transactionUser.id === SessionManager.getUserId()) {
+                    transactionUserManager = SessionManager.getCurrentUserManager();
+                    wasCurrentUser = true;
+                } else {
+                    transactionUserManager = DBManager.getUserManager(transactionUser.id);
+                }
+                // Add transaction to user
+                transactionUserManager.addTransaction(this.getDocumentId());
+                // Push changes to userManager
+                let pushSuccessful = await transactionUserManager.push();
+                // Make sure pushes to userManager worked
+                if (!pushSuccessful) {
+                    this.debugger.logWithPrefix("Error: User manager failed to push to database");
+                    resolve(false);
+                } else {
+                    // Push was successful
+                    // Check if this was the currentUser and update localStorage accordingly
+                    if (wasCurrentUser) {
+                        SessionManager.setCurrentUserManager(transactionUserManager);
+                    }
+                }
             }
-        }
-        return transactionPayers
+            // If we made it this far, we succeeded
+            resolve(true);
+        })
     }
 }
 
+/**
+ * An object representing data relevant to a single user in transaction.
+ * Stores the user's ID, their initialBalance, their currentBalance, whether or not they've settled
+ * this transaction, and any TransactionRelations that they're a part of in this transaction.
+ */
 export class TransactionUser {
-    constructor(_id, _role) {
+    /**
+     * Create an object representing data relevant to a single user in a transaction
+     * @param {string} _id id of user 
+     * @param {Object} data and existing data (only used if we're creating this object from DB)
+     */
+    constructor(_id, data) {
         this.id = _id;
-        this.initialBalance = null;
-        this.currentBalance = null;
-        this.role = _role;
-        this.settled = null;
-    }
-
-    static roles = {
-        FRONTER: "fronter",
-        PAYER: "payer",
+        this.initialBalance = data ? data.initialBalance : null;
+        this.currentBalance = data ? data.currentBalance : null;
+        this.settled = data ? data.settled : null;
+        this.relations = data ? data.relations : [];
     }
 
     /**
@@ -335,22 +383,6 @@ export class TransactionUser {
     }
 
     /**
-     * Checks whether or not this user should be settled in a transaction
-     */
-    checkSettled() {
-        if (this.isPayer()) {
-            if (this.currentBalance >= 0) {
-                this.settled = true;
-            }
-        }
-        if (this.isFronter()) {
-            if (this.currentBalance <= 0) {
-                this.settled = true;
-            }
-        }
-    }
-
-    /**
      * Directly set this transaction user's settled value
      * @param {boolean} bool new settled value
      */
@@ -359,45 +391,138 @@ export class TransactionUser {
     }
 
     /**
-     * Calculate how much of user's debt has been settled
-     * ex) Initial balance of -100, user is paid 60, current balance is now -40, so progress is .6;
-     * @returns {number} value representing how much of the debt has been settled
+     * Check whether or not this user is settled in this transaction
+     * @param {boolean} bool settled value
      */
-    getProgress() {
-        return 1 - (this.currentBalance / this.initialBalance);
+    getSettled() {
+        return this.settled;
     }
 
     /**
-     * The exact opposite of getProgress
-     * ex) Initial balance of -100, user is paid 60, current balance is now -40, so remaining progress is .4;
-     * @returns {number} value representing how much of the debt has yet to be settled
+     * Add a relation to this transaction user
+     * @param {TransactionRelation} relation relation to add to user 
      */
-    getRemainingProgress() {
-        return this.currentBalance / this.initialBalance;
+    addRelation(relation) {
+        const jsonRelation = relation.toJson();
+        this.relations.push(jsonRelation);
     }
 
     /**
-     * Boolean if transaction user is a fronter
+     * Remove a relation from this transaction user
+     * This method will remove ANY relation with matching ID
+     * @param {TransactionRelation} relation relation to remove fromuser 
      */
-    isFronter() {
-        return (this.role === TransactionUser.roles.FRONTER);
+    removeRelation(relation) {
+        // We can do this in JSON
+        this.relations = this.relations.filter(r => r.id !== relation.id);
     }
 
     /**
-     * Boolean if transaction user is a payer
+     * Get a TransactionRelation from a TransactionUser by relationId
+     * @param {string} relationId id of relation to get
+     * @returns TransactionRelation from user by ID
      */
-    isPayer() {
-        return (this.role === TransactionUser.roles.PAYER);
+    getRelation(relationId) {
+        for (const r of this.relations) {
+            if (r.id === relationId) {
+                return new TransactionRelation(r.from, r.to, r.amount, r.id, {displayName: r.from.displayName, pfpUrl: r.from.pfpUrl}, {displayName: r.to.displayName, pfpUrl: r.to.pfpUrl});
+            }
+        }
+    }
+
+    /**
+     * Get all TransactionRelations from a TransactionUser
+     * @returns array of TransactionRelations
+     */
+    getRelations() {
+        return this.relations;
+    }
+
+    /**
+     * Turn this custom object into JSON that can be stored in the database
+     * @returns Json representation of TransactionUser
+     */
+    toJson() {
+        return {
+            id: this.id,
+            initialBalance: this.initialBalance,
+            currentBalance: this.currentBalance,
+            settled: this.settled,
+            relations: this.relations,
+        }
     }
 }
 
 /**
- * Current user's view of transaction
+ * A one-directional relationship between a user that owes money and the user to whom the money is owed
  */
-class TransactionContext {
-    constructor(_user, _fronters, _payers) {
-        this.user = _user; 
-        this.fronters = _fronters;
-        this.payers = _payers;
+export class TransactionRelation {
+    /**
+     * Create a one-directional relationship between a user that owes money and the user to whom the money is owed
+     * @param {string} _fromUserId id of user who owes money 
+     * @param {string} _toUserId id of user who is owed money
+     * @param {number} _amount amount that fromUser owes toUser
+     * @param {string} _id id of this TransactionRelation (null to create a new one)
+     * @param {Object} _fromData any possible existing data for fromUser (displayName and pfpUrl)
+     * @param {Object} _toData any possible existing data for toUser (displayName and pfpUrl)
+     */
+    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData) {
+        this.id = _id ? _id : DBManager.generateId(16);
+        this.from = {
+            id: _fromUserId,
+            displayName: _fromData ? _fromData.displayName : null,
+            pfpUrl: _fromData ? _fromData.pfpUrl : null,
+        };
+        this.to = {
+            id: _toUserId,
+            displayName: _toData ? _toData.displayName : null,
+            pfpUrl: _toData ? _toData.pfpUrl: null,
+        };
+        this.amount = _amount;
+    }
+
+    /**
+     * Turn this custom object into JSON that can be stored in the database
+     * @returns Json representation of TransactionRelation
+     */
+    toJson() {
+        return {
+            id: this.id,
+            from: this.from,
+            to: this.to,
+            amount: this.amount,
+        }
+    }
+
+    /**
+     * Set photo reference for "from" user
+     * @param {string} url pfpUrl of "from" user
+     */
+    setFromPfpUrl(url) {
+        this.from.pfpUrl = url;
+    }
+
+    /**
+     * Set photo reference for "to" user
+     * @param {string} url pfpUrl of "to" user
+     */
+    setToPfpUrl(url) {
+        this.to.pfpUrl = url;
+    }
+
+    /**
+     * Set displayName for "from" user
+     * @param {string} name displayName of "from" user
+     */
+    setFromDisplayName(name) {
+        this.from.displayName = name;
+    }
+
+    /**
+     * Set displayName for "to" user
+     * @param {string} name displayName of "to" user
+     */
+    setToDisplayName(name) {
+        this.to.displayName = name;
     }
 }

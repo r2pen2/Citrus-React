@@ -6,6 +6,7 @@ import { TransactionManager } from "./objectManagers/transactionManager";
 import { UserManager } from "./objectManagers/userManager";
 import { InvitationManager } from "./objectManagers/invitationManager";
 import { Debugger } from "../debugger";
+import { SessionManager } from "../sessionManager";
 
 // Create debugger for DBManager
 const dbDebugger = new Debugger(Debugger.controllerObjects.DBMANAGER);

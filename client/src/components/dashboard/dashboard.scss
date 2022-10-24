@@ -452,23 +452,10 @@
     align-items: center;
     justify-content: flex-start;
 
-    .back-button {
-        padding-left: 20px;
-        padding-right: 20px;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        user-select: none;
-
-        &.hover {
-            text-decoration: underline;
-        }
-    }
-    
     .split-page-content {
         width: 100%;
         height: 100%;
+        padding: 10px;
         justify-content: center;
         align-items: center;
         display: flex;
@@ -599,6 +586,7 @@
 
             &.hidden {
                 opacity: 0;
+                user-select: none;
             }
         }
 
@@ -606,17 +594,187 @@
             margin-top: 10px;
             opacity: 0;
             transition: all 0.5s ease;
+            user-select: none;
 
             &.visible {
                 opacity: 1;
+                user-select: all;
             }
+        }
+
+        .transaction-detail-page {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .transaction-detail-form {
             display: flex;
-            flex-direction: column;
-            width: 100%;
+            flex-direction: row;
+            width: 50%;
             align-items: center;
+            gap: 10px;
+            justify-content: space-between;
+
+            .form-input {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .split-section {
+            margin-top: 30px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.5s ease;
+            
+            .split-type-buttons {
+                margin-top: 10px;
+                width: 40%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-direction: row;
+
+                .split-type-button {
+                    width: 45%;
+                }
+            }
+        }
+    }
+
+    .number-error {
+        user-select: none;
+        transition: all 0.5s ease;
+        margin-top: 5px;
+        &.hidden {
+            opacity: 0;
+        }
+    }
+
+    .weight-selection-page-wrapper {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .header {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .weight-card {
+            flex: 9;
+            margin: 20px;
+            padding: 20px;
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+
+            .user-identification {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .split-question {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+                height: 100%;
+
+                .fronted-buttons {
+                    width: 60%;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+
+                    .fronted-button {
+                        width: 45%;
+                    }
+                }
+
+                .amount-input {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                }
+            }
+            
+        }
+    }
+
+    .back-button {
+        margin-top: 40px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+
+        :hover {
+            text-decoration: underline;
+        }
+    }
+
+    .self-notif {
+        margin-top: -20px;
+
+        &.hidden {
+            opacity: 0;
+            user-select: none;
+        }
+    }
+
+    .transaction-summary-page {
+        width: 100%;
+        height: 100%;
+        .header {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .relations {
+            padding-left: 5vw;
+            padding-right: 5vw;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            height: 60%;
+        }
+
+        .table {
+            padding: 20px;
+
+            .cell-input {
+            }
+        }
+
+        .next-button {
+            display: flex;
+            flex-direction: row;
             justify-content: center;
         }
     }

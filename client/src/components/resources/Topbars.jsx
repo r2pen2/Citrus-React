@@ -25,6 +25,9 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
 
+// Create a userManager (We'll only use this in the UserTopbar)
+const userManager = SessionManager.getCurrentUserManager();
+
 /**
  * Topbar when there's no user signed in (or whenever else you may want to display a topbar with no user information)
  */
@@ -65,10 +68,6 @@ export function MinimalTopbar() {
 }
 
 export function UserTopbar() {
-
-  // We're logged in, so create a UserManager
-  const userManager = SessionManager.getCurrentUserManager();
-  
   // Get as much data from SessionManager as possible
   const [userDisplayName, setUserDisplayName] = useState(SessionManager.getDisplayName());
   const [userPhotoUrl, setUserPhotoUrl] = useState(SessionManager.getPfpUrl());
@@ -98,7 +97,6 @@ export function UserTopbar() {
   useEffect(() => {
     // Fetch user details on mount
     async function fetchUserData() {
-      console.log(userManager);
       let name = await userManager.getDisplayName();
       setUserDisplayName(name);
       let url = await userManager.getPhotoUrl();

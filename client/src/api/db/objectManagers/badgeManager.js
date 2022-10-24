@@ -118,7 +118,7 @@ export class BadgeManager extends ObjectManager {
     // ================= Set Operations ================= //
     setTilte(newTitle) {
         const titleChange = new Set(this.fields.TITLE, newTitle);
-        super.addChange(newTitle);
+        super.addChange(titleChange);
     }
 
     setDescription(newDescription) {

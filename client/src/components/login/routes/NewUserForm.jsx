@@ -44,13 +44,13 @@ const helloMessages = [
 // the page state is updated for any reason
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
+// Get user data from localStorage (if it exists, that is)
+const userManager = SessionManager.getCurrentUserManager();
+
 /**
  * Form for new users to create their accounts
  */
 export default function NewUserForm() {
-
-  // Get user data from localStorage (if it exists, that is)
-  const userManager = SessionManager.getCurrentUserManager();
 
   // Define constants
   const [firstName, setFirstName] = useState("");                         // The current user's first name (for account creation)

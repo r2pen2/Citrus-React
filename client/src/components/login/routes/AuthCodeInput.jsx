@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Typography, Button, Stack, TextField } from "@mui/material";
-import { NotificationManager } from 'react-notifications';
 
 // API imports
 import { SessionManager } from "../../../api/sessionManager";
