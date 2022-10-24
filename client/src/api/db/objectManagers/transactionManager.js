@@ -18,6 +18,7 @@ export class TransactionManager extends ObjectManager {
         TITLE: "title",
         TOTAL: "total",
         USERS: "users",
+        GROUP: "group",
     }
 
     getEmptyData() {
@@ -30,6 +31,7 @@ export class TransactionManager extends ObjectManager {
             title: null,            // {string} title of transaction
             total: null,            // {number} total value of transaction (all debts added together)
             users: [],              // {array <- transactionUser} All users referenced in this transaction
+            group: null,            // {string} id of group that this transaction belongs to (if any)
         }
         return empty;
     }
@@ -54,6 +56,7 @@ export class TransactionManager extends ObjectManager {
             case this.fields.CREATEDBY:
             case this.fields.TITLE:
             case this.fields.TOTAL:
+            case this.fields.GROUP:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -74,6 +77,7 @@ export class TransactionManager extends ObjectManager {
             case this.fields.CREATEDBY:
             case this.fields.TITLE:
             case this.fields.TOTAL:
+            case this.fields.GROUP:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -101,6 +105,9 @@ export class TransactionManager extends ObjectManager {
                 return data;
             case this.fields.TOTAL:
                 data.total = change.value;
+                return data;
+            case this.fields.GROUP:
+                data.group = change.value;
                 return data;
             case this.fields.USERS:
                 super.logInvalidChangeType(change);
@@ -137,6 +144,9 @@ export class TransactionManager extends ObjectManager {
                     break;
                 case this.fields.USERS:
                     resolve(this.data.users);
+                    break;
+                case this.fields.GROUP:
+                    resolve(this.data.group);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -208,6 +218,14 @@ export class TransactionManager extends ObjectManager {
             })
         })
     }
+
+    async getGroup() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.GROUP).then((val) => {
+                resolve(val);
+            })
+        })
+    }
     
     // ================= Set Operations ================= //
 
@@ -234,6 +252,11 @@ export class TransactionManager extends ObjectManager {
     setTitle(newTitle) {
         const titleChange = new Set(this.fields.TITLE, newTitle);
         super.addChange(titleChange);
+    }
+    
+    setGroup(newGroup) {
+        const groupChange = new Set(this.fields.GROUP, newGroup);
+        super.addChange(groupChange);
     }
 
     // ================= Add Operations ================= //
@@ -285,20 +308,35 @@ export class TransactionManager extends ObjectManager {
             resolve(new TransactionContext(currentUser, fronters, payers));
         })
     }
+
+    /**
+     * Get group manager for this transaction
+     */
+    async getGroupManager() {
+        return new Promise(async (resolve, reject) => {
+            const group = await this.getGroup();
+            resolve(DBManager.getGroupManager(group));
+        })
+    }
 }
 
+/**
+ * An object representing data relevant to a single user in transaction.
+ * Stores the user's ID, their initialBalance, their currentBalance, whether or not they've settled
+ * this transaction, and any TransactionRelations that they're a part of in this transaction.
+ */
 export class TransactionUser {
+    /**
+     * Create an object representing data relevant to a single user in a transaction
+     * @param {string} _id id of user 
+     * @param {Object} data and existing data (only used if we're creating this object from DB)
+     */
     constructor(_id, data) {
         this.id = _id;
         this.initialBalance = data ? data.initialBalance : null;
         this.currentBalance = data ? data.currentBalance : null;
         this.settled = data ? data.settled : null;
         this.relations = data ? data.relations : [];
-    }
-
-    static roles = {
-        FRONTER: "fronter",
-        PAYER: "payer",
     }
 
     /**
@@ -318,22 +356,6 @@ export class TransactionUser {
     }
 
     /**
-     * Checks whether or not this user should be settled in a transaction
-     */
-    checkSettled() {
-        if (this.isPayer()) {
-            if (this.currentBalance >= 0) {
-                this.settled = true;
-            }
-        }
-        if (this.isFronter()) {
-            if (this.currentBalance <= 0) {
-                this.settled = true;
-            }
-        }
-    }
-
-    /**
      * Directly set this transaction user's settled value
      * @param {boolean} bool new settled value
      */
@@ -342,55 +364,41 @@ export class TransactionUser {
     }
 
     /**
-     * Calculate how much of user's debt has been settled
-     * ex) Initial balance of -100, user is paid 60, current balance is now -40, so progress is .6;
-     * @returns {number} value representing how much of the debt has been settled
+     * Add a relation to this transaction user
+     * @param {TransactionRelation} relation relation to add to user 
      */
-    getProgress() {
-        return 1 - (this.currentBalance / this.initialBalance);
-    }
-
-    /**
-     * The exact opposite of getProgress
-     * ex) Initial balance of -100, user is paid 60, current balance is now -40, so remaining progress is .4;
-     * @returns {number} value representing how much of the debt has yet to be settled
-     */
-    getRemainingProgress() {
-        return this.currentBalance / this.initialBalance;
-    }
-
-    /**
-     * Boolean if transaction user is a fronter
-     */
-    isFronter() {
-        return (this.role === TransactionUser.roles.FRONTER);
-    }
-
-    /**
-     * Boolean if transaction user is a payer
-     */
-    isPayer() {
-        return (this.role === TransactionUser.roles.PAYER);
-    }
-
     addRelation(relation) {
         const jsonRelation = relation.toJson();
         this.relations.push(jsonRelation);
     }
 
+    /**
+     * Remove a relation from this transaction user
+     * This method will remove ANY relation with matching ID
+     * @param {TransactionRelation} relation relation to remove fromuser 
+     */
     removeRelation(relation) {
         // We can do this in JSON
         this.relations = this.relations.filter(r => r.id !== relation.id);
     }
 
+    /**
+     * Get a TransactionRelation from a TransactionUser by relationId
+     * @param {string} relationId id of relation to get
+     * @returns TransactionRelation from user by ID
+     */
     getRelation(relationId) {
         for (const r of this.relations) {
             if (r.id === relationId) {
-                return new TransactionRelation(r.from, r.to, r.amount, r.id);
+                return new TransactionRelation(r.from, r.to, r.amount, r.id, {displayName: r.from.displayName, pfpUrl: r.from.pfpUrl}, {displayName: r.to.displayName, pfpUrl: r.to.pfpUrl});
             }
         }
     }
 
+    /**
+     * Turn this custom object into JSON that can be stored in the database
+     * @returns Json representation of TransactionUser
+     */
     toJson() {
         return {
             id: this.id,
@@ -402,14 +410,38 @@ export class TransactionUser {
     }
 }
 
+/**
+ * A one-directional relationship between a user that owes money and the user to whom the money is owed
+ */
 export class TransactionRelation {
-    constructor(_fromUser, _toUser, _amount, _id) {
+    /**
+     * Create a one-directional relationship between a user that owes money and the user to whom the money is owed
+     * @param {string} _fromUserId id of user who owes money 
+     * @param {string} _toUserId id of user who is owed money
+     * @param {number} _amount amount that fromUser owes toUser
+     * @param {string} _id id of this TransactionRelation (null to create a new one)
+     * @param {Object} _fromData any possible existing data for fromUser (displayName and pfpUrl)
+     * @param {Object} _toData any possible existing data for toUser (displayName and pfpUrl)
+     */
+    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData) {
         this.id = _id ? _id : DBManager.generateId(16);
-        this.from = _fromUser;
-        this.to = _toUser;
+        this.from = {
+            id: _toUserId,
+            displayName: _fromData ? _fromData.displayName : null,
+            pfpUrl: _fromData ? _fromData.pfpUrl : null,
+        };
+        this.to = {
+            id: _toUserId,
+            displayName: _toData ? _toData.displayName : null,
+            pfpUrl: _toData ? _toData.pfpUrl: null,
+        };
         this.amount = _amount;
     }
 
+    /**
+     * Turn this custom object into JSON that can be stored in the database
+     * @returns Json representation of TransactionRelation
+     */
     toJson() {
         return {
             id: this.id,
@@ -418,11 +450,43 @@ export class TransactionRelation {
             amount: this.amount,
         }
     }
+
+    /**
+     * Set photo reference for "from" user
+     * @param {string} url pfpUrl of "from" user
+     */
+    setFromPfpUrl(url) {
+        this.from.pfpUrl = url;
+    }
+
+    /**
+     * Set photo reference for "to" user
+     * @param {string} url pfpUrl of "to" user
+     */
+    setToPfpUrl(url) {
+        this.to.pfpUrl = url;
+    }
+
+    /**
+     * Set displayName for "from" user
+     * @param {string} name displayName of "from" user
+     */
+    setFromDisplayName(name) {
+        this.from.displayName = name;
+    }
+
+    /**
+     * Set displayName for "to" user
+     * @param {string} name displayName of "to" user
+     */
+    setToDisplayName(name) {
+        this.to.displayName = name;
+    }
 }
 
 
 /**
- * Current user's view of transaction
+ * Helper object for organizing transaction data from the current user's perspective
  */
 class TransactionContext {
     constructor(_user, _fronters, _payers) {

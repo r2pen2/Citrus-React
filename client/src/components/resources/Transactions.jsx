@@ -7,12 +7,12 @@ import { useState, useEffect} from 'react';
 import { OutlinedCard } from "./Surfaces";
 
 // Component imports
-import { AvatarStack } from "./Avatars";
+import { AvatarStack, AvatarIcon } from "./Avatars";
 import { SectionTitle } from "./Labels";
 import { Breadcrumbs } from "./Navigation";
 
 // API imports
-import { getDateString } from "../../api/strings";
+import { getDateString, cutAtSpace } from "../../api/strings";
 import formatter from "../../api/formatter";
 import { sortByUTDate } from "../../api/sorting";
 import { DBManager } from "../../api/db/dbManager";
@@ -297,3 +297,27 @@ export function TransactionConversation() {
     </div>
   );
 }
+
+/**
+ * Render a card representing a TransactionRelation
+ * @param {TransactionRelation} relation TransactionRelation object to render
+ */
+export function TransactionRelationCard({relation}) {
+  return (
+      <OutlinedCard>
+          <CardContent>
+              <div className="relation-card-content-container">
+                  <div className="relation-content">
+                      <AvatarIcon src={relation.from.pfpUrl} alt={"From user photo"}/>
+                      <Typography variant="subtitle1" color="primary">${relation.amount}</Typography>
+                      <Typography variant="subtitle1" color="primary">⟹</Typography>
+                      <AvatarIcon src={relation.to.pfpUrl} alt={"To user photo"}/>
+                  </div>
+                  <div className="relation-content">
+                      <Typography>{cutAtSpace(relation.from.displayName)} owes {cutAtSpace(relation.to.displayName)} ${relation.amount}</Typography>
+                  </div>
+              </div>
+          </CardContent>
+      </OutlinedCard>
+  )
+} 

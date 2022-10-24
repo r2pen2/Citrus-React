@@ -6,6 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 // Component imports
 import { OutlinedCard } from "../../../resources/Surfaces";
+import { TransactionRelationCard } from "../../../resources/Transactions";
 
 // API imports
 import { SessionManager } from "../../../../api/sessionManager";
@@ -1024,6 +1025,22 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             ratioMap.set(key[0], (user.paid - user.shouldHavePaid) / totalOwed);
         }
 
+        function getName(uid) {
+            for (const person of peopleInvolved) {
+                if (person.id === uid) {
+                    return person.displayName;
+                }
+            }
+        }
+
+        function getSrc(uid) {
+            for (const person of peopleInvolved) {
+                if (person.id === uid) {
+                    return person.pfpUrl;
+                }
+            }
+        }
+
         // Now create relations from all people who owe money to those who are owed
         for (const senderKey of positiveUsers) {
             const senderId = senderKey[0];
@@ -1032,6 +1049,10 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
                 const receiverId = receiverKey[0];
                 const amountToSend = (sender.shouldHavePaid - sender.paid) * ratioMap.get(receiverId);
                 const relation = new TransactionRelation(senderId, receiverId, amountToSend);
+                relation.setToDisplayName(getName(receiverId));
+                relation.setFromDisplayName(getName(senderId));
+                relation.setToPfpUrl(getSrc(receiverId));
+                relation.setFromPfpUrl(getSrc(senderId));
                 newRelations.push(relation);
             }
         }
@@ -1040,42 +1061,9 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
     }, [weightedUsers])
 
     function renderRelations() {
-
-        function getName(userId) {
-            for (const user of peopleInvolved) {
-                if (user.id === userId) {
-                    return user.displayName;
-                }
-            }
-        }
-
-        function getSrc(userId) {
-            for (const user of peopleInvolved) {
-                if (user.id === userId) {
-                    return user.pfpUrl;
-                }
-            }
-        }
-
         return (
             relations.map((relation, index) => {
-                return (
-                    <OutlinedCard key={index}>
-                        <CardContent>
-                            <div className="relation-card-content-container">
-                                <div className="relation-content">
-                                    <AvatarIcon src={getSrc(relation.from)} alt={"From user photo"}/>
-                                    <Typography variant="subtitle1" color="primary">${relation.amount}</Typography>
-                                    <Typography variant="subtitle1" color="primary">⟹</Typography>
-                                    <AvatarIcon src={getSrc(relation.from)} alt={"To user photo"}/>
-                                </div>
-                                <div className="relation-content">
-                                    <Typography>{cutAtSpace(getName(relation.from))} owes {cutAtSpace(getName(relation.to))} ${relation.amount}</Typography>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </OutlinedCard>
-                )
+                return <TransactionRelationCard key={index} relation={relation}/>;
             })
         )
     }
