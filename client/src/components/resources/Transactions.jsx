@@ -235,13 +235,11 @@ export function TransactionDetail() {
     fetchTransactionData();
   }, [transactionId])
 
-  const transcationTitle = transactionManager ? transactionManager.getTitle() : "Unknown";
-
   return (
     <div>
       <Breadcrumbs path={"Dashboard/Transactions/" + transactionId} />
       <h1>Transaction Detail Page</h1>
-      <div>Transaction Title: {transcationTitle}</div>
+      <TransactionDetailHeader transcationManager={transactionManager} />
       <h2>Needs implementation</h2>
       <a href="https://github.com/r2pen2/Citrus-React/issues/97">
         Github: Implement Dashboard/Transactions/Detail?id=transactionId #97
@@ -321,3 +319,37 @@ export function TransactionRelationCard({relation}) {
       </OutlinedCard>
   )
 } 
+
+function TransactionDetailHeader({transactionManager}) {
+  
+  const [transactionTitle, setTransactionTitle] = useState("");
+
+  useEffect(() => {
+    function managerIsValid() {
+      if (!transactionManager) {
+        return false;
+      }
+      if (!transactionManager.hasFetched()) {
+        return false;
+      }
+      return true;
+    }
+
+    async function getTransactionDetails() {
+      if (!managerIsValid()) {
+        setTransactionTitle("");
+      } else {
+        const title = await transactionManager.getTitle(); 
+        setTransactionTitle(title);
+      }
+    }
+
+    getTransactionDetails();
+  }, [transactionManager]);
+
+  return (
+    <div className="transaction-detail-header">
+      <h1>{transactionTitle}</h1>
+    </div>
+  )
+}

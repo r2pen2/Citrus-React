@@ -351,4 +351,12 @@ export class ObjectManager {
             }
         })
     }
+
+    /**
+     * Return whether or not this ObjectManager has fetched from DB yet
+     * @returns boolean whether or not this ObjectManager has fetched from DB
+     */
+    hasFetched() {
+        return this.fetched;
+    }
 }
