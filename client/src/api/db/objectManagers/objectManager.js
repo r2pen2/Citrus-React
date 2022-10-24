@@ -13,12 +13,12 @@ export class ObjectManager {
     constructor(_objectType, _documentId) {
         this.objectType = _objectType;
         this.documentId = _documentId;
-        this.data = null;
         this.docRef = this.documentId ? doc(firestore, this.getCollection(), _documentId) : null;
         this.error = false;
         this.fetched = false;
         this.changes = [];
         this.debugger = this.getDebugger();
+        this.data = this.getEmptyData();
     }
 
     /**

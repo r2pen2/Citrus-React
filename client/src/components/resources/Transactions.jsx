@@ -17,6 +17,7 @@ import formatter from "../../api/formatter";
 import { sortByUTDate } from "../../api/sorting";
 import { DBManager } from "../../api/db/dbManager";
 import { SessionManager } from "../../api/sessionManager";
+import { RouteManager } from "../../api/routeManager";
 
 export function TransactionList(props) {
   
@@ -202,11 +203,45 @@ export function TransactionDetail() {
   const params = new URLSearchParams(window.location.search);
   const transactionId = params.get("id");
 
+  const [transactionManager, setTransactionManager] = useState(null);
+
+  useEffect(() => {
+
+    async function fetchTransactionData() {
+      // Check if there's an ID
+      if (!transactionId || transactionId.length > 0) {
+        RouteManager.redirect("/dashboard");
+        return;
+      }
+      const tm = DBManager.getTransactionManager(transactionId);
+      await tm.fetchData();
+      // Make sure current user is in this transaction's user list
+      let foundCurrentUser = false;
+      for (const transactionUser of tm.getUsers()) {
+        if (transactionUser.id === SessionManager.getUserId()) {
+          foundCurrentUser = true;
+        }
+      }
+      if (!foundCurrentUser) { 
+        // If the current user wasn't found in this transaction's user list, kick them out!
+        RouteManager.redirect("/dashboard");
+      } else {
+        // Otherwise, they're in the right place! Update the transactionManager with loaded data
+        setTransactionManager(tm);
+      }
+    }
+
+    // Fetch transaction data on load
+    fetchTransactionData();
+  }, [transactionId])
+
+  const transcationTitle = transactionManager ? transactionManager.getTitle() : "Unknown";
+
   return (
     <div>
       <Breadcrumbs path={"Dashboard/Transactions/" + transactionId} />
       <h1>Transaction Detail Page</h1>
-      <div>Transaction Id: {transactionId}</div>
+      <div>Transaction Title: {transcationTitle}</div>
       <h2>Needs implementation</h2>
       <a href="https://github.com/r2pen2/Citrus-React/issues/97">
         Github: Implement Dashboard/Transactions/Detail?id=transactionId #97

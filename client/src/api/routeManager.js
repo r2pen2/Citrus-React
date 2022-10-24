@@ -76,4 +76,13 @@ export class RouteManager {
     static setHash(hash) {
         window.location.assign("#" + hash);
     }
+
+    // Redirect to some common routes
+    /**
+     * Redirect user to a transaction's detail page by ID
+     * @param {string} transactionId id of transaction to redirect to
+     */
+    static redirectToTransaction(transactionId) {
+        RouteManager.redirect(`/dashboard/transactions?id=${transactionId}`);
+    }
 }

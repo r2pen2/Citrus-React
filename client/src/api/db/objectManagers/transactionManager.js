@@ -37,8 +37,15 @@ export class TransactionManager extends ObjectManager {
     handleAdd(change, data) {
         switch(change.field) {
             case this.fields.USERS:
-                if (!data.users.includes(change.value)) {    
-                    data.users.push(change.value);
+                const jsonUser = change.value.toJson();
+                let foundUser = false;
+                for (const transactionUser of data.users) {
+                    if (transactionUser.id === jsonUser.id) {
+                        foundUser = true;
+                    }
+                }
+                if (!foundUser) {
+                    this.data.users.push(jsonUser);
                 }
                 return data;
             case this.fields.ACTIVE:
@@ -58,7 +65,8 @@ export class TransactionManager extends ObjectManager {
     handleRemove(change, data) {
         switch(change.field) {
             case this.fields.USERS:
-                data.users = data.users.filter(user => user !== change.value);
+                // The "change.value" should just be a user's id, so we can handle all of this in JSON
+                data.users = data.users.filter(user => user.id !== change.value);
                 return data;
             case this.fields.ACTIVE:
             case this.fields.EMOJI:
@@ -191,7 +199,12 @@ export class TransactionManager extends ObjectManager {
     async getUsers() {
         return new Promise(async (resolve, reject) => {
             this.handleGet(this.fields.USERS).then((val) => {
-                resolve(val);
+                // Process list of users (in JSON format) and spit out a list of transactionUser objects
+                let transactionUsers = [];
+                for (const jsonUser of val) {
+                    transactionUsers.push(new TransactionUser(jsonUser.id, jsonUser))
+                }
+                resolve(transactionUsers);
             })
         })
     }
@@ -275,12 +288,12 @@ export class TransactionManager extends ObjectManager {
 }
 
 export class TransactionUser {
-    constructor(_id) {
+    constructor(_id, data) {
         this.id = _id;
-        this.initialBalance = null;
-        this.currentBalance = null;
-        this.settled = null;
-        this.relations = [];
+        this.initialBalance = data ? data.initialBalance : null;
+        this.currentBalance = data ? data.currentBalance : null;
+        this.settled = data ? data.settled : null;
+        this.relations = data ? data.relations : [];
     }
 
     static roles = {
@@ -361,28 +374,49 @@ export class TransactionUser {
     }
 
     addRelation(relation) {
-        this.relations.push(relation);
+        const jsonRelation = relation.toJson();
+        this.relations.push(jsonRelation);
     }
 
     removeRelation(relation) {
+        // We can do this in JSON
         this.relations = this.relations.filter(r => r.id !== relation.id);
     }
 
     getRelation(relationId) {
         for (const r of this.relations) {
             if (r.id === relationId) {
-                return r;
+                return new TransactionRelation(r.from, r.to, r.amount, r.id);
             }
+        }
+    }
+
+    toJson() {
+        return {
+            id: this.id,
+            initialBalance: this.initialBalance,
+            currentBalance: this.currentBalance,
+            settled: this.settled,
+            relations: this.relations,
         }
     }
 }
 
 export class TransactionRelation {
-    constructor(_fromUser, _toUser, _amount) {
-        this.id = DBManager.generateId(16);
+    constructor(_fromUser, _toUser, _amount, _id) {
+        this.id = _id ? _id : DBManager.generateId(16);
         this.from = _fromUser;
         this.to = _toUser;
         this.amount = _amount;
+    }
+
+    toJson() {
+        return {
+            id: this.id,
+            from: this.from,
+            to: this.to,
+            amount: this.amount,
+        }
     }
 }
 

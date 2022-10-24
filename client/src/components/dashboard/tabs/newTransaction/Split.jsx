@@ -9,11 +9,13 @@ import { OutlinedCard } from "../../../resources/Surfaces";
 
 // API imports
 import { SessionManager } from "../../../../api/sessionManager";
+import { RouteManager } from "../../../../api/routeManager";
 import { DBManager } from "../../../../api/db/dbManager";
 import { AvatarIcon, AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
-import { TransactionRelation } from "../../../../api/db/objectManagers/transactionManager";
+import { TransactionRelation, TransactionUser } from "../../../../api/db/objectManagers/transactionManager";
 import { makeNumeric, cutAtSpace } from '../../../../api/strings';
+import { Debugger } from '../../../../api/debugger';
 
 // Get user mananger from LS (which we know exists becuase we made it to this page)
 const userManager = SessionManager.getCurrentUserManager();
@@ -1028,13 +1030,11 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             const sender = senderKey[1];
             for (const receiverKey of negativeUsers) {
                 const receiverId = receiverKey[0];
-                console.log(senderKey)
                 const amountToSend = (sender.shouldHavePaid - sender.paid) * ratioMap.get(receiverId);
                 const relation = new TransactionRelation(senderId, receiverId, amountToSend);
                 newRelations.push(relation);
             }
         }
-        console.log(newRelations)
         setRelations(newRelations);
         setTransactionTotal(totalPaid);
     }, [weightedUsers])
@@ -1080,6 +1080,64 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         )
     }
 
+    function handleSubmit() {
+        const transactionManager = DBManager.getTransactionManager();
+        const newTransactionUsers = new Map();
+        for (const relation of relations) {
+            // Get toUser and fromUser if they already exist
+            let toUser = newTransactionUsers.get(relation.to) ? newTransactionUsers.get(relation.to) : new TransactionUser(relation.to);
+            let fromUser = newTransactionUsers.get(relation.from) ? newTransactionUsers.get(relation.from) : new TransactionUser(relation.from);
+            // Add relation to users
+            toUser.addRelation(relation);
+            fromUser.addRelation(relation);
+            // Update map
+            newTransactionUsers.set(relation.to, toUser);
+            newTransactionUsers.set(relation.from, fromUser);
+        }
+        // Now that map is populated, we loop through it and add those transactionUsers to the transcationManager
+        for (const key of newTransactionUsers) {
+            const transactionUser = key[1];
+            transactionManager.addUser(transactionUser);
+        }
+        // Transaction should now be populated with users
+        transactionManager.push().then(async (transactionRef) => {
+            // Apply changes to transactionManager then add that transaction to new users (if push worked)
+            if (!transactionRef) {
+                Debugger.log("Error: New transaction failed to push to database!");
+                return;
+            }
+            const newTransactionId = await transactionManager.getDocumentId(); 
+            const transactionUsers = await transactionManager.getUsers();
+            for (const transactionUser of transactionUsers) {
+                // Check if this is the current user
+                let transactionUserManager = null;
+                let wasCurrentUser = false;
+                if (transactionUser.id === SessionManager.getUserId()) {
+                    transactionUserManager = SessionManager.getCurrentUserManager();
+                    wasCurrentUser = true;
+                } else {
+                    transactionUserManager = DBManager.getUserManager(transactionUser.id);
+                }
+                // Add transaction to user
+                transactionUserManager.addTransaction(newTransactionId);
+                // Push changes to userManager
+                transactionUserManager.push().then((userRef) => {
+                    // Make sure pushes to userManager worked
+                    if (!userRef) {
+                        Debugger.log("Error: User manager failed to push to database");
+                        return;
+                    }
+                    // Check if this was the currentUser and update localStorage accordingly
+                    if (wasCurrentUser) {
+                        SessionManager.setCurrentUserManager(transactionUserManager);
+                    }
+                })
+            }
+            // Take user to the new transaciton's page
+            RouteManager.redirectToTransaction(newTransactionId);
+          })
+    }
+
     return (
         <div className="split-page-content">
             <div className="transaction-summary-page">
@@ -1089,6 +1147,9 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
                 </div>
                 <div className="relations">
                     { renderRelations() }
+                </div>
+                <div className="next-button">
+                    <Button variant="contained" onClick={() => {handleSubmit()}}>Submit</Button>
                 </div>
                 <div className="back-button" onClick={() => setSplitPage("transaction-details")}>
                     <ArrowBackIcon />
