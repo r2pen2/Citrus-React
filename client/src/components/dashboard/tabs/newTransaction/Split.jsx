@@ -1103,7 +1103,7 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         // Transaction should now be populated with users
         // Add transaction data
         transactionManager.setTitle(transactionTitle);
-        transactionManager.set(transactionTotal);
+        transactionManager.setTotal(transactionTotal);
         transactionManager.setGroup(currentGroup.length > 0 ? currentGroup : null)
         // Add transaction metadata
         transactionManager.setActive(true);

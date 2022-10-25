@@ -121,10 +121,11 @@ export function TransactionCard({transactionManager}) {
     
     const [context, setContext] = useState({
       title: "",
-      amountOwed: 0,
+      initialBalance: 0,
+      currentBanalce: 0,
       allUsers: [],
       settledUsers: [],
-      createdAt: new Date()
+      createdAt: null
     });
 
     useEffect(() => {
@@ -135,21 +136,9 @@ export function TransactionCard({transactionManager}) {
       async function getTransactionContext() {
         const title = await transactionManager.getTitle();
         const transactionUser = await transactionManager.getUser(SessionManager.getUserId());
-        const relations = transactionUser.getRelations();
         const createdAt = await transactionManager.getCreatedAt();
-        let amountOwed = 0;
         let allUsers = [];
         let settledUsers = [];
-        // Get all relations that this user is a part of and find out their debts
-        // Also collect a list of all other users in this transaction
-        for (const relation of relations) {
-          if (relation.to.id === SessionManager.getUserId()) {
-            amountOwed += relation.amount;
-          }
-          if (relation.from.id === SessionManager.getUserId()) {
-            amountOwed -= relation.amount;
-          }
-        }
         // Go through tranasctions and pick out all users that aren't current user
         // Also populate "settled" array
         const transactionUsers = await transactionManager.getUsers();
@@ -164,7 +153,8 @@ export function TransactionCard({transactionManager}) {
         allUsers.unshift(SessionManager.getUserId());
         setContext({
           title: title,
-          amountOwed: amountOwed,
+          initialBalance: transactionUser.initialBalance,
+          currentBalance: transactionUser.currentBalance,
           allUsers: allUsers,
           settledUsers: settledUsers,
           createdAt: createdAt,
@@ -173,6 +163,15 @@ export function TransactionCard({transactionManager}) {
 
       getTransactionContext();
     }, [transactionManager]);
+
+    function getFractionTooltip() {
+      const amtString = formatter.format(Math.abs(context.initialBalance - context.currentBalance));
+      if (context.initialBalance >= 0 ) {
+        return `You are still owed ${amtString}`;
+      } else {
+        return `You still owe ${amtString}`;
+      }
+    }
 
     return (
         <OutlinedCard key={transactionManager.getDocumentId()}>
@@ -185,14 +184,14 @@ export function TransactionCard({transactionManager}) {
                         <div className="center">
                             <div className="text-container">
                                 <Typography variant="h6" component="div">{context.title}</Typography>
-                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(new Date(context.createdAt))}</Typography>
+                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(context.createdAt ? context.createdAt.toDate() : new Date())}</Typography>
                             </div>
                         </div>
                         <div className="right">
-                            <Tooltip title="Tooltip">
+                            <Tooltip title={getFractionTooltip()}>
                                 <div className="amount-container">
-                                   <Typography align="right" variant="h5" component="div" color={context.role === "payer" ? "#ec6a60" : "#bfd679"}>{formatter.format(context.debt - context.credit)}</Typography>
-                                   <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(context.debt)}</Typography>
+                                   <Typography align="right" variant="h5" component="div" color={context.currentBalance > context.initialBalance ? "#ec6a60" : "#bfd679"}>{formatter.format(Math.abs(context.initialBalance - context.currentBalance))}</Typography>
+                                   <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
                                 </div>
                             </Tooltip>
                         </div>

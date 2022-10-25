@@ -405,6 +405,11 @@ export class TransactionUser {
     addRelation(relation) {
         const jsonRelation = relation.toJson();
         this.relations.push(jsonRelation);
+        if (relation.to.id === this.id) {
+            this.initialBalance += relation.amount;
+        } else if (relation.from.id === this.id) {
+            this.initialBalance -= relation.amount;
+        }
     }
 
     /**
