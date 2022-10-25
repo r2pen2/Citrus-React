@@ -309,6 +309,26 @@ export class TransactionManager extends ObjectManager {
     }
 
     /**
+     * Get all relations in users of this transactions (no duplicates)
+     */
+    async getAllRelations() {
+        let foundRelationIds = [];
+        let foundRelations = [];
+        return new Promise(async (resolve) => {
+            const allUsers = await this.getUsers();
+            for (const u of allUsers) {
+                for (const r of u.getRelations()) {
+                    if (!foundRelationIds.includes(r.id)) {
+                        foundRelations.push(r);
+                        foundRelationIds.push(r.id);
+                    }
+                }
+            }
+            resolve(foundRelations);
+        })
+    }
+
+    /**
      * Add this transaction to every user in its USER array
      * @returns a promise resolved with either true or false when the pushes are complete
      */

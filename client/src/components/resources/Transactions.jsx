@@ -125,15 +125,17 @@ export function TransactionCard({transactionManager}) {
       currentBanalce: 0,
       allUsers: [],
       settledUsers: [],
-      createdAt: null
+      createdAt: null,
+      dateString: "",
     });
 
-    useEffect(() => {
+    
 
       /**
       * Get transaction context from user's perspective
       */
-      async function getTransactionContext() {
+       async function getTransactionContext() {
+        console.log("gettransactionContext")
         const title = await transactionManager.getTitle();
         const transactionUser = await transactionManager.getUser(SessionManager.getUserId());
         const createdAt = await transactionManager.getCreatedAt();
@@ -158,11 +160,14 @@ export function TransactionCard({transactionManager}) {
           allUsers: allUsers,
           settledUsers: settledUsers,
           createdAt: createdAt,
+          dateString: getDateString(context.createdAt ? context.createdAt.toDate() : new Date())
         });
       }
 
+    useEffect(() => {
+
       getTransactionContext();
-    }, [transactionManager]);
+    }, []);
 
     function getFractionTooltip() {
       const amtString = formatter.format(Math.abs(context.initialBalance - context.currentBalance));
@@ -175,7 +180,7 @@ export function TransactionCard({transactionManager}) {
 
     return (
         <OutlinedCard key={transactionManager.getDocumentId()}>
-            <CardActionArea onClick={() => window.location = "/dashboard/transaction/?id=" + transactionManager.getDocumentId()}>
+            <CardActionArea onClick={() => window.location = "/dashboard/transactions?id=" + transactionManager.getDocumentId()}>
                 <CardContent>
                     <div className="transaction-card-content-container">
                         <div className="left">
@@ -184,7 +189,7 @@ export function TransactionCard({transactionManager}) {
                         <div className="center">
                             <div className="text-container">
                                 <Typography variant="h6" component="div">{context.title}</Typography>
-                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{getDateString(context.createdAt ? context.createdAt.toDate() : new Date())}</Typography>
+                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{context.dateString}</Typography>
                             </div>
                         </div>
                         <div className="right">
@@ -206,13 +211,18 @@ export function TransactionDetail() {
   const params = new URLSearchParams(window.location.search);
   const transactionId = params.get("id");
 
-  const [transactionManager, setTransactionManager] = useState(null);
+  const [transactionData, setTransactionData] = useState({
+    title: "",
+    total: 0,
+    relations: []
+  });
 
   useEffect(() => {
 
     async function fetchTransactionData() {
       // Check if there's an ID
-      if (!transactionId || transactionId.length > 0) {
+      console.log(transactionId)
+      if (!transactionId || transactionId.length <= 0) {
         RouteManager.redirect("/dashboard");
         return;
       }
@@ -220,7 +230,8 @@ export function TransactionDetail() {
       await tm.fetchData();
       // Make sure current user is in this transaction's user list
       let foundCurrentUser = false;
-      for (const transactionUser of tm.getUsers()) {
+      const transactionUsers = await tm.getUsers();
+      for (const transactionUser of transactionUsers) {
         if (transactionUser.id === SessionManager.getUserId()) {
           foundCurrentUser = true;
         }
@@ -229,8 +240,15 @@ export function TransactionDetail() {
         // If the current user wasn't found in this transaction's user list, kick them out!
         RouteManager.redirect("/dashboard");
       } else {
-        // Otherwise, they're in the right place! Update the transactionManager with loaded data
-        setTransactionManager(tm);
+        // Otherwise, they're in the right place! Update the transactionData with loaded data
+        const title = await tm.getTitle();
+        const total = await tm.getTotal();
+        const relations = await tm.getAllRelations();
+        setTransactionData({
+          title: title,
+          total: total,
+          relations: relations,
+        });
       }
     }
 
@@ -240,34 +258,9 @@ export function TransactionDetail() {
 
   return (
     <div>
-      <Breadcrumbs path={"Dashboard/Transactions/" + transactionId} />
-      <h1>Transaction Detail Page</h1>
-      <TransactionDetailHeader transcationManager={transactionManager} />
-      <h2>Needs implementation</h2>
-      <a href="https://github.com/r2pen2/Citrus-React/issues/97">
-        Github: Implement Dashboard/Transactions/Detail?id=transactionId #97
-      </a>
-      <ul>
-        <li>
-          <div>Renders information on a transaction by ID</div>
-        </li>
-        <li>
-          <div>
-            Shows a map (maybe), a button to dispute, and a button to edit
-          </div>
-        </li>
-        <li>
-          <div>Shows avatars of everyone involved in the transaction</div>
-        </li>
-        <li>
-          <div>Shows the cost of the transaction</div>
-        </li>
-        <li>
-          <a href={"/dashboard/transaction/conversation?id=" + transactionId}>
-            Link to dispute page
-          </a>
-        </li>
-      </ul>
+      <Breadcrumbs path={`Dashboard/Transactions/${transactionData.title}`}/>
+      <TransactionDetailHeader title={transactionData.title} />
+      <TransactionRelationList relations={transactionData.relations} />
     </div>
   );
 }
@@ -323,36 +316,21 @@ export function TransactionRelationCard({relation}) {
   )
 } 
 
-function TransactionDetailHeader({transactionManager}) {
-  
-  const [transactionTitle, setTransactionTitle] = useState("");
+export function TransactionRelationList({relations}) {
+  function mapRelations() {
+    return relations.map((relation, index) => {
+      return <TransactionRelationCard relation={relation} key={index} />;
+    })
+  } 
+  return (<div className="relation-list">
+    {mapRelations()}
+  </div>);
+}
 
-  useEffect(() => {
-    function managerIsValid() {
-      if (!transactionManager) {
-        return false;
-      }
-      if (!transactionManager.hasFetched()) {
-        return false;
-      }
-      return true;
-    }
-
-    async function getTransactionDetails() {
-      if (!managerIsValid()) {
-        setTransactionTitle("");
-      } else {
-        const title = await transactionManager.getTitle(); 
-        setTransactionTitle(title);
-      }
-    }
-
-    getTransactionDetails();
-  }, [transactionManager]);
-
+function TransactionDetailHeader({title}) {
   return (
     <div className="transaction-detail-header">
-      <h1>{transactionTitle}</h1>
+      <Typography variant="h2">{title}</Typography>
     </div>
   )
 }

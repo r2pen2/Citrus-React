@@ -4,7 +4,6 @@
  * @returns {String} date formatted as a string
  */
  export function getDateString(date) {
-    console.log(date)
     const d = new Date(date)
     const day = d.getUTCDate();
     const month = d.getMonth();
