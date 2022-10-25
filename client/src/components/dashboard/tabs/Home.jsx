@@ -1,8 +1,8 @@
 // Library imports
-import { Stack, Box, Button } from "@mui/material";
+import { Stack, Button } from "@mui/material";
 
 // Component imports
-import OweCard from "./home/OweCard";
+import { DashboardOweCards } from "../../resources/OweCards";
 import { TransactionList } from "../../resources/Transactions";
 import AnalyticsPreview from "./home/AnalyticsPreview";
 import { Breadcrumbs } from "../../resources/Navigation";
@@ -17,21 +17,10 @@ export default function Home() {
     RouteManager.redirectWithHash("dashboard", "transactions");
   }
 
-  function handleOweCardClick(pos) {
-    const newVal = "owe-" + (pos ? "positive" : "negative");
-    RouteManager.redirectWithHash("dashboard", newVal);
-  }
-
   return (
     <Stack spacing={3} className="dashboard-home-container">
       <Breadcrumbs path="Dashboard/Home" />
-      <Box data-testid="owe-cards">
-        <div className="owe-cards-row">
-          <OweCard credit={{ positive: true, amount: 250, numPeople: 6 }} clickFunction={() => handleOweCardClick(true)}/>
-          <div className="spacer"></div>
-          <OweCard credit={{ positive: false, amount: 42.5, numPeople: 2 }} clickFunction={() => handleOweCardClick(false)}/>
-        </div>
-      </Box>
+      <DashboardOweCards />
       <div data-testid="transactions">
         <SectionTitle title="Recent Transactions">
           <Button variant="contained" onClick={() => handleTransactionsClick()}>View All Transactions</Button>
