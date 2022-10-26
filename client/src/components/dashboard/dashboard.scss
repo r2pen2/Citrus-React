@@ -755,3 +755,45 @@
         }
     }
 }
+
+.owe-one-direction-page {
+    .owe-one-direction-container {
+        margin-top: 20px;
+        border-radius: 75px;
+
+        &.green {
+            background-color: $citrus-green;
+        }
+
+        &.red {
+            background-color: $citrus-red;
+        }
+
+        .owe-one-direction-person {
+            padding: 20px;
+            gap: 10px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 2px solid white;
+
+            .row {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                width: 80%;
+
+                h1 {
+                    font-size: 48px;
+                }
+
+                &.buttons {
+                    width: 60%;
+                }
+            }
+        }
+    }
+}

@@ -1,47 +1,95 @@
+// Library Imports
+import { useState, useEffect } from 'react';
+
+// Component Imports
 import { Breadcrumbs } from "../../resources/Navigation";
+import { OweOneDirectionHeader, OweOneDirectionPerson } from "../../resources/OweCards";
+
+// API Imports
+import { SessionManager } from "../../../api/sessionManager";
+import { DBManager } from "../../../api/db/dbManager";
 
 export default function OweOneDirection({positive}) {
 
+  const [userRelations, setUserRelations] = useState([]);
+
+  useEffect(() => {
+
+    async function fetchOweData() {
+      const userManager = SessionManager.getCurrentUserManager();
+      const userTransactions = await userManager.getTransactions();
+      let allRelations = [];
+      for (const userTransaction of userTransactions) {
+        const transactionManager = DBManager.getTransactionManager(userTransaction);
+        const transactionUser = await transactionManager.getUser(SessionManager.getUserId());
+        const userRelations = transactionUser.getRelations();
+        allRelations = allRelations.concat(userRelations);
+      }
+      setUserRelations(allRelations);
+    }
+
+    fetchOweData();
+  }, [])
+
+  function renderCards() {
+    let relevantRelations = [];
+    for (const relation of userRelations) {
+      if (positive) {
+        if (relation.to.id === SessionManager.getUserId()) {
+          relevantRelations.push(relation);
+        }
+      } else {
+        if (relation.from.id === SessionManager.getUserId()) {
+          relevantRelations.push(relation);
+        }
+      }
+    }
+    // Make a map of all users and their amounts across all realtions with them
+    const peopleMap = new Map();
+    for (const relation of relevantRelations) {
+      if (positive) {
+        if (relation.to.id === SessionManager.getUserId()) {
+          if (peopleMap.has(relation.from.id)) {
+            const existingUser = peopleMap.get(relation.from.id);
+            existingUser.amount += relation.amount;
+            peopleMap.set(relation.from.id, existingUser);
+          } else {
+            peopleMap.set(relation.from.id, {personId: relation.from.id, displayName: relation.from.displayName, pfpUrl: relation.from.pfpUrl, amount: relation.amount});
+          }
+        }
+      } else {
+        if (relation.from.id === SessionManager.getUserId()) {
+          if (peopleMap.has(relation.to.id)) {
+            const existingUser = peopleMap.get(relation.to.id);
+            existingUser.amount += relation.amount;
+            peopleMap.set(relation.to.id, existingUser);
+          } else {
+            peopleMap.set(relation.to.id, {personId: relation.to.id, displayName: relation.to.displayName, pfpUrl: relation.to.pfpUrl, amount: relation.amount});
+          }
+        }
+      }
+    }
+    // Now we have a map of all users and the amounts
+    let people = [];
+    for (const key of peopleMap) {
+      const person = key[1];
+      people.push(person);
+    }
+    // Render the cards
+    return people.map((person, index) => {
+      return (
+        <OweOneDirectionPerson key={index} person={person}/>
+      )
+    })
+  }
+
   return (
-    <div>
-    <Breadcrumbs path={"Dashboard/IOU/" + (positive ? "Owe Me" : "I Owe")} />
-    <h1>All Dues Page</h1>
-    <h2>Needs implementation</h2>
-    <a href="https://github.com/r2pen2/Citrus-React/issues/96">
-      Github: Implement Dashboard/Owe/?dir=in/out #96
-    </a>
-    <ul>
-      <li>
-        <div>
-          Renders a list of all outstanding transactions in a direction
-        </div>
-      </li>
-      <li>
-        <div>
-          Direction is determined by the (positive) prop passed into the
-          element
-        </div>
-      </li>
-      <li>
-        <div>
-          Each transaction has a button to settle and a button to venmo
-        </div>
-      </li>
-      <li>
-        <div>
-          Positive version is green and has a remind button on each
-          transaction
-        </div>
-      </li>
-      <li>
-        <div>Negative version is red and does not have the remind button</div>
-      </li>
-      <li>
-        <a href="/dashboard/owe/individual?id=exampleID">
-          Link to Personal Dues Page
-        </a>
-      </li>
-    </ul>
+    <div className="owe-one-direction-page">
+      <Breadcrumbs path={"Dashboard/IOU/" + (positive ? "Owe Me" : "I Owe")} />
+      <OweOneDirectionHeader positive={positive} relations={userRelations} />
+      <div className={"owe-one-direction-container " + (positive ? "green" : "red")}>
+        {renderCards()}
+      </div>
   </div>
   )
 }

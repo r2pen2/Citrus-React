@@ -2,7 +2,7 @@
 import "./style/oweCards.scss";
 
 // Library imports
-import { CardContent, CardActionArea, Typography, Stack, Box } from "@mui/material";
+import { CardContent, CardActionArea, Typography, Stack, Box, Button } from "@mui/material";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { useState, useEffect } from 'react';
 
@@ -15,6 +15,7 @@ import { DBManager } from "../../api/db/dbManager";
 // Component imports
 import { SectionTitle } from "./Labels";
 import { OutlinedCard } from "./Surfaces";
+import { AvatarIcon } from "./Avatars";
 
 export function DashboardOweCards() {
 
@@ -126,4 +127,45 @@ function DashboardOweCard({positive, relations}) {
         </div>
     );
 }
-  
+
+export function OweOneDirectionHeader({positive, relations}) {
+  function getRelationTotal() {
+    let total = 0;
+    for (const r of relations) {
+      if (positive) {
+        if (r.to.id === SessionManager.getUserId()) {
+          total += r.amount;
+        }
+      } else {
+        if (r.from.id === SessionManager.getUserId()) {
+          total += r.amount;
+        }
+      }
+    }
+    return total;
+  }
+
+  return (
+    <div className="owe-one-direction-header">
+      <Typography variant="h1">{positive ? "Owe Me" : "I Owe"}</Typography>
+      <Typography variant="h2">{formatter.format(getRelationTotal())}</Typography>
+    </div>
+  )
+}
+
+export function OweOneDirectionPerson({person}) {
+  return (
+    <div className="owe-one-direction-person">
+      <div className="row">
+        <AvatarIcon src={person.pfpUrl} displayName={person.displayName} size={100}/>
+        <Typography variant="h1">{person.displayName}</Typography>
+        <Typography variant="h1">{formatter.format(person.amount)}</Typography>
+      </div>
+      <div className="row buttons">
+        <Button variant="outlined" color="white">Remind</Button>
+        <Button variant="outlined" color="white">Settle</Button>
+        <Button variant="outlined" color="venmo">Venmo</Button>
+      </div>
+    </div>
+  )
+}

@@ -43,5 +43,11 @@ export default createTheme({
     info: {
       main: "#f0e358", // aka citrusYellow
     },
+    white: {
+      main: "#FFFFFF",
+    },
+    venmo: {
+      main: "#3D95CE",
+    },
   },
 });
