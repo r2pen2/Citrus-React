@@ -17,15 +17,8 @@ export default function OweOneDirection({positive}) {
 
     async function fetchOweData() {
       const userManager = SessionManager.getCurrentUserManager();
-      const userTransactions = await userManager.getTransactions();
-      let allRelations = [];
-      for (const userTransaction of userTransactions) {
-        const transactionManager = DBManager.getTransactionManager(userTransaction);
-        const transactionUser = await transactionManager.getUser(SessionManager.getUserId());
-        const userRelations = transactionUser.getRelations();
-        allRelations = allRelations.concat(userRelations);
-      }
-      setUserRelations(allRelations);
+      const relationsFromDB = await userManager.getRelations();
+      setUserRelations(relationsFromDB);
     }
 
     fetchOweData();

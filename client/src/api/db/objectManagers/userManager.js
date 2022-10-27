@@ -1,6 +1,7 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 import { TransactionRelation } from "./transactionManager";
+import { SessionManager } from "../../sessionManager";
 
 /**
  * Object Manager for users
@@ -389,6 +390,61 @@ export class UserManager extends ObjectManager {
                         resolve(r);
                     }
                 }
+            })
+        })
+    }
+
+    async getSimplifiedRelations() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.RELATIONS).then((val) => {
+                // get all positive and negative relations
+                let positiveRelations = [];
+                let negativeRelations = [];
+                for (const relation of val) {
+                    if (relation.to.id === SessionManager.getUserId()) {
+                        positiveRelations.push(relation);
+                    } else {
+                        negativeRelations.push(relation);
+                    }
+                }
+                let finalRelations = new Map();
+                // Combine relations!
+                for (const positiveRelation of positiveRelations) {
+                    if (finalRelations.has(positiveRelation.from.id)) {
+                        // We have a relation with this person already
+                        let existingRelation = finalRelations.get(positiveRelation.from.id);
+                        existingRelation.setAmount(existingRelation.amount + positiveRelation.amount);
+                        if (existingRelation.amount < 0) {
+                            existingRelation.swapRoles();
+                        }
+                        finalRelations.set(positiveRelation.from.id, existingRelation);
+                    } else {
+                        // We haven't seen this person already
+                        finalRelations.set(positiveRelation.from.id, positiveRelation);
+                    }
+                }
+                for (const negativeRelation of negativeRelations) {
+                    if (finalRelations.has(negativeRelation.to.id)) {
+                        // We have a relation with this person already
+                        let existingRelation = finalRelations.get(negativeRelation.to.id);
+                        existingRelation.setAmount(existingRelation.amount - negativeRelation.amount);
+                        if (existingRelation.amount < 0) {
+                            existingRelation.swapRoles();
+                        }
+                        finalRelations.set(negativeRelation.to.id, existingRelation);
+                    } else {
+                        // We haven't seen this person already
+                        finalRelations.set(negativeRelation.to.id, negativeRelation);
+                    }
+                }
+                let finalRelationArray = [];
+                for (const key of finalRelations) {
+                    const relation = key[1];
+                    if (relation.amount !== 0) {
+                        finalRelationArray.push(relation);
+                    }
+                }
+                resolve(finalRelationArray);
             })
         })
     }

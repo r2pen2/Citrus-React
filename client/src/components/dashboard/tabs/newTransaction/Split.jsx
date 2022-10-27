@@ -1143,6 +1143,10 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             let success = await userManager.push();
             if (!success) {
                 userError = true;
+            } else {
+                if (userId === SessionManager.getUserId()) {
+                    SessionManager.setCurrentUserManager(userManager);
+                }
             }
         }
         if (!userError) {

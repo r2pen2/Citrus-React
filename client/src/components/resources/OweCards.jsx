@@ -10,7 +10,6 @@ import { useState, useEffect } from 'react';
 import formatter from "../../api/formatter";
 import { RouteManager } from "../../api/routeManager";
 import { SessionManager } from "../../api/sessionManager";
-import { DBManager } from "../../api/db/dbManager";
 
 // Component imports
 import { SectionTitle } from "./Labels";
@@ -29,25 +28,20 @@ export function DashboardOweCards() {
         async function fetchUserRelations() {
             // Get all transactions for current user
             const userManager = SessionManager.getCurrentUserManager();
-            const userTransactions = await userManager.getTransactions();
+            const userRelations = await userManager.getSimplifiedRelations();
+            console.log(userRelations)
 
             let newPositiveRelations = [];
             let newNegativeRelations = [];
 
-            for (const transactionId of userTransactions) {
-                const transactionManager = DBManager.getTransactionManager(transactionId);
-                const transactionUser = await transactionManager.getUser(SessionManager.getUserId());
-                // Get all of this user's relations in this transaction
-                const relations = transactionUser.getRelations();
-                for (const relation of relations) {
-                    if (relation.to.id === SessionManager.getUserId()) {
-                        // This user is owed money
-                        newPositiveRelations.push(relation);
-                    } else if (relation.from.id === SessionManager.getUserId()) {
-                        // This user owes money
-                        newNegativeRelations.push(relation);
-                    }
-                }
+            for (const relation of userRelations) {
+              if (relation.to.id === SessionManager.getUserId()) {
+                  // This user is owed money
+                  newPositiveRelations.push(relation);
+              } else if (relation.from.id === SessionManager.getUserId()) {
+                  // This user owes money
+                  newNegativeRelations.push(relation);
+              }
             }
 
             setRelations({
