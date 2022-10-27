@@ -6,7 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 // Component imports
 import { OutlinedCard } from "../../../resources/Surfaces";
-import { TransactionRelationCard } from "../../../resources/Transactions";
+import { TransactionRelationList } from "../../../resources/Transactions";
 
 // API imports
 import { SessionManager } from "../../../../api/sessionManager";
@@ -1073,31 +1073,40 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         setTransactionTotal(totalPaid);
     }, [weightedUsers, peopleInvolved])
 
-    function renderRelations() {
-        return (
-            relations.map((relation, index) => {
-                return <TransactionRelationCard key={index} relation={relation}/>;
-            })
-        )
-    }
-
     async function handleSubmit() {
         const transactionManager = DBManager.getTransactionManager();
-        const newTransactionUsers = new Map();
+        let newTransactionUsers = [];
+        let userRelationsMap = new Map();
+        const newTransactionBalances = new Map();
         for (const relation of relations) {
             // Get toUser and fromUser if they already exist
-            let toUser = newTransactionUsers.get(relation.to.id) ? newTransactionUsers.get(relation.to.id) : new TransactionUser(relation.to.id);
-            let fromUser = newTransactionUsers.get(relation.from.id) ? newTransactionUsers.get(relation.from.id) : new TransactionUser(relation.from.id);
-            // Add relation to users
-            toUser.addRelation(relation);
-            fromUser.addRelation(relation);
-            // Update map
-            newTransactionUsers.set(relation.to, toUser);
-            newTransactionUsers.set(relation.from, fromUser);
+            let toBal = newTransactionBalances.get(relation.to.id) ? newTransactionBalances.get(relation.to.id) : 0;
+            let fromBal = newTransactionBalances.get(relation.from.id) ? newTransactionBalances.get(relation.from.id) : 0;
+            // Add relation to user map
+            toBal += relation.amount;
+            fromBal -= relation.amount;
+            let toUserRelationsArray = userRelationsMap.get(relation.to.id) ? userRelationsMap.get(relation.to.id) : [];
+            let fromUserRelationsArray = userRelationsMap.get(relation.from.id) ? userRelationsMap.get(relation.from.id) : [];
+            toUserRelationsArray.push(relation);
+            fromUserRelationsArray.push(relation);
+            userRelationsMap.set(relation.to.id, toUserRelationsArray);
+            userRelationsMap.set(relation.from.id, fromUserRelationsArray);
+            // Update maps
+            newTransactionBalances.set(relation.to.id, toBal);
+            newTransactionBalances.set(relation.from.id, fromBal);
+            if (!newTransactionUsers.includes(relation.to.id)) {
+                newTransactionUsers.push(relation.to.id);
+            }
+            if (!newTransactionUsers.includes(relation.from.id)) {
+                newTransactionUsers.push(relation.from.id);
+            }
         }
         // Now that map is populated, we loop through it and add those transactionUsers to the transcationManager
-        for (const key of newTransactionUsers) {
-            const transactionUser = key[1];
+        for (const userId of newTransactionUsers) {
+            const transactionUser = new TransactionUser(userId);
+            transactionUser.setInitialBalance(newTransactionBalances.get(userId));
+            transactionUser.setCurrentBalance(0);
+            transactionUser.setSettled(false);
             transactionManager.addUser(transactionUser);
         }
         // Transaction should now be populated with users
@@ -1119,8 +1128,24 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         const newTransactionId = transactionManager.getDocumentId(); 
         
         // Add new transaction to all users involved
-        let addedToUsers = await transactionManager.addToAllUsers();
-        if (addedToUsers) {
+        let userError = false;
+        for (const userId of newTransactionUsers) {
+            const userManager = DBManager.getUserManager(userId);
+            userManager.addTransaction(newTransactionId);
+            const userRelationsArray = userRelationsMap.get(userId);
+            for (const relation of userRelationsArray) {
+                // Set relation info and add to user
+                relation.setTransactionId(newTransactionId);
+                relation.setTransactionTitle(transactionTitle);
+                relation.setTransactionAmount(transactionTotal);
+                userManager.addRelation(relation);
+            }
+            let success = await userManager.push();
+            if (!success) {
+                userError = true;
+            }
+        }
+        if (!userError) {
             // Take user to the new transaciton's page
             RouteManager.redirectToTransaction(newTransactionId);
         }
@@ -1133,9 +1158,7 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
                     <Typography variant="h6">{transactionTitle}</Typography>
                     <Typography variant="h6">Total Paid: ${transactionTotal}</Typography>
                 </div>
-                <div className="relations">
-                    { renderRelations() }
-                </div>
+                <TransactionRelationList relations={relations} />
                 <div className="next-button">
                     <Button variant="contained" onClick={() => {handleSubmit()}}>Submit</Button>
                 </div>

@@ -309,26 +309,6 @@ export class TransactionManager extends ObjectManager {
     }
 
     /**
-     * Get all relations in users of this transactions (no duplicates)
-     */
-    async getAllRelations() {
-        let foundRelationIds = [];
-        let foundRelations = [];
-        return new Promise(async (resolve) => {
-            const allUsers = await this.getUsers();
-            for (const u of allUsers) {
-                for (const r of u.getRelations()) {
-                    if (!foundRelationIds.includes(r.id)) {
-                        foundRelations.push(r);
-                        foundRelationIds.push(r.id);
-                    }
-                }
-            }
-            resolve(foundRelations);
-        })
-    }
-
-    /**
      * Add this transaction to every user in its USER array
      * @returns a promise resolved with either true or false when the pushes are complete
      */
@@ -383,7 +363,6 @@ export class TransactionUser {
         this.initialBalance = data ? data.initialBalance : null;
         this.currentBalance = data ? data.currentBalance : null;
         this.settled = data ? data.settled : null;
-        this.relations = data ? data.relations : [];
     }
 
     /**
@@ -419,51 +398,6 @@ export class TransactionUser {
     }
 
     /**
-     * Add a relation to this transaction user
-     * @param {TransactionRelation} relation relation to add to user 
-     */
-    addRelation(relation) {
-        const jsonRelation = relation.toJson();
-        this.relations.push(jsonRelation);
-        if (relation.to.id === this.id) {
-            this.initialBalance += relation.amount;
-        } else if (relation.from.id === this.id) {
-            this.initialBalance -= relation.amount;
-        }
-    }
-
-    /**
-     * Remove a relation from this transaction user
-     * This method will remove ANY relation with matching ID
-     * @param {TransactionRelation} relation relation to remove fromuser 
-     */
-    removeRelation(relation) {
-        // We can do this in JSON
-        this.relations = this.relations.filter(r => r.id !== relation.id);
-    }
-
-    /**
-     * Get a TransactionRelation from a TransactionUser by relationId
-     * @param {string} relationId id of relation to get
-     * @returns TransactionRelation from user by ID
-     */
-    getRelation(relationId) {
-        for (const r of this.relations) {
-            if (r.id === relationId) {
-                return new TransactionRelation(r.from, r.to, r.amount, r.id, {displayName: r.from.displayName, pfpUrl: r.from.pfpUrl}, {displayName: r.to.displayName, pfpUrl: r.to.pfpUrl});
-            }
-        }
-    }
-
-    /**
-     * Get all TransactionRelations from a TransactionUser
-     * @returns array of TransactionRelations
-     */
-    getRelations() {
-        return this.relations;
-    }
-
-    /**
      * Turn this custom object into JSON that can be stored in the database
      * @returns Json representation of TransactionUser
      */
@@ -473,7 +407,6 @@ export class TransactionUser {
             initialBalance: this.initialBalance,
             currentBalance: this.currentBalance,
             settled: this.settled,
-            relations: this.relations,
         }
     }
 }
@@ -490,8 +423,9 @@ export class TransactionRelation {
      * @param {string} _id id of this TransactionRelation (null to create a new one)
      * @param {Object} _fromData any possible existing data for fromUser (displayName and pfpUrl)
      * @param {Object} _toData any possible existing data for toUser (displayName and pfpUrl)
+     * @param {Object} _toData any possible existing data for transaction (id, total, and title)
      */
-    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData) {
+    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData, _transactionData) {
         this.id = _id ? _id : DBManager.generateId(16);
         this.from = {
             id: _fromUserId,
@@ -504,6 +438,29 @@ export class TransactionRelation {
             pfpUrl: _toData ? _toData.pfpUrl: null,
         };
         this.amount = _amount;
+        this.transaction = _transactionData ? _transactionData : { 
+            id: null, 
+            amount: null,
+            title: null
+        }
+    }
+
+    setTransactionId(id) {
+        const newTransaction = this.transaction;
+        newTransaction.id = id;
+        this.transaction = newTransaction;
+    }
+
+    setTransactionTitle(title) {
+        const newTransaction = this.transaction;
+        newTransaction.title = title;
+        this.transaction = newTransaction;
+    }
+
+    setTransactionAmount(amt) {
+        const newTransaction = this.transaction;
+        newTransaction.amount = amt;
+        this.transaction = newTransaction;
     }
 
     /**
@@ -516,6 +473,7 @@ export class TransactionRelation {
             from: this.from,
             to: this.to,
             amount: this.amount,
+            transaction: this.transaction
         }
     }
 

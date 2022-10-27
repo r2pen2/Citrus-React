@@ -1,5 +1,6 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
+import { TransactionRelation } from "./transactionManager";
 
 /**
  * Object Manager for users
@@ -30,6 +31,7 @@ export class UserManager extends ObjectManager {
         PHONENUMBER: "phoneNumber",
         PROFILEPICTUREURL: "profilePictureUrl",
         SETTINGS: "settings",
+        RELATIONS: "relations",
     }
 
     getEmptyData() {
@@ -55,6 +57,7 @@ export class UserManager extends ObjectManager {
                 darkMode: null,             // --- {boolean} Whether the user is in darkMode or not
                 language: null,             // --- {string <- languageId} User's language choice
             },
+            relations: [],                  // {array} List of active TransactionRelations for user
         }
         return empty;
     }
@@ -84,6 +87,11 @@ export class UserManager extends ObjectManager {
             case this.fields.TRANSACTIONS:
                 if (!data.transactions.includes(change.value)) {    
                     data.transactions.push(change.value);
+                }
+                return data;
+            case this.fields.RELATIONS:
+                if (!data.relations.includes(change.value)) { 
+                    data.relations.push(change.value.toJson());
                 }
                 return data;
             case this.fields.LOCATION:
@@ -119,6 +127,9 @@ export class UserManager extends ObjectManager {
                 return data;
             case this.fields.TRANSACTIONS:
                 data.transactions = data.transactions.filter(transaction => transaction !== change.value);
+                return data;
+            case this.fields.RELATIONS:
+                data.relations = data.relations.filter(relation => relation.id !== change.value.id);
                 return data;
             case this.fields.LOCATION:
             case this.fields.CREATEDAT:
@@ -171,6 +182,7 @@ export class UserManager extends ObjectManager {
             case this.fields.FRIENDS:
             case this.fields.GROUPS:
             case this.fields.TRANSACTIONS:
+            case this.fields.RELATIONS:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -231,6 +243,14 @@ export class UserManager extends ObjectManager {
                     break;
                 case this.fields.TRANSACTIONS:
                     resolve(this.data.transactions);
+                    break;
+                case this.fields.RELATIONS:
+                    let relationArray = [];
+                    for (const jsonRelation of this.data.relations) {
+                        const rel = new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.to, jsonRelation.from, jsonRelation.transaction);
+                        relationArray.push(rel)
+                    }
+                    resolve(relationArray);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -353,6 +373,26 @@ export class UserManager extends ObjectManager {
         })
     }
 
+    async getRelations() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.RELATIONS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getRelation(relationId) {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.RELATIONS).then((val) => {
+                for (const r of val) {
+                    if (r.id === relationId) {
+                        resolve(r);
+                    }
+                }
+            })
+        })
+    }
+
     // ================= Set Operations ================= //
     setLocation(newLocation) {
         const locationChange = new Set(this.fields.LOCATION, newLocation);
@@ -425,6 +465,11 @@ export class UserManager extends ObjectManager {
         super.addChange(transactionAddition);
     }
 
+    addRelation(relation) {
+        const relationAddition = new Add(this.fields.RELATIONS, relation);
+        super.addChange(relationAddition);
+    }
+
     // ================= Remove Operations ================= //
     removeBadge(badgeId) {
         const badgeRemoval = new Remove(this.fields.BADGES, badgeId);
@@ -449,6 +494,11 @@ export class UserManager extends ObjectManager {
     removeTransaction(transactionId) {
         const transactionRemoval = new Remove(this.fields.TRANSACTIONS, transactionId);
         super.addChange(transactionRemoval);
+    }
+
+    removeRelation(relation) {
+        const relationRemoval = new Remove(this.fields.RELATIONS, relation);
+        super.addChange(relationRemoval);
     }
 
     // ================= Misc. Methods ================= //
