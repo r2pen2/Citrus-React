@@ -4,6 +4,7 @@ import "./app.scss";
 import "./assets/style/notifications.css";
 import "./assets/style/bootstrap.css";
 import "./assets/style/layout.css";
+import "./assets/style/colors.css";
 
 // Library Imports
 import { ThemeProvider } from "@mui/material";

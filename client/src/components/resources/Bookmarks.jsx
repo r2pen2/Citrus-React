@@ -68,7 +68,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
 
   if (!data) { // Render unloaded bookmark
     return (
-      <div className="bookmark-wrapper">
+      <div className="bookmark-wrapper d-flex flex-row align-items-center vh-70">
         <ColoredCard color={color}>
           <CardActionArea>
             <CardContent>
@@ -102,7 +102,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
     )
   } // Render loaded bookmark
   return (
-    <div className="bookmark-wrapper">
+    <div className="bookmark-wrapper d-flex flex-row align-items-center vh-70">
       <ColoredCard color={color}>
         <CardActionArea onClick={() => Debugger.log("Sending transaction for bookmark: " + bookmarkId)}>
           <CardContent>

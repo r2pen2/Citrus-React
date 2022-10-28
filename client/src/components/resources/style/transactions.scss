@@ -1,56 +1,20 @@
 @import "../../../assets/style/global.scss";
 
-.transaction-list {
-    ul {
-        list-style-type: none;
-    }
-    
-    .title {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        margin-bottom: 5px;
-    }
-    
-    .bracket {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        width: 100%;
-    }
-}
-
-.transaction-card-content-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+.transaction-card-content {
     height: 60px;
 
-    .left {
+    .side {
         flex: 2;
-        overflow: visible;
     }
 
     .center {
         flex: 6;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
         white-space: nowrap;
         text-overflow: ellipsis;
-        overflow: hidden;
-
-        .text-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-        }
     }
 
-    .right {
-        flex: 2;
+    h1 {
+        font-size: 24px;
     }
 }
 

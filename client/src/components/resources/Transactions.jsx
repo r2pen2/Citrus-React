@@ -14,7 +14,7 @@ import { Breadcrumbs } from "./Navigation";
 // API imports
 import { getDateString, cutAtSpace } from "../../api/strings";
 import formatter from "../../api/formatter";
-import { sortByCreatedAt } from "../../api/sorting";
+import { sortByDataCreatedAt } from "../../api/sorting";
 import { DBManager } from "../../api/db/dbManager";
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
@@ -23,21 +23,52 @@ export function TransactionList(props) {
   
   const userManager = SessionManager.getCurrentUserManager();
     
-  const [transactionManagers, setTransactionManagers] = useState([]);
+  const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
+  const [listState, setListState] = useState({
+    numFetched: -1,
+    brackets: [[], [], [], [], [], []]
+  })
   
   // Fetch transactions on mount
   useEffect(() => {
     async function fetchUserTransactions() {
-      let transactionIds = await userManager.getTransactions();
-      let newTransactionManagers = [];
-      if (props.numDisplayed) {
-        transactionIds = transactionIds.slice(0, props.numDisplayed);
-      }
-      for (const transactionId of transactionIds) {
-        newTransactionManagers.push(DBManager.getTransactionManager(transactionId));
-      }
-      newTransactionManagers = sortByCreatedAt(newTransactionManagers);
-      setTransactionManagers(newTransactionManagers);
+        // Get all transaction IDs that user is in
+        let transactionIds = await userManager.getTransactions();
+        let newTransactionManagers = [];
+        for (const transactionId of transactionIds) {
+            const transactionManager = DBManager.getTransactionManager(transactionId);
+            await transactionManager.fetchData();
+            newTransactionManagers.push(transactionManager);
+        }
+        newTransactionManagers = sortByDataCreatedAt(newTransactionManagers);
+        if (props.numDisplayed) { // Throw out extra transactions if we're limiting the number we're displaying
+            newTransactionManagers = newTransactionManagers.slice(0, props.numDisplayed);
+        }
+        // Sort transactionManagers into brackets
+        const day = 86400000;
+        let newBrackets = [[], [], [], [], [], []];
+        for (const transactionManager of newTransactionManagers) {
+          const ageInDays = (new Date().getTime() - new Date(transactionManager.createdAt).getTime() / day);
+          if (ageInDays <= 1) {
+            newBrackets[0].push(transactionManager);
+          } else if (ageInDays <= 2) {
+            newBrackets[1].push(transactionManager);
+          } else if (ageInDays <= 7) {
+            newBrackets[2].push(transactionManager);
+          } else if (ageInDays <= 30) {
+            newBrackets[3].push(transactionManager);
+          } else if (ageInDays <= 365) {
+            newBrackets[4].push(transactionManager);
+          } else {
+            newBrackets[5].push(transactionManager);
+          }
+        }
+        // Set state
+        console.log(newBrackets);
+        setListState({
+          numFetched: newTransactionManagers.length,
+          brackets: newBrackets
+        })
     }
 
     fetchUserTransactions();
@@ -50,53 +81,30 @@ export function TransactionList(props) {
   */
   function renderTransactions() {
 
-    if (!transactionManagers) { // If we don't yet have a list of transactions, just display a little loading circle
-      return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
+    if (listState.numFetched === -1) { // If we don't yet have a list of transactions, just display a little loading circle
+      return (
+        <div className="d-flex flex-row justify-content-center">
+          <CircularProgress />
+        </div>
+      )
     }
   
-    if (transactionManagers.length <= 0) { // If there are no transactions on a user, display a message to indicate
+    if (listState.numFetched === 0) { // If there are no transactions on a user, display a message to indicate
       return    (     
-        <div className="empty">
-          <Typography>
-            User has no transactions.
-          </Typography>
-        </div>
+        <Typography>
+          User has no transactions.
+        </Typography>
         )
     }
 
-    // Otherwise, we have to display the transaction list
-    // Populate bracket arrays
-    const DAY = 86400000;
-    var brackets = [[], [], [], [], [], []];
-    const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
-    // Assign each transaction to a bracket associated with time since transcation creation 
-    if (transactionManagers) {
-      for (const transactionManager of transactionManagers) {
-        const ageInDays = (new Date().getTime() - new Date(transactionManager.createdAt).getTime()) / DAY;
-        if (ageInDays <= 1) {
-          brackets[0].push(transactionManager);
-        } else if (ageInDays <= 2) {
-          brackets[1].push(transactionManager);
-        } else if (ageInDays <= 7) {
-          brackets[2].push(transactionManager);
-        } else if (ageInDays <= 30) {
-          brackets[3].push(transactionManager);
-        } else if (ageInDays <= 365) {
-          brackets[4].push(transactionManager);
-        } else {
-          brackets[5].push(transactionManager);
-        }
-      }
-    }
-
     // for each time bracket, render a bracket label and all of the transactions in it
-    return brackets.map((bracket, bracketIdx) => { 
+    return listState.brackets.map((bracket, bracketIdx) => { 
       return (
-        <div className="transaction-bracket" key={bracketNames[bracketIdx]}>
+        <div key={bracketNames[bracketIdx]}>
           { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
           { bracket.map((transactionManager, idx) => {
             return (
-              <div key={idx} className="transaction-card" data-testid={"transaction-card-" + transactionManager.getDocumentId()}>
+              <div key={idx} data-testid={"transaction-card-" + transactionManager.getDocumentId()}>
                 <TransactionCard transactionManager={transactionManager} />
               </div>
             )
@@ -107,7 +115,7 @@ export function TransactionList(props) {
   }
     
   return (
-    <div className="transaction-list">
+    <div>
       { renderTransactions() }
     </div>
   );
@@ -129,13 +137,12 @@ export function TransactionCard({transactionManager}) {
       dateString: "",
     });
 
-    
 
+    useEffect(() => {
       /**
       * Get transaction context from user's perspective
       */
        async function getTransactionContext() {
-        console.log("gettransactionContext")
         const title = await transactionManager.getTitle();
         const transactionUser = await transactionManager.getUser(SessionManager.getUserId());
         const createdAt = await transactionManager.getCreatedAt();
@@ -160,13 +167,12 @@ export function TransactionCard({transactionManager}) {
           allUsers: allUsers,
           settledUsers: settledUsers,
           createdAt: createdAt,
-          dateString: getDateString(context.createdAt ? context.createdAt.toDate() : new Date())
+          dateString: getDateString(createdAt ? createdAt.toDate() : new Date())
         });
       }
 
-    useEffect(() => {
-
       getTransactionContext();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function getFractionTooltip() {
@@ -182,19 +188,19 @@ export function TransactionCard({transactionManager}) {
         <OutlinedCard key={transactionManager.getDocumentId()}>
             <CardActionArea onClick={() => window.location = "/dashboard/transactions?id=" + transactionManager.getDocumentId()}>
                 <CardContent>
-                    <div className="transaction-card-content-container">
-                        <div className="left">
+                    <div className="transaction-card-content d-flex flex-row align-items-center">
+                        <div className="side">
                           <AvatarStack ids={context.allUsers} checked={context.settledUsers}/>
                         </div>
-                        <div className="center">
-                            <div className="text-container">
-                                <Typography variant="h6" component="div">{context.title}</Typography>
-                                <Typography variant="subtitle1" component="div" sx={{ color: "gray "}}>{context.dateString}</Typography>
+                        <div className="center d-flex flex-row overflow-hidden justify-content-center">
+                            <div className="d-flex flex-column align-items-center">
+                                <Typography variant="h1">{context.title}</Typography>
+                                <Typography variant="subtitle1" sx={{ color: "gray "}}>{context.dateString}</Typography>
                             </div>
                         </div>
-                        <div className="right">
+                        <div className="side">
                             <Tooltip title={getFractionTooltip()}>
-                                <div className="amount-container">
+                                <div>
                                    <Typography align="right" variant="h5" component="div" color={context.currentBalance > context.initialBalance ? "#ec6a60" : "#bfd679"}>{formatter.format(Math.abs(context.initialBalance - context.currentBalance))}</Typography>
                                    <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
                                 </div>

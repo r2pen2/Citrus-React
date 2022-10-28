@@ -34,16 +34,14 @@ export default function Bookmarks() {
   function renderBookmarks(a)  {
 
     if (!a) { // If we don't yet have a list of bookmarks, just display a little loading circle
-      return <div className="loading-box" key="transaction-list-loading-box"><CircularProgress /></div>
+      return <div className="d-flex flex-column align-items-center justify-content-center vh-75" key="transaction-list-loading-box"><CircularProgress /></div>
     }
     if (a.length <= 0) {
       //dbManager returned string "none", meaning the user has no bookmarks.
       return (
-        <div className="empty">
-          <Typography>
-            User has no bookmarks.
-          </Typography>
-        </div>
+        <Typography margin="10px">
+          User has no bookmarks.
+        </Typography>
       )
     }
     // Otherwise, we have bookmarks from DB and should display cards accordingly
@@ -126,7 +124,7 @@ export default function Bookmarks() {
       <div className={"loading-box " + (userBookmarks ? "hidden" : "")}>
         <LoadingBoxIfNull object={userBookmarks} />
       </div>
-      <div className="bookmarks">
+      <div className="d-flex flex-column w-100 align-items-center">
         { renderBookmarks(userBookmarks) }
         <div className={"add-button " + (userBookmarks ? "" : "hidden")}>
           <Tooltip title="Add Bookmark">

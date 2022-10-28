@@ -11,26 +11,3 @@ body, ul {
     // Disable scrollbar
     &::-webkit-scrollbar {display:none;}
 }
-
-.fill-line {
-    margin-left: 10px;
-    height: 0px;
-    flex: 1;
-    border: 1px dotted lightgrey;
-    
-    &.margin-right {
-        margin-right: 10px;
-    }
-
-    &.line-style-solid {
-        border: 1px solid lightgrey;
-    }
-
-    &.line-style-none {
-        border: 0px dotted lightgrey;
-    }
-}
-
-.spacer {
-    margin-left: 20px;
-}

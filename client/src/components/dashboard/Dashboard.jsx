@@ -98,8 +98,8 @@ export default function Dashboard() {
   }
   
   return (
-    <div className="dashboard">
-      {renderShortcut()}
+    <div className="dashboard-container d-flex flex-column align-items-center" style={{paddingBottom: "100px"}}>
+      { renderShortcut() }
       <div className="dashboard-pane">
         <Routes>
           <Route path="*" element={ renderTab() }/>

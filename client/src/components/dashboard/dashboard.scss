@@ -1,14 +1,10 @@
 @import "../../assets/style/global.scss";
 
-.dashboard {
-    padding-bottom: 100px;
+.dashboard-container {
     height: calc(100% - 7vh);
     margin-top: 50px;
     margin-left: 75px;
     margin-right: 75px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 
     .dashboard-pane {
         width: 100%;
@@ -21,41 +17,15 @@
     margin-top: 50px;
     margin-left: 75px;
     margin-right: 75px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 
     .transaction-pane {
-        width: 100%;
         max-width: $dashboard-content-width;
     }
 }
 
 .bookmarks-page-wrapper {
-    .bookmarks {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        align-items: center;
-    
-        .empty {
-            margin-bottom: 10px;
-        }
-    }
-    
-    .loading-box {
-        display: flex;
-        height: 70vh;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
     
     .bookmark-wrapper {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        width: 60vw;
     
         .bookmark {
             width: 100%;

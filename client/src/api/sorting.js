@@ -41,6 +41,18 @@ export function sortByDate(array) {
 }
 
 /**
+ * Sorts a list by data.createdAt
+ * @param {[Object]} array list to be sorted
+ * @returns {[Object]} sorted list
+ */
+ export function sortByDataCreatedAt(array) {
+    array.sort((a, b) => {
+        return b.data.createdAt.toDate() - a.data.createdAt.toDate();
+    })
+    return array;
+}
+
+/**
  * Sorts a list by displayName
  * @param {[Object]} array list to be sorted
  * @returns {[Object]} sorted list

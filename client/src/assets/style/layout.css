@@ -1,3 +1,26 @@
+.fill-line {
+    margin-left: 10px;
+    height: 0px;
+    flex: 1;
+    border: 1px dotted lightgrey;
+}
+
+.fill-line.margin-right {
+    margin-right: 10px;
+}
+
+.fill-line.line-style-solid {
+    border: 1px solid lightgrey;
+}
+
+.fill-line.line-style-none {
+    border: 0px dotted lightgrey;
+}
+
+.spacer {
+    margin-left: 20px;
+}
+
 .gap-2 {
     gap: 2px;
 }
@@ -16,6 +39,10 @@
 
 .vh-50 {
     height: 50vh;
+}
+
+.vh-60 {
+    height: 60vh;
 }
 
 .vh-75 {
