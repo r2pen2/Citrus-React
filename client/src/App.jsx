@@ -2,6 +2,8 @@
 import theme from "./assets/style/theme";
 import "./app.scss";
 import "./assets/style/notifications.css";
+import "./assets/style/bootstrap.css";
+import "./assets/style/layout.css";
 
 // Library Imports
 import { ThemeProvider } from "@mui/material";
@@ -54,16 +56,14 @@ function App() {
       <Router>
         <ThemeProvider theme={theme}>
           <Topbar/>
-            <div className="content" data-testid="app-content">
-              <Routes>
-                <Route path="*" element={<HomePage />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/login/*" element={<Login/>} />
-                <Route path="/dashboard/*" element={<Dashboard/>} />
-                <Route path="/user/*" element={<UserPage/>}/>
-                <Route path="/invite" element={<InviteHandler />} />
-              </Routes>
-            </div>
+            <Routes>
+              <Route path="*" element={<HomePage />} />
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/login/*" element={<Login/>} />
+              <Route path="/dashboard/*" element={<Dashboard/>} />
+              <Route path="/user/*" element={<UserPage/>}/>
+              <Route path="/invite" element={<InviteHandler />} />
+            </Routes>
         </ThemeProvider>
         <NotificationContainer />
         <div id="recaptcha-container"></div>

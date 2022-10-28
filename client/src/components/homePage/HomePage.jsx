@@ -6,7 +6,7 @@ import { Footer, LandingPage } from "../resources/HomePage";
  */
 export default function Home() {
   return (
-    <div className="home-page-wrapper" data-testid="homepage">
+    <div data-testid="homepage">
       <LandingPage />
       <Footer />
     </div>

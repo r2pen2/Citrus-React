@@ -17,7 +17,7 @@ import down from "../../assets/images/down.png";
  */
 export function Footer() {
     return (
-      <div className="home-page-footer-wrapper" id="footer" data-testid="footer">
+      <div className="footer vh-30 d-flex flex-row" id="footer" data-testid="footer">
           <div className="column" data-testid="column1">
             <Typography variant="h4">PRODUCT</Typography>
             <Typography component="a" href="/">Home</Typography>
@@ -60,47 +60,45 @@ export function LandingPage() {
     }
 
   return (
-    <div className="home-page-landing-page-wrapper" data-testid="landing-page">
-      <div className="landingpage" id="landingpage">
-        <div className="column left">
-          <div className="left-wrapper" data-testid="landing-page-left">
-            <Stack marginLeft="40px" alignItems="left" spacing="20px">
-              <Typography variant="h2" className="header" data-testid="landing-page-header">Split payments without the headache.</Typography>
-              <Typography variant="h6" className="paragraph" data-testid="landing-page-subtitle">An app aimed to revolutionize the way you track and split expenses amongst your friends, roommates, and more! Coming soon.</Typography>
-              <Button variant="contained" size="large" component="div" className="button" onClick={() => {window.location = "/login"}}>Get Started</Button>
+    <div className="splash-background d-flex" id="landingpage" data-testid="landing-page">
+      <div className="column left">
+        <div className="left-wrapper" data-testid="landing-page-left">
+          <Stack marginLeft="40px" alignItems="left" spacing="20px">
+            <Typography variant="h2" className="header" data-testid="landing-page-header">Split payments without the headache.</Typography>
+            <Typography variant="h6" className="paragraph" data-testid="landing-page-subtitle">An app aimed to revolutionize the way you track and split expenses amongst your friends, roommates, and more! Coming soon.</Typography>
+            <Button variant="contained" size="large" component="div" className="button" onClick={() => {window.location = "/login"}}>Get Started</Button>
+          </Stack>
+          <div className="links-container" data-testid="landing-page-socials">
+            <Stack direction="row" alignItems="center">
+              <Typography variant="h5" marginRight="20px" className="unselectable">
+                Come visit us:
+              </Typography>
+              <Tooltip title="LinkedIn">
+                <IconButton target="_blank" href="https://www.linkedin.com/company/citrus-financial/">
+                  <LinkedInIcon fontSize="large" sx={{color: "white" }}/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Instagram">
+                <IconButton target="_blank" href="https://www.instagram.com/">
+                  <InstagramIcon fontSize="large" sx={{color: "white" }}/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Facebook">
+                <IconButton target="_blank" href="https://www.facebook.com/">
+                  <FacebookIcon fontSize="large" sx={{color: "white" }}/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Twitter">
+                <IconButton target="_blank" href="https://www.twitter.com/">
+                  <TwitterIcon fontSize="large" sx={{color: "white" }}/>
+                </IconButton>
+              </Tooltip>
             </Stack>
-            <div className="links-container" data-testid="landing-page-socials">
-              <Stack direction="row" alignItems="center">
-                <Typography variant="h5" marginRight="20px" className="unselectable">
-                  Come visit us:
-                </Typography>
-                <Tooltip title="LinkedIn">
-                  <IconButton target="_blank" href="https://www.linkedin.com/company/citrus-financial/">
-                    <LinkedInIcon fontSize="large" sx={{color: "white" }}/>
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Instagram">
-                  <IconButton target="_blank" href="https://www.instagram.com/">
-                    <InstagramIcon fontSize="large" sx={{color: "white" }}/>
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Facebook">
-                  <IconButton target="_blank" href="https://www.facebook.com/">
-                    <FacebookIcon fontSize="large" sx={{color: "white" }}/>
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Twitter">
-                  <IconButton target="_blank" href="https://www.twitter.com/">
-                    <TwitterIcon fontSize="large" sx={{color: "white" }}/>
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </div>
           </div>
         </div>
-        <div className="column right" data-testid="landing-page-right">
-          { generateArrow(false) }
-        </div>
+      </div>
+      <div className="column right" data-testid="landing-page-right">
+        { generateArrow(false) }
       </div>
     </div>
   )

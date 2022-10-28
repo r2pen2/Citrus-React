@@ -18,7 +18,7 @@ export default function Home() {
   }
 
   return (
-    <Stack spacing={3} className="dashboard-home-container">
+    <div className="d-flex flex-column gap-10">
       <Breadcrumbs path="Dashboard/Home" />
       <DashboardOweCards />
       <div data-testid="transactions">
@@ -33,7 +33,7 @@ export default function Home() {
         <SectionTitle title="Analytics" />
         <AnalyticsPreview chartData={analyticsExample}/>
       </div>
-    </Stack>
+    </div>
   );
 }
 // This is temporary. We'll pull these vals from the DB when they're actually
