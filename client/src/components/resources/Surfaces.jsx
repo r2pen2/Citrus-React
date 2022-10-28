@@ -23,7 +23,15 @@ export function ColoredCard(props) {
   )
 }
 
-
+/**
+ * 
+ * @param {string} borderStyle border style (solid, dashed, dotted, etc) 
+ * @param {string} borderWeight weight of border in pixels 
+ * @param {string} borderRadius border radius value 
+ * @param {boolean} disableMarginBottom whether or not to disable bottom margin 
+ * @param {string} color outline color 
+ * @returns 
+ */
 export function OutlinedCard(props) {
     function getCardStyle() {
         return {

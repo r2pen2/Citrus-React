@@ -111,7 +111,7 @@ function DashboardOweCard({positive, relations}) {
                       marginLeft="5px"
                       marginTop="2px"
                     >
-                      {positive ? "From" : "To"} {numPeople} {numPeople > 1 ? "people" : "person"}
+                      {positive ? "From" : "To"} {numPeople} {numPeople === 1 ? "person" : "people"}
                     </Typography>
                   </Stack>
                 </CardContent>
@@ -147,19 +147,21 @@ export function OweOneDirectionHeader({positive, relations}) {
   )
 }
 
-export function OweOneDirectionPerson({person}) {
+export function OweOneDirectionPerson({person, positive}) {
   return (
-    <div className="owe-one-direction-person">
-      <div className="row">
-        <AvatarIcon src={person.pfpUrl} displayName={person.displayName} size={100}/>
-        <Typography variant="h1">{person.displayName}</Typography>
-        <Typography variant="h1">{formatter.format(person.amount)}</Typography>
+    <OutlinedCard borderWeight="4px" borderColor={positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} >
+      <div className="personal-owe-card">
+        <div className="row">
+          <AvatarIcon src={person.pfpUrl} displayName={person.displayName} size={100}/>
+          <Typography variant="h1">{person.displayName}</Typography>
+          <Typography variant="h1">{formatter.format(person.amount)}</Typography>
+        </div>
+        <div className="row buttons">
+          <Button variant="contained" color={positive ? "primary" : "citrusRed"}>Remind</Button>
+          <Button variant="contained" color={positive ? "primary" : "citrusRed"}>Settle</Button>
+          <Button variant="contained" color="venmo">Venmo</Button>
+        </div>
       </div>
-      <div className="row buttons">
-        <Button variant="outlined" color="white">Remind</Button>
-        <Button variant="outlined" color="white">Settle</Button>
-        <Button variant="outlined" color="venmo">Venmo</Button>
-      </div>
-    </div>
+    </OutlinedCard>
   )
 }

@@ -71,7 +71,7 @@ export default function OweOneDirection({positive}) {
     // Render the cards
     return people.map((person, index) => {
       return (
-        <OweOneDirectionPerson key={index} person={person}/>
+        <OweOneDirectionPerson key={index} person={person} positive={positive}/>
       )
     })
   }
@@ -80,8 +80,8 @@ export default function OweOneDirection({positive}) {
     <div className="owe-one-direction-page">
       <Breadcrumbs path={"Dashboard/IOU/" + (positive ? "Owe Me" : "I Owe")} />
       <OweOneDirectionHeader positive={positive} relations={userRelations} />
-      <div className={"owe-one-direction-container " + (positive ? "green" : "red")}>
-        {renderCards()}
+      <div className="owe-one-direction-container">
+        { renderCards() }
       </div>
   </div>
   )
