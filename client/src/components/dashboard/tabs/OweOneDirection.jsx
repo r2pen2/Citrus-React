@@ -17,7 +17,7 @@ export default function OweOneDirection({positive}) {
 
     async function fetchOweData() {
       const userManager = SessionManager.getCurrentUserManager();
-      const relationsFromDB = await userManager.getRelations();
+      const relationsFromDB = await userManager.getSimplifiedRelations();
       setUserRelations(relationsFromDB);
     }
 
