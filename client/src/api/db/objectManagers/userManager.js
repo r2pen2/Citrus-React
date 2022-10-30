@@ -248,7 +248,7 @@ export class UserManager extends ObjectManager {
                 case this.fields.RELATIONS:
                     let relationArray = [];
                     for (const jsonRelation of this.data.relations) {
-                        const rel = new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.to, jsonRelation.from, jsonRelation.transaction);
+                        const rel = new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.transaction);
                         relationArray.push(rel)
                     }
                     resolve(relationArray);
@@ -413,38 +413,42 @@ export class UserManager extends ObjectManager {
                     if (finalRelations.has(positiveRelation.from.id)) {
                         // We have a relation with this person already
                         let existingRelation = finalRelations.get(positiveRelation.from.id);
-                        existingRelation.setAmount(existingRelation.amount + positiveRelation.amount);
-                        if (existingRelation.amount < 0) {
-                            existingRelation.swapRoles();
-                        }
-                        finalRelations.set(positiveRelation.from.id, existingRelation);
+                        const newRelation = new TransactionRelation(existingRelation.from.id, existingRelation.to.id, existingRelation.amount + positiveRelation.amount, null, existingRelation.from, existingRelation.to, existingRelation.transaction);
+                        finalRelations.set(positiveRelation.from.id, newRelation);
                     } else {
                         // We haven't seen this person already
-                        finalRelations.set(positiveRelation.from.id, positiveRelation);
+                        const newRelation = new TransactionRelation(positiveRelation.from.id, positiveRelation.to.id, positiveRelation.amount, null, positiveRelation.from, positiveRelation.to, positiveRelation.transaction);
+                        finalRelations.set(positiveRelation.from.id, newRelation);
                     }
                 }
                 for (const negativeRelation of negativeRelations) {
                     if (finalRelations.has(negativeRelation.to.id)) {
                         // We have a relation with this person already
                         let existingRelation = finalRelations.get(negativeRelation.to.id);
-                        existingRelation.setAmount(existingRelation.amount - negativeRelation.amount);
-                        if (existingRelation.amount < 0) {
-                            existingRelation.swapRoles();
-                        }
-                        finalRelations.set(negativeRelation.to.id, existingRelation);
+                        const newRelation = new TransactionRelation(existingRelation.from.id, existingRelation.to.id, existingRelation.amount - negativeRelation.amount, null, existingRelation.from, existingRelation.to, existingRelation.transaction);
+                        finalRelations.set(negativeRelation.to.id, newRelation);
                     } else {
                         // We haven't seen this person already
-                        finalRelations.set(negativeRelation.to.id, negativeRelation);
+                        const newRelation = new TransactionRelation(negativeRelation.from.id, negativeRelation.to.id, negativeRelation.amount, null, negativeRelation.from, negativeRelation.to, negativeRelation.transaction);
+                        finalRelations.set(negativeRelation.to.id, newRelation);
                     }
                 }
                 let finalRelationArray = [];
                 for (const key of finalRelations) {
-                    const relation = key[1];
+                    let relation = key[1];
                     if (relation.amount !== 0) {
                         finalRelationArray.push(relation);
                     }
                 }
-                resolve(finalRelationArray);
+                let flippedRelationArray = [];
+                for (const relation of finalRelationArray) {
+                    if (relation.amount < 0) {
+                        flippedRelationArray.push(new TransactionRelation(relation.to.id, relation.from.id, relation.amount * -1, null, relation.to, relation.from, relation.transaction));
+                    } else {
+                        flippedRelationArray.push(relation);
+                    }
+                }
+                resolve(flippedRelationArray);
             })
         })
     }

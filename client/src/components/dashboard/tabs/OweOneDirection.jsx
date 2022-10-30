@@ -7,7 +7,6 @@ import { OweOneDirectionHeader, OweOneDirectionPerson } from "../../resources/Ow
 
 // API Imports
 import { SessionManager } from "../../../api/sessionManager";
-import { DBManager } from "../../../api/db/dbManager";
 
 export default function OweOneDirection({positive}) {
 
@@ -26,6 +25,7 @@ export default function OweOneDirection({positive}) {
 
   function renderCards() {
     let relevantRelations = [];
+    console.log(userRelations)
     for (const relation of userRelations) {
       if (positive) {
         if (relation.to.id === SessionManager.getUserId()) {

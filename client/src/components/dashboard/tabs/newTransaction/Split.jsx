@@ -58,15 +58,11 @@ export default function Split(props) {
     function renderSplitPage() {
         switch (splitPage) {
             case "add-people":
-                return <AddPeoplePage setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
+                return <AddPeoplePage weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers} setSplitPage={setSplitPage} currentGroup={currentGroup} setCurrentGroup={setCurrentGroup} groupPicklistContent={groupPicklistContent} setPeopleInvolved={setPeopleInvolved}/>;
             case "transaction-details":
                 return <TransactionDetailsPage transactionTitle={transactionTitle}currentGroup={currentGroup} setSplitPage={setSplitPage} groupPicklistContent={groupPicklistContent} setTransactionTitle={setTransactionTitle} peopleInvolved={peopleInvolved}/>;
-            case "even-split":
-                return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={false} transactionTitle={transactionTitle} peopleInvolved={peopleInvolved}/>;
-            case "manual-split":
-                return <WeightSelection setWeightedUsers={setWeightedUsers} weightedUsers={weightedUsers} setSplitPage={setSplitPage} manual={true} transactionTitle={transactionTitle} peopleInvolved={peopleInvolved}/>;
-            case "transaction-amount-error":
-                return <TransactionAmountErrorPage weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
+            case "amount-table":
+                return <AmountTable weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             case "transaction-summary":
                 return <TransactionSummaryPage currentGroup={currentGroup} weightedUsers={weightedUsers} transactionTitle={transactionTitle} setSplitPage={setSplitPage} peopleInvolved={peopleInvolved}/>;
             default:
@@ -81,7 +77,7 @@ export default function Split(props) {
     )
 }
 
-function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
+function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPicklistContent, currentGroup, setCurrentGroup, setPeopleInvolved}) {
     
     const [searchString, setSearchString] = useState("");                           // Contents of search box
     const [friends, setFriends] = useState(null);                                   // List of user's friends (stored as objects)
@@ -318,6 +314,10 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
             }
             friendsSelected = sortPeopleAndAddSelf(friendsSelected);
             setPeopleInvolved(friendsSelected);
+            for (const user of friendsSelected) {
+                weightedUsers.set(user.id, {paid: 0, shouldHavePaid: 0});
+            }
+            setWeightedUsers(new Map(weightedUsers));
             contextSet = true;
         }
         if (groupsExpanded) {
@@ -334,6 +334,10 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
             }
             usersSelected = sortPeopleAndAddSelf(usersSelected);
             setPeopleInvolved(usersSelected);
+            for (const user of usersSelected) {
+                weightedUsers.set(user.id, {paid: 0, shouldHavePaid: 0});
+            }
+            setWeightedUsers(new Map(weightedUsers));
             contextSet = true;
         }
         if (contextSet) {
@@ -495,7 +499,6 @@ function AddPeoplePage({setSplitPage, groupPicklistContent, currentGroup, setCur
 function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup, groupPicklistContent, transactionTitle}) {
 
     const [newTitle, setNewTitle] = useState(transactionTitle ? transactionTitle : "");     // New transaction's title
-    const [submitEnable, setSubmitEnable] = useState(false);                                // Whether or not submit button is enabled
 
     function renderHeader() {
         if (currentGroup) { 
@@ -527,7 +530,6 @@ function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup
 
     function handleTitleChange(e) {
         setNewTitle(e.target.value);
-        setSubmitEnable(e.target.value.length > 0);
     }
 
     function setTransactionDetails() {
@@ -541,8 +543,8 @@ function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup
                     { renderHeader() }
                 </div>
                 <div className="transaction-detail-form">
-                    <div className="form-input">
-                        <Typography variant="subtitle1">Title:</Typography>
+                    <div className="d-flex flex-column justify-content-center align-items-center w-100">
+                        <Typography variant="subtitle1" style={{marginBottom: "10px"}}>Transaction Title:</Typography>
                         <FormControl className="title-text-field">
                             <TextField
                                 value={newTitle}
@@ -556,10 +558,8 @@ function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup
                     </div>
                 </div>
                 <div className="split-section">                
-                    <Typography variant="h6">How do you want to split this payment?</Typography>
-                    <div className="split-type-buttons">
-                        <Button variant="contained" disabled={!checkSubmitEnable()} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("even-split")}}>Evenly</Button>
-                        <Button variant="contained" disabled={!checkSubmitEnable()} className="split-type-button" onClick={() => {setTransactionDetails(); setSplitPage("manual-split")}}>Manually</Button>
+                    <div className="w-100 d-flex flex-row align-items-center justify-content-center">
+                        <Button variant="contained" disabled={!checkSubmitEnable()} className="w-25" onClick={() => {setTransactionDetails(); setSplitPage("amount-table")}}>Next</Button>
                     </div>
                 </div>
                 <div className="back-button" onClick={() => setSplitPage("add-people")}>
@@ -571,297 +571,7 @@ function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup
     )
 }
 
-/**
- * Page for entering each user's role (and if manual how much everyone is owed/owes)
- * @param {function} setSplitPage function for setting current split page (used for back button on first question)
- * @param {string} transactionTitle title of this transaction
- * @param {boolean} manual whether or not this transaction will be weighted manually
- * @param {array<Object>} peopleInvolved an array of all people involved in this transaction (id, displayName, and pfpUrl)
- * @param {Map} weightedUsers map of all processed users in this transaction
- * @param {function} setWeightedUsers setter function for weightedUsers
- */
-function WeightSelection({setSplitPage, transactionTitle, manual, peopleInvolved, weightedUsers, setWeightedUsers}) {
-
-    const [currentPerson, setCurrentPerson] = useState(0);          // Int for keeping track of which person in the list of people we're currently looking at
-    const [someoneFronted, setSomeoneFronted] = useState(false);    // Boolean representing whether or not someone has been declared as a fronter yet
-
-    /**
-     * Renders a weight card for the current user
-     */
-    function renderCurrentCard() {
-        return <WeightCard setSplitPage={setSplitPage} setCurrentPerson={setCurrentPerson} currentPerson={currentPerson} someoneFronted={someoneFronted} setSomeoneFronted={setSomeoneFronted} key={currentPerson} manual={manual} person={peopleInvolved[currentPerson]} weightedUsers={weightedUsers} setWeightedUsers={setWeightedUsers} totalPeople={peopleInvolved.length}/>
-    }
-
-    return (
-        <div className="weight-selection-page-wrapper">
-            <div className="header">
-                <Typography variant="h6">{transactionTitle}</Typography>
-                <Typography variant="h6">Users endered: {currentPerson}/{peopleInvolved.length}</Typography>
-            </div>
-            { renderCurrentCard() }
-        </div>
-    )
-}
-
-/**
- * Parent element for all pages that figure out exactly how a user fits into this transaction
- * Will cycle through fronter/payer question, how much, and a summary
- * @param {boolean} manual whether or not this transaction will be weighted manually
- * @param {object} person current person object containing id, displayName, and pfpUrl
- * @param {Map} weightedUsers map of all processed users in this transaction
- * @param {function} setWeightedUsers setter function for weightedUsers
- * @param {boolean} someoneFronted whether or not anyone has been declared as a fronter in this payment yet
- * @param {function} setSomeoneFronted setter function for someoneFronted
- * @param {number} currentPerson index of current person in array of all people
- * @param {function} setCurrentPerson setter function for currentPerson
- * @param {number} totalPeople total number of people in this transaction
- */
-function WeightCard({setSplitPage, manual, person, weightedUsers, setWeightedUsers, someoneFronted, setSomeoneFronted, currentPerson, setCurrentPerson, totalPeople}) {
-
-    const [cardPage, setCardPage] = useState("how-much");    // Id of current page to display (how-much or summary)
-
-    /**
-     * Set current user's role in map and either move on to how-much or next person if this transaction isn't weighted manually
-     * @param {string} roleType role to apply to current user 
-     */
-    function handleRoleSelect(roleType) {
-        setWeightedUsers(new Map(weightedUsers.set(person.id, {role: roleType, amount: null})));
-        if (!manual) {
-            if (currentPerson + 1 >= totalPeople) {
-                setSplitPage("transaction-summary");
-            } else {
-                setCurrentPerson(currentPerson + 1);
-                if (roleType === "fronter") {
-                    setSomeoneFronted(true);
-                }
-            }
-        } else {
-            setCardPage("how-much");
-        }
-    }
-
-    /**
-     * Set a current user's amount owed in the map and move on to summary
-     * @param {number} amountPaid amount of money that this user paid
-     * @param {number} amountShouldHavePaid amount of money that this user should have paid 
-     */
-    function handleAmountInput(amountPaid, amountShouldHavePaid) {
-        setWeightedUsers(new Map(weightedUsers.set(person.id, {paid: amountPaid, shouldHavePaid: amountShouldHavePaid})));
-        setCardPage("weight-summary");
-    }
-
-    /**
-     * Confirm user details and move on to next person
-     */
-    function handleSummarySubmit() {
-
-        function checkWeightedUsersValid() {
-            let totalPaid = 0;
-            let totalShouldHavePaid = 0;
-            for (const key of weightedUsers) {
-                const user = key[1];
-                totalPaid += parseInt(user.paid);
-                totalShouldHavePaid += parseInt(user.shouldHavePaid);
-            }
-            return (totalPaid === totalShouldHavePaid);
-        }
-
-        if (currentPerson + 1 >= totalPeople) {
-            if (checkWeightedUsersValid()) {
-                setSplitPage("transaction-summary");
-            } else {
-                setSplitPage("transaction-amount-error")
-            }
-        } else {
-            setCurrentPerson(currentPerson + 1);
-        }
-    }
-
-    function renderCardPage() {
-        switch (cardPage) {
-            case "how-much":
-                return <HowMuch person={person} handleSubmit={handleAmountInput} goBack={() => setSplitPage("transaction-details")}/>;
-            case "weight-summary":
-                return <WeightSummary person={person} handleSubmit={handleSummarySubmit} weightedUsers={weightedUsers} goBack={() => setCardPage("how-much")}/>;
-            default:
-                return <div>Error: Invalid card page.</div>;
-        }
-    }
-
-    return (
-        <Paper className="weight-card" elevation={3}>
-            <div className="user-identification">
-                <AvatarIcon src={person.pfpUrl} displayName={person.displayName} size={100} />
-                <Typography variant="h6">{person.displayName}</Typography>
-                <Typography variant="subtitle2" color="primary" className={"self-notif " + (!person.self ? "hidden" : "")}>(You)</Typography>
-            </div>
-            { renderCardPage() }
-        </Paper>
-    )
-}
-
-/**
- * Page asking how much each user is owed/owes
- * @param {object} person object containing person's id, displayName, and pfpUrl 
- * @param {function} handleSubmit function to be called on submit button press
- * @param {function} goBack cardPage setter function (abstracted w/ different name)  
- * @returns 
- */
-function HowMuch({person, handleSubmit, goBack}) {
-
-    const [amountPaid, setAmountPaid] = useState(null);                     // Value of paid input box
-    const [amountShouldHavePaid, setAmountShouldHavePaid] = useState(null); // Value of should have paid input box
-    const [submitEnable, setSubmitEnable] = useState(false);                // Whether or not submit button is enabled
-    
-    /**
-     * Gets paid question string
-     * @returns String representing question
-     */
-    function getPaidQuestion() {
-        const name = person.self ? "you" : cutAtSpace(person.displayName);
-        return `How much did ${name} pay?`;
-    }
-
-    /**
-     * Gets should have paid string
-     * @returns String representing question
-     */
-    function getShouldHavePaidQuestion() {
-        const name = person.self ? "you" : cutAtSpace(person.displayName);
-        return `How much should ${name} have paid?`;
-    }
-
-    /**
-     * Format string and set userAmount to new value
-     * Check for errors and check if submit can be enabled
-     * @param {event} e keypress event that triggered this function
-     * @param {string} setType which field should be set
-     */
-    function handleAmountChange(e, setType) {
-        const result = makeNumeric(e.target.value);
-        if (setType === "paid") {
-            setAmountPaid(result);
-            if (amountShouldHavePaid) {
-                setSubmitEnable(result.length > 0 && amountShouldHavePaid.length > 0);
-            } else {
-                setSubmitEnable(false);
-            }
-        } else if (setType === "should-have-paid") {
-            setAmountShouldHavePaid(result);
-            if (amountPaid) {
-                setSubmitEnable(result.length > 0 && amountPaid.length > 0);
-            } else {
-                setSubmitEnable(false);
-            }
-        }
-    }
-
-    /**
-     * Check whether or not the submit button should be enabled
-     * Enabled if no userAmount is not null
-     * @returns whether or not submit button should be enabled
-     */
-    function checkSubmitEnable() {
-        if (!amountPaid || !amountShouldHavePaid) {
-            setSubmitEnable(false);
-        } else {
-            setSubmitEnable(amountPaid.length > 0 && amountShouldHavePaid.length > 0);
-        }
-    }
-
-    return (
-        <div className="split-question">
-            <Typography variant="subtitle1">{getPaidQuestion()}</Typography>
-            <div className="amount-input">
-                <FormControl className="title-text-field">
-                    <TextField
-                        value={amountPaid ? amountPaid : ""}
-                        onChange={(e) => handleAmountChange(e, "paid")}
-                        onBlur={checkSubmitEnable}
-                        onFocus={checkSubmitEnable}
-                        type="number"
-                        label="$ Paid"
-                    >
-                    </TextField>
-                </FormControl>
-            </div>
-            <Typography variant="subtitle1">{getShouldHavePaidQuestion()}</Typography>
-            <div className="amount-input">
-                <FormControl className="title-text-field">
-                    <TextField
-                        value={amountShouldHavePaid ? amountShouldHavePaid : ""}
-                        onChange={(e) => handleAmountChange(e, "should-have-paid")}
-                        onBlur={checkSubmitEnable}
-                        onFocus={checkSubmitEnable}
-                        type="number"
-                        label="$ Should Pay"
-                    >
-                    </TextField>
-                </FormControl>
-            </div>
-            <div className="next-button">
-                <Button variant="contained" disabled={!submitEnable} onClick={() => handleSubmit(parseInt(amountPaid), parseInt(amountShouldHavePaid))}>Next</Button>
-            </div>
-            <div className="back-button" onClick={() => goBack()}>
-                <ArrowBackIcon />
-                <Typography marginLeft="5px" variant="subtitle1">Back</Typography>
-            </div>
-        </div>
-    )
-}
-
-/**
- * Summary card for current user that displays their role, how much they owe, and a button to confirm
- * @param {Map} weightedUsers map of all processed users in this transaction
- * @param {Object} person object containing a person's id, pfpUrl, and displayName
- * @param {function} handleSubmit function to be called on submit button press
- * @param {function} goBack cardPage setter function (abstracted w/ different name)  
- */
-function WeightSummary({weightedUsers, person, handleSubmit, goBack}) {
-
-    /**
-     * Gets question string by role (fronter or payer)
-     * @returns String representing question
-     */
-    function getSummaryRole() {
-        const owed = (weightedUsers.get(person.id).paid > weightedUsers.get(person.id).shouldHavePaid);
-        const name = person.self ? "You" : cutAtSpace(person.displayName);
-        if (person.self) {
-            const toOwe = owed ? "owed" : "owe";
-            const toBe = owed ? " are " : " ";
-            return `${name}${toBe}${toOwe}`;
-        } else {
-            const toOwe = owed ? "owed" : "owes";
-            const toBe = owed ? " is " : " ";
-            return `${name}${toBe}${toOwe}`;
-        }
-    }
-
-    /**
-     * Get a string representing how much the user is owed/owes
-     * @returns Amount string
-     */
-    function getSummaryAmount() {
-        const amount = Math.abs((weightedUsers.get(person.id).paid - weightedUsers.get(person.id).shouldHavePaid));
-        return `$${amount}`;
-    }
-
-    return (
-        <div className="split-question">
-            <Typography variant="subtitle1">{getSummaryRole()}</Typography>
-            <Typography variant="h5">{getSummaryAmount()}</Typography>
-            <div className="next-button">
-                <Button variant="contained" onClick={() => handleSubmit()}>Submit</Button>
-            </div>
-            <div className="back-button" onClick={() => goBack()}>
-                <ArrowBackIcon />
-                <Typography marginLeft="5px" variant="subtitle1">Edit</Typography>
-            </div>
-        </div>
-    )
-}
-
-function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactionTitle, setSplitPage, peopleInvolved}) {
+function AmountTable({weightedUsers, setWeightedUsers, transactionTitle, setSplitPage, peopleInvolved}) {
 
     const [totalPaid, setTotalPaid] = useState(0);
     const [totalShouldHavePaid, setTotalShouldHavePaid] = useState(0);
@@ -923,17 +633,47 @@ function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactio
         }
     }
 
+    function getOweString(userId) {
+        const amt = weightedUsers.get(userId).paid - weightedUsers.get(userId).shouldHavePaid;
+        if (amt === 0) {
+            return "Owes $0";
+        }
+        return `${amt > 0 ? "Owed " : "Owes "}$${Math.abs(amt)}`;
+    }
+
+    function getOweColor(userId) {
+        const amt = weightedUsers.get(userId).paid - weightedUsers.get(userId).shouldHavePaid;
+        if (amt === 0) {
+            return "";
+        }
+        return `${amt > 0 ? "primary" : "error"}`;
+    }
+
+    function renderAvatar(userId) {
+        for (const person of peopleInvolved) {
+            if (person.id === userId) {
+                return <AvatarIcon src={person.pfpUrl} displayName={person.displayName}></AvatarIcon>
+            }
+        }
+    }
+
+    function getYouString(userId) {
+        if (userId === SessionManager.getUserId()) {
+            return "(you)"
+        }
+    }
     return (
         <div className="split-page-content">
             <div className="transaction-summary-page">
-                <div className="header">
-                    <Typography variant="h6">{transactionTitle}</Typography>
-                    <Typography variant="subtitle1">Oh no! There's something wrong!</Typography>
+                <div className="header d-flex flex-column justify-content-center align-items-center">
+                    <Typography variant="h1">{transactionTitle}</Typography>
+                    <Typography variant="subtitle1">1. Select tax and tip (if applicable)</Typography>
+                    <Typography variant="subtitle1">2. Enter how much everyone paid and should have paid.</Typography>
                 </div>
                 <div className="table">
                     <TableContainer component={Paper}>
                       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                        <caption>Edit values so that these totals are the same.</caption>
+                        <caption>Total $ Paid and $ Should Pay must be equal.</caption>
                         <TableHead>
                           <TableRow>
                             <TableCell>User</TableCell>
@@ -945,10 +685,20 @@ function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactio
                             {tableRows.map((row) => (
                                 <TableRow key={row.displayName} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} >
                                     <TableCell component="th" scope="row">
-                                        {row.displayName}
+                                        <div className="d-flex flex-row align-items-center gap-10">
+                                            {renderAvatar(row.userId)}
+                                            <div className="d-flex flex-column justify-content-start">        
+                                                <div className="d-flex flex-row align-items-center">
+                                                    <Typography variant="subtitle1">{row.displayName}</Typography>
+                                                    <Typography variant="subtitle2" color="primary" style={{marginLeft: "10px"}}>
+                                                        {getYouString(row.userId)}
+                                                    </Typography>
+                                                </div>                                
+                                                <Typography variant="subtitle1" color={getOweColor(row.userId)}>{getOweString(row.userId)}</Typography>
+                                            </div>
+                                        </div>
                                     </TableCell>
                                     <TableCell align="right">
-                                        <div className="cell-input">
                                             <FormControl className="table-field">
                                                 <TextField
                                                     value={row.amountPaid}
@@ -959,10 +709,8 @@ function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactio
                                                 >
                                                 </TextField>
                                             </FormControl>
-                                        </div>
                                     </TableCell>
                                     <TableCell align="right">
-                                        <div className="cell-input">
                                             <FormControl className="table-field">
                                                 <TextField
                                                     value={row.amountShouldHavePaid}
@@ -973,7 +721,6 @@ function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactio
                                                 >
                                                 </TextField>
                                             </FormControl>
-                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -987,7 +734,7 @@ function TransactionAmountErrorPage({weightedUsers, setWeightedUsers, transactio
                     </TableContainer>
                 </div>
                 <div className="next-button">
-                    <Button variant="contained" disabled={(totalPaid !== totalShouldHavePaid)} onClick={() => {handleSubmit()}}>Submit</Button>
+                    <Button variant="contained" disabled={(totalPaid !== totalShouldHavePaid || totalPaid === 0 || totalShouldHavePaid === 0)} onClick={() => {handleSubmit()}}>Submit</Button>
                 </div>
                 <div className="back-button" onClick={() => setSplitPage("transaction-details")}>
                     <ArrowBackIcon />

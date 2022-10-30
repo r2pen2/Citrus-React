@@ -148,6 +148,7 @@ export function OweOneDirectionHeader({positive, relations}) {
 }
 
 export function OweOneDirectionPerson({person, positive}) {
+  
   return (
     <OutlinedCard borderWeight="4px" borderColor={positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} >
       <div className="personal-owe-card">

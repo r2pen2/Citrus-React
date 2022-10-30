@@ -467,13 +467,6 @@ export class TransactionRelation {
         this.amount = amt;
     }
 
-    swapRoles() {
-        const temp = this.from;
-        this.from = this.to;
-        this.to = temp;
-        this.amount = this.amount * -1;
-    }
-
     /**
      * Turn this custom object into JSON that can be stored in the database
      * @returns Json representation of TransactionRelation
