@@ -358,19 +358,11 @@ export class TransactionManager extends ObjectManager {
         return new Promise(async (resolve, reject) => {
             const transactionUsers = await this.getUsers();
             for (const transactionUser of transactionUsers) {
-                // Check if this is the current user
-                let transactionUserManager = null;
-                let wasCurrentUser = false;
-                if (transactionUser.id === SessionManager.getUserId()) {
-                    transactionUserManager = SessionManager.getCurrentUserManager();
-                    wasCurrentUser = true;
-                } else {
-                    transactionUserManager = DBManager.getUserManager(transactionUser.id);
-                }
-                // Add transaction to user
+                // Get a user manager and add the transaction
+                const transactionUserManager = SessionManager.getUserManagerById(transactionUser.id);
                 transactionUserManager.addTransaction(this.getDocumentId());
                 // Push changes to userManager
-                let pushSuccessful = await transactionUserManager.push();
+                const pushSuccessful = await transactionUserManager.push();
                 // Make sure pushes to userManager worked
                 if (!pushSuccessful) {
                     this.debugger.logWithPrefix("Error: User manager failed to push to database");
@@ -378,9 +370,7 @@ export class TransactionManager extends ObjectManager {
                 } else {
                     // Push was successful
                     // Check if this was the currentUser and update localStorage accordingly
-                    if (wasCurrentUser) {
-                        SessionManager.setCurrentUserManager(transactionUserManager);
-                    }
+                    SessionManager.updateCurrentUserManager(transactionUserManager);
                 }
             }
             // If we made it this far, we succeeded

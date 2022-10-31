@@ -66,6 +66,29 @@ export class SessionManager {
     }
 
     /**
+     * Takes a user manager and sets the currentUserManager if id matches the one in localStorage
+     * @param {UserManager} manager UserManager to compare ID
+     */
+    static updateCurrentUserManager(manager) {
+        if (manager.id === SessionManager.getUserId()) {
+            SessionManager.setCurrentUserManager(manager);
+        }
+    }
+
+    /**
+     * Gets a user manager, either new or from localStorage if userId matches
+     * @param {string} userId id of user to get manager for
+     * @returns UserManager for userId
+     */
+    static getUserManagerById(userId) {
+        if (userId === SessionManager.getUserId()) {
+            return SessionManager.getCurrentUserManager();
+        } else {
+            return DBManager.getUserManager(userId);
+        }
+    }
+
+    /**
      * Get user id from user in localstorage
      * @returns user id or null
      */

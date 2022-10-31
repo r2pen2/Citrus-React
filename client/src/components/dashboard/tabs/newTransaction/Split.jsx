@@ -892,9 +892,8 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             if (!success) {
                 userError = true;
             } else {
-                if (userId === SessionManager.getUserId()) {
-                    SessionManager.setCurrentUserManager(userManager);
-                }
+                // Update current user manager if needed
+                SessionManager.updateCurrentUserManager(userManager);
             }
         }
         if (!userError) {
