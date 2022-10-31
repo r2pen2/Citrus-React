@@ -20,6 +20,7 @@ export class TransactionManager extends ObjectManager {
         TOTAL: "total",
         USERS: "users",
         GROUP: "group",
+        RELATIONS: "relations",
     }
 
     getEmptyData() {
@@ -33,6 +34,7 @@ export class TransactionManager extends ObjectManager {
             total: null,            // {number} total value of transaction (all debts added together)
             users: [],              // {array <- transactionUser} All users referenced in this transaction
             group: null,            // {string} id of group that this transaction belongs to (if any)
+            relations: [],          // {array <- transactionRelation} All relations referenced in this transaction
         }
         return empty;
     }
@@ -49,6 +51,18 @@ export class TransactionManager extends ObjectManager {
                 }
                 if (!foundUser) {
                     this.data.users.push(jsonUser);
+                }
+                return data;
+            case this.fields.RELATIONS:
+                const jsonRelation = change.value.toJson();
+                let foundRelation = false;
+                for (const transactionRelation of data.relations) {
+                    if (transactionRelation.id === jsonRelation.id) {
+                        foundRelation = true;
+                    }
+                }
+                if (!foundRelation) {
+                    this.data.relations.push(jsonRelation);
                 }
                 return data;
             case this.fields.ACTIVE:
@@ -79,6 +93,7 @@ export class TransactionManager extends ObjectManager {
             case this.fields.TITLE:
             case this.fields.TOTAL:
             case this.fields.GROUP:
+            case this.fields.RELATIONS:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -111,6 +126,7 @@ export class TransactionManager extends ObjectManager {
                 data.group = change.value;
                 return data;
             case this.fields.USERS:
+            case this.fields.RELATIONS:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -148,6 +164,9 @@ export class TransactionManager extends ObjectManager {
                     break;
                 case this.fields.GROUP:
                     resolve(this.data.group);
+                    break;
+                case this.fields.RELATIONS:
+                    resolve(this.data.relations);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -227,6 +246,19 @@ export class TransactionManager extends ObjectManager {
             })
         })
     }
+
+    async getRelations() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.RELATIONS).then((val) => {
+                // Process list of relations (in JSON format) and spit out a list of TransactionRelation objects
+                let transactionRelations = [];
+                for (const jsonRelation of val) {
+                    transactionRelations.push(new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.transaction));
+                }
+                resolve(transactionRelations);
+            })
+        })
+    }
     
     // ================= Set Operations ================= //
 
@@ -271,12 +303,22 @@ export class TransactionManager extends ObjectManager {
         const userAddition = new Add(this.fields.USERS, userId);
         super.addChange(userAddition);
     }
+    
+    addRelation(relation) {
+        const relationAddition = new Add(this.fields.RELATIONS, relation);
+        super.addChange(relationAddition);
+    }
 
     // ================= Remove Operations ================= //
     
     removeUser(userId) {
         const userRemoval = new Remove(this.fields.USERS, userId);
         super.addChange(userRemoval);
+    }
+    
+    removeRelationById(relationId) {
+        const relationRemoval = new Remove(this.fields.RELATIONS, relationId);
+        super.addChange(relationRemoval);
     }
 
     // ================= Sub-Object Functions ================= //

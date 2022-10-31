@@ -847,6 +847,8 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             if (!newTransactionUsers.includes(relation.from.id)) {
                 newTransactionUsers.push(relation.from.id);
             }
+            // Add relation to transaction
+            transactionManager.addRelation(relation);
         }
         // Now that map is populated, we loop through it and add those transactionUsers to the transcationManager
         for (const userId of newTransactionUsers) {
@@ -865,7 +867,6 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         transactionManager.setActive(true);
         transactionManager.setCreatedAt(new Date());
         transactionManager.setCreatedBy(SessionManager.getUserId());
-        // Push transaction to DB
         // Apply changes to transactionManager then add that transaction to new users (if push worked)
         let transactionRef = await transactionManager.push();    
         if (!transactionRef) {

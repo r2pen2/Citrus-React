@@ -249,7 +249,7 @@ export function TransactionDetail() {
         // Otherwise, they're in the right place! Update the transactionData with loaded data
         const title = await tm.getTitle();
         const total = await tm.getTotal();
-        const relations = await tm.getAllRelations();
+        const relations = await tm.getRelations();
         setTransactionData({
           title: title,
           total: total,

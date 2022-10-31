@@ -437,18 +437,15 @@ export class UserManager extends ObjectManager {
                 for (const key of finalRelations) {
                     let relation = key[1];
                     if (relation.amount !== 0) {
-                        finalRelationArray.push(relation);
+                        if (relation.amount < 0) {
+                            // If amount is negative, make a new TransactionRelation with to and from users swapped and amount inverse
+                            finalRelationArray.push(new TransactionRelation(relation.to.id, relation.from.id, relation.amount * -1, null, relation.to, relation.from, relation.transaction));
+                        } else {
+                            finalRelationArray.push(relation);
+                        }
                     }
                 }
-                let flippedRelationArray = [];
-                for (const relation of finalRelationArray) {
-                    if (relation.amount < 0) {
-                        flippedRelationArray.push(new TransactionRelation(relation.to.id, relation.from.id, relation.amount * -1, null, relation.to, relation.from, relation.transaction));
-                    } else {
-                        flippedRelationArray.push(relation);
-                    }
-                }
-                resolve(flippedRelationArray);
+                resolve(finalRelationArray);
             })
         })
     }
