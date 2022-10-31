@@ -853,8 +853,9 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         // Now that map is populated, we loop through it and add those transactionUsers to the transcationManager
         for (const userId of newTransactionUsers) {
             const transactionUser = new TransactionUser(userId);
-            transactionUser.setInitialBalance(newTransactionBalances.get(userId));
-            transactionUser.setCurrentBalance(0);
+            const bal = newTransactionBalances.get(userId);
+            transactionUser.setInitialBalance(bal);
+            transactionUser.setCurrentBalance(bal);
             transactionUser.setSettled(false);
             transactionManager.addUser(transactionUser);
         }

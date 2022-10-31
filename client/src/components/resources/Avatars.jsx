@@ -10,7 +10,6 @@ import Badge from '@mui/material/Badge';
 import { DBManager } from "../../api/db/dbManager";
 
 export function AvatarStack({ids, checked}) {
-    
     function renderAvatarStackItems() {
         return (
             <AvatarGroup>

@@ -2,7 +2,7 @@
 import "./style/transactions.scss";
 
 // Library imports
-import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip } from '@mui/material';
+import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip, Button } from '@mui/material';
 import { useState, useEffect} from 'react';
 import { OutlinedCard } from "./Surfaces";
 
@@ -176,7 +176,7 @@ export function TransactionCard({transactionManager}) {
     }, []);
 
     function getFractionTooltip() {
-      const amtString = formatter.format(Math.abs(context.initialBalance - context.currentBalance));
+      const amtString = formatter.format(Math.abs(context.currentBalance));
       if (context.initialBalance >= 0 ) {
         return `You are still owed ${amtString}`;
       } else {
@@ -201,7 +201,7 @@ export function TransactionCard({transactionManager}) {
                         <div className="side">
                             <Tooltip title={getFractionTooltip()}>
                                 <div>
-                                   <Typography align="right" variant="h5" component="div" color={context.currentBalance > context.initialBalance ? "#ec6a60" : "#bfd679"}>{formatter.format(Math.abs(context.initialBalance - context.currentBalance))}</Typography>
+                                   <Typography align="right" variant="h5" component="div" color={context.initialBalance < 0 ? "#ec6a60" : "#bfd679"}>{formatter.format(Math.abs(context.currentBalance))}</Typography>
                                    <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
                                 </div>
                             </Tooltip>
@@ -220,7 +220,8 @@ export function TransactionDetail() {
   const [transactionData, setTransactionData] = useState({
     title: "",
     total: 0,
-    relations: []
+    relations: [],
+    users: []
   });
 
   useEffect(() => {
@@ -250,10 +251,12 @@ export function TransactionDetail() {
         const title = await tm.getTitle();
         const total = await tm.getTotal();
         const relations = await tm.getRelations();
+        const users = await tm.getUsers();
         setTransactionData({
           title: title,
           total: total,
           relations: relations,
+          users: users,
         });
       }
     }
@@ -262,11 +265,36 @@ export function TransactionDetail() {
     fetchTransactionData();
   }, [transactionId])
 
+  // One of the buttons should be different whether or not we owe money in this transaction
+  function getPayButtonByRole() {
+    // First we find the current user in this transaction
+    for (const user of transactionData.users) {
+      if (user.id === SessionManager.getUserId()) {
+        // We've found the current user
+        // Then we check if we're owed money or owe money
+        if (user.initialBalance > 0) {
+          // Initial balance was positive, so we're owed money
+          return <Button variant="contained" color="primary" onClick={() => {}}>Send Reminders</Button>
+        } else {
+          // Otherwise we ove money
+          return <Button variant="contained" color="primary" onClick={() => {}}>Settle my Debts</Button>;
+        }
+      }
+    }
+  }
+
   return (
-    <div>
+    <div className="d-flex flex-column align-items-center">
       <Breadcrumbs path={`Dashboard/Transactions/${transactionData.title}`}/>
-      <TransactionDetailHeader title={transactionData.title} />
+      <TransactionDetailHeader title={transactionData.title} users={transactionData.users}/>
       <TransactionRelationList relations={transactionData.relations} />
+      <div className="d-flex flex-row justify-content-between w-75 m-5">
+        {getPayButtonByRole()}
+        <Button variant="contained" color="primary" onClick={() => {}}>Go to Conversation</Button>
+      </div>
+      <Tooltip title="The nuclear option">      
+        <Button variant="outlined" color="error" onClick={() => {}}>Delete this Transaction</Button>
+      </Tooltip>
     </div>
   );
 }
@@ -328,15 +356,61 @@ export function TransactionRelationList({relations}) {
       return <TransactionRelationCard relation={relation} key={index} />;
     })
   } 
-  return (<div className="relation-list">
-    {mapRelations()}
-  </div>);
+  return (
+    <div className="m-5 w-100">
+      {mapRelations()}
+    </div>
+  );
 }
 
-function TransactionDetailHeader({title}) {
+function TransactionDetailHeader({title, users}) {
+
+  function getUserIds() {
+    let userIds = [];
+    for (const user of users) {
+      userIds.push(user.id);
+    }
+    return userIds;
+  }
+
+  function getSettledUsers() {
+    let settledUsers = [];
+    for (const user of users) {
+      if (user.settled) {
+        settledUsers.push(user.id);
+      }
+    }
+    return settledUsers;
+  }
+
+  function getOweString() {
+    // First we find the current user in this transaction
+    console.log( users)
+    for (const user of users) {
+      if (user.id === SessionManager.getUserId()) {
+        // We've found the current user
+        if (user.settled) {
+          return <Typography variant="subtitle1" color="primary">You're settled in this transaction!</Typography>
+        }
+        // Then we check if we're owed money or owe money
+        if (user.initialBalance > 0) {
+          // Initial balance was positive, so we're owed money
+          return <Typography variant="subtitle1">You are still owed {formatter.format(user.currentBalance)}</Typography>
+        } else {
+          // Otherwise we ove money
+          return <Typography variant="subtitle1">You still owe {formatter.format(Math.abs(user.currentBalance))}</Typography>
+        }
+      }
+    }
+  }
+
   return (
-    <div className="transaction-detail-header">
-      <Typography variant="h2">{title}</Typography>
+    <div className="d-flex flex-column">
+      <div className="d-flex flex-row justify-content-center">
+        <Typography variant="h1">{title}</Typography>
+      </div>
+      <AvatarStack ids={getUserIds()} checked={getSettledUsers()}/>
+      {getOweString()}
     </div>
   )
 }

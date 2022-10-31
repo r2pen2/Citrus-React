@@ -54,21 +54,46 @@ export function DashboardOweCards() {
     }, [])
 
     return (
-        <Box data-testid="owe-cards">
-            <div className="dashboard-owe-cards-row">
-              <DashboardOweCard positive={true} relations={relations.positive}/>
-              <div className="spacer"></div>
-              <DashboardOweCard positive={false} relations={relations.negative}/>
-            </div>
-        </Box>
+      <div className="d-flex flex-row" data-testid="owe-cards">
+          <DashboardOweCard direction={"positive"} relations={relations.positive}/>
+          <div className="spacer"></div>
+          <DashboardOweCard direction={"negative"} relations={relations.negative}/>
+      </div>
     )
 }
 
-function DashboardOweCard({positive, relations}) {
+function DashboardOweCard({direction, relations, negativeRelations}) {
 
     function handleOweCardClick() {
-        const newVal = "owe-" + (positive ? "positive" : "negative");
+        const newVal = "owe-" + (direction ? direction : "all");
         RouteManager.redirectWithHash("dashboard", newVal);
+    }
+
+    function getCardColor() {
+      if (direction === "positive") {
+        return "rgba(176, 200, 86, 0.8)";
+      } else if (direction === "negative") {
+        return "rgba(234, 66, 54, 0.5)";
+      }
+      return "#f0e358";
+    }
+
+    function getCardTitle() {
+      if (direction === "positive") {
+        return "Owe Me";
+      } else if (direction === "negative") {
+        return "I Owe";
+      }
+      return "Total";
+    }
+
+    function getToFromString() {
+      if (direction === "positive") {
+        return "From";
+      } else if (direction === "negative") {
+        return "To";
+      }
+      return "With"
     }
 
     let amountOwed = 0;
@@ -88,16 +113,30 @@ function DashboardOweCard({positive, relations}) {
             amountOwed += relation.amount;
         }
     }
+    if (negativeRelations) {
+        for (const negativeRelation of negativeRelations) {
+            if (negativeRelation.from.id === SessionManager.getUserId()) {
+                if (!peopleFound.includes(negativeRelation.to.id)) {
+                    peopleFound.push(negativeRelation.to.id);
+                }
+            } else if (negativeRelation.to.id === SessionManager.getUserId()) {
+                if (!peopleFound.includes(negativeRelation.from.id)) {
+                    peopleFound.push(negativeRelation.from.id);
+                }
+            }
+            amountOwed -= negativeRelation.amount;
+        }
+    }
     const numPeople = peopleFound.length;
   
     return (
         <div
-          data-testid={"owe-card-" + (positive ? "positive" : "negative")}
+          data-testid={"owe-card-" + (direction ? direction : "all")}
           className="dashboard-owe-card-container"
         >
-          <SectionTitle title={positive ? "Owe Me" : "I Owe"} />
+          <SectionTitle title={getCardTitle()} />
           <div className="card-wrapper" data-testid="owe-card-card-element">
-            <OutlinedCard borderWeight="2px" borderColor={positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} data-testid="owe-card-card-element">
+            <OutlinedCard borderWeight="2px" borderColor={getCardColor()} data-testid="owe-card-card-element">
               <CardActionArea>
                 <CardContent onClick={() => handleOweCardClick()}>
                   <Typography variant="h5" component="div">
@@ -111,7 +150,7 @@ function DashboardOweCard({positive, relations}) {
                       marginLeft="5px"
                       marginTop="2px"
                     >
-                      {positive ? "From" : "To"} {numPeople} {numPeople === 1 ? "person" : "people"}
+                      {getToFromString()} {numPeople} {numPeople === 1 ? "person" : "people"}
                     </Typography>
                   </Stack>
                 </CardContent>
