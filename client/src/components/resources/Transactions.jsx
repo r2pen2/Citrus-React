@@ -221,7 +221,8 @@ export function TransactionDetail() {
     title: "",
     total: 0,
     relations: [],
-    users: []
+    users: [],
+    manager: null,
   });
 
   useEffect(() => {
@@ -257,6 +258,7 @@ export function TransactionDetail() {
           total: total,
           relations: relations,
           users: users,
+          manager: tm
         });
       }
     }
@@ -283,6 +285,10 @@ export function TransactionDetail() {
     }
   }
 
+  function handleDelete() {
+    transactionData.manager.delete();
+  }
+
   return (
     <div className="d-flex flex-column align-items-center">
       <Breadcrumbs path={`Dashboard/Transactions/${transactionData.title}`}/>
@@ -293,7 +299,7 @@ export function TransactionDetail() {
         <Button variant="contained" color="primary" onClick={() => {}}>Go to Conversation</Button>
       </div>
       <Tooltip title="The nuclear option">      
-        <Button variant="outlined" color="error" onClick={() => {}}>Delete this Transaction</Button>
+        <Button variant="outlined" color="error" onClick={() => {handleDelete()}}>Delete this Transaction</Button>
       </Tooltip>
     </div>
   );

@@ -377,6 +377,49 @@ export class TransactionManager extends ObjectManager {
             resolve(true);
         })
     }
+
+    /**
+     * Remove this transaction from every user in its USER array
+     * @returns a promise resolved with either true or false when the pushes are complete
+     */
+    async removeFromAllUsers() {
+        return new Promise(async (resolve, reject) => {
+            const transactionUsers = await this.getUsers();
+            for (const transactionUser of transactionUsers) {
+                // Get a user manager and remove the transaction
+                const transactionUserManager = SessionManager.getUserManagerById(transactionUser.id);
+                transactionUserManager.removeTransaction(this.getDocumentId());
+                // Push changes to userManager
+                const pushSuccessful = await transactionUserManager.push();
+                // Make sure pushes to userManager worked
+                if (!pushSuccessful) {
+                    this.debugger.logWithPrefix("Error: User manager failed to push to database");
+                    resolve(false);
+                } else {
+                    // Push was successful
+                    // Check if this was the currentUser and update localStorage accordingly
+                    SessionManager.updateCurrentUserManager(transactionUserManager);
+                }
+            }
+            // If we made it this far, we succeeded
+            resolve(true);
+        })
+    }
+
+    /**
+     * Remove this transaction from every user in its USER array
+     * @returns a promise resolved with either true or false when the pushes are complete
+     */
+    async delete() {
+        return new Promise(async (resolve, reject) => {
+            const usersDeleted = this.removeFromAllUsers();
+            if (usersDeleted) {
+                this.deleteDocument();
+            }
+            // If we made it this far, we succeeded
+            resolve(true);
+        })
+    }
 }
 
 /**

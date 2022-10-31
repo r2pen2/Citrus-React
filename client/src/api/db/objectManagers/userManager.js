@@ -527,6 +527,20 @@ export class UserManager extends ObjectManager {
         super.addChange(relationAddition);
     }
 
+    addRelationsFromTransaction(transactionManager) {
+        // We're going to assume that this transactionManager has data loaded into it already
+        for (const relation of transactionManager.data.relations) {
+            if (relation.to.id === this.getDocumentId() || relation.from.id === this.getDocumentId()) {
+                // This user is involved in this relation
+                // Set relation details to include transaction
+                relation.setTransactionTitle(transactionManager.data.title);
+                relation.setTransactionId(transactionManager.data.id);
+                relation.setTransactionAmount(transactionManager.data.total);
+                this.addRelation(relation);
+            }
+        }    
+    }
+
     // ================= Remove Operations ================= //
     removeBadge(badgeId) {
         const badgeRemoval = new Remove(this.fields.BADGES, badgeId);

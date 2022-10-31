@@ -881,14 +881,7 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         for (const userId of newTransactionUsers) {
             const userManager = DBManager.getUserManager(userId);
             userManager.addTransaction(newTransactionId);
-            const userRelationsArray = userRelationsMap.get(userId);
-            for (const relation of userRelationsArray) {
-                // Set relation info and add to user
-                relation.setTransactionId(newTransactionId);
-                relation.setTransactionTitle(transactionTitle);
-                relation.setTransactionAmount(transactionTotal);
-                userManager.addRelation(relation);
-            }
+            userManager.addRelationsFromTransaction(transactionManager);
             let success = await userManager.push();
             if (!success) {
                 userError = true;
