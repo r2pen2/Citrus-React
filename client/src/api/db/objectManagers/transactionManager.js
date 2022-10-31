@@ -367,10 +367,6 @@ export class TransactionManager extends ObjectManager {
                 if (!pushSuccessful) {
                     this.debugger.logWithPrefix("Error: User manager failed to push to database");
                     resolve(false);
-                } else {
-                    // Push was successful
-                    // Check if this was the currentUser and update localStorage accordingly
-                    SessionManager.updateCurrentUserManager(transactionUserManager);
                 }
             }
             // If we made it this far, we succeeded
@@ -395,10 +391,6 @@ export class TransactionManager extends ObjectManager {
                 if (!pushSuccessful) {
                     this.debugger.logWithPrefix("Error: User manager failed to push to database");
                     resolve(false);
-                } else {
-                    // Push was successful
-                    // Check if this was the currentUser and update localStorage accordingly
-                    SessionManager.updateCurrentUserManager(transactionUserManager);
                 }
             }
             // If we made it this far, we succeeded
@@ -408,9 +400,10 @@ export class TransactionManager extends ObjectManager {
 
     /**
      * Remove this transaction from every user in its USER array
+     * Remove all relations related to this transaction in all users
      * @returns a promise resolved with either true or false when the pushes are complete
      */
-    async delete() {
+    async cleanDelete() {
         return new Promise(async (resolve, reject) => {
             const usersDeleted = this.removeFromAllUsers();
             if (usersDeleted) {

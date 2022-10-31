@@ -286,7 +286,7 @@ export function TransactionDetail() {
   }
 
   function handleDelete() {
-    transactionData.manager.delete();
+    transactionData.manager.cleanDelete();
   }
 
   return (

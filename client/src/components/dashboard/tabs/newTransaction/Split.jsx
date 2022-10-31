@@ -885,9 +885,6 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             let success = await userManager.push();
             if (!success) {
                 userError = true;
-            } else {
-                // Update current user manager if needed
-                SessionManager.updateCurrentUserManager(userManager);
             }
         }
         if (!userError) {

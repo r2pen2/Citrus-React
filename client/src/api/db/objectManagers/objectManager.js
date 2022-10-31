@@ -2,6 +2,7 @@ import { doc, collection, addDoc, getDoc, setDoc, deleteDoc } from "firebase/fir
 import { firestore } from "../../firebase";
 import { Debugger } from "../../debugger";
 import { Change, DBManager } from "../dbManager";
+import { SessionManager } from "../../sessionManager";
 
 /**
  * ObjectManager is an abstract class used to standardize higher-level oprations of database objects
@@ -298,6 +299,10 @@ export class ObjectManager {
                         this.documentId = newDoc.id;
                         this.docRef = newDoc;
                         this.debugger.logWithPrefix('Created new object of type" ' + this.objectType + '" with id "' + this.documentId + '"');
+                    }
+                    // Check if this is the current user
+                    if (this.objectType === DBManager.objectTypes.USER) {
+                        SessionManager.updateCurrentUserManager(this);
                     }
                     resolve(this.docRef);
                 } else {

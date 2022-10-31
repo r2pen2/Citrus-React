@@ -127,10 +127,13 @@ export class UserManager extends ObjectManager {
                 data.groups = data.groups.filter(group => group !== change.value);
                 return data;
             case this.fields.TRANSACTIONS:
+                // Delete transaction ID from array
                 data.transactions = data.transactions.filter(transaction => transaction !== change.value);
+                // Remove relations related to this transaction
+                this.removeRelationsByTransaction(change.value);
                 return data;
             case this.fields.RELATIONS:
-                data.relations = data.relations.filter(relation => relation.id !== change.value.id);
+                data.relations = data.relations.filter(relation => relation.id !== change.value);
                 return data;
             case this.fields.LOCATION:
             case this.fields.CREATEDAT:
@@ -527,12 +530,14 @@ export class UserManager extends ObjectManager {
         super.addChange(relationAddition);
     }
 
-    addRelationsFromTransaction(transactionManager) {
+    async addRelationsFromTransaction(transactionManager) {
         // We're going to assume that this transactionManager has data loaded into it already
-        for (const relation of transactionManager.data.relations) {
+        const transactionRelations = await transactionManager.getRelations()
+        for (const relation of transactionRelations) {
             if (relation.to.id === this.getDocumentId() || relation.from.id === this.getDocumentId()) {
                 // This user is involved in this relation
                 // Set relation details to include transaction
+                console.log(relation)
                 relation.setTransactionTitle(transactionManager.data.title);
                 relation.setTransactionId(transactionManager.data.id);
                 relation.setTransactionAmount(transactionManager.data.total);
@@ -568,8 +573,18 @@ export class UserManager extends ObjectManager {
     }
 
     removeRelation(relation) {
-        const relationRemoval = new Remove(this.fields.RELATIONS, relation);
+        const relationRemoval = new Remove(this.fields.RELATIONS, relation.id);
         super.addChange(relationRemoval);
+    }
+
+    removeRelationsByTransaction(transactionId) {
+        // We're assuming data is fetched on this object
+        for (const relation of this.data.relations) {
+            if (relation.transaction.id === transactionId) {
+                const relationRemoval = new Remove(this.fields.RELATIONS, relation.id);
+                super.addChange(relationRemoval);
+            }
+        }
     }
 
     // ================= Misc. Methods ================= //
