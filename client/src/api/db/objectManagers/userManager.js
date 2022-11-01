@@ -532,15 +532,17 @@ export class UserManager extends ObjectManager {
 
     async addRelationsFromTransaction(transactionManager) {
         // We're going to assume that this transactionManager has data loaded into it already
-        const transactionRelations = await transactionManager.getRelations()
+        const transactionRelations = await transactionManager.getRelations();
+        const transactionTitle = await transactionManager.getTitle();
+        const transactionId = await transactionManager.getDocumentId();
+        const transactionAmount = await transactionManager.getTotal();
         for (const relation of transactionRelations) {
             if (relation.to.id === this.getDocumentId() || relation.from.id === this.getDocumentId()) {
                 // This user is involved in this relation
                 // Set relation details to include transaction
-                console.log(relation)
-                relation.setTransactionTitle(transactionManager.data.title);
-                relation.setTransactionId(transactionManager.data.id);
-                relation.setTransactionAmount(transactionManager.data.total);
+                relation.setTransactionTitle(transactionTitle);
+                relation.setTransactionId(transactionId);
+                relation.setTransactionAmount(transactionAmount);
                 this.addRelation(relation);
             }
         }    

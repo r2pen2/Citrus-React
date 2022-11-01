@@ -29,7 +29,6 @@ export function DashboardOweCards() {
             // Get all transactions for current user
             const userManager = SessionManager.getCurrentUserManager();
             const userRelations = await userManager.getSimplifiedRelations();
-            console.log(userRelations)
 
             let newPositiveRelations = [];
             let newNegativeRelations = [];

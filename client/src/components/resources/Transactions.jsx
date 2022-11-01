@@ -64,7 +64,6 @@ export function TransactionList(props) {
           }
         }
         // Set state
-        console.log(newBrackets);
         setListState({
           numFetched: newTransactionManagers.length,
           brackets: newBrackets
@@ -91,9 +90,11 @@ export function TransactionList(props) {
   
     if (listState.numFetched === 0) { // If there are no transactions on a user, display a message to indicate
       return    (     
-        <Typography>
-          User has no transactions.
-        </Typography>
+        <div className="d-flex flex-row justify-content-center">
+          <Typography>
+            User has no transactions.
+          </Typography>
+        </div>
         )
     }
 

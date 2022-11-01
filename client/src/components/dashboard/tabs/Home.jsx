@@ -7,6 +7,7 @@ import { TransactionList } from "../../resources/Transactions";
 import AnalyticsPreview from "./home/AnalyticsPreview";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { SectionTitle } from "../../resources/Labels";
+import { HomeFriendsList } from "../../resources/Friends";
 
 // API imports
 import { RouteManager } from "../../../api/routeManager";
@@ -17,22 +18,41 @@ export default function Home() {
     RouteManager.redirectWithHash("dashboard", "transactions");
   }
 
+  function renderAnalytics(visible) {
+    if (visible) {
+      return (
+        <div>
+          <SectionTitle title="Analytics" />
+          <AnalyticsPreview chartData={analyticsExample}/>
+        </div>
+      )
+    }
+  }
+
   return (
     <div className="d-flex flex-column gap-10">
       <Breadcrumbs path="Dashboard/Home" />
       <DashboardOweCards />
-      <div data-testid="transactions">
+      <div>
         <SectionTitle title="Recent Transactions">
           <Button variant="contained" onClick={() => handleTransactionsClick()}>View All Transactions</Button>
         </SectionTitle>
         <TransactionList
-          numDisplayed={2}
+          numDisplayed={5}
         />
       </div>
-      <div data-testid="analytics">
-        <SectionTitle title="Analytics" />
-        <AnalyticsPreview chartData={analyticsExample}/>
+      <div>
+        <SectionTitle title="Friends">
+          <Button variant="contained" onClick={() => handleTransactionsClick()}>Add Friends</Button>
+        </SectionTitle>
+        <HomeFriendsList />
       </div>
+      <div>
+        <SectionTitle title="Groups">
+          <Button variant="contained" onClick={() => handleTransactionsClick()}>Add Groups</Button>
+        </SectionTitle>
+      </div>
+      {renderAnalytics(false)}
     </div>
   );
 }

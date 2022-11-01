@@ -70,7 +70,8 @@ export class SessionManager {
      * @param {UserManager} manager UserManager to compare ID
      */
     static updateCurrentUserManager(manager) {
-        if (manager.id === SessionManager.getUserId()) {
+        console.log(manager)
+        if (manager.documentId === SessionManager.getUserId()) {
             SessionManager.setCurrentUserManager(manager);
         }
     }
