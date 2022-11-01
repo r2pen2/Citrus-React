@@ -106,6 +106,28 @@ export function GroupInvite() {
     const params = new URLSearchParams(window.location.search);
     const groupId = params.get("id");
   
+    const [groupInviteData, setGroupInviteData] = useState({
+        link: null,
+        code: null,
+    });
+
+    useEffect(() => {
+
+        async function loadGroupData() {
+            // Get all invitations for this group
+            const groupManager = DBManager.getGroupManager(groupId);
+            const groupInvitations = await groupManager.getInvitations();
+            let invitationManagers = [];
+            for (const invitationId of groupInvitations) {
+                // Load data for each invitation
+                const invitationManager = DBManager.getInvitationManager(invitationId);
+                invitationManagers.push(invitationManager);
+            }
+        }
+
+        loadGroupData();
+    }, [])
+
     return (
         <div className="group-form">
             Group Invite

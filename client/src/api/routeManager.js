@@ -93,4 +93,11 @@ export class RouteManager {
     static redirectToGroupInvite(transactionId) {
         RouteManager.redirect(`/dashboard/groups/invite?id=${transactionId}`);
     }
+
+    /**
+     * Get current hostname for Citrus Financial
+     */
+    static getHostName() {
+        return "http://localhost:3000"
+    }
 }

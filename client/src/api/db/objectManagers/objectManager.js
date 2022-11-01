@@ -37,7 +37,6 @@ export class ObjectManager {
             case DBManager.objectTypes.TRANSACTION:
                 return new Debugger(Debugger.controllerObjects.OBJECTMANAGERTRANSACTION);
             case DBManager.objectTypes.INVITATION:
-                // Invitations have different collections depending on their type
                 return new Debugger(Debugger.controllerObjects.OBJECTMANAGERINVITATION);
             case DBManager.objectTypes.USER:
                 return new Debugger(Debugger.controllerObjects.OBJECTMANAGERUSER);

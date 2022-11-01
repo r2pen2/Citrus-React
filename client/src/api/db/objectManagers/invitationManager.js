@@ -111,7 +111,22 @@ export class InvitationManager extends ObjectManager {
                     resolve(this.data.inviteType);
                     break;
                 case this.fields.INVITEMETHOD:
-                    resolve(this.data.inviteMethod);
+                    const jsonInviteMethod = this.data.inviteMethod;
+                    let inviteMethod = null;
+                    switch (jsonInviteMethod.method) {
+                        case InviteMethod.QRCODE:
+                            inviteMethod = new QRInvite(jsonInviteMethod.targetId);
+                            break;
+                        case InviteMethod.LINK:
+                            inviteMethod = new LinkInvite(jsonInviteMethod.targetId);
+                            break;
+                        case InviteMethod.CODE:
+                            inviteMethod = new LinkInvite(jsonInviteMethod.targetId);
+                            break;
+                        default:
+                            inviteMethod = null;
+                    }
+                    resolve(inviteMethod);
                     break;
                 case this.fields.INVITEDAT:
                     resolve(this.data.invitedAt);
@@ -263,8 +278,7 @@ export class InvitationManager extends ObjectManager {
     }
 }
 
-
-export class InviteMethod {
+class InviteMethod {
     constructor(_inviteMethod) {
         this.method = _inviteMethod;
     }
@@ -273,6 +287,55 @@ export class InviteMethod {
         QRCODE: "qrCode",
         CODE: "numericalCode",
         LINK: "link",
+    }
+
+    toJson() {
+        return {
+            method: this.method,
+            targetId: this._targetId
+        }
+    }
+}
+
+export class LinkInvite extends InviteMethod {
+    constructor(_targetId) {
+        super(InviteMethod.methods.LINK);
+    }
+
+    getGroupLink() {
+        return `/invite?type=group&id=${this.targetId}`
+    }
+
+    getFriendLink() {
+        return `/invite?type=friend&id=${this.targetId}`
+    }
+
+    getUserLink() {
+        return `/invite?type=user&id=${this.targetId}`
+    }
+}
+
+export class QRInvite extends InviteMethod {
+    constructor(_targetId) {
+        super(InviteMethod.methods.QRCODE);
+    }
+
+    getGroupQR() {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=group&id=${this.targetId}`
+    }
+
+    getFriendQR() {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=friend&id=${this.targetId}`
+    }
+
+    getUserQR() {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=user&id=${this.targetId}`
+    }
+}
+
+export class CodeInvite extends InviteMethod {
+    constructor(_targetId) {
+        super(InviteMethod.methods.CODE);
     }
 }
 
@@ -294,11 +357,11 @@ export class InviteType {
     getCollection() {
         switch(this.type) {
             case InviteType.types.FRIEND:
-                return "invitations";
+                return "friendInvitations";
             case InviteType.types.GROUP:
-                return "invitations";
+                return "groupInvitations";
             case InviteType.types.USER:
-                return "invitations";
+                return "userInvitations";
             default:
                 return null;
         }
