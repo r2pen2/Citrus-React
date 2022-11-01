@@ -42,6 +42,8 @@ export class ObjectManager {
                 return new Debugger(Debugger.controllerObjects.OBJECTMANAGERUSER);
             case DBManager.objectTypes.BADGE:
                 return new Debugger(Debugger.controllerObjects.OBJECTMANAGERBADGE);
+            case DBManager.objectTypes.SESSIONPASSWORD:
+                return new Debugger(Debugger.controllerObjects.OBJECTMANAGERSESSIONPASSWORD);
             default:
                 return null;
         }
@@ -115,6 +117,8 @@ export class ObjectManager {
                 return "users";
             case DBManager.objectTypes.BADGE:
                 return "badges";
+            case DBManager.objectTypes.SESSIONPASSWORD:
+                return "sessionPasswords";
             default:
                 return null;
         }

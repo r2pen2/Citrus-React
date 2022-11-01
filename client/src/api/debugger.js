@@ -13,6 +13,7 @@ export class Debugger {
         OBJECTMANAGERTRANSACTIONATTEMPT: "objectManagerTransactionAttempt",
         OBJECTMANAGERTRANSACTION: "objectManagerTransaction",
         OBJECTMANAGERUSER: "objectManagerUser",
+        OBJECTMANAGERSESSIONPASSWORD: "sessionPasswordManager",
         BROWSERMANAGER: "browserManager",
         SESSIONMANAGER: "sessionManager",
     };
@@ -47,6 +48,8 @@ export class Debugger {
                 return "[Object Manager <Transaction Attempt>]: ";
             case Debugger.controllerObjects.OBJECTMANAGERUSER:
                 return "[Object Manager <User>]: ";
+            case Debugger.controllerObjects.OBJECTMANAGERSESSIONPASSWORD:
+                return "[Object Manager <Session Password>]: ";
             case Debugger.controllerObjects.BROWSERMANAGER:
                 return "[Browser Manager]: ";
             case Debugger.controllerObjects.SESSIONMANAGER:

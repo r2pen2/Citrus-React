@@ -5,8 +5,8 @@ import { TransactionAttemptManager } from "./objectManagers/transactionAttemptMa
 import { TransactionManager } from "./objectManagers/transactionManager";
 import { UserManager } from "./objectManagers/userManager";
 import { InvitationManager } from "./objectManagers/invitationManager";
+import { SessionPasswordManager } from "./objectManagers/sessionPasswordManager";
 import { Debugger } from "../debugger";
-import { SessionManager } from "../sessionManager";
 
 // Create debugger for DBManager
 const dbDebugger = new Debugger(Debugger.controllerObjects.DBMANAGER);
@@ -93,6 +93,7 @@ export class DBManager {
         TRANSACTION: "transaction",
         USER: "user",
         BADGE: "badge",
+        SESSIONPASSWORD: "sessionPassword",
     }
 
     /**
@@ -140,6 +141,10 @@ export class DBManager {
     static getUserManager(id) {
         dbDebugger.logWithPrefix("Generating user manager...");
         return new UserManager(id);
+    }
+    static getSessionPasswordManager(id) {
+        dbDebugger.logWithPrefix("Generating session password manager...");
+        return new SessionPasswordManager(id);
     }
 
     // For use by SessionManager and SessionManager only!
