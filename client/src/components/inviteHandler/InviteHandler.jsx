@@ -1,5 +1,6 @@
 import {useState, useEffect} from 'react'
 import { DBManager } from '../../api/db/dbManager';
+import { InviteType } from '../../api/db/objectManagers/invitationManager';
 import { RouteManager } from '../../api/routeManager';
 import { SessionManager } from '../../api/sessionManager';
 
@@ -22,7 +23,8 @@ export default function InviteHandler() {
         if (validationStatus !== "valid") {
             return;
         }
-        if (invitationManager.inviteType === "user") {
+        if (invitationManager.inviteType === InviteType.types.USER) {
+            // This is a userInvite
             invitationManager.setUsed(true);
             invitationManager.push();
             RouteManager.redirect("/login");
@@ -33,18 +35,30 @@ export default function InviteHandler() {
             }
             const inviteTarget = await invitationManager.getTarget();
             let redirectUri = null;
+            let targetManager = null;
             if (invitationManager.inviteType === "friend") {
                 userManager.addFriend(inviteTarget);
+                targetManager = DBManager.getUserManager(inviteTarget);
+                targetManager.addFriend(SessionManager.getUserId());
                 redirectUri = `/dashboard/groups?id=${inviteTarget}`;
             } else if (invitationManager.inviteType === "group") {
                 userManager.addGroup(inviteTarget);
+                targetManager = DBManager.getGroupManager(inviteTarget);
+                targetManager.addUser(SessionManager.getUserId());
                 redirectUri = `/dashboard/friends?id=${inviteTarget}`;
             }
-            userManager.push().then(() => {
-                if (redirectUri) {
-                    RouteManager.redirect(redirectUri);
-                }
-            })
+            const userPushed = await userManager.push();
+            if (!userPushed) {
+                // Somehow we failed to push changes to user
+                return;
+            }
+            const targetPushed = await targetManager.push();
+            if (!targetPushed) {
+                // Somehow we failed to push changes to target
+                return;
+            }
+            // Assuming all went well, we redirect the user
+            RouteManager.redirect(redirectUri);
         }
     }
 
