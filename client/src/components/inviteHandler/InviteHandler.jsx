@@ -1,4 +1,8 @@
+// Library Imports
 import {useState, useEffect} from 'react'
+import { CircularProgress } from '@mui/material';
+
+// API Imports
 import { DBManager } from '../../api/db/dbManager';
 import { InviteType } from '../../api/db/objectManagers/invitationManager';
 import { RouteManager } from '../../api/routeManager';
@@ -15,6 +19,9 @@ export default function InviteHandler() {
     const [validationStatus, setValidationStatus] = useState(null);
 
     async function validateInvite() {
+        if (!inviteId || !inviteType) {
+            return;
+        }
         const inviteValid = await invitationManager.validate(inviteId, inviteType);
         setValidationStatus(inviteValid);
     }
@@ -72,6 +79,6 @@ export default function InviteHandler() {
     }, [validationStatus])
 
     return (
-        <div>{(validationStatus ? "valid" : "invalid invitation")}</div>
+        <div>{(validationStatus ? validationStatus : <CircularProgress/>)}</div>
     )
 }
