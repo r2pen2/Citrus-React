@@ -14,10 +14,6 @@ import { RouteManager } from "../../../api/routeManager";
 
 export default function Home() {
 
-  function handleTransactionsClick() {
-    RouteManager.redirectWithHash("dashboard", "transactions");
-  }
-
   function renderAnalytics(visible) {
     if (visible) {
       return (
@@ -35,7 +31,7 @@ export default function Home() {
       <DashboardOweCards />
       <div>
         <SectionTitle title="Recent Transactions">
-          <Button variant="contained" onClick={() => handleTransactionsClick()}>View All Transactions</Button>
+          <Button variant="contained" onClick={() => RouteManager.redirectWithHash("dashboard", "transactions")}>View All Transactions</Button>
         </SectionTitle>
         <TransactionList
           numDisplayed={5}
@@ -43,13 +39,13 @@ export default function Home() {
       </div>
       <div>
         <SectionTitle title="Friends">
-          <Button variant="contained" onClick={() => handleTransactionsClick()}>Add Friends</Button>
+          <Button variant="contained" onClick={() => RouteManager.redirectWithHash("dashboard", "friends")}>Add Friends</Button>
         </SectionTitle>
         <HomeFriendsList />
       </div>
       <div>
         <SectionTitle title="Groups">
-          <Button variant="contained" onClick={() => handleTransactionsClick()}>Add Groups</Button>
+          <Button variant="contained" onClick={() => RouteManager.redirect("/dashboard/groups/add")}>Add Groups</Button>
         </SectionTitle>
       </div>
       {renderAnalytics(false)}

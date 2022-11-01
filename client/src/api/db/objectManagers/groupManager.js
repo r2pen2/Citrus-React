@@ -14,6 +14,7 @@ export class GroupManager extends ObjectManager {
         CREATEDAT: "createdAt",
         CREATEDBY: "createdBy",
         NAME: "name",
+        DESCRIPTION: "description",
         TRANSACTIONS: "transactions",
         USERS: "users",
     }
@@ -23,6 +24,7 @@ export class GroupManager extends ObjectManager {
             createdAt: null,    // {date} When the group was created
             createdBy: null,    // {string} ID of user that created the group
             name: null,         // {string} Name of the group
+            description: null,         // {string} Description of the group
             transactions: [],   // {array <- string} IDs of every transaction associated with this group
             users: [],          // {array <- string} IDs of every user in this group
         }
@@ -44,6 +46,7 @@ export class GroupManager extends ObjectManager {
             case this.fields.CREATEDAT:
             case this.fields.CREATEDBY:
             case this.fields.NAME:
+            case this.fields.DESCRIPTION:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -63,6 +66,7 @@ export class GroupManager extends ObjectManager {
             case this.fields.CREATEDAT:
             case this.fields.CREATEDBY:
             case this.fields.NAME:
+            case this.fields.DESCRIPTION:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -81,6 +85,9 @@ export class GroupManager extends ObjectManager {
                 return data;
             case this.fields.NAME:
                 data.name = change.value;
+                return data;
+            case this.fields.DESCRIPTION:
+                data.description = change.value;
                 return data;
             case this.fields.TRANSACTIONS:
             case this.fields.USERS:
@@ -106,6 +113,9 @@ export class GroupManager extends ObjectManager {
                     break;
                 case this.fields.NAME:
                     resolve(this.data.name);
+                    break;
+                case this.fields.DESCRIPTION:
+                    resolve(this.data.description);
                     break;
                 case this.fields.TRANSACTIONS:
                     resolve(this.data.transactions);
@@ -146,6 +156,14 @@ export class GroupManager extends ObjectManager {
         })
     }
 
+    async getDescription() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.DESCRIPTION).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
     async getTransactions() {
         return new Promise(async (resolve, reject) => {
             this.handleGet(this.fields.TRANSACTIONS).then((val) => {
@@ -176,6 +194,11 @@ export class GroupManager extends ObjectManager {
     setName(newName) {
         const nameChange = new Set(this.fields.NAME, newName);
         super.addChange(nameChange);
+    }
+
+    setDescription(newDescription) {
+        const descriptionChange = new Set(this.fields.DESCRIPTION, newDescription);
+        super.addChange(descriptionChange);
     }
 
     // ================= Add Operations ================= //

@@ -1,10 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 
-import GroupDashboard from './group/GroupDashboard';
-import GroupInvite from "./group/GroupInvite";
-import GroupMembers from "./group/GroupMembers";
-import GroupNew from "./group/GroupNew";
-import GroupJoin from "./group/GroupJoin";
+import { GroupNew, GroupMembers, GroupInvite, GroupDashboard, GroupAdd } from "../../resources/Groups";
 
 export default function Groups() {
   return (
@@ -14,7 +10,7 @@ export default function Groups() {
             <Route path="/invite" element={<GroupInvite />}/>
             <Route path="/members" element={<GroupMembers />}/>
             <Route path="/new" element={<GroupNew />}/>
-            <Route path="/join" element={<GroupJoin />}/>
+            <Route path="/add" element={<GroupAdd />}/>
         </Routes>
     </div>
   )

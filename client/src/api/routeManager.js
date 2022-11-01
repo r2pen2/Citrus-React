@@ -85,4 +85,12 @@ export class RouteManager {
     static redirectToTransaction(transactionId) {
         RouteManager.redirect(`/dashboard/transactions?id=${transactionId}`);
     }
+
+    /**
+     * Redirect user to a group's invite page by ID
+     * @param {string} groupId id of group to redirect to invite page of
+     */
+    static redirectToGroupInvite(transactionId) {
+        RouteManager.redirect(`/dashboard/groups/invite?id=${transactionId}`);
+    }
 }

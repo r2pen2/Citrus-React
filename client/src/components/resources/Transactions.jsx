@@ -90,7 +90,7 @@ export function TransactionList(props) {
   
     if (listState.numFetched === 0) { // If there are no transactions on a user, display a message to indicate
       return    (     
-        <div className="d-flex flex-row justify-content-center">
+        <div className="d-flex flex-row mh-100 align-items-center justify-content-center">
           <Typography>
             User has no transactions.
           </Typography>
