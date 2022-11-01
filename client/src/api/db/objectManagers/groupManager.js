@@ -17,6 +17,7 @@ export class GroupManager extends ObjectManager {
         DESCRIPTION: "description",
         TRANSACTIONS: "transactions",
         USERS: "users",
+        INVITATIONS: "invitations",
     }
 
     getEmptyData() {
@@ -27,6 +28,7 @@ export class GroupManager extends ObjectManager {
             description: null,         // {string} Description of the group
             transactions: [],   // {array <- string} IDs of every transaction associated with this group
             users: [],          // {array <- string} IDs of every user in this group
+            invitations: [],          // {array <- string} IDs of every invitation to this group
         }
         return empty;
     }
@@ -41,6 +43,11 @@ export class GroupManager extends ObjectManager {
             case this.fields.USERS:
                 if (!data.users.includes(change.value)) {    
                     data.users.push(change.value);
+                }
+                return data;
+            case this.fields.INVITATIONS:
+                if (!data.invitations.includes(change.value)) {    
+                    data.invitations.push(change.value);
                 }
                 return data;
             case this.fields.CREATEDAT:
@@ -62,6 +69,9 @@ export class GroupManager extends ObjectManager {
                 return data;
             case this.fields.USERS:
                 data.users = data.users.filter(user => user !== change.value);
+                return data;
+            case this.fields.INVITATIONS:
+                data.invitations = data.invitations.filter(invitation => invitation !== change.value);
                 return data;
             case this.fields.CREATEDAT:
             case this.fields.CREATEDBY:
@@ -91,6 +101,7 @@ export class GroupManager extends ObjectManager {
                 return data;
             case this.fields.TRANSACTIONS:
             case this.fields.USERS:
+            case this.fields.INVITATIONS:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -122,6 +133,9 @@ export class GroupManager extends ObjectManager {
                     break;
                 case this.fields.USERS:
                     resolve(this.data.users);
+                    break;
+                case this.fields.INVITATIONS:
+                    resolve(this.data.invitations);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -179,6 +193,14 @@ export class GroupManager extends ObjectManager {
             })
         })
     }
+
+    async getInvitations() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.INVITATIONS).then((val) => {
+                resolve(val);
+            })
+        })
+    }
     
     // ================= Set Operations ================= //
     setCreatedAt(newCreatedAt) {
@@ -212,6 +234,11 @@ export class GroupManager extends ObjectManager {
         super.addChange(userAddition);
     }
 
+    addInvitation(invitationId) {
+        const invitationAddition = new Add(this.fields.INVITATIONS, invitationId);
+        super.addChange(invitationAddition);
+    }
+
     // ================= Remove Operations ================= //
     removeTransaction(transactionId) {
         const transactionRemoval = new Remove(this.fields.TRANSACTIONS, transactionId);
@@ -221,5 +248,10 @@ export class GroupManager extends ObjectManager {
     removeUser(userId) {
         const userRemoval = new Remove(this.fields.USERS, userId);
         super.addChange(userRemoval);
+    }
+
+    removeInvitation(invitationId) {
+        const invitationRemoval = new Remove(this.fields.INVITATIONS, invitationId);
+        super.addChange(invitationRemoval);
     }
 }
