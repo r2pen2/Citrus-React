@@ -18,8 +18,9 @@ export class GroupManager extends ObjectManager {
         DESCRIPTION: "description",
         TRANSACTIONS: "transactions",
         USERS: "users",
-        INVITATIONS: "invitations",
-        SESSIONPASSWORD: "sessionPassword",
+        LINKINVITE: "linkInvite",
+        QRINVITE: "qrInvite",
+        CODEINVITE: "codeInvite",
     }
 
     getEmptyData() {
@@ -30,8 +31,11 @@ export class GroupManager extends ObjectManager {
             description: null,  // {string} Description of the group
             transactions: [],   // {array <- string} IDs of every transaction associated with this group
             users: [],          // {array <- string} IDs of every user in this group
-            invitations: [],    // {array <- string} IDs of every invitation to this group
-            sessionPassword: null,    // {string} ID of last sessionPassword
+            invitations: {      // {map} Invitations associated with group
+                link: null,     // {string} ID of LinkInvite for this group
+                qr: null,       // {string} ID of QRInvite for this group
+                code: null,     // {string} ID of CodeInvite for this group
+            },
         }
         return empty;
     }
@@ -48,16 +52,13 @@ export class GroupManager extends ObjectManager {
                     data.users.push(change.value);
                 }
                 return data;
-            case this.fields.INVITATIONS:
-                if (!data.invitations.includes(change.value)) {    
-                    data.invitations.push(change.value);
-                }
-                return data;
             case this.fields.CREATEDAT:
             case this.fields.CREATEDBY:
             case this.fields.NAME:
             case this.fields.DESCRIPTION:
-            case this.fields.SESSIONPASSWORD:
+            case this.fields.CODEINVITE:
+            case this.fields.LINKINVITE:
+            case this.fields.QRINVITE:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -74,14 +75,13 @@ export class GroupManager extends ObjectManager {
             case this.fields.USERS:
                 data.users = data.users.filter(user => user !== change.value);
                 return data;
-            case this.fields.INVITATIONS:
-                data.invitations = data.invitations.filter(invitation => invitation !== change.value);
-                return data;
             case this.fields.CREATEDAT:
             case this.fields.CREATEDBY:
             case this.fields.NAME:
             case this.fields.DESCRIPTION:
-            case this.fields.SESSIONPASSWORD:
+            case this.fields.CODEINVITE:
+            case this.fields.LINKINVITE:
+            case this.fields.QRINVITE:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -104,12 +104,17 @@ export class GroupManager extends ObjectManager {
             case this.fields.DESCRIPTION:
                 data.description = change.value;
                 return data;
-            case this.fields.SESSIONPASSWORD:
-                data.sessionPassword = change.value;
+            case this.fields.CODEINVITE:
+                data.invitations.code = change.value;
+                return data;
+            case this.fields.LINKINVITE:
+                data.invitations.link = change.value;
+                return data;
+            case this.fields.QRINVITE:
+                data.invitations.qr = change.value;
                 return data;
             case this.fields.TRANSACTIONS:
             case this.fields.USERS:
-            case this.fields.INVITATIONS:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -142,11 +147,14 @@ export class GroupManager extends ObjectManager {
                 case this.fields.USERS:
                     resolve(this.data.users);
                     break;
-                case this.fields.INVITATIONS:
-                    resolve(this.data.invitations);
+                case this.fields.LINKINVITE:
+                    resolve(this.data.invitations.link);
                     break;
-                case this.fields.SESSIONPASSWORD:
-                    resolve(this.data.sessionPassword);
+                case this.fields.CODEINVITE:
+                    resolve(this.data.invitations.code);
+                    break;
+                case this.fields.QRINVITE:
+                    resolve(this.data.invitations.qr);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -205,43 +213,27 @@ export class GroupManager extends ObjectManager {
         })
     }
 
-    async getInvitations() {
+    async getLinkInvite() {
         return new Promise(async (resolve, reject) => {
-            this.handleGet(this.fields.INVITATIONS).then((val) => {
+            this.handleGet(this.fields.LINKINVITE).then((val) => {
                 resolve(val);
             })
         })
     }
 
-    async getSessionPassword() {
+    async getQrInvite() {
         return new Promise(async (resolve, reject) => {
-            this.handleGet(this.fields.SESSIONPASSWORD).then(async (val) => {
-                // "val" is the ID of sessionPassword
-                // We have to check if this password is still valid
-                const sessionPasswordManager = DBManager.getSessionPasswordManager(val);
-                const currentPasswordSession = await sessionPasswordManager.getCurrentSession();
-                // 
-                // Check if current session is valid
-                if (!currentPasswordSession) {
-                    // current session is null, so group doens't have an active session password
-                    this.setSessionPassword(null);
-                    resolve(null);
-                } else {
-                    // current session isn't null, but we have to check if it's tied to this group or not
-                    if (currentPasswordSession.isExpired()) {
-                        this.setSessionPassword(null);
-                        sessionPasswordManager.retireCurrentSession();
-                        resolve(null);
-                    } else if (currentPasswordSession.targetType !== InviteType.types.GROUP || currentPasswordSession.target !== this.getDocumentId()) {
-                        // Session isn't currently tied to this group
-                        this.setSessionPassword(null);
-                        resolve(null);
-                    } else {
-                        // Otherwise, all is well! This currentSession isn't expired and it belongs to this group
-                        resolve(currentPasswordSession);
-                    }
-                }
-            });
+            this.handleGet(this.fields.QRINVITE).then((val) => {
+                resolve(val);
+            })
+        })
+    }
+
+    async getCodeInvite() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.CODEINVITE).then((val) => {
+                resolve(val);
+            })
         })
     }
     
@@ -266,9 +258,19 @@ export class GroupManager extends ObjectManager {
         super.addChange(descriptionChange);
     }
 
-    setSessionPassword(newSessionPassword) {
-        const sessionPasswordChange = new Set(this.fields.SESSIONPASSWORD, newSessionPassword);
-        super.addChange(sessionPasswordChange);
+    setLinkInvite(newLinkInvite) {
+        const linkInviteChange = new Set(this.fields.LINKINVITE, newLinkInvite);
+        super.addChange(linkInviteChange);
+    }
+
+    setQrInvite(newQrInvite) {
+        const qrInviteChange = new Set(this.fields.QRINVITE, newQrInvite);
+        super.addChange(qrInviteChange);
+    }
+
+    setCodeInvite(newCodeInvite) {
+        const codeInviteChange = new Set(this.fields.CODEINVITE, newCodeInvite);
+        super.addChange(codeInviteChange);
     }
 
     // ================= Add Operations ================= //

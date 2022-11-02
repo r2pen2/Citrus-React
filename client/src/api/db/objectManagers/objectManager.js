@@ -293,7 +293,6 @@ export class ObjectManager {
                         this.debugger.logWithPrefix('Applying changes to: ' + this.toString());
                         await this.applyChanges();                    
                         this.debugger.logWithPrefix('Pushing changes to: ' + this.toString());
-                        console.log(this.data)
                         await setDoc(this.docRef, this.data);
                     } else {
                         this.debugger.logWithPrefix("No document id. Creating new document.")

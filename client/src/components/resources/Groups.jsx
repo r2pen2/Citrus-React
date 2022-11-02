@@ -11,9 +11,10 @@ import {Breadcrumbs} from "./Navigation";
 
 // API Imports
 import { RouteManager } from "../../api/routeManager";
+import { capitalizeFirstLetter } from "../../api/strings";
 import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
-import { InviteMethod, InviteType, LinkInvite, QRInvite } from "../../api/db/objectManagers/invitationManager";
+import { InviteMethod, InviteType, LinkInvite, QRInvite, CodeInvite } from "../../api/db/objectManagers/invitationManager";
 
 export function GroupNew() {
   
@@ -110,8 +111,8 @@ export function GroupInvite() {
   
     const [groupInviteData, setGroupInviteData] = useState({
         link: null,
+        qr: null,
         code: null,
-        sessionPassword: null,
       });
       const [clipboardTooltip, setClipboardtooltip] = useState("Copy to Clipboard");
       
@@ -120,29 +121,18 @@ export function GroupInvite() {
         async function loadGroupData() {
           // Get all invitations for this group
           const groupManager = DBManager.getGroupManager(groupId);
-          const groupInvitations = await groupManager.getInvitations();
-          const groupSessionPassword = await groupManager.getSessionPassword();
-          let invitationManagers = [];
+          const linkInviteId = await groupManager.getLinkInvite();
+          const qrInviteId = await groupManager.getQrInvite();
+          const codeInviteId = await groupManager.getCodeInvite();
           let dbLink = null;
           let dbQr = null;
-          for (const invitationId of groupInvitations) {
-            // Load data for each invitation
-            const invitationManager = DBManager.getInvitationManager(invitationId);
-            const inviteMethod = await invitationManager.getInviteMethod();
-            switch (inviteMethod.method) {
-              case InviteMethod.methods.LINK:
-                dbLink = inviteMethod.getGroupLink();
-                break;
-              case InviteMethod.methods.QR:
-                dbQr = inviteMethod.getGroupQR();
-                break;
-              default:
-                break;
-            }
-            invitationManagers.push(invitationManager);
-          }
-          let newInvitationIds = [];
-          if (!dbLink) {
+          let dbCode = null;
+          let newInvitationsAdded = false;
+          if (linkInviteId) {
+            const invitationManager = DBManager.getInvitationManager(linkInviteId);
+            const linkInvite = await invitationManager.getInviteMethod();
+            dbLink = linkInvite.getGroupLink();
+          } else {
             // No link exists so we make one
             const invitationManager = DBManager.getInvitationManager();
             const inviteType = new InviteType(InviteType.types.GROUP, groupId);
@@ -156,31 +146,66 @@ export function GroupInvite() {
             if (!invitePushed) {
               return;
             }
+            newInvitationsAdded = true;
             // If push succeeded, add it to the list
-            newInvitationIds.push(invitationManager.getDocumentId());
+            groupManager.setLinkInvite(invitationManager.getDocumentId());
           }
-          if (!dbQr) {
+          if (qrInviteId) {
+            const invitationManager = DBManager.getInvitationManager(qrInviteId);
+            const qrInvite = await invitationManager.getInviteMethod();
+            dbQr = qrInvite.getGroupQR();
+          } else {
             // No QR exists so we make one
             const invitationManager = DBManager.getInvitationManager();
             const inviteType = new InviteType(InviteType.types.GROUP, groupId);
             const inviteMethod = new QRInvite(groupId);
             invitationManager.setInviteMethod(inviteMethod);
             invitationManager.setInviteType(inviteType);
-            // Set link
+            // Set qr
             dbQr = inviteMethod.getGroupQR();
             // Push invite to DB
             const invitePushed = await invitationManager.push();
             if (!invitePushed) {
               return;
             }
+            newInvitationsAdded = true;
             // If push succeeded, add it to the list
-            newInvitationIds.push(invitationManager.getDocumentId());
+            groupManager.setQrInvite(invitationManager.getDocumentId());
           }
-          if (newInvitationIds.length > 0) {
-            // We have new invitations
-            for (const invitationId of newInvitationIds) {
-              groupManager.addInvitation(invitationId);
+          if (codeInviteId) {
+            dbCode = codeInviteId
+          } else {
+            // No code exists so we make one
+            let invitationManager = null;
+            const inviteType = new InviteType(InviteType.types.GROUP, groupId);
+            const inviteMethod = new CodeInvite(groupId);
+            let newCode = false;
+            let codeString = null;
+            while (!newCode) {
+              const word1 = await DBManager.getRandomWord();
+              const word2 = await DBManager.getRandomWord();
+              const word3 = await DBManager.getRandomWord();
+              codeString = capitalizeFirstLetter(word1) + capitalizeFirstLetter(word2) + capitalizeFirstLetter(word3);
+              invitationManager = DBManager.getInvitationManager(codeString);
+              const codeExists = await invitationManager.documentExists();
+              newCode = !codeExists;
             }
+            inviteMethod.setCode(codeString);
+            invitationManager.setInviteMethod(inviteMethod);
+            invitationManager.setInviteType(inviteType);
+            // Set code
+            dbCode = codeString;
+            // Push invite to DB
+            const invitePushed = await invitationManager.push();
+            if (!invitePushed) {
+              return;
+            }
+            newInvitationsAdded = true;
+            // If push succeeded, add it to the list
+            groupManager.setCodeInvite(invitationManager.getDocumentId());
+          }
+          if (newInvitationsAdded) {
+            // We have new invitations
             const groupPushed = await groupManager.push();
             if (!groupPushed) {
               return;
@@ -188,8 +213,8 @@ export function GroupInvite() {
           }
           setGroupInviteData({
             link: dbLink,
-            code: dbQr,
-            sessionPassword: groupSessionPassword,
+            qr: dbQr,
+            code: dbCode,
           });
         }
 
@@ -208,7 +233,7 @@ export function GroupInvite() {
     function copyLink() {
       if (groupInviteData.link) {
         navigator.clipboard.writeText(groupInviteData.link);
-        setClipboardtooltip("Link copied!");
+        setClipboardtooltip("Copied!");
       }
     }
 
@@ -225,7 +250,23 @@ export function GroupInvite() {
                 label="Invitation Link"
                 value={groupInviteData.link ? groupInviteData.link : "Generating invite link..."}
                 id="outlined-size-small"
-                defaultValue="Small"
+                size="small"
+                className="w-100"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+            <div className="d-flex flex-row align-items-center justify-content-center w-100 gap-2">
+              <Tooltip title={clipboardTooltip}>
+                <IconButton onClick={() => copyLink()}>
+                  <ContentCopyIcon />
+                </IconButton>
+              </Tooltip>
+              <TextField
+                label="Invitation Code"
+                value={groupInviteData.code ? groupInviteData.code : "Generating code..."}
+                id="outlined-size-small"
                 size="small"
                 className="w-100"
                 InputProps={{

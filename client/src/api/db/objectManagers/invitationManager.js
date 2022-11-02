@@ -116,14 +116,14 @@ export class InvitationManager extends ObjectManager {
                     const jsonInviteMethod = this.data.inviteMethod;
                     let inviteMethod = null;
                     switch (jsonInviteMethod.method) {
-                        case InviteMethod.QRCODE:
+                        case InviteMethod.methods.QRCODE:
                             inviteMethod = new QRInvite(jsonInviteMethod.targetId);
                             break;
-                        case InviteMethod.LINK:
+                        case InviteMethod.methods.LINK:
                             inviteMethod = new LinkInvite(jsonInviteMethod.targetId);
                             break;
-                        case InviteMethod.CODE:
-                            inviteMethod = new LinkInvite(jsonInviteMethod.targetId);
+                        case InviteMethod.methods.CODE:
+                            inviteMethod = new CodeInvite(jsonInviteMethod.targetId);
                             break;
                         default:
                             inviteMethod = null;
@@ -289,7 +289,7 @@ export class InviteMethod {
 
     static methods = {
         QRCODE: "qrCode",
-        CODE: "numericalCode",
+        CODE: "code",
         LINK: "link",
     }
 
@@ -340,6 +340,23 @@ export class QRInvite extends InviteMethod {
 export class CodeInvite extends InviteMethod {
     constructor(_targetId) {
         super(InviteMethod.methods.CODE, _targetId);
+        this.code = null;
+    }
+
+    setCode(code) {
+        this.code = code;
+    }
+
+    getCode() {
+        return this.code;
+    }
+
+    toJson() {
+        return {
+            method: this.method,
+            targetId: this.targetId,
+            code: this.code
+        }
     }
 }
 

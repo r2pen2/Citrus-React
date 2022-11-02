@@ -140,3 +140,12 @@ export function makeNumeric(string) {
 export function cutAtSpace(string) {
     return string.substring(0, string.indexOf(" "))
 }
+
+/**
+ * Capitalize the first letter of a string
+ * @param {string} string string to capitalize
+ * @returns string with first letter caps
+ */
+export function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

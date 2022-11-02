@@ -111,6 +111,17 @@ export class DBManager {
        return result;
     }
 
+    static async getRandomWord() {
+        const length = Math.floor(Math.random() * 4) + 4;
+        return new Promise((resolve, reject) => {
+            fetch(`https://random-word-api.herokuapp.com/word?length=${length}`).then(res => {
+            res.json().then(jsonRes => {
+                resolve(jsonRes[0]);
+            })
+        })
+        })
+    }
+
     /**
      * Get object managers of correct type
      */
