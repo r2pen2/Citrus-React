@@ -1,6 +1,8 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
+import { RouteManager } from "../../routeManager";
+import { capitalizeFirstLetter } from "../../strings";
 import { ObjectManager } from "./objectManager";
-import { InviteType } from "./invitationManager";
+import { InviteType, InviteMethod } from "./invitationManager";
 
 /**
  * Object Manager for groups
@@ -32,12 +34,58 @@ export class GroupManager extends ObjectManager {
             transactions: [],   // {array <- string} IDs of every transaction associated with this group
             users: [],          // {array <- string} IDs of every user in this group
             invitations: {      // {map} Invitations associated with group
-                link: null,     // {string} ID of LinkInvite for this group
-                qr: null,       // {string} ID of QRInvite for this group
-                code: null,     // {string} ID of CodeInvite for this group
+                link: null,     // -- {string} Invite link to this group
+                qr: null,       // -- {string} Invite qr code for this group
+                code: null,     // -- {string} ID of CodeInvite for this group
             },
         }
         return empty;
+    }
+
+    getQr() {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=group&id=${this.documentId}`
+    }
+
+    getLink() {
+        return `${RouteManager.getHostName()}/invite?type=group&id=${this.documentId}`
+    }
+
+    async generateInvites() {
+        return new Promise(async (resolve, reject) => {
+            let newCode = false;
+            let codeString = "";
+            let invitationManager = null;
+            while (!newCode) {
+              const word1 = await DBManager.getRandomWord();
+              const word2 = await DBManager.getRandomWord();
+              const word3 = await DBManager.getRandomWord();
+              codeString = capitalizeFirstLetter(word1) + capitalizeFirstLetter(word2) + capitalizeFirstLetter(word3);
+              invitationManager = DBManager.getInvitationManager(codeString);
+              const codeExists = await invitationManager.documentExists();
+              newCode = !codeExists;
+            }
+            invitationManager.setInviteMethod(InviteMethod.methods.CODE);
+            invitationManager.setTargetType(InviteType.types.GROUP);
+            invitationManager.setInvitedAt(new Date());
+            invitationManager.setUsed(false);
+            invitationManager.setTarget(this.getDocumentId());
+            console.log(invitationManager)
+            // Push invitation Manager
+            const invitePushed = await invitationManager.push();
+            if (!invitePushed) {
+                resolve(false);
+            } else {
+                this.setCodeInvite(codeString);
+                this.setLinkInvite(this.getLink());
+                this.setQrInvite(this.getQr());
+                const thisPushed = await this.push();
+                if (!thisPushed) {
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            }
+        })
     }
 
     handleAdd(change, data) {

@@ -12,19 +12,19 @@ export class InvitationManager extends ObjectManager {
     }
 
     fields = {
-        INVITETYPE: "inviteType",
-        INVITEMETHOD: "inviteMethod",
         INVITEDAT: "invitedAt",
         INVITEELOCATION: "inviteeLocation",
         INVITERLOCATION: "inviterLocation",
         USED: "used",
         TARGET: "target",
+        TARGETTYPE: "targetType",
+        INVITEMETHOD: "inviteMethod",
     }
 
     getEmptyData() {
         const empty = {
-            inviteType: null,       // {InviteType} Which invite type this is (friends, groups, chip-ins)
-            inviteMethod: null,     // {InviteMethod} Which invite method was used
+            targetType: null,       // {string} Which invite type this is (friends, groups, chip-ins)
+            inviteMethod: null,     // {string} Which invite method was used
             invitedAt: null,        // {date} When this user invitation was created
             inviteeAttrs: {         // {map} Attributes associated with invitee
                 location: null,     // --- {geoPoint} Location of the invitee when they accept the invitation
@@ -40,7 +40,7 @@ export class InvitationManager extends ObjectManager {
 
     handleAdd(change, data) {
         switch (change.field) {
-            case this.fields.INVITETYPE:
+            case this.fields.TARGETTYPE:
             case this.fields.INVITEMETHOD:
             case this.fields.INVITEDAT:
             case this.fields.INVITEELOCATION:
@@ -57,7 +57,7 @@ export class InvitationManager extends ObjectManager {
 
     handleRemove(change, data) {
         switch (change.field) {
-            case this.fields.INVITETYPE:
+            case this.fields.TARGETTYPE:
             case this.fields.INVITEMETHOD:
             case this.fields.INVITEDAT:
             case this.fields.INVITEELOCATION:
@@ -74,9 +74,8 @@ export class InvitationManager extends ObjectManager {
 
     handleSet(change, data) {
         switch (change.field) {
-            case this.fields.INVITETYPE:
-                const jsonInviteType = change.value.toJson();
-                data.inviteType = jsonInviteType;
+            case this.fields.TARGETTYPE:
+                data.targetType = change.value;
                 return data;
             case this.fields.INVITEMETHOD:
                 data.inviteMethod = change.value;
@@ -108,27 +107,11 @@ export class InvitationManager extends ObjectManager {
                 await super.fetchData();
             }
             switch(field) {
-                case this.fields.INVITETYPE:
-                    const jsonInviteType = this.data.inviteType;
-                    resolve(new InviteType(jsonInviteType.type, jsonInviteType.target));
+                case this.fields.TARGETTYPE:
+                    resolve(this.data.targetType);
                     break;
                 case this.fields.INVITEMETHOD:
-                    const jsonInviteMethod = this.data.inviteMethod;
-                    let inviteMethod = null;
-                    switch (jsonInviteMethod.method) {
-                        case InviteMethod.methods.QRCODE:
-                            inviteMethod = new QRInvite(jsonInviteMethod.targetId);
-                            break;
-                        case InviteMethod.methods.LINK:
-                            inviteMethod = new LinkInvite(jsonInviteMethod.targetId);
-                            break;
-                        case InviteMethod.methods.CODE:
-                            inviteMethod = new CodeInvite(jsonInviteMethod.targetId);
-                            break;
-                        default:
-                            inviteMethod = null;
-                    }
-                    resolve(inviteMethod);
+                    resolve(this.data.inviteMethod);
                     break;
                 case this.fields.INVITEDAT:
                     resolve(this.data.invitedAt);
@@ -154,9 +137,9 @@ export class InvitationManager extends ObjectManager {
     }
 
     // ================= Get Operations ================= //
-    async getInviteType() {
+    async getTargetType() {
         return new Promise(async (resolve, reject) => {
-            this.handleGet(this.fields.INVITETYPE).then((val) => {
+            this.handleGet(this.fields.TARGETTYPE).then((val) => {
                 resolve(val);
             })
         })
@@ -211,14 +194,13 @@ export class InvitationManager extends ObjectManager {
     }
 
     // ================= Set Operations ================= //
-    setInviteType(newInviteType) {
-        const inviteTypeChange = new Set(this.fields.INVITETYPE, newInviteType);
-        super.addChange(inviteTypeChange);
+    setTargetType(newTargetType) {
+        const targetTypeChange = new Set(this.fields.TARGETTYPE, newTargetType);
+        super.addChange(targetTypeChange);
     }
 
     setInviteMethod(newInviteMethod) {
-        const jsonInviteMethod = newInviteMethod.toJson();
-        const inviteMethodChange = new Set(this.fields.INVITEMETHOD, jsonInviteMethod);
+        const inviteMethodChange = new Set(this.fields.INVITEMETHOD, newInviteMethod);
         super.addChange(inviteMethodChange);
     }
     
@@ -273,7 +255,7 @@ export class InvitationManager extends ObjectManager {
             if (id !== this.documentId) {
                 resolve("invalid");
             }
-            if (type !== this.inviteType) {
+            if (type !== this.targetType) {
                 resolve("invalid");
             }
             resolve("valid");
@@ -281,101 +263,18 @@ export class InvitationManager extends ObjectManager {
     }
 }
 
-export class InviteMethod {
-    constructor(_inviteMethod, _targetId) {
-        this.method = _inviteMethod;
-        this.targetId = _targetId;
-    }
-
-    static methods = {
-        QRCODE: "qrCode",
-        CODE: "code",
-        LINK: "link",
-    }
-
-    toJson() {
-        return {
-            method: this.method,
-            targetId: this.targetId
-        }
-    }
-}
-
-export class LinkInvite extends InviteMethod {
-    constructor(_targetId) {
-        super(InviteMethod.methods.LINK, _targetId);
-    }
-
-    getGroupLink() {
-        return `${RouteManager.getHostName()}/invite?type=group&id=${this.targetId}`
-    }
-
-    getFriendLink() {
-        return `${RouteManager.getHostName()}/invite?type=friend&id=${this.targetId}`
-    }
-
-    getUserLink() {
-        return `${RouteManager.getHostName()}/invite?type=user&id=${this.targetId}`
-    }
-}
-
-export class QRInvite extends InviteMethod {
-    constructor(_targetId) {
-        super(InviteMethod.methods.QRCODE, _targetId);
-    }
-
-    getGroupQR() {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=group&id=${this.targetId}`
-    }
-
-    getFriendQR() {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=friend&id=${this.targetId}`
-    }
-
-    getUserQR() {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=user&id=${this.targetId}`
-    }
-}
-
-export class CodeInvite extends InviteMethod {
-    constructor(_targetId) {
-        super(InviteMethod.methods.CODE, _targetId);
-        this.code = null;
-    }
-
-    setCode(code) {
-        this.code = code;
-    }
-
-    getCode() {
-        return this.code;
-    }
-
-    toJson() {
-        return {
-            method: this.method,
-            targetId: this.targetId,
-            code: this.code
-        }
-    }
-}
-
 export class InviteType {
-    constructor(_inviteType, _inviteTarget) {
-        this.type = _inviteType;
-        this.target = _inviteTarget;
-    }
-
     static types = {
         FRIEND: "friend",
         GROUP: "group",
         USER: "user",
     }
+}
 
-    toJson() {
-        return {
-            type: this.type,
-            target: this.target
-        }
+export class InviteMethod {
+    static methods = {
+        LINK: "link",
+        QR: "qr",
+        CODE: "code"
     }
 }

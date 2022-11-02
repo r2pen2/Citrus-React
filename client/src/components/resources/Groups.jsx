@@ -11,76 +11,70 @@ import {Breadcrumbs} from "./Navigation";
 
 // API Imports
 import { RouteManager } from "../../api/routeManager";
-import { capitalizeFirstLetter } from "../../api/strings";
 import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
-import { InviteMethod, InviteType, LinkInvite, QRInvite, CodeInvite } from "../../api/db/objectManagers/invitationManager";
 
 export function GroupNew() {
-  
-    const [groupName, setGroupName] = useState("");
-    const [groupDescription, setGroupDescription] = useState("");
 
-    function checkSubmitEnable() {
-        return groupName.length > 0;
-    }
+  const userManager = SessionManager.getCurrentUserManager();
 
-    /**
-     * Creates a group, adds the current user to that group, and redirects the user
-     * to the invitation page for this new group
-     */
-    async function handleSubmit() {
-        const groupManager = DBManager.getGroupManager();
-        // Set group metadata
-        groupManager.setCreatedAt(new Date());
-        groupManager.setCreatedBy(SessionManager.getUserId());
-        // Set user-facing group data
-        groupManager.setDescription(groupDescription.length > 0 ? groupDescription : null);
-        groupManager.setName(groupName);
-        // Add current user to group
-        groupManager.addUser(SessionManager.getUserId());
-        // Push changes to new group, then add the group to current user if successful
-        const groupPushed = await groupManager.push();
-        if (!groupPushed) {
-            return;
-        }
-        // Push succeeded for group— add group to current user
-        const userManager = SessionManager.getCurrentUserManager();
-        userManager.addGroup(groupManager.getDocumentId());
-        const userPushed = await userManager.push();
-        // If user pushed successfully, redirect to new group's invite page
-        if (userPushed) {
-            RouteManager.redirectToGroupInvite(groupManager.getDocumentId());
-        }
-    }
+  const [groupName, setGroupName] = useState("");
+  const [groupDescription, setGroupDescription] = useState("");
 
-    return (
-      <div className="group-form">
-        <Breadcrumbs path="Dashboard/Groups/New" />
-        <div className="d-flex flex-column align-items-center justify-content-center w-100 gap-10">
-            <Typography variant="h1">Create a Group</Typography>
-            <FormControl className="gap-10">
-                <TextField
-                    value={groupName}
-                    onChange={(e) => setGroupName(e.target.value)}
-                    inputProps={{min: 0, style: { textAlign: 'center' }}}
-                    label="Group Title"
-                >
-                </TextField>
-                <TextField
-                    value={groupDescription}
-                    onChange={(e) => setGroupDescription(e.target.value)}
-                    inputProps={{min: 0, style: { textAlign: 'center' }}}
-                    label="Description (Optional)"
-                >
-                </TextField>
-            </FormControl>
-            <Button variant="contained" color="primary" disabled={!checkSubmitEnable()} onClick={() => handleSubmit()}>
-                Create Group
-            </Button>
-        </div>
+  function checkSubmitEnable() {
+      return groupName.length > 0;
+  }
+
+  /**
+   * Creates a group, adds the current user to that group, and redirects the user
+   * to the invitation page for this new group
+   */
+  async function handleSubmit() {
+    const groupManager = DBManager.getGroupManager();
+    // Set group metadata
+    groupManager.setCreatedAt(new Date());
+    groupManager.setCreatedBy(SessionManager.getUserId());
+    // Set user-facing group data
+    groupManager.setDescription(groupDescription.length > 0 ? groupDescription : null);
+    groupManager.setName(groupName);
+    // Add current user to group
+    groupManager.addUser(SessionManager.getUserId());
+    // Create a code
+    // Push changes to new group, then add the group to current user if successful
+    await groupManager.push();
+    await groupManager.generateInvites();
+    userManager.addGroup(groupManager.getDocumentId());
+    await userManager.push();
+    RouteManager.redirectToGroupInvite(groupManager.getDocumentId());
+  }
+
+  return (
+    <div className="group-form">
+      <Breadcrumbs path="Dashboard/Groups/New" />
+      <div className="d-flex flex-column align-items-center justify-content-center w-100 gap-10">
+          <Typography variant="h1">Create a Group</Typography>
+          <FormControl className="gap-10">
+              <TextField
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                  inputProps={{min: 0, style: { textAlign: 'center' }}}
+                  label="Group Title"
+              >
+              </TextField>
+              <TextField
+                  value={groupDescription}
+                  onChange={(e) => setGroupDescription(e.target.value)}
+                  inputProps={{min: 0, style: { textAlign: 'center' }}}
+                  label="Description (Optional)"
+              >
+              </TextField>
+          </FormControl>
+          <Button variant="contained" color="primary" disabled={!checkSubmitEnable()} onClick={() => handleSubmit()}>
+              Create Group
+          </Button>
       </div>
-    );
+    </div>
+  );
 }
 
 export function GroupMembers({ user }) {
@@ -106,6 +100,7 @@ export function GroupMembers({ user }) {
 }
 
 export function GroupInvite() {
+
     const params = new URLSearchParams(window.location.search);
     const groupId = params.get("id");
   
@@ -117,114 +112,20 @@ export function GroupInvite() {
     const [clipboardTooltip, setClipboardtooltip] = useState("Copy to Clipboard");
       
     useEffect(() => {
-
         async function loadGroupData() {
           const groupManager = DBManager.getGroupManager(groupId);
-          let dbLink = groupInviteData.link;
-          let dbQr = groupInviteData.qr;
-          let dbCode = groupInviteData.code;
-          let newInvitationsAdded = false;
-          if (!dbLink) {
-            const linkInviteId = await groupManager.getLinkInvite();
-            if (linkInviteId) {
-              const invitationManager = DBManager.getInvitationManager(linkInviteId);
-              const linkInvite = await invitationManager.getInviteMethod();
-              dbLink = linkInvite.getGroupLink();
-            } else {
-              // No link exists so we make one
-              const invitationManager = DBManager.getInvitationManager();
-              const inviteType = new InviteType(InviteType.types.GROUP, groupId);
-              const inviteMethod = new LinkInvite(groupId);
-              invitationManager.setInviteMethod(inviteMethod);
-              invitationManager.setInviteType(inviteType);
-              // Set link
-              dbLink = inviteMethod.getGroupLink();
-              // Push invite to DB
-              const invitePushed = await invitationManager.push();
-              if (!invitePushed) {
-                return;
-              }
-              newInvitationsAdded = true;
-              // If push succeeded, add it to the list
-              groupManager.setLinkInvite(invitationManager.getDocumentId());
-            }
-          } 
-          if (!dbQr) {
-            const qrInviteId = await groupManager.getQrInvite();
-            if (qrInviteId) {
-              const invitationManager = DBManager.getInvitationManager(qrInviteId);
-              const qrInvite = await invitationManager.getInviteMethod();
-              dbQr = qrInvite.getGroupQR();
-            } else {
-              // No QR exists so we make one
-              const invitationManager = DBManager.getInvitationManager();
-              const inviteType = new InviteType(InviteType.types.GROUP, groupId);
-              const inviteMethod = new QRInvite(groupId);
-              invitationManager.setInviteMethod(inviteMethod);
-              invitationManager.setInviteType(inviteType);
-              // Set qr
-              dbQr = inviteMethod.getGroupQR();
-              // Push invite to DB
-              const invitePushed = await invitationManager.push();
-              if (!invitePushed) {
-                return;
-              }
-              newInvitationsAdded = true;
-              // If push succeeded, add it to the list
-              groupManager.setQrInvite(invitationManager.getDocumentId());
-            }
-          }
-          if (!dbCode) {
-            const codeInviteId = await groupManager.getCodeInvite();
-            if (codeInviteId) {
-              dbCode = codeInviteId
-            } else {
-              // No code exists so we make one
-              let invitationManager = null;
-              const inviteType = new InviteType(InviteType.types.GROUP, groupId);
-              const inviteMethod = new CodeInvite(groupId);
-              let newCode = false;
-              let codeString = null;
-              while (!newCode) {
-                const word1 = await DBManager.getRandomWord();
-                const word2 = await DBManager.getRandomWord();
-                const word3 = await DBManager.getRandomWord();
-                codeString = capitalizeFirstLetter(word1) + capitalizeFirstLetter(word2) + capitalizeFirstLetter(word3);
-                invitationManager = DBManager.getInvitationManager(codeString);
-                const codeExists = await invitationManager.documentExists();
-                newCode = !codeExists;
-              }
-              inviteMethod.setCode(codeString);
-              invitationManager.setInviteMethod(inviteMethod);
-              invitationManager.setInviteType(inviteType);
-              // Set code
-              dbCode = codeString;
-              // Push invite to DB
-              const invitePushed = await invitationManager.push();
-              if (!invitePushed) {
-                return;
-              }
-              newInvitationsAdded = true;
-              // If push succeeded, add it to the list
-              groupManager.setCodeInvite(invitationManager.getDocumentId());
-            }
-          }
-          if (newInvitationsAdded) {
-            // We have new invitations
-            const groupPushed = await groupManager.push();
-            if (!groupPushed) {
-              return;
-            }
-          }
+          const link = await groupManager.getLinkInvite();
+          const qr = await groupManager.getQrInvite();
+          const code = await groupManager.getCodeInvite();
           setGroupInviteData({
-            link: dbLink,
-            qr: dbQr,
-            code: dbCode,
+            link: link,
+            qr: qr,
+            code: code,
           });
         }
 
         loadGroupData();
-    }, [])
+    }, [groupId])
 
     /**
      * Reset clipboard tooltip after 1 second
