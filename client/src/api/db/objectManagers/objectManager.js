@@ -88,6 +88,7 @@ export class ObjectManager {
                     }
                 }
                 this.changes = [];
+                this.changed = false;
                 resolve(true);
             } else {
                 this.debugger.logWithPrefix("Applying changes failed because data was null!");
@@ -206,20 +207,20 @@ export class ObjectManager {
     async fetchData() {
         this.debugger.logWithPrefix("Fetching object data...");
         return new Promise(async (resolve) => {
-            if (!this.docRef) {
+            this.fetched = true;
+            if (!this.documentId) {
                 this.debugger.logWithPrefix("No document Id! Setting empty data...");
                 this.data = this.getEmptyData();
-                resolve(false);
+                resolve(this.getEmptyData());
             } else {
                 const docSnap = await getDoc(this.docRef);
                 if (docSnap.exists()) {
                     this.data = docSnap.data();
-                    this.fetched = true;
                     resolve(docSnap.data());
                 } else {
                     this.debugger.logWithPrefix("Document snapshot didn't exist! Setting empty data...");
                     this.data = this.getEmptyData();
-                    resolve(false);
+                    resolve(this.getEmptyData());
                 }
             }
         })
@@ -288,15 +289,14 @@ export class ObjectManager {
             // Assuming everything was OK, we push
             return new Promise(async (resolve) => {
                 if (this.changed) {
+                    this.debugger.logWithPrefix('Applying changes to: ' + this.toString());   
+                    await this.applyChanges();
                     if (this.documentId) {
-                        // Document has an ID. Set data and return true
-                        this.debugger.logWithPrefix('Applying changes to: ' + this.toString());
-                        await this.applyChanges();                    
+                        // Document has an ID. Set data and return true                 
                         this.debugger.logWithPrefix('Pushing changes to: ' + this.toString());
                         await setDoc(this.docRef, this.data);
                     } else {
-                        this.debugger.logWithPrefix("No document id. Creating new document.")
-                        await this.applyChanges();
+                        this.debugger.logWithPrefix("No document id. Creating new document.");
                         const newDoc = await addDoc(collection(firestore, this.getCollection()), this.data);
                         this.documentId = newDoc.id;
                         this.docRef = newDoc;

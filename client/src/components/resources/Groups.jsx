@@ -114,95 +114,100 @@ export function GroupInvite() {
         qr: null,
         code: null,
       });
-      const [clipboardTooltip, setClipboardtooltip] = useState("Copy to Clipboard");
+    const [clipboardTooltip, setClipboardtooltip] = useState("Copy to Clipboard");
       
     useEffect(() => {
 
         async function loadGroupData() {
-          // Get all invitations for this group
           const groupManager = DBManager.getGroupManager(groupId);
-          const linkInviteId = await groupManager.getLinkInvite();
-          const qrInviteId = await groupManager.getQrInvite();
-          const codeInviteId = await groupManager.getCodeInvite();
-          let dbLink = null;
-          let dbQr = null;
-          let dbCode = null;
+          let dbLink = groupInviteData.link;
+          let dbQr = groupInviteData.qr;
+          let dbCode = groupInviteData.code;
           let newInvitationsAdded = false;
-          if (linkInviteId) {
-            const invitationManager = DBManager.getInvitationManager(linkInviteId);
-            const linkInvite = await invitationManager.getInviteMethod();
-            dbLink = linkInvite.getGroupLink();
-          } else {
-            // No link exists so we make one
-            const invitationManager = DBManager.getInvitationManager();
-            const inviteType = new InviteType(InviteType.types.GROUP, groupId);
-            const inviteMethod = new LinkInvite(groupId);
-            invitationManager.setInviteMethod(inviteMethod);
-            invitationManager.setInviteType(inviteType);
-            // Set link
-            dbLink = inviteMethod.getGroupLink();
-            // Push invite to DB
-            const invitePushed = await invitationManager.push();
-            if (!invitePushed) {
-              return;
+          if (!dbLink) {
+            const linkInviteId = await groupManager.getLinkInvite();
+            if (linkInviteId) {
+              const invitationManager = DBManager.getInvitationManager(linkInviteId);
+              const linkInvite = await invitationManager.getInviteMethod();
+              dbLink = linkInvite.getGroupLink();
+            } else {
+              // No link exists so we make one
+              const invitationManager = DBManager.getInvitationManager();
+              const inviteType = new InviteType(InviteType.types.GROUP, groupId);
+              const inviteMethod = new LinkInvite(groupId);
+              invitationManager.setInviteMethod(inviteMethod);
+              invitationManager.setInviteType(inviteType);
+              // Set link
+              dbLink = inviteMethod.getGroupLink();
+              // Push invite to DB
+              const invitePushed = await invitationManager.push();
+              if (!invitePushed) {
+                return;
+              }
+              newInvitationsAdded = true;
+              // If push succeeded, add it to the list
+              groupManager.setLinkInvite(invitationManager.getDocumentId());
             }
-            newInvitationsAdded = true;
-            // If push succeeded, add it to the list
-            groupManager.setLinkInvite(invitationManager.getDocumentId());
+          } 
+          if (!dbQr) {
+            const qrInviteId = await groupManager.getQrInvite();
+            if (qrInviteId) {
+              const invitationManager = DBManager.getInvitationManager(qrInviteId);
+              const qrInvite = await invitationManager.getInviteMethod();
+              dbQr = qrInvite.getGroupQR();
+            } else {
+              // No QR exists so we make one
+              const invitationManager = DBManager.getInvitationManager();
+              const inviteType = new InviteType(InviteType.types.GROUP, groupId);
+              const inviteMethod = new QRInvite(groupId);
+              invitationManager.setInviteMethod(inviteMethod);
+              invitationManager.setInviteType(inviteType);
+              // Set qr
+              dbQr = inviteMethod.getGroupQR();
+              // Push invite to DB
+              const invitePushed = await invitationManager.push();
+              if (!invitePushed) {
+                return;
+              }
+              newInvitationsAdded = true;
+              // If push succeeded, add it to the list
+              groupManager.setQrInvite(invitationManager.getDocumentId());
+            }
           }
-          if (qrInviteId) {
-            const invitationManager = DBManager.getInvitationManager(qrInviteId);
-            const qrInvite = await invitationManager.getInviteMethod();
-            dbQr = qrInvite.getGroupQR();
-          } else {
-            // No QR exists so we make one
-            const invitationManager = DBManager.getInvitationManager();
-            const inviteType = new InviteType(InviteType.types.GROUP, groupId);
-            const inviteMethod = new QRInvite(groupId);
-            invitationManager.setInviteMethod(inviteMethod);
-            invitationManager.setInviteType(inviteType);
-            // Set qr
-            dbQr = inviteMethod.getGroupQR();
-            // Push invite to DB
-            const invitePushed = await invitationManager.push();
-            if (!invitePushed) {
-              return;
+          if (!dbCode) {
+            const codeInviteId = await groupManager.getCodeInvite();
+            if (codeInviteId) {
+              dbCode = codeInviteId
+            } else {
+              // No code exists so we make one
+              let invitationManager = null;
+              const inviteType = new InviteType(InviteType.types.GROUP, groupId);
+              const inviteMethod = new CodeInvite(groupId);
+              let newCode = false;
+              let codeString = null;
+              while (!newCode) {
+                const word1 = await DBManager.getRandomWord();
+                const word2 = await DBManager.getRandomWord();
+                const word3 = await DBManager.getRandomWord();
+                codeString = capitalizeFirstLetter(word1) + capitalizeFirstLetter(word2) + capitalizeFirstLetter(word3);
+                invitationManager = DBManager.getInvitationManager(codeString);
+                const codeExists = await invitationManager.documentExists();
+                newCode = !codeExists;
+              }
+              inviteMethod.setCode(codeString);
+              invitationManager.setInviteMethod(inviteMethod);
+              invitationManager.setInviteType(inviteType);
+              // Set code
+              dbCode = codeString;
+              // Push invite to DB
+              const invitePushed = await invitationManager.push();
+              if (!invitePushed) {
+                return;
+              }
+              newInvitationsAdded = true;
+              // If push succeeded, add it to the list
+              groupManager.setCodeInvite(invitationManager.getDocumentId());
             }
-            newInvitationsAdded = true;
-            // If push succeeded, add it to the list
-            groupManager.setQrInvite(invitationManager.getDocumentId());
-          }
-          if (codeInviteId) {
-            dbCode = codeInviteId
-          } else {
-            // No code exists so we make one
-            let invitationManager = null;
-            const inviteType = new InviteType(InviteType.types.GROUP, groupId);
-            const inviteMethod = new CodeInvite(groupId);
-            let newCode = false;
-            let codeString = null;
-            while (!newCode) {
-              const word1 = await DBManager.getRandomWord();
-              const word2 = await DBManager.getRandomWord();
-              const word3 = await DBManager.getRandomWord();
-              codeString = capitalizeFirstLetter(word1) + capitalizeFirstLetter(word2) + capitalizeFirstLetter(word3);
-              invitationManager = DBManager.getInvitationManager(codeString);
-              const codeExists = await invitationManager.documentExists();
-              newCode = !codeExists;
-            }
-            inviteMethod.setCode(codeString);
-            invitationManager.setInviteMethod(inviteMethod);
-            invitationManager.setInviteType(inviteType);
-            // Set code
-            dbCode = codeString;
-            // Push invite to DB
-            const invitePushed = await invitationManager.push();
-            if (!invitePushed) {
-              return;
-            }
-            newInvitationsAdded = true;
-            // If push succeeded, add it to the list
-            groupManager.setCodeInvite(invitationManager.getDocumentId());
           }
           if (newInvitationsAdded) {
             // We have new invitations
