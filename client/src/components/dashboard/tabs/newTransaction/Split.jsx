@@ -407,6 +407,9 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
     function populateGroupUserPreview() {
         if (currentGroupLoaded && currentGroup.length > 0) {
             return currentGroupUsers.map((user, index) => {
+                if (user.id === SessionManager.getUserId()) {
+                    return <div></div>
+                }
                 return (
                     <div 
                         className="friend-container" 
