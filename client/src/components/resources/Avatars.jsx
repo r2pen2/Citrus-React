@@ -14,7 +14,7 @@ export function AvatarStack({ids, checked}) {
         return (
             <AvatarGroup>
                 { ids.map((id, key) => {
-                    return <AvatarStackItem userId={id} key={key} checked={checked}/>
+                    return <AvatarStackItem userId={id} key={key} checked={checked ? checked : []}/>
                 })}
             </AvatarGroup>
         )

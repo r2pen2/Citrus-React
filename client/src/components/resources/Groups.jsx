@@ -2,15 +2,18 @@
 import "./style/groups.scss";
 
 // Library Imports
-import { FormControl, TextField, Typography, Button, IconButton, Tooltip} from "@mui/material";
+import { FormControl, TextField, Typography, Button, IconButton, Tooltip, CircularProgress } from "@mui/material";
 import { useState, useEffect } from "react"
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 // Component Imports
 import {Breadcrumbs} from "./Navigation";
+import {AvatarStack} from "./Avatars"
+import { OutlinedCard } from "./Surfaces";
 
 // API Imports
 import { RouteManager } from "../../api/routeManager";
+import formatter from "../../api/formatter";
 import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
 
@@ -250,4 +253,103 @@ export function GroupAdd() {
         </div>
       </div>
     );
+}
+
+export function HomeGroupList() {
+
+    const userManager = SessionManager.getCurrentUserManager();
+    const [groupsData, setGroupsData] = useState({
+        fetched: false,
+        groups: [],
+    });
+
+    useEffect(() => {
+        async function fetchFriendData() {
+            const groupIds = await userManager.getGroups();
+            let groupsList = [];
+            for (const groupId of groupIds) {
+                const groupManager = DBManager.getGroupManager(groupId);
+                const name = await groupManager.getName();
+                const users = await groupManager.getUsers();
+                const userDebt = await groupManager.getUserDebt();
+                groupsList.push({
+                  name: name,
+                  users: users,
+                  userDebt: userDebt
+                });
+            }
+            setGroupsData({
+                fetched: true,
+                groups: groupsList,
+            });
+        }
+
+        fetchFriendData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    function renderFriendsList() {
+        if (groupsData.groups.length > 0) {
+            return groupsData.groups.map((group, index) => {
+                return <GroupPreviewCard key={index} name={group.name} users={group.users} userDebt={group.userDebt} />
+            })
+        } 
+        if (groupsData.fetched) {
+            return (
+                <div className="d-flex flex-row justify-content-center w-100">
+                    <Typography >User has no groups.</Typography>
+                </div>
+            )
+        }
+        return (
+            <div className="d-flex flex-row justify-content-center w-100">
+                <CircularProgress/>
+            </div>
+        )
+    }
+
+    return (
+        <div className="d-flex flex-row mh-100 align-items-center gap-10">
+            {renderFriendsList()}
+        </div>
+    )
+}
+
+export function GroupPreviewCard({name, users, userDebt}) { 
+
+  const userManager = SessionManager.getCurrentUserManager();
+  
+  function getOweString() {
+    if (userDebt > 0) {
+      return `+${formatter.format(Math.abs(userDebt))}`;
+    } else if (userDebt < 0) {
+      return `-${formatter.format(Math.abs(userDebt))}`;
+    } else {
+      return "±$0.00"
+    }
+  }
+
+  function getDebtTooltip() {
+    if (userDebt > 0) {
+      return `You are owed ${formatter.format(Math.abs(userDebt))}`;
+    } else if (userDebt < 0) {
+      return `You owe ${formatter.format(Math.abs(userDebt))}`;
+    } else {
+      return "You're settled!"
+    }
+  }
+
+  return (
+    <OutlinedCard>
+      <div className="d-flex align-items-center flex-column w-100">
+      <Tooltip title={getDebtTooltip()} placement="top">
+        <div className="d-flex flex-column w-100 group-preview-card align-items-center gap-10">
+          <Typography variant="h1">{name}</Typography>
+          <Typography variant="subtitle1">{getOweString()}</Typography>
+        </div>
+      </Tooltip>
+      <AvatarStack ids={users} />
+      </div>
+    </OutlinedCard>
+  )
 }

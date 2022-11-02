@@ -285,6 +285,32 @@ export class GroupManager extends ObjectManager {
         })
     }
     
+    /**
+     * Get user's total current debt in this group
+     * @param {string} userId id of user to get debt for
+     */
+    async getUserDebt(userId) {
+        return new Promise(async (resolve, reject) => {
+            const groupTransactions = await this.getTransactions();
+            let total = 0;
+            for (const transactionId of groupTransactions) {
+                const transactionManager = DBManager.getTransactionManager(transactionId);
+                const transactionRelations = await transactionManager.getRelations();
+                for (const relation of transactionRelations) {
+                    if (relation.to.id === userId) {
+                        // User is in this relation and is owed money
+                        total += relation.amount;
+                    }
+                    if (relation.from.id === userId) {
+                        // User is in this relation and owes money
+                        total -= relation.amount;
+                    }
+                }
+            }
+            resolve(total);
+        })
+    }
+
     // ================= Set Operations ================= //
     setCreatedAt(newCreatedAt) {
         const createdAtChange = new Set(this.fields.CREATEDAT, newCreatedAt);

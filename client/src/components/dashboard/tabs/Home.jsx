@@ -8,6 +8,7 @@ import AnalyticsPreview from "./home/AnalyticsPreview";
 import { Breadcrumbs } from "../../resources/Navigation";
 import { SectionTitle } from "../../resources/Labels";
 import { HomeFriendsList } from "../../resources/Friends";
+import { HomeGroupList } from "../../resources/Groups";
 
 // API imports
 import { RouteManager } from "../../../api/routeManager";
@@ -47,6 +48,7 @@ export default function Home() {
         <SectionTitle title="Groups">
           <Button variant="contained" onClick={() => RouteManager.redirect("/dashboard/groups/add")}>Add Groups</Button>
         </SectionTitle>
+        <HomeGroupList />
       </div>
       {renderAnalytics(false)}
     </div>

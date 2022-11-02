@@ -373,7 +373,9 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
         let users = await groupManager.getUsers();
         var usersInGroup = [];
         for (const user of users) {
-            usersInGroup.push({id: user, selected: true, displayName: null, pfpUrl: null})
+            if (user.id !== SessionManager.getUserId()) {
+                usersInGroup.push({id: user, selected: true, displayName: null, pfpUrl: null})
+            }
         }
         setCurrentGroupUsers(usersInGroup);
         loadCurrentGroupUsers();
