@@ -2,8 +2,9 @@
 import "./style/groups.scss";
 
 // Library Imports
-import { FormControl, TextField, Typography, Button} from "@mui/material";
+import { FormControl, TextField, Typography, Button, IconButton, Tooltip} from "@mui/material";
 import { useState, useEffect } from "react"
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 // Component Imports
 import {Breadcrumbs} from "./Navigation";
@@ -12,6 +13,7 @@ import {Breadcrumbs} from "./Navigation";
 import { RouteManager } from "../../api/routeManager";
 import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
+import { InviteMethod, InviteType, LinkInvite, QRInvite } from "../../api/db/objectManagers/invitationManager";
 
 export function GroupNew() {
   
@@ -109,28 +111,129 @@ export function GroupInvite() {
     const [groupInviteData, setGroupInviteData] = useState({
         link: null,
         code: null,
-    });
-
+        sessionPassword: null,
+      });
+      const [clipboardTooltip, setClipboardtooltip] = useState("Copy to Clipboard");
+      
     useEffect(() => {
 
         async function loadGroupData() {
-            // Get all invitations for this group
-            const groupManager = DBManager.getGroupManager(groupId);
-            const groupInvitations = await groupManager.getInvitations();
-            let invitationManagers = [];
-            for (const invitationId of groupInvitations) {
-                // Load data for each invitation
-                const invitationManager = DBManager.getInvitationManager(invitationId);
-                invitationManagers.push(invitationManager);
+          // Get all invitations for this group
+          const groupManager = DBManager.getGroupManager(groupId);
+          const groupInvitations = await groupManager.getInvitations();
+          const groupSessionPassword = await groupManager.getSessionPassword();
+          let invitationManagers = [];
+          let dbLink = null;
+          let dbQr = null;
+          for (const invitationId of groupInvitations) {
+            // Load data for each invitation
+            const invitationManager = DBManager.getInvitationManager(invitationId);
+            const inviteMethod = await invitationManager.getInviteMethod();
+            switch (inviteMethod.method) {
+              case InviteMethod.methods.LINK:
+                dbLink = inviteMethod.getGroupLink();
+                break;
+              case InviteMethod.methods.QR:
+                dbQr = inviteMethod.getGroupQR();
+                break;
+              default:
+                break;
             }
+            invitationManagers.push(invitationManager);
+          }
+          let newInvitationIds = [];
+          if (!dbLink) {
+            // No link exists so we make one
+            const invitationManager = DBManager.getInvitationManager();
+            const inviteType = new InviteType(InviteType.types.GROUP, groupId);
+            const inviteMethod = new LinkInvite(groupId);
+            invitationManager.setInviteMethod(inviteMethod);
+            invitationManager.setInviteType(inviteType);
+            // Set link
+            dbLink = inviteMethod.getGroupLink();
+            // Push invite to DB
+            const invitePushed = await invitationManager.push();
+            if (!invitePushed) {
+              return;
+            }
+            // If push succeeded, add it to the list
+            newInvitationIds.push(invitationManager.getDocumentId());
+          }
+          if (!dbQr) {
+            // No QR exists so we make one
+            const invitationManager = DBManager.getInvitationManager();
+            const inviteType = new InviteType(InviteType.types.GROUP, groupId);
+            const inviteMethod = new QRInvite(groupId);
+            invitationManager.setInviteMethod(inviteMethod);
+            invitationManager.setInviteType(inviteType);
+            // Set link
+            dbQr = inviteMethod.getGroupQR();
+            // Push invite to DB
+            const invitePushed = await invitationManager.push();
+            if (!invitePushed) {
+              return;
+            }
+            // If push succeeded, add it to the list
+            newInvitationIds.push(invitationManager.getDocumentId());
+          }
+          if (newInvitationIds.length > 0) {
+            // We have new invitations
+            for (const invitationId of newInvitationIds) {
+              groupManager.addInvitation(invitationId);
+            }
+            const groupPushed = await groupManager.push();
+            if (!groupPushed) {
+              return;
+            }
+          }
+          setGroupInviteData({
+            link: dbLink,
+            code: dbQr,
+            sessionPassword: groupSessionPassword,
+          });
         }
 
         loadGroupData();
     }, [])
 
+    /**
+     * Reset clipboard tooltip after 1 second
+     */
+    useEffect(() => {
+      setTimeout(() => {
+        setClipboardtooltip("Copy to Clipboard");
+      }, 1000);
+    }, [clipboardTooltip]);
+
+    function copyLink() {
+      if (groupInviteData.link) {
+        navigator.clipboard.writeText(groupInviteData.link);
+        setClipboardtooltip("Link copied!");
+      }
+    }
+
     return (
         <div className="group-form">
-            Group Invite
+          <div className="d-flex flex-column align-item-center justify-content-center w-100 gap-10">
+            <div className="d-flex flex-row align-items-center justify-content-center w-100 gap-2">
+              <Tooltip title={clipboardTooltip}>
+                <IconButton onClick={() => copyLink()}>
+                  <ContentCopyIcon />
+                </IconButton>
+              </Tooltip>
+              <TextField
+                label="Invitation Link"
+                value={groupInviteData.link ? groupInviteData.link : "Generating invite link..."}
+                id="outlined-size-small"
+                defaultValue="Small"
+                size="small"
+                className="w-100"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+          </div>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
+import { InviteType } from "./invitationManager";
 
 /**
  * Object Manager for groups
@@ -18,6 +19,7 @@ export class GroupManager extends ObjectManager {
         TRANSACTIONS: "transactions",
         USERS: "users",
         INVITATIONS: "invitations",
+        SESSIONPASSWORD: "sessionPassword",
     }
 
     getEmptyData() {
@@ -25,10 +27,11 @@ export class GroupManager extends ObjectManager {
             createdAt: null,    // {date} When the group was created
             createdBy: null,    // {string} ID of user that created the group
             name: null,         // {string} Name of the group
-            description: null,         // {string} Description of the group
+            description: null,  // {string} Description of the group
             transactions: [],   // {array <- string} IDs of every transaction associated with this group
             users: [],          // {array <- string} IDs of every user in this group
-            invitations: [],          // {array <- string} IDs of every invitation to this group
+            invitations: [],    // {array <- string} IDs of every invitation to this group
+            sessionPassword: null,    // {string} ID of last sessionPassword
         }
         return empty;
     }
@@ -54,6 +57,7 @@ export class GroupManager extends ObjectManager {
             case this.fields.CREATEDBY:
             case this.fields.NAME:
             case this.fields.DESCRIPTION:
+            case this.fields.SESSIONPASSWORD:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -77,6 +81,7 @@ export class GroupManager extends ObjectManager {
             case this.fields.CREATEDBY:
             case this.fields.NAME:
             case this.fields.DESCRIPTION:
+            case this.fields.SESSIONPASSWORD:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -98,6 +103,9 @@ export class GroupManager extends ObjectManager {
                 return data;
             case this.fields.DESCRIPTION:
                 data.description = change.value;
+                return data;
+            case this.fields.SESSIONPASSWORD:
+                data.sessionPassword = change.value;
                 return data;
             case this.fields.TRANSACTIONS:
             case this.fields.USERS:
@@ -136,6 +144,9 @@ export class GroupManager extends ObjectManager {
                     break;
                 case this.fields.INVITATIONS:
                     resolve(this.data.invitations);
+                    break;
+                case this.fields.SESSIONPASSWORD:
+                    resolve(this.data.sessionPassword);
                     break;
                 default:
                     super.logInvalidGetField(field);
@@ -201,6 +212,38 @@ export class GroupManager extends ObjectManager {
             })
         })
     }
+
+    async getSessionPassword() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.SESSIONPASSWORD).then(async (val) => {
+                // "val" is the ID of sessionPassword
+                // We have to check if this password is still valid
+                const sessionPasswordManager = DBManager.getSessionPasswordManager(val);
+                const currentPasswordSession = await sessionPasswordManager.getCurrentSession();
+                // 
+                // Check if current session is valid
+                if (!currentPasswordSession) {
+                    // current session is null, so group doens't have an active session password
+                    this.setSessionPassword(null);
+                    resolve(null);
+                } else {
+                    // current session isn't null, but we have to check if it's tied to this group or not
+                    if (currentPasswordSession.isExpired()) {
+                        this.setSessionPassword(null);
+                        sessionPasswordManager.retireCurrentSession();
+                        resolve(null);
+                    } else if (currentPasswordSession.targetType !== InviteType.types.GROUP || currentPasswordSession.target !== this.getDocumentId()) {
+                        // Session isn't currently tied to this group
+                        this.setSessionPassword(null);
+                        resolve(null);
+                    } else {
+                        // Otherwise, all is well! This currentSession isn't expired and it belongs to this group
+                        resolve(currentPasswordSession);
+                    }
+                }
+            });
+        })
+    }
     
     // ================= Set Operations ================= //
     setCreatedAt(newCreatedAt) {
@@ -221,6 +264,11 @@ export class GroupManager extends ObjectManager {
     setDescription(newDescription) {
         const descriptionChange = new Set(this.fields.DESCRIPTION, newDescription);
         super.addChange(descriptionChange);
+    }
+
+    setSessionPassword(newSessionPassword) {
+        const sessionPasswordChange = new Set(this.fields.SESSIONPASSWORD, newSessionPassword);
+        super.addChange(sessionPasswordChange);
     }
 
     // ================= Add Operations ================= //

@@ -111,8 +111,7 @@ export class ObjectManager {
             case DBManager.objectTypes.TRANSACTION:
                 return "transactions";
             case DBManager.objectTypes.INVITATION:
-                // Invitations have different collections depending on their type
-                return this.data.inviteType.getCollection();
+                return "invitations";
             case DBManager.objectTypes.USER:
                 return "users";
             case DBManager.objectTypes.BADGE:

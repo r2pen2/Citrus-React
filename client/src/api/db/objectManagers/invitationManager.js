@@ -75,7 +75,8 @@ export class InvitationManager extends ObjectManager {
     handleSet(change, data) {
         switch (change.field) {
             case this.fields.INVITETYPE:
-                data.inviteType = change.value;
+                const jsonInviteType = change.value.toJson();
+                data.inviteType = jsonInviteType;
                 return data;
             case this.fields.INVITEMETHOD:
                 data.inviteMethod = change.value;
@@ -108,7 +109,8 @@ export class InvitationManager extends ObjectManager {
             }
             switch(field) {
                 case this.fields.INVITETYPE:
-                    resolve(this.data.inviteType);
+                    const jsonInviteType = this.data.inviteType;
+                    resolve(new InviteType(jsonInviteType.type, jsonInviteType.target));
                     break;
                 case this.fields.INVITEMETHOD:
                     const jsonInviteMethod = this.data.inviteMethod;
@@ -215,7 +217,8 @@ export class InvitationManager extends ObjectManager {
     }
 
     setInviteMethod(newInviteMethod) {
-        const inviteMethodChange = new Set(this.fields.INVITEMETHOD, newInviteMethod);
+        const jsonInviteMethod = newInviteMethod.toJson();
+        const inviteMethodChange = new Set(this.fields.INVITEMETHOD, jsonInviteMethod);
         super.addChange(inviteMethodChange);
     }
     
@@ -278,9 +281,10 @@ export class InvitationManager extends ObjectManager {
     }
 }
 
-class InviteMethod {
-    constructor(_inviteMethod) {
+export class InviteMethod {
+    constructor(_inviteMethod, _targetId) {
         this.method = _inviteMethod;
+        this.targetId = _targetId;
     }
 
     static methods = {
@@ -292,32 +296,32 @@ class InviteMethod {
     toJson() {
         return {
             method: this.method,
-            targetId: this._targetId
+            targetId: this.targetId
         }
     }
 }
 
 export class LinkInvite extends InviteMethod {
     constructor(_targetId) {
-        super(InviteMethod.methods.LINK);
+        super(InviteMethod.methods.LINK, _targetId);
     }
 
     getGroupLink() {
-        return `/invite?type=group&id=${this.targetId}`
+        return `${RouteManager.getHostName()}/invite?type=group&id=${this.targetId}`
     }
 
     getFriendLink() {
-        return `/invite?type=friend&id=${this.targetId}`
+        return `${RouteManager.getHostName()}/invite?type=friend&id=${this.targetId}`
     }
 
     getUserLink() {
-        return `/invite?type=user&id=${this.targetId}`
+        return `${RouteManager.getHostName()}/invite?type=user&id=${this.targetId}`
     }
 }
 
 export class QRInvite extends InviteMethod {
     constructor(_targetId) {
-        super(InviteMethod.methods.QRCODE);
+        super(InviteMethod.methods.QRCODE, _targetId);
     }
 
     getGroupQR() {
@@ -335,13 +339,14 @@ export class QRInvite extends InviteMethod {
 
 export class CodeInvite extends InviteMethod {
     constructor(_targetId) {
-        super(InviteMethod.methods.CODE);
+        super(InviteMethod.methods.CODE, _targetId);
     }
 }
 
 export class InviteType {
-    constructor(_inviteType) {
+    constructor(_inviteType, _inviteTarget) {
         this.type = _inviteType;
+        this.target = _inviteTarget;
     }
 
     static types = {
@@ -350,20 +355,10 @@ export class InviteType {
         USER: "user",
     }
 
-    /**
-     * Get collection associated with invitation type
-     * @returns {string} invitation collection
-     */
-    getCollection() {
-        switch(this.type) {
-            case InviteType.types.FRIEND:
-                return "friendInvitations";
-            case InviteType.types.GROUP:
-                return "groupInvitations";
-            case InviteType.types.USER:
-                return "userInvitations";
-            default:
-                return null;
+    toJson() {
+        return {
+            type: this.type,
+            target: this.target
         }
     }
 }
