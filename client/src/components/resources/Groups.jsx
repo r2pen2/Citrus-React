@@ -17,9 +17,9 @@ import formatter from "../../api/formatter";
 import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
 
-export function GroupNew() {
+const userManager = SessionManager.getCurrentUserManager();
 
-  const userManager = SessionManager.getCurrentUserManager();
+export function GroupNew() {
 
   const [groupName, setGroupName] = useState("");
   const [groupDescription, setGroupDescription] = useState("");
@@ -225,9 +225,26 @@ export function GroupDashboard() {
 export function GroupAdd() {
   
     const [groupCode, setGroupCode] = useState("");
+    const [codeError, setCodeError] = useState(false);
 
     function checkSubmitEnable() {
         return groupCode.length > 5;
+    }
+
+    async function handleCodeSubmit() {
+      const inviteManager = DBManager.getInvitationManager(groupCode);
+      const inviteValid = await inviteManager.documentExists();
+      if (inviteValid) {
+        const groupId = await inviteManager.getTarget();
+        const groupManager = DBManager.getGroupManager(groupId);
+        groupManager.addUser(SessionManager.getUserId());
+        userManager.addGroup(groupId);
+        await groupManager.push();
+        await userManager.push();
+        RouteManager.redirectToGroupDashboard(groupId);
+      } else {
+        setCodeError(true);
+      }
     }
 
     return (
@@ -244,12 +261,13 @@ export function GroupAdd() {
                 >
                 </TextField>
             </FormControl>
-            <Button variant="contained" color="primary" disabled={!checkSubmitEnable()} onClick={() => {}}>
+            <Button variant="contained" color="primary" disabled={!checkSubmitEnable()} onClick={() => handleCodeSubmit()}>
                 Join
             </Button>
             <Button variant="outlined" color="primary" onClick={() => RouteManager.redirect("/dashboard/groups/new")}>
                 Or create a new group
             </Button>
+            <Typography variant="subtitle1" color="error" hidden={!codeError}>Group code invalid!</Typography>
         </div>
       </div>
     );
@@ -257,7 +275,6 @@ export function GroupAdd() {
 
 export function HomeGroupList() {
 
-    const userManager = SessionManager.getCurrentUserManager();
     const [groupsData, setGroupsData] = useState({
         fetched: false,
         groups: [],
@@ -271,7 +288,7 @@ export function HomeGroupList() {
                 const groupManager = DBManager.getGroupManager(groupId);
                 const name = await groupManager.getName();
                 const users = await groupManager.getUsers();
-                const userDebt = await groupManager.getUserDebt();
+                const userDebt = await groupManager.getUserDebt(SessionManager.getUserId());
                 groupsList.push({
                   name: name,
                   users: users,
@@ -288,7 +305,7 @@ export function HomeGroupList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    function renderFriendsList() {
+    function renderGroupList() {
         if (groupsData.groups.length > 0) {
             return groupsData.groups.map((group, index) => {
                 return <GroupPreviewCard key={index} name={group.name} users={group.users} userDebt={group.userDebt} />
@@ -309,8 +326,8 @@ export function HomeGroupList() {
     }
 
     return (
-        <div className="d-flex flex-row mh-100 align-items-center gap-10">
-            {renderFriendsList()}
+        <div className="d-flex flex-column mh-100 align-items-center gap-10">
+            {renderGroupList()}
         </div>
     )
 }

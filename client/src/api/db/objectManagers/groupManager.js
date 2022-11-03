@@ -43,11 +43,11 @@ export class GroupManager extends ObjectManager {
     }
 
     getQr() {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=group&id=${this.documentId}`
+        return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${RouteManager.getHostName()}/invite?type=group&method=qr&id=${this.documentId}`
     }
 
     getLink() {
-        return `${RouteManager.getHostName()}/invite?type=group&id=${this.documentId}`
+        return `${RouteManager.getHostName()}/invite?type=group&method=link&id=${this.documentId}`
     }
 
     async generateInvites() {

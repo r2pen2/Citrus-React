@@ -10,75 +10,41 @@ import { SessionManager } from '../../api/sessionManager';
 
 export default function InviteHandler() {
 
+    const userManager = SessionManager.getCurrentUserManager();
+
     const params = new URLSearchParams(window.location.search);
-    const inviteId = params.get("id");
+    const targetId = params.get("id");
     const inviteType = params.get("type");
+    const inviteMethod = params.get("method");
 
-    const invitationManager = new DBManager.getInvitationManager(inviteId);
-
-    const [validationStatus, setValidationStatus] = useState(null);
-
-    async function validateInvite() {
-        if (!inviteId || !inviteType) {
-            return;
-        }
-        const inviteValid = await invitationManager.validate(inviteId, inviteType);
-        setValidationStatus(inviteValid);
-    }
-
-    async function handleValidationStatus() {
-        if (validationStatus !== "valid") {
-            return;
-        }
-        if (invitationManager.inviteType === InviteType.types.USER) {
-            // This is a userInvite
-            invitationManager.setUsed(true);
-            invitationManager.push();
-            RouteManager.redirect("/login");
-        } else {
-            const userManager = SessionManager.getCurrentUserManager();
-            if (!userManager) {
-                return;
-            }
-            const inviteTarget = await invitationManager.getTarget();
+    useEffect(() => {
+        async function applyInvite() {
             let redirectUri = null;
             let targetManager = null;
-            if (invitationManager.inviteType === "friend") {
-                userManager.addFriend(inviteTarget);
-                targetManager = DBManager.getUserManager(inviteTarget);
+            if (inviteType === InviteType.types.FRIEND) {
+                userManager.addFriend(targetId);
+                targetManager = DBManager.getUserManager(targetId);
                 targetManager.addFriend(SessionManager.getUserId());
-                redirectUri = `/dashboard/groups?id=${inviteTarget}`;
-            } else if (invitationManager.inviteType === "group") {
-                userManager.addGroup(inviteTarget);
-                targetManager = DBManager.getGroupManager(inviteTarget);
+                redirectUri = `/dashboard/friends?id=${targetId}`;
+            } else if (inviteType === InviteType.types.GROUP) {
+                userManager.addGroup(targetId);
+                targetManager = DBManager.getGroupManager(targetId);
                 targetManager.addUser(SessionManager.getUserId());
-                redirectUri = `/dashboard/friends?id=${inviteTarget}`;
+                redirectUri = `/dashboard/groups?id=${targetId}`;
             }
-            const userPushed = await userManager.push();
-            if (!userPushed) {
-                // Somehow we failed to push changes to user
-                return;
-            }
-            const targetPushed = await targetManager.push();
-            if (!targetPushed) {
-                // Somehow we failed to push changes to target
-                return;
-            }
+            await userManager.push();
+            await targetManager.push();
             // Assuming all went well, we redirect the user
             RouteManager.redirect(redirectUri);
         }
-    }
 
-    useEffect(() => {
-        if (!validationStatus) {
-            validateInvite();
-        } else {
-            handleValidationStatus();
-        }
+        applyInvite();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [validationStatus])
+    }, [])
 
     return (
-        <div>{(validationStatus ? validationStatus : <CircularProgress/>)}</div>
+        <div>
+            <CircularProgress />
+        </div>
     )
 }

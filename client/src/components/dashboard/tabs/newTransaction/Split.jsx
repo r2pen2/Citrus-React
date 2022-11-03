@@ -15,7 +15,7 @@ import { DBManager } from "../../../../api/db/dbManager";
 import { AvatarIcon, AvatarToggle } from '../../../resources/Avatars';
 import { sortByDisplayName } from '../../../../api/sorting';
 import { TransactionRelation, TransactionUser } from "../../../../api/db/objectManagers/transactionManager";
-import { makeNumeric, cutAtSpace } from '../../../../api/strings';
+import { makeNumeric } from '../../../../api/strings';
 import { Debugger } from '../../../../api/debugger';
 
 // Get user mananger from LS (which we know exists becuase we made it to this page)
@@ -186,7 +186,7 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
      * Toggle the selected state of a user by userId
      * @param {String} id id of user to toggle selected state for
      */
-         function toggleSelectedGroupUser(id) {
+        function toggleSelectedGroupUser(id) {
             var toggled = [];
             var foundSelectedUser = false;
             for (const u of currentGroupUsers) {
@@ -373,30 +373,19 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
         let users = await groupManager.getUsers();
         var usersInGroup = [];
         for (const user of users) {
-            if (user.id !== SessionManager.getUserId()) {
+            if (user !== SessionManager.getUserId()) {
                 usersInGroup.push({id: user, selected: true, displayName: null, pfpUrl: null})
             }
         }
-        setCurrentGroupUsers(usersInGroup);
-        loadCurrentGroupUsers();
-    }
-
-    /**
-     * Load personal data for all users in selected group
-     */
-    async function loadCurrentGroupUsers() {
         var loadedUsers = [];
-        if (!currentGroupUsers) {
-            return;
-        }
-        for (const user of currentGroupUsers) {
+        for (const user of usersInGroup) {
             const groupUserManager = DBManager.getUserManager(user.id);
             let name = await groupUserManager.getDisplayName();
             let url = await groupUserManager.getPhotoUrl();
             loadedUsers.push({id: user.id, displayName: name, selected: true, pfpUrl: url})
         }
         setCurrentGroupUsers(loadedUsers);
-        setSomeoneIsSelectedInGroup(true);
+        setSomeoneIsSelectedInGroup(loadedUsers.length > 0);
         setCurrentGroupLoaded(true);
     }
 
@@ -406,32 +395,49 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
      */
     function populateGroupUserPreview() {
         if (currentGroupLoaded && currentGroup.length > 0) {
-            return currentGroupUsers.map((user, index) => {
-                if (user.id === SessionManager.getUserId()) {
-                    return <div></div>
+            if (currentGroupUsers.length > 0) {
+                <div className="user-preview"> 
+                { 
+                currentGroupUsers.map((user, index) => {
+                    return (
+                        <div 
+                            className="friend-container" 
+                            key={index} 
+                            onClick={() => { 
+                                toggleSelectedGroupUser(user.id);
+                            }
+                        }>
+                            <AvatarToggle 
+                                outlined={user.selected} 
+                                id={user.id} 
+                                src={user.pfpUrl}
+                                displayName={user.displayName}
+                            />
+                        </div> 
+                    )
+                })
                 }
+                </div>
+            } else {
                 return (
-                    <div 
-                        className="friend-container" 
-                        key={index} 
-                        onClick={() => { 
-                            toggleSelectedGroupUser(user.id);
-                        }
-                    }>
-                        <AvatarToggle 
-                            outlined={user.selected} 
-                            id={user.id} 
-                            src={user.pfpUrl}
-                            displayName={user.displayName}
-                        />
-                    </div> 
+                    <div className="d-flex flex-column justify-content-end align-items-center h-100 w-100">
+                        <Typography variant="subtitle1">You're the only one in this group!</Typography>
+                    </div>
                 )
-            })
+            }
         }
     }
 
     function handleGroupCancel() {
         setCurrentGroup("");
+    }
+
+    function getGroupName(groupId) {
+        for (const group of groupPicklistContent) {
+            if (group.id === groupId) {
+                return group.name;
+            }
+        }
     }
 
     return (
@@ -464,7 +470,7 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
                     <Typography variant="subtitle2">or</Typography>
                 </div>
                 <div className="title">
-                    <Typography variant="h6">Assign to a Group</Typography>
+                    <Typography variant="h6">Assign to {currentGroup ? `"${getGroupName(currentGroup)}"` : "a Group"}</Typography>
                 </div>
                 <FormControl className="group-select-box">
                     <InputLabel id="group-select-label">Group</InputLabel>
@@ -478,9 +484,7 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
                         { populateGroupSelect() }
                     </Select>
                 </FormControl>
-                <div className="user-preview">
-                    { populateGroupUserPreview() }
-                </div>
+                { populateGroupUserPreview() }
             </div>
             <div className="next-button">
                 <Button variant="contained" disabled={!nextEnabled} onClick={() => handleNext()}>Next</Button>
@@ -882,17 +886,26 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         const newTransactionId = transactionManager.getDocumentId(); 
         
         // Add new transaction to all users involved
-        let userError = false;
+        let pushError = false;
         for (const userId of newTransactionUsers) {
             const userManager = DBManager.getUserManager(userId);
             userManager.addTransaction(newTransactionId);
             userManager.addRelationsFromTransaction(transactionManager);
             let success = await userManager.push();
             if (!success) {
-                userError = true;
+                pushError = true;
             }
         }
-        if (!userError) {
+        if (currentGroup.length > 0) {
+            // There was a group selected!
+            const groupManager = DBManager.getGroupManager(currentGroup);
+            groupManager.addTransaction(newTransactionId);
+            let success = await groupManager.push();
+            if (!success) {
+                pushError = true;
+            }
+        }
+        if (!pushError) {
             // Take user to the new transaciton's page
             RouteManager.redirectToTransaction(newTransactionId);
         }
