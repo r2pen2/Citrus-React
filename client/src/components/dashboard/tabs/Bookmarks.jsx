@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 
 // Get user manager from LS
-const userManager = SessionManager.getCurrentUserManager();
+const currentUserManager = SessionManager.getCurrentUserManager();
 
 export default function Bookmarks() {
   
@@ -23,7 +23,7 @@ export default function Bookmarks() {
    * Fetch bookmark list for current user
    */
   async function fetchBookmarks() {
-    const userBookmarks = await userManager.getBookmarks();
+    const userBookmarks = await currentUserManager.getBookmarks();
     setUserBookmarks(userBookmarks);
   }
 
@@ -79,8 +79,8 @@ export default function Bookmarks() {
       bookmarkManager.setCreatedAt(new Date());
       bookmarkManager.setCreatedBy(SessionManager.getUserId());
       const newBookmarkDocRef = await bookmarkManager.push();
-      userManager.addBookmark(newBookmarkDocRef.id); 
-      await userManager.push();
+      currentUserManager.addBookmark(newBookmarkDocRef.id); 
+      await currentUserManager.push();
       fetchBookmarks();
       setAddModalOpen(false);
     }

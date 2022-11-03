@@ -16,6 +16,9 @@ import { SectionTitle } from "./Labels";
 import { OutlinedCard } from "./Surfaces";
 import { AvatarIcon } from "./Avatars";
 
+// Get user manager from LS
+const currentUserManager = SessionManager.getCurrentUserManager();
+
 export function DashboardOweCards() {
 
     const [relations, setRelations] = useState({
@@ -27,25 +30,10 @@ export function DashboardOweCards() {
 
         async function fetchUserRelations() {
             // Get all transactions for current user
-            const userManager = SessionManager.getCurrentUserManager();
-            const userRelations = await userManager.getSimplifiedRelations();
-
-            let newPositiveRelations = [];
-            let newNegativeRelations = [];
-
-            for (const relation of userRelations) {
-              if (relation.to.id === SessionManager.getUserId()) {
-                  // This user is owed money
-                  newPositiveRelations.push(relation);
-              } else if (relation.from.id === SessionManager.getUserId()) {
-                  // This user owes money
-                  newNegativeRelations.push(relation);
-              }
-            }
-
+            const userRelations = await currentUserManager.getSimplifiedRelations();
             setRelations({
-                positive: newPositiveRelations,
-                negative: newNegativeRelations
+                positive: userRelations.positive,
+                negative: userRelations.negative
             })
         }
 
@@ -163,16 +151,9 @@ function DashboardOweCard({direction, relations, negativeRelations}) {
 export function OweOneDirectionHeader({positive, relations}) {
   function getRelationTotal() {
     let total = 0;
-    for (const r of relations) {
-      if (positive) {
-        if (r.to.id === SessionManager.getUserId()) {
-          total += r.amount;
-        }
-      } else {
-        if (r.from.id === SessionManager.getUserId()) {
-          total += r.amount;
-        }
-      }
+    const relevantRelations = positive ? relations.positive : relations.negative;
+    for (const r of relevantRelations) {
+      total += r.amount;
     }
     return total;
   }

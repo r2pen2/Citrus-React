@@ -24,6 +24,9 @@ import InviteHandler from "./components/inviteHandler/InviteHandler";
 import { SessionManager } from "./api/sessionManager";
 import { auth } from "./api/firebase";
 
+// Get user manager from LS
+const userManager = SessionManager.getCurrentUserManager();
+
 function App() {
 
   // Update user when auth changes
@@ -36,7 +39,6 @@ function App() {
         SessionManager.setDisplayName(authUser.displayName);
 
         // Sync user's DB doc
-        const userManager = SessionManager.getCurrentUserManager();
         const userAlreadyExists = await userManager.documentExists();
         if (userAlreadyExists) {
           // User already exists on DB

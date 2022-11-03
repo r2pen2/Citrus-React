@@ -45,7 +45,7 @@ const helloMessages = [
 const helloMsg = helloMessages[Math.floor(Math.random()*helloMessages.length)]
 
 // Get user data from localStorage (if it exists, that is)
-const userManager = SessionManager.getCurrentUserManager();
+const currentUserManager = SessionManager.getCurrentUserManager();
 
 /**
  * Form for new users to create their accounts
@@ -90,10 +90,10 @@ export default function NewUserForm() {
    * Submits new user data to server for account creation
    */
   function handleSubmit() {
-    userManager.setDisplayName(firstName + " " + lastName);
-    userManager.push().then(() => {
+    currentUserManager.setDisplayName(firstName + " " + lastName);
+    currentUserManager.push().then(() => {
       // Apply changes to UserManager in localstorage and redirect to dashboard
-      SessionManager.setCurrentUserManager(userManager);
+      SessionManager.setCurrentUserManager(currentUserManager);
       RouteManager.redirect("/dashboard");
     })
   }

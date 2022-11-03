@@ -8,35 +8,31 @@ import { OweOneDirectionHeader, OweOneDirectionPerson } from "../../resources/Ow
 // API Imports
 import { SessionManager } from "../../../api/sessionManager";
 
+// Get user manager from LS
+const currentUserManager = SessionManager.getCurrentUserManager();
+
 export default function OweOneDirection({positive}) {
 
-  const [userRelations, setUserRelations] = useState([]);
+  const [userRelations, setUserRelations] = useState({
+    positive: [],
+    negative: [],
+  });
 
   useEffect(() => {
 
     async function fetchOweData() {
-      const userManager = SessionManager.getCurrentUserManager();
-      const relationsFromDB = await userManager.getSimplifiedRelations();
-      setUserRelations(relationsFromDB);
+      const relationsFromDB = await currentUserManager.getSimplifiedRelations();
+      setUserRelations({
+        positive: relationsFromDB.positive,
+        negative: relationsFromDB.negative
+      });
     }
 
     fetchOweData();
   }, [])
 
   function renderCards() {
-    let relevantRelations = [];
-    console.log(userRelations)
-    for (const relation of userRelations) {
-      if (positive) {
-        if (relation.to.id === SessionManager.getUserId()) {
-          relevantRelations.push(relation);
-        }
-      } else {
-        if (relation.from.id === SessionManager.getUserId()) {
-          relevantRelations.push(relation);
-        }
-      }
-    }
+    let relevantRelations = positive ? userRelations.positive : userRelations.negative;
     // Make a map of all users and their amounts across all realtions with them
     const peopleMap = new Map();
     for (const relation of relevantRelations) {

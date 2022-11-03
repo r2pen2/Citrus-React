@@ -17,7 +17,8 @@ import formatter from "../../api/formatter";
 import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
 
-const userManager = SessionManager.getCurrentUserManager();
+// Get user manager from LS
+const currentUserManager = SessionManager.getCurrentUserManager();
 
 export function GroupNew() {
 
@@ -46,8 +47,8 @@ export function GroupNew() {
     // Push changes to new group, then add the group to current user if successful
     await groupManager.push();
     await groupManager.generateInvites();
-    userManager.addGroup(groupManager.getDocumentId());
-    await userManager.push();
+    currentUserManager.addGroup(groupManager.getDocumentId());
+    await currentUserManager.push();
     RouteManager.redirectToGroupInvite(groupManager.getDocumentId());
   }
 
@@ -238,9 +239,9 @@ export function GroupAdd() {
         const groupId = await inviteManager.getTarget();
         const groupManager = DBManager.getGroupManager(groupId);
         groupManager.addUser(SessionManager.getUserId());
-        userManager.addGroup(groupId);
+        currentUserManager.addGroup(groupId);
         await groupManager.push();
-        await userManager.push();
+        await currentUserManager.push();
         RouteManager.redirectToGroupDashboard(groupId);
       } else {
         setCodeError(true);
@@ -282,7 +283,7 @@ export function HomeGroupList() {
 
     useEffect(() => {
         async function fetchFriendData() {
-            const groupIds = await userManager.getGroups();
+            const groupIds = await currentUserManager.getGroups();
             let groupsList = [];
             for (const groupId of groupIds) {
                 const groupManager = DBManager.getGroupManager(groupId);
@@ -333,8 +334,6 @@ export function HomeGroupList() {
 }
 
 export function GroupPreviewCard({name, users, userDebt}) { 
-
-  const userManager = SessionManager.getCurrentUserManager();
   
   function getOweString() {
     if (userDebt > 0) {

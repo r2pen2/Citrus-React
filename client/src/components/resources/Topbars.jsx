@@ -25,8 +25,8 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
 
-// Create a userManager (We'll only use this in the UserTopbar)
-const userManager = SessionManager.getCurrentUserManager();
+// Create a UserManager (We'll only use this in the UserTopbar)
+const currentUserManager = SessionManager.getCurrentUserManager();
 
 /**
  * Topbar when there's no user signed in (or whenever else you may want to display a topbar with no user information)
@@ -69,9 +69,11 @@ export function MinimalTopbar() {
 
 export function UserTopbar() {
   // Get as much data from SessionManager as possible
-  const [userDisplayName, setUserDisplayName] = useState(SessionManager.getDisplayName());
-  const [userPhotoUrl, setUserPhotoUrl] = useState(SessionManager.getPfpUrl());
-  const [initials, setInitials] = useState("");
+  const [currentUserDetails, setCurrentUserDetails] = useState({
+    displayName: SessionManager.getDisplayName(),
+    photoUrl: SessionManager.getPfpUrl(),
+    initials: ""
+  });
   
   // AnchorElement for user account menu
   const [anchorElement, setAnchorElement] = useState(null);
@@ -97,12 +99,14 @@ export function UserTopbar() {
   useEffect(() => {
     // Fetch user details on mount
     async function fetchUserData() {
-      let name = await userManager.getDisplayName();
-      setUserDisplayName(name);
-      let url = await userManager.getPhotoUrl();
-      setUserPhotoUrl(url);
-      let userInitials = await userManager.getInitials();
-      setInitials(userInitials);
+      let name = await currentUserManager.getDisplayName();
+      let url = await currentUserManager.getPhotoUrl();
+      let userInitials = await currentUserManager.getInitials();
+      setCurrentUserDetails({
+        displayName: name,
+        photoUrl: url,
+        initials: userInitials
+      });
       // Cache/update these just in case we need them again soon
       SessionManager.setPfpUrl(url);
       SessionManager.setDisplayName(name);
@@ -155,7 +159,7 @@ export function UserTopbar() {
               display="flex"
             >
               <Typography variant="subtitle1" component="div" marginTop="4px">
-                {userDisplayName}
+                {currentUserDetails.displayName}
               </Typography>
               <IconButton
                 aria-label="account of current user"
@@ -166,12 +170,12 @@ export function UserTopbar() {
                 data-testid="account-button"
               >
                 <Avatar
-                  src={userPhotoUrl}
-                  alt={userDisplayName}
+                  src={currentUserDetails.photoUrl}
+                  alt={currentUserDetails.displayName}
                   sx={{ border: "1px solid black" }}
                   imgProps={{referrerPolicy: "no-referrer" }}
                 >
-                  {initials}
+                  {currentUserDetails.initials}
                 </Avatar>
               </IconButton>
               <Menu

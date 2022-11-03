@@ -7,9 +7,11 @@ import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
 import { AvatarIcon } from "./Avatars";
 
+// Get user manager from LS
+const currentUserManager = SessionManager.getCurrentUserManager();
+
 export function HomeFriendsList() {
 
-    const userManager = SessionManager.getCurrentUserManager();
     const [friendsData, setFriendsData] = useState({
         fetched: false,
         friends: [],
@@ -17,7 +19,7 @@ export function HomeFriendsList() {
 
     useEffect(() => {
         async function fetchFriendData() {
-            const friendIds = await userManager.getFriends();
+            const friendIds = await currentUserManager.getFriends();
             let friendsList = [];
             for (const friendId of friendIds) {
                 const friendManager = DBManager.getUserManager(friendId);

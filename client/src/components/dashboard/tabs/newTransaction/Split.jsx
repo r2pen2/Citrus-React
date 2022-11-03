@@ -19,7 +19,7 @@ import { makeNumeric } from '../../../../api/strings';
 import { Debugger } from '../../../../api/debugger';
 
 // Get user mananger from LS (which we know exists becuase we made it to this page)
-const userManager = SessionManager.getCurrentUserManager();
+const currentUserManager = SessionManager.getCurrentUserManager();
 
 /**
  * Wrapper component for split new transaction
@@ -40,7 +40,7 @@ export default function Split(props) {
     useEffect(() => {
         async function fetchUserData() {
             // Get user manager
-            const groups = await userManager.getGroups();
+            const groups = await currentUserManager.getGroups();
             // Also get the names of each group
             var groupObjects = [];
             for (const groupId of groups) {
@@ -98,7 +98,7 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
     async function fetchFriendDetails(friendsList) {
         for (var i = 0; i < friendsList.length; i++) {
             const currentFriend = friendsList[i];
-            const friendManager = DBManager.getUserManager(currentFriend.id)
+            const friendManager = DBManager.getCurrentUserManager(currentFriend.id)
             let displayName = await friendManager.getDisplayName();
             currentFriend.displayName = displayName;
             let url = await friendManager.getPhotoUrl();
@@ -116,7 +116,7 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
          */
         async function fetchFriends() {
             // Get user manager
-            const friendsFromDB = await userManager.getFriends();
+            const friendsFromDB = await currentUserManager.getFriends();
             var userFriends = [];
             for (const friendId of friendsFromDB) {
                 userFriends.push({id: friendId, displayName: "", pfpUrl: null, selected: false})
@@ -887,11 +887,11 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         
         // Add new transaction to all users involved
         let pushError = false;
-        for (const userId of newTransactionUsers) {
-            const userManager = DBManager.getUserManager(userId);
-            userManager.addTransaction(newTransactionId);
-            userManager.addRelationsFromTransaction(transactionManager);
-            let success = await userManager.push();
+        for (const transcationUserId of newTransactionUsers) {
+            const transactionUserManager = DBManager.getUserManager(transcationUserId);
+            transactionUserManager.addTransaction(newTransactionId);
+            transactionUserManager.addRelationsFromTransaction(transactionManager);
+            let success = await transactionUserManager.push();
             if (!success) {
                 pushError = true;
             }

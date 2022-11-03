@@ -432,23 +432,27 @@ export class UserManager extends ObjectManager {
                         finalRelations.set(negativeRelation.to.id, newRelation);
                     } else {
                         // We haven't seen this person already
-                        const newRelation = new TransactionRelation(negativeRelation.from.id, negativeRelation.to.id, negativeRelation.amount, null, negativeRelation.from, negativeRelation.to, negativeRelation.transaction);
+                        const newRelation = new TransactionRelation(negativeRelation.from.id, negativeRelation.to.id, negativeRelation.amount * -1, null, negativeRelation.from, negativeRelation.to, negativeRelation.transaction);
                         finalRelations.set(negativeRelation.to.id, newRelation);
                     }
                 }
-                let finalRelationArray = [];
+                let finalNegativeRelations = [];
+                let finalPositiveRelations = [];
                 for (const key of finalRelations) {
                     let relation = key[1];
                     if (relation.amount !== 0) {
                         if (relation.amount < 0) {
-                            // If amount is negative, make a new TransactionRelation with to and from users swapped and amount inverse
-                            finalRelationArray.push(new TransactionRelation(relation.to.id, relation.from.id, relation.amount * -1, null, relation.to, relation.from, relation.transaction));
+                            // If amount is negative, make a new TransactionRelation with amount inverse
+                            finalNegativeRelations.push(new TransactionRelation(relation.from.id, relation.to.id, relation.amount * -1, null, relation.from, relation.to, relation.transaction));
                         } else {
-                            finalRelationArray.push(relation);
+                            finalPositiveRelations.push(relation);
                         }
                     }
                 }
-                resolve(finalRelationArray);
+                resolve({
+                    negative: finalNegativeRelations,
+                    positive: finalPositiveRelations
+                });
             })
         })
     }

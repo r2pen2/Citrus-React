@@ -19,6 +19,10 @@ import { getSlashDateString } from '../../api/strings';
  * @param {function} fetchBookmarks bookmark fetch function to be called after deletion 
  * @returns 
  */
+
+// We only need the user manager if we're doing anything on the user's document. No need to make one if we're not gonna edit this bookmark.
+const currentUserManager = SessionManager.getCurrentUserManager();
+
 export function BookmarkCard({bookmarkId, fetchBookmarks}) {
 
   // Fetch our bookmark manager
@@ -54,13 +58,11 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
   }
 
   function deleteBookmark() {
-    // We only need the user manager if we're doing anything on the user's document. No need to make one if we're not gonna edit this bookmark.
-    const userManager = SessionManager.getCurrentUserManager();
-    userManager.removeBookmark(bookmarkId);
-    userManager.push().then((pushSuccess) => {
+    currentUserManager.removeBookmark(bookmarkId);
+    currentUserManager.push().then((pushSuccess) => {
       if (pushSuccess) {
         bookmarkManager.deleteDocument();
-        SessionManager.setCurrentUserManager(userManager);
+        SessionManager.setCurrentUserManager(currentUserManager);
         fetchBookmarks();
       }
     });
