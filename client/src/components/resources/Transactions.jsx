@@ -299,7 +299,7 @@ export function TransactionDetail() {
       <TransactionRelationList relations={transactionData.relations} />
       <div className="d-flex flex-row justify-content-between w-75 m-5">
         {getPayButtonByRole()}
-        <Button variant="contained" color="primary" onClick={() => {}}>Go to Conversation</Button>
+        <Button variant="contained" color="primary" onClick={() => {RouteManager.redirectToTransactionConversation(transactionId)}}>Go to Conversation</Button>
       </div>
       <Tooltip title="The nuclear option">      
         <Button variant="outlined" color="error" onClick={() => {handleDelete()}}>Delete this Transaction</Button>
@@ -414,8 +414,8 @@ function TransactionDetailHeader({title, users}) {
   }
 
   return (
-    <div className="d-flex flex-column">
-      <div className="d-flex flex-row justify-content-center">
+    <div className="d-flex flex-column align-items-center gap-10">
+      <div className="d-flex flex-row justify-content-center transaction-detail-header">
         <Typography variant="h1">{title}</Typography>
       </div>
       <AvatarStack ids={getUserIds()} checked={getSettledUsers()}/>
