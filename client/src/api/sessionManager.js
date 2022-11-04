@@ -219,4 +219,11 @@ export class SessionManager {
             RouteManager.redirect("/home");
         });
     }
+
+    static async reloadUser() {
+        const newUserManager = DBManager.getUserManager(this.getUserId());
+        await newUserManager.fetchData();
+        this.setCurrentUserManager(newUserManager);
+        window.location.reload();
+    }
 }

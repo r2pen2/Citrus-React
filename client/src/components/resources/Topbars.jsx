@@ -20,6 +20,7 @@ import LogoBlack from "../../assets/images/LogoBlack.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
+import ReplayIcon from '@mui/icons-material/Replay';
 
 // API Imports
 import { SessionManager } from "../../api/sessionManager";
@@ -127,114 +128,127 @@ export function UserTopbar() {
   return (
     <div className="topbar" data-testid="topbar-wrapper">
       <div className="appbar-container" data-testid="user-topbar">
-        <AppBar className="appbar">
-          <Toolbar>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="logo"
-              href="/home"
-            >
-              <img 
-                src={LogoBlack} 
-                alt="logo" 
-                className="topbar-logo"
-              ></img>
-            </IconButton>
-            <Typography
-              variant="h4"
-              component="a"
-              href="/home"
-              fontFamily="FredokaOne"
-              className="topbar-citrus-title"
-            >
-              Citrus
-            </Typography>
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              justifyContent="center"
-              display="flex"
-            >
-              <Typography variant="subtitle1" component="div" marginTop="4px">
-                {currentUserDetails.displayName}
-              </Typography>
+        <AppBar>
+          <Toolbar className="d-flex flex-row align-items-center justify-content-between">
+            <div className="d-flex flex-row align-items-center justify-content-center">
               <IconButton
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={(e) => handleMenu(e)}
+                size="large"
+                edge="start"
                 color="inherit"
-                data-testid="account-button"
+                aria-label="logo"
+                href="/home"
               >
-                <Avatar
-                  src={currentUserDetails.photoUrl}
-                  alt={currentUserDetails.displayName}
-                  sx={{ border: "1px solid black" }}
-                  imgProps={{referrerPolicy: "no-referrer" }}
-                >
-                  {currentUserDetails.initials}
-                </Avatar>
+                <img 
+                  src={LogoBlack} 
+                  alt="logo" 
+                  className="topbar-logo"
+                ></img>
               </IconButton>
-              <Menu
-                data-testid="account-menu"
-                id="menu-appbar"
-                anchorEl={anchorElement}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-                open={open}
-                onClose={() => handleClose()}
+              <Typography
+                variant="h4"
+                component="a"
+                href="/home"
+                fontFamily="FredokaOne"
               >
-                <MenuItem onClick={() => closeMenuAndRedirect("/user")}>
-                  My Profile
-                </MenuItem>
-                <MenuItem onClick={() => closeMenuAndRedirect("/user/settings")}>
-                  Settings
-                </MenuItem>
-              </Menu>
-              <Tooltip title="Notifications">
+                Citrus
+              </Typography>
+            </div>
+            <div className="d-flex flex-row align-items-center justify-content-center">
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                justifyContent="center"
+                display="flex"
+              >
+                <Typography variant="subtitle1" component="div" marginTop="4px">
+                  {currentUserDetails.displayName}
+                </Typography>
                 <IconButton
-                  size="medium"
-                  edge="start"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={(e) => handleMenu(e)}
                   color="inherit"
-                  aria-label="notifications-icon"
-                  href="#notifications"
+                  data-testid="account-button"
                 >
-                  <NotificationsIcon />
+                  <Avatar
+                    src={currentUserDetails.photoUrl}
+                    alt={currentUserDetails.displayName}
+                    sx={{ border: "1px solid black" }}
+                    imgProps={{referrerPolicy: "no-referrer" }}
+                  >
+                    {currentUserDetails.initials}
+                  </Avatar>
                 </IconButton>
-              </Tooltip>
-              <Tooltip title="Bookmarks">
-                <IconButton
-                  size="medium"
-                  edge="start"
-                  color="inherit"
-                  aria-label="bookmarks-icon"
-                  href="/dashboard#bookmarks"
+                <Menu
+                  data-testid="account-menu"
+                  id="menu-appbar"
+                  anchorEl={anchorElement}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                  open={open}
+                  onClose={() => handleClose()}
                 >
-                  <BookmarksIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Log-Out">
-                <IconButton
-                  size="medium"
-                  color="inherit"
-                  aria-label="logout-icon"
-                  onClick={() => SessionManager.signOut()}
-                  data-testid="topbar-logout-button"
-                >
-                  <LogoutIcon />
-                </IconButton>
-              </Tooltip>
-            </Stack>
+                  <MenuItem onClick={() => closeMenuAndRedirect("/user")}>
+                    My Profile
+                  </MenuItem>
+                  <MenuItem onClick={() => closeMenuAndRedirect("/user/settings")}>
+                    Settings
+                  </MenuItem>
+                </Menu>
+                <Tooltip title="Notifications">
+                  <IconButton
+                    size="medium"
+                    edge="start"
+                    color="inherit"
+                    aria-label="notifications-icon"
+                    href="#notifications"
+                  >
+                    <NotificationsIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Bookmarks">
+                  <IconButton
+                    size="medium"
+                    edge="start"
+                    color="inherit"
+                    aria-label="bookmarks-icon"
+                    href="/dashboard#bookmarks"
+                  >
+                    <BookmarksIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Reload">
+                  <IconButton
+                    size="medium"
+                    color="inherit"
+                    aria-label="reload-icon"
+                    onClick={() => SessionManager.reloadUser()}
+                    >
+                      <ReplayIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Log-Out">
+                  <IconButton
+                    size="medium"
+                    color="inherit"
+                    aria-label="logout-icon"
+                    onClick={() => SessionManager.signOut()}
+                    data-testid="topbar-logout-button"
+                  >
+                    <LogoutIcon />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            </div>
           </Toolbar>
         </AppBar>
       </div>

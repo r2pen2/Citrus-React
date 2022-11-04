@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 
 // API imports
 import formatter from "../../api/formatter";
+import { DBManager } from "../../api/db/dbManager";
 import { RouteManager } from "../../api/routeManager";
 import { SessionManager } from "../../api/sessionManager";
 
@@ -30,7 +31,7 @@ export function DashboardOweCards() {
 
         async function fetchUserRelations() {
             // Get all transactions for current user
-            const userRelations = await currentUserManager.getSimplifiedRelations();
+            const userRelations = await currentUserManager.getSortedRelations();
             setRelations({
                 positive: userRelations.positive,
                 negative: userRelations.negative
@@ -88,16 +89,10 @@ function DashboardOweCard({direction, relations, negativeRelations}) {
     // Simplify relations
     if (relations) {
         for (const relation of relations) {
-            if (relation.to.id === SessionManager.getUserId()) {
-                if (!peopleFound.includes(relation.from.id)) {
-                    peopleFound.push(relation.from.id);
-                }
-            } else if (relation.from.id === SessionManager.getUserId()) {
-                if (!peopleFound.includes(relation.to.id)) {
-                    peopleFound.push(relation.to.id);
-                }
-            }
-            amountOwed += relation.amount;
+          if (!peopleFound.includes(relation.user)) {
+            peopleFound.push(relation.user);
+          }
+          amountOwed += relation.amount;
         }
     }
     if (negativeRelations) {
@@ -127,7 +122,7 @@ function DashboardOweCard({direction, relations, negativeRelations}) {
               <CardActionArea>
                 <CardContent onClick={() => handleOweCardClick()}>
                   <Typography variant="h5" component="div">
-                    {formatter.format(amountOwed)}
+                    {formatter.format(Math.abs(amountOwed))}
                   </Typography>
                   <div className="d-flex align-items-center">
                     <GroupsIcon fontSize="large" />
@@ -151,11 +146,10 @@ function DashboardOweCard({direction, relations, negativeRelations}) {
 export function OweOneDirectionHeader({positive, relations}) {
   function getRelationTotal() {
     let total = 0;
-    const relevantRelations = positive ? relations.positive : relations.negative;
-    for (const r of relevantRelations) {
+    for (const r of relations) {
       total += r.amount;
     }
-    return total;
+    return Math.abs(total);
   }
 
   return (
@@ -166,29 +160,49 @@ export function OweOneDirectionHeader({positive, relations}) {
   )
 }
 
-export function OweOneDirectionPerson({person, positive}) {
+export function OweOneDirectionPerson({relation, positive}) {
 
   const [settleState, setSettleState] = useState({
     menuOpen: false,
     onButtonClick: openSettleMenu,
     buttonLabel: "Settle",
     buttonColor: positive ? "primary" : "citrusRed",
-    settleAmount: person.amount,
+    settleAmount: relation.amount,
+  })
+
+  const [userData, setUserData] = useState({
+    displayName: "",
+    pfpUrl: ""
   })
   
+  useEffect(() => {
+    // fetch user data on mount
+    async function fetchUserData() {
+      const relationUserManager = DBManager.getUserManager(relation.user);
+      const displayName = await relationUserManager.getDisplayName();
+      const src = await relationUserManager.getPhotoUrl();
+      setUserData({
+        displayName: displayName,
+        pfpUrl: src
+      })
+    }
+
+    fetchUserData();
+  }, [])
+
   function openSettleMenu() {
     setSettleState({
       menuOpen: true,
       onButtonClick: submitSettleAmount,
       buttonLabel: "Submit",
       buttonColor: "primary",
-      settleAmount: person.amount,
+      settleAmount: Math.abs(relation.amount),
     });
   }
 
   async function submitSettleAmount() {
     const amt = document.getElementById("settle-amount-input").value;
-    await currentUserManager.settleWithUser(person.personId, parseInt(amt));
+    await currentUserManager.settleWithUser(relation.user, parseInt(amt));
     window.location.reload();
   }
 
@@ -224,7 +238,7 @@ export function OweOneDirectionPerson({person, positive}) {
   }
 
   function getSettleTooltip() {
-    return settleState.menuOpen ? `Send ${formatter.format(settleState.settleAmount)} to ${person.displayName}` : "";
+    return settleState.menuOpen ? `Send ${formatter.format(settleState.settleAmount)} to ${userData.displayName}` : "";
   }
 
   function getVenmoTooltip() {
@@ -234,10 +248,10 @@ export function OweOneDirectionPerson({person, positive}) {
   function renderSettleHint() {
 
     function getEndingColor() {
-      if (settleState.settleAmount > person.amount) {
+      if (settleState.settleAmount > Math.abs(relation.amount)) {
         return "primary";
       }
-      if (settleState.settleAmount < person.amount) {
+      if (settleState.settleAmount < Math.abs(relation.amount)) {
         return "error";
       }
       return "";
@@ -249,9 +263,9 @@ export function OweOneDirectionPerson({person, positive}) {
 
     return (
       <div className="d-flex flex-row justify-content-center gap-10">
-        <Typography variant="subtitle1" color={getStartingColor()}>{formatter.format(person.amount)}</Typography>
+        <Typography variant="subtitle1" color={getStartingColor()}>{formatter.format(Math.abs(relation.amount))}</Typography>
         <Typography variant="subtitle1"> → </Typography>
-        <Typography variant="subtitle1" color={getEndingColor()}>{formatter.format(Math.abs(person.amount - settleState.settleAmount))}</Typography>
+        <Typography variant="subtitle1" color={getEndingColor()}>{formatter.format(Math.abs(Math.abs(relation.amount) - settleState.settleAmount))}</Typography>
       </div>
     );
   }
@@ -260,9 +274,9 @@ export function OweOneDirectionPerson({person, positive}) {
     <OutlinedCard borderWeight="4px" borderColor={positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} >
       <div className="personal-owe-card">
         <div className="row">
-          <AvatarIcon src={person.pfpUrl} displayName={person.displayName} size={100}/>
-          <Typography variant="h1">{person.displayName}</Typography>
-          <Typography variant="h1">{formatter.format(person.amount)}</Typography>
+          <AvatarIcon src={userData.pfpUrl} displayName={userData.displayName} size={100}/>
+          <Typography variant="h1">{userData.displayName}</Typography>
+          <Typography variant="h1">{formatter.format(Math.abs(relation.amount))}</Typography>
         </div>
         <div className="row buttons">
           <Button className={settleState.menuOpen ? "hidden" : ""} variant="contained" color={settleState.buttonColor}>Remind</Button>

@@ -889,7 +889,7 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
         for (const transcationUserId of newTransactionUsers) {
             const transactionUserManager = DBManager.getUserManager(transcationUserId);
             transactionUserManager.addTransaction(newTransactionId);
-            transactionUserManager.addRelationsFromTransaction(transactionManager);
+            await transactionUserManager.addRelationsFromTransaction(transactionManager);
             let success = await transactionUserManager.push();
             if (!success) {
                 pushError = true;

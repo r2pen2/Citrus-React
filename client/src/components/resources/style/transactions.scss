@@ -37,7 +37,7 @@
         opacity: 0;
     }
 
-    &:hover {
+    &:hover.unpaid {
         .transcation-card-content-wrapper {
             width: auto;
         }

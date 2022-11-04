@@ -233,6 +233,19 @@ export class TransactionManager extends ObjectManager {
         })
     }
 
+    async getUserIds() {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.USERS).then((val) => {
+                // Process list of users (in JSON format) and spit out a list of transactionUser objects
+                let userIds = [];
+                for (const jsonUser of val) {
+                    userIds.push(jsonUser.id)
+                }
+                resolve(userIds);
+            })
+        })
+    }
+
     async getGroup() {
         return new Promise(async (resolve, reject) => {
             this.handleGet(this.fields.GROUP).then((val) => {
@@ -247,7 +260,7 @@ export class TransactionManager extends ObjectManager {
                 // Process list of relations (in JSON format) and spit out a list of TransactionRelation objects
                 let transactionRelations = [];
                 for (const jsonRelation of val) {
-                    transactionRelations.push(new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.transaction, jsonRelation.createdAt));
+                    transactionRelations.push(new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to));
                 }
                 resolve(transactionRelations);
             })
@@ -314,7 +327,7 @@ export class TransactionManager extends ObjectManager {
         const relationRemoval = new Remove(this.fields.RELATIONS, relation.id);
         super.addChange(relationRemoval);
     }
-
+    
     // ================= Sub-Object Functions ================= //
 
     /**
@@ -375,10 +388,12 @@ export class TransactionManager extends ObjectManager {
     async removeFromAllUsers() {
         return new Promise(async (resolve, reject) => {
             const transactionUsers = await this.getUsers();
+            const userIds = await this.getUserIds();
             for (const transactionUser of transactionUsers) {
                 // Get a user manager and remove the transaction
                 const transactionUserManager = SessionManager.getUserManagerById(transactionUser.id);
                 transactionUserManager.removeTransaction(this.getDocumentId());
+                await transactionUserManager.removeRelationsByTransaction(this.getDocumentId(), userIds);
                 // Push changes to userManager
                 const pushSuccessful = await transactionUserManager.push();
                 // Make sure pushes to userManager worked
@@ -389,6 +404,13 @@ export class TransactionManager extends ObjectManager {
             }
             // If we made it this far, we succeeded
             resolve(true);
+        })
+    }
+
+    async areUsersSettled(user1, user2) {
+        return new Promise(async (resolve, reject) => {
+            const relation = await this.getRelationForUsers(user1, user2);
+            resolve(relation.amount === 0);
         })
     }
 
@@ -503,10 +525,8 @@ export class TransactionRelation {
      * @param {string} _id id of this TransactionRelation (null to create a new one)
      * @param {Object} _fromData any possible existing data for fromUser (displayName and pfpUrl)
      * @param {Object} _toData any possible existing data for toUser (displayName and pfpUrl)
-     * @param {Object} _toData any possible existing data for transaction (id, total, and title)
-     * @param {Object} _createdAt any possible creation date
      */
-    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData, _transactionData, _createdAt) {
+    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData) {
         this.id = _id ? _id : DBManager.generateId(16);
         this.from = {
             id: _fromUserId,
@@ -519,39 +539,10 @@ export class TransactionRelation {
             pfpUrl: _toData ? _toData.pfpUrl: null,
         };
         this.amount = _amount;
-        this.transaction = _transactionData ? _transactionData : { 
-            id: null, 
-            amount: null,
-            title: null
-        }
-        this.createdAt = _createdAt ? _createdAt : new Date();
-        this.description = _transactionData ? "Transaction: " + _transactionData.title : null;
-    }
-
-    setTransactionId(id) {
-        const newTransaction = this.transaction;
-        newTransaction.id = id;
-        this.transaction = newTransaction;
-    }
-
-    setTransactionTitle(title) {
-        const newTransaction = this.transaction;
-        newTransaction.title = title;
-        this.transaction = newTransaction;
-    }
-
-    setTransactionAmount(amt) {
-        const newTransaction = this.transaction;
-        newTransaction.amount = amt;
-        this.transaction = newTransaction;
     }
 
     setAmount(amt) {
         this.amount = amt;
-    }
-
-    setDescription(description) {
-        this.description = description;
     }
 
     /**
@@ -564,9 +555,6 @@ export class TransactionRelation {
             from: this.from,
             to: this.to,
             amount: this.amount,
-            transaction: this.transaction,
-            createdAt: this.createdAt,
-            description: this.description
         }
     }
 
@@ -604,5 +592,13 @@ export class TransactionRelation {
 
     hasUser(userId) {
         return (this.to.id === userId || this.from.id === userId);
+    }
+
+    getToUserManager() {
+        return this.to.id === SessionManager.getUserId() ? SessionManager.getCurrentUserManager() : DBManager.getUserManager(this.to.id);
+    }
+    
+    getFromUserManager() {
+        return this.from.id === SessionManager.getUserId() ? SessionManager.getCurrentUserManager() : DBManager.getUserManager(this.from.id);
     }
 }

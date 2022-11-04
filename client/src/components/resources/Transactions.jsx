@@ -106,7 +106,7 @@ export function TransactionList(props) {
     // for each time bracket, render a bracket label and all of the transactions in it
     return listState.brackets.map((bracket, bracketIdx) => { 
       return (
-        <div key={bracketNames[bracketIdx]}>
+        <div key={bracketNames[bracketIdx]} className="d-flex flex-column gap-10">
           { (bracket.length > 0 && !props.numDisplayed) ? <SectionTitle title={bracketNames[bracketIdx]} line="hidden"/> : ""}
           { bracket.map((transactionManager, idx) => {
             return (
@@ -145,7 +145,9 @@ export function TransactionCard({transactionManager}) {
     const [settleState, setSettleState] = useState({
       menuOpen: false,
       amount: 0,
-      userSelected: null
+      userSelected: null,
+      userPicklistContent: [],
+      maxSettleAmount: 0
     });
     const settleInputId = "settle-amount-input-" + transactionManager.getDocumentId();
 
@@ -293,9 +295,8 @@ export function TransactionCard({transactionManager}) {
         });
       }
     }
-
     return (
-      <div className="transaction-card d-flex flex-row align-items-center justify-content-center">
+      <div className={"transaction-card d-flex flex-row align-items-center justify-content-center " + (context.currentBalance !== 0 ? "unpaid" : "")}>
         <section className="transaction-actions d-flex flex-column align-items-center justify-content-center">
           <Tooltip title="Settle" placement="left">
             <IconButton onClick={() => toggleSettleMenu()}>
@@ -383,7 +384,6 @@ export function TransactionDetail() {
 
     async function fetchTransactionData() {
       // Check if there's an ID
-      console.log(transactionId)
       if (!transactionId || transactionId.length <= 0) {
         RouteManager.redirect("/dashboard");
         return;
@@ -544,7 +544,6 @@ function TransactionDetailHeader({title, users}) {
 
   function getOweString() {
     // First we find the current user in this transaction
-    console.log( users)
     for (const user of users) {
       if (user.id === SessionManager.getUserId()) {
         // We've found the current user
