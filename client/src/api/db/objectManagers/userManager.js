@@ -2,6 +2,8 @@ import { DBManager, Add, Remove, Set } from "../dbManager";
 import { ObjectManager } from "./objectManager";
 import { TransactionRelation } from "./transactionManager";
 import { SessionManager } from "../../sessionManager";
+import { sortByCreatedAt } from "../../sorting";
+import { getDateString } from "../../strings";
 
 /**
  * Object Manager for users
@@ -91,9 +93,7 @@ export class UserManager extends ObjectManager {
                 }
                 return data;
             case this.fields.RELATIONS:
-                if (!data.relations.includes(change.value)) { 
-                    data.relations.push(change.value.toJson());
-                }
+                data.relations.push(change.value.toJson());
                 return data;
             case this.fields.LOCATION:
             case this.fields.CREATEDAT:
@@ -251,7 +251,7 @@ export class UserManager extends ObjectManager {
                 case this.fields.RELATIONS:
                     let relationArray = [];
                     for (const jsonRelation of this.data.relations) {
-                        const rel = new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.transaction);
+                        const rel = new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.transaction, jsonRelation.createdAt);
                         relationArray.push(rel)
                     }
                     resolve(relationArray);
@@ -416,23 +416,27 @@ export class UserManager extends ObjectManager {
                     if (finalRelations.has(positiveRelation.from.id)) {
                         // We have a relation with this person already
                         let existingRelation = finalRelations.get(positiveRelation.from.id);
-                        const newRelation = new TransactionRelation(existingRelation.from.id, existingRelation.to.id, existingRelation.amount + positiveRelation.amount, null, existingRelation.from, existingRelation.to, existingRelation.transaction);
+                        const newRelation = new TransactionRelation(existingRelation.from.id, existingRelation.to.id, existingRelation.amount + positiveRelation.amount, null, existingRelation.from, existingRelation.to, existingRelation.transaction, existingRelation.createdAt);
                         finalRelations.set(positiveRelation.from.id, newRelation);
                     } else {
                         // We haven't seen this person already
-                        const newRelation = new TransactionRelation(positiveRelation.from.id, positiveRelation.to.id, positiveRelation.amount, null, positiveRelation.from, positiveRelation.to, positiveRelation.transaction);
+                        const newRelation = new TransactionRelation(positiveRelation.from.id, positiveRelation.to.id, positiveRelation.amount, null, positiveRelation.from, positiveRelation.to, positiveRelation.transaction, positiveRelation.createdAt);
                         finalRelations.set(positiveRelation.from.id, newRelation);
                     }
                 }
+                let flipUsers = false;
                 for (const negativeRelation of negativeRelations) {
                     if (finalRelations.has(negativeRelation.to.id)) {
                         // We have a relation with this person already
                         let existingRelation = finalRelations.get(negativeRelation.to.id);
-                        const newRelation = new TransactionRelation(existingRelation.from.id, existingRelation.to.id, existingRelation.amount - negativeRelation.amount, null, existingRelation.from, existingRelation.to, existingRelation.transaction);
+                        if (!flipUsers && existingRelation.amount - negativeRelation.amount < 0) {
+                            flipUsers = true;
+                        }
+                        const newRelation = new TransactionRelation(existingRelation.from.id, existingRelation.to.id, existingRelation.amount - negativeRelation.amount, null, existingRelation.from, existingRelation.to, existingRelation.transaction, existingRelation.createdAt);
                         finalRelations.set(negativeRelation.to.id, newRelation);
                     } else {
                         // We haven't seen this person already
-                        const newRelation = new TransactionRelation(negativeRelation.from.id, negativeRelation.to.id, negativeRelation.amount * -1, null, negativeRelation.from, negativeRelation.to, negativeRelation.transaction);
+                        const newRelation = new TransactionRelation(negativeRelation.from.id, negativeRelation.to.id, negativeRelation.amount * -1, null, negativeRelation.from, negativeRelation.to, negativeRelation.transaction, negativeRelation.createdAt);
                         finalRelations.set(negativeRelation.to.id, newRelation);
                     }
                 }
@@ -442,16 +446,52 @@ export class UserManager extends ObjectManager {
                     let relation = key[1];
                     if (relation.amount !== 0) {
                         if (relation.amount < 0) {
-                            // If amount is negative, make a new TransactionRelation with amount inverse
-                            finalNegativeRelations.push(new TransactionRelation(relation.from.id, relation.to.id, relation.amount * -1, null, relation.from, relation.to, relation.transaction));
+                            if (flipUsers) {
+                                // If we had to flip into negatives, make a new TransactionRelation with amount inverse and users switched
+                                finalNegativeRelations.push(new TransactionRelation(relation.to.id, relation.from.id, relation.amount * -1, null, relation.to, relation.from, relation.transaction, relation.createdAt));
+                            } else {
+                                finalNegativeRelations.push(new TransactionRelation(relation.from.id, relation.to.id, relation.amount * -1, null, relation.from, relation.to, relation.transaction, relation.createdAt));
+                            }
                         } else {
                             finalPositiveRelations.push(relation);
                         }
                     }
                 }
+                // Sort by age
+                finalNegativeRelations = sortByCreatedAt(finalNegativeRelations);
+                finalPositiveRelations = sortByCreatedAt(finalPositiveRelations);
                 resolve({
                     negative: finalNegativeRelations,
                     positive: finalPositiveRelations
+                });
+            })
+        })
+    }
+
+    /**
+     * Gets an object containing positive and negative relations with a user sorted by age 
+     * @param {string} userId id of user to get relations with
+     * @returns an object containing an array of positive relations and an array of negative relations with user sorted by oldest to newest
+     */
+    async getRelationsWithUser(userId) {
+        return new Promise(async (resolve, reject) => {
+            this.handleGet(this.fields.RELATIONS).then((val) => {
+                // get all positive and negative relations
+                let positiveRelations = [];
+                let negativeRelations = [];
+                for (const relation of val) {
+                    if (relation.from.id === userId) {
+                        positiveRelations.push(relation);
+                    } else if (relation.to.id === userId) {
+                        negativeRelations.push(relation);
+                    }
+                }
+                // Sort by age
+                negativeRelations = sortByCreatedAt(negativeRelations).reverse();
+                positiveRelations = sortByCreatedAt(positiveRelations).reverse();
+                resolve({
+                    negative: negativeRelations,
+                    positive: positiveRelations,
                 });
             })
         })
@@ -578,8 +618,8 @@ export class UserManager extends ObjectManager {
         super.addChange(transactionRemoval);
     }
 
-    removeRelation(relation) {
-        const relationRemoval = new Remove(this.fields.RELATIONS, relation.id);
+    removeRelation(relationId) {
+        const relationRemoval = new Remove(this.fields.RELATIONS, relationId);
         super.addChange(relationRemoval);
     }
 
@@ -606,6 +646,101 @@ export class UserManager extends ObjectManager {
             } else {
                 resolve("?");
             }
+        })
+    }
+
+    /**
+     * Send money to another user...
+     * @param {string} userId id of user to settle with
+     * @param {number} settleAmount amount of money to send other user 
+     */
+    async settleWithUser(userId, settleAmount) {
+        return new Promise(async (resolve, reject) => {
+            const otherUserManager = DBManager.getUserManager(userId);
+            // Get list of relations between current user and other user
+            const relations = await this.getRelationsWithUser(userId);
+            // Start fulfilling negative relations until there are none left
+            let fulfilledRelations = [];
+            let lastRelation = null;
+            let moneyLeft = settleAmount;
+            let positiveRelation = null;
+            for (const negativeRelation of relations.negative) {
+                if (moneyLeft >= negativeRelation.amount) {
+                    moneyLeft = moneyLeft - negativeRelation.amount;
+                    fulfilledRelations.push(negativeRelation);
+                } else {
+                    lastRelation = negativeRelation;
+                    break;
+                }
+            }
+            // Create a positive relation with remaining amount
+            if (!lastRelation && moneyLeft > 0) {
+                positiveRelation = new TransactionRelation(userId, this.getDocumentId(), moneyLeft);
+                positiveRelation.setToPfpUrl(SessionManager.getPfpUrl());
+                positiveRelation.setToDisplayName(SessionManager.getDisplayName());
+                const fromPfp = await otherUserManager.getPhotoUrl();
+                const fromDisplayName = await otherUserManager.getDisplayName();
+                positiveRelation.setFromPfpUrl(fromPfp);
+                positiveRelation.setFromDisplayName(fromDisplayName);
+                positiveRelation.setDescription("Settled: " + getDateString(new Date()));
+                console.log(positiveRelation);
+            }
+            // Remove all fulfilled relations from DB
+            for (const fulfilledRelation of fulfilledRelations) {
+                // Remove this relation from both users
+                this.removeRelation(fulfilledRelation.id);
+                otherUserManager.removeRelation(fulfilledRelation.id);
+                // Remove this relation from its transaction
+                const relationTransactionManager = DBManager.getTransactionManager(fulfilledRelation.transaction.id);
+                relationTransactionManager.removeRelation(fulfilledRelation.id);
+                // Also update user debts in the transaction to reflect this payment
+                const transactionFromUser = await relationTransactionManager.getUser(this.getDocumentId());
+                const transactionToUser = await relationTransactionManager.getUser(userId);
+                transactionFromUser.setCurrentBalance(0);                           // Update user balances
+                transactionToUser.setCurrentBalance(0);                             // 
+                transactionFromUser.setSettled(true);                               // Update user settled statuses
+                transactionToUser.setSettled(true);                                 // 
+                relationTransactionManager.removeUser(transactionFromUser.id);      // Remove old version of users
+                relationTransactionManager.removeUser(transactionToUser.id);        // 
+                relationTransactionManager.addUser(transactionFromUser);            // Add new versions of users
+                relationTransactionManager.addUser(transactionToUser);              //
+                relationTransactionManager.removeRelation(fulfilledRelation.id);    // Remove relation from transaction
+                await relationTransactionManager.push();                            // Push changes 
+            }
+            // If there's a "lastRelation", replace it on both users and the transaction
+            if (lastRelation) {
+                // Handle on users
+                const newRelation = new TransactionRelation(lastRelation.from.id, lastRelation.to.id, lastRelation.amount - moneyLeft, lastRelation.id, lastRelation.from, lastRelation.to, lastRelation.transaction, lastRelation.createdAt);
+                this.removeRelation(lastRelation.id)                // Remove old version of relation
+                otherUserManager.removeRelation(lastRelation.id)    //
+                this.addRelation(newRelation)                       // Add new version of relation
+                otherUserManager.addRelation(newRelation)           // 
+                // Apply changes on transaction
+                const relationTransactionManager = DBManager.getTransactionManager(lastRelation.transaction.id);
+                const transactionFromUser = await relationTransactionManager.getUser(this.getDocumentId());
+                const transactionToUser = await relationTransactionManager.getUser(userId);
+                transactionFromUser.setCurrentBalance(transactionFromUser.currentBalance + moneyLeft); 
+                transactionToUser.setCurrentBalance(transactionToUser.currentBalance - moneyLeft);
+                transactionFromUser.setSettled(transactionFromUser.currentBalance > 0);         // Update user settled statuses
+                transactionToUser.setSettled(transactionToUser.currentBalance < 0);           // 
+                relationTransactionManager.removeUser(transactionFromUser.id);                  // Remove old version of users
+                relationTransactionManager.removeUser(transactionToUser.id);                    // 
+                relationTransactionManager.addUser(transactionFromUser);                        // Add new versions of users
+                relationTransactionManager.addUser(transactionToUser);                          //
+                relationTransactionManager.removeRelation(lastRelation.id);                     // Remove old relation from transcation
+                relationTransactionManager.addRelation(newRelation);                            // Add new version of relation to transaction
+                await relationTransactionManager.push();                                        // Push changes to transaction
+            }
+            // If there's a "positiveRelation", add it to both users
+            if (positiveRelation) {
+                // Handle on users
+                this.addRelation(positiveRelation);
+                otherUserManager.addRelation(positiveRelation);
+            }
+            // push changes to users
+            await this.push();
+            await otherUserManager.push();
+            resolve(true);
         })
     }
 }

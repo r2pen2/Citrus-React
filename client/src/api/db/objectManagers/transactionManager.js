@@ -43,15 +43,7 @@ export class TransactionManager extends ObjectManager {
         switch(change.field) {
             case this.fields.USERS:
                 const jsonUser = change.value.toJson();
-                let foundUser = false;
-                for (const transactionUser of data.users) {
-                    if (transactionUser.id === jsonUser.id) {
-                        foundUser = true;
-                    }
-                }
-                if (!foundUser) {
-                    this.data.users.push(jsonUser);
-                }
+                this.data.users.push(jsonUser);
                 return data;
             case this.fields.RELATIONS:
                 const jsonRelation = change.value.toJson();
@@ -86,6 +78,9 @@ export class TransactionManager extends ObjectManager {
                 // The "change.value" should just be a user's id, so we can handle all of this in JSON
                 data.users = data.users.filter(user => user.id !== change.value);
                 return data;
+            case this.fields.RELATIONS:
+                data.relations = data.relations.filter(relation => relation.id !== change.value);
+                return data;
             case this.fields.ACTIVE:
             case this.fields.EMOJI:
             case this.fields.CREATEDAT:
@@ -93,7 +88,6 @@ export class TransactionManager extends ObjectManager {
             case this.fields.TITLE:
             case this.fields.TOTAL:
             case this.fields.GROUP:
-            case this.fields.RELATIONS:
                 super.logInvalidChangeType(change);
                 return data;
             default:
@@ -253,7 +247,7 @@ export class TransactionManager extends ObjectManager {
                 // Process list of relations (in JSON format) and spit out a list of TransactionRelation objects
                 let transactionRelations = [];
                 for (const jsonRelation of val) {
-                    transactionRelations.push(new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.transaction));
+                    transactionRelations.push(new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.transaction, jsonRelation.createdAt));
                 }
                 resolve(transactionRelations);
             })
@@ -299,8 +293,8 @@ export class TransactionManager extends ObjectManager {
 
     // ================= Add Operations ================= //
     
-    addUser(userId) {
-        const userAddition = new Add(this.fields.USERS, userId);
+    addUser(user) {
+        const userAddition = new Add(this.fields.USERS, user);
         super.addChange(userAddition);
     }
     
@@ -316,8 +310,8 @@ export class TransactionManager extends ObjectManager {
         super.addChange(userRemoval);
     }
     
-    removeRelationById(relationId) {
-        const relationRemoval = new Remove(this.fields.RELATIONS, relationId);
+    removeRelation(relation) {
+        const relationRemoval = new Remove(this.fields.RELATIONS, relation.id);
         super.addChange(relationRemoval);
     }
 
@@ -492,8 +486,9 @@ export class TransactionRelation {
      * @param {Object} _fromData any possible existing data for fromUser (displayName and pfpUrl)
      * @param {Object} _toData any possible existing data for toUser (displayName and pfpUrl)
      * @param {Object} _toData any possible existing data for transaction (id, total, and title)
+     * @param {Object} _createdAt any possible creation date
      */
-    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData, _transactionData) {
+    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData, _transactionData, _createdAt) {
         this.id = _id ? _id : DBManager.generateId(16);
         this.from = {
             id: _fromUserId,
@@ -511,6 +506,8 @@ export class TransactionRelation {
             amount: null,
             title: null
         }
+        this.createdAt = _createdAt ? _createdAt : new Date();
+        this.description = _transactionData ? "Transaction: " + _transactionData.title : null;
     }
 
     setTransactionId(id) {
@@ -535,6 +532,10 @@ export class TransactionRelation {
         this.amount = amt;
     }
 
+    setDescription(description) {
+        this.description = description;
+    }
+
     /**
      * Turn this custom object into JSON that can be stored in the database
      * @returns Json representation of TransactionRelation
@@ -545,7 +546,9 @@ export class TransactionRelation {
             from: this.from,
             to: this.to,
             amount: this.amount,
-            transaction: this.transaction
+            transaction: this.transaction,
+            createdAt: this.createdAt,
+            description: this.description
         }
     }
 

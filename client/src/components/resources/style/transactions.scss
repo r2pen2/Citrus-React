@@ -18,6 +18,10 @@
     }
 }
 
+.red-card {
+    background-color: red;
+}
+
 .relation-card-content-container {
     display: flex;
     flex-direction: column;
@@ -38,5 +42,11 @@
 .transaction-detail-header {
     h1 {
         font-size: 32px;
+    }
+}
+
+.transaction-preview-fraction {
+    h2 {
+        font-size: 24px;
     }
 }

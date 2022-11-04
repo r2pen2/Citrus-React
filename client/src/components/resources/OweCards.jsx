@@ -2,7 +2,7 @@
 import "./style/oweCards.scss";
 
 // Library imports
-import { CardContent, CardActionArea, Typography, Stack, Box, Button } from "@mui/material";
+import { CardContent, CardActionArea, Typography, TextField, Tooltip, Button } from "@mui/material";
 import GroupsIcon from "@mui/icons-material/Groups";
 import { useState, useEffect } from 'react';
 
@@ -129,7 +129,7 @@ function DashboardOweCard({direction, relations, negativeRelations}) {
                   <Typography variant="h5" component="div">
                     {formatter.format(amountOwed)}
                   </Typography>
-                  <Stack direction="row" alignItems="center">
+                  <div className="d-flex align-items-center">
                     <GroupsIcon fontSize="large" />
                     <Typography
                       variant="subtitle1"
@@ -139,7 +139,7 @@ function DashboardOweCard({direction, relations, negativeRelations}) {
                     >
                       {getToFromString()} {numPeople} {numPeople === 1 ? "person" : "people"}
                     </Typography>
-                  </Stack>
+                  </div>
                 </CardContent>
               </CardActionArea>
             </OutlinedCard>
@@ -167,7 +167,95 @@ export function OweOneDirectionHeader({positive, relations}) {
 }
 
 export function OweOneDirectionPerson({person, positive}) {
+
+  const [settleState, setSettleState] = useState({
+    menuOpen: false,
+    onButtonClick: openSettleMenu,
+    buttonLabel: "Settle",
+    buttonColor: positive ? "primary" : "citrusRed",
+    settleAmount: person.amount,
+  })
   
+  function openSettleMenu() {
+    setSettleState({
+      menuOpen: true,
+      onButtonClick: submitSettleAmount,
+      buttonLabel: "Submit",
+      buttonColor: "primary",
+      settleAmount: person.amount,
+    });
+  }
+
+  async function submitSettleAmount() {
+    const amt = document.getElementById("settle-amount-input").value;
+    await currentUserManager.settleWithUser(person.personId, parseInt(amt));
+    window.location.reload();
+  }
+
+  function handleAmountChange(e) {
+    setSettleState({
+      menuOpen: settleState.menuOpen,
+      onButtonClick: settleState.onButtonClick,
+      buttonLabel: settleState.buttonLabel,
+      buttonColor: settleState.buttonColor,
+      settleAmount: parseInt(e.target.value),
+    })
+  }
+
+  function renderSettleForm() {
+    if (!settleState.menuOpen) {
+      return <div></div>
+    } else {
+      return (
+        <div className="d-flex flex-column align-items-center justify-content-center gap-10">
+          <TextField
+            value={settleState.settleAmount}
+            onChange={(e) => handleAmountChange(e)}
+            inputProps={{min: 0, style: { textAlign: 'center' }}}
+            label="Settle Value"
+            type="number"
+            id="settle-amount-input"
+          >
+          </TextField>
+          { renderSettleHint() }
+      </div>
+      )
+    }
+  }
+
+  function getSettleTooltip() {
+    return settleState.menuOpen ? `Send ${formatter.format(settleState.settleAmount)} to ${person.displayName}` : "";
+  }
+
+  function getVenmoTooltip() {
+    return !settleState.menuOpen ? "Coming soon..." : ""
+  }
+
+  function renderSettleHint() {
+
+    function getEndingColor() {
+      if (settleState.settleAmount > person.amount) {
+        return "primary";
+      }
+      if (settleState.settleAmount < person.amount) {
+        return "error";
+      }
+      return "";
+    }
+
+    function getStartingColor() {
+      return positive ? "primary" : "error";
+    }
+
+    return (
+      <div className="d-flex flex-row justify-content-center gap-10">
+        <Typography variant="subtitle1" color={getStartingColor()}>{formatter.format(person.amount)}</Typography>
+        <Typography variant="subtitle1"> → </Typography>
+        <Typography variant="subtitle1" color={getEndingColor()}>{formatter.format(Math.abs(person.amount - settleState.settleAmount))}</Typography>
+      </div>
+    );
+  }
+
   return (
     <OutlinedCard borderWeight="4px" borderColor={positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} >
       <div className="personal-owe-card">
@@ -177,10 +265,17 @@ export function OweOneDirectionPerson({person, positive}) {
           <Typography variant="h1">{formatter.format(person.amount)}</Typography>
         </div>
         <div className="row buttons">
-          <Button variant="contained" color={positive ? "primary" : "citrusRed"}>Remind</Button>
-          <Button variant="contained" color={positive ? "primary" : "citrusRed"}>Settle</Button>
-          <Button variant="contained" color="venmo">Venmo</Button>
+          <Button className={settleState.menuOpen ? "hidden" : ""} variant="contained" color={settleState.buttonColor}>Remind</Button>
+          <Tooltip title={getSettleTooltip()} placement="top">
+          <div className="d-flex flex-row">
+            <Button variant="contained" color={settleState.buttonColor} onClick={settleState.onButtonClick}>{settleState.buttonLabel}</Button>
+          </div>
+          </Tooltip>
+          <Tooltip title={getVenmoTooltip()}>
+            <Button className={settleState.menuOpen ? "hidden" : ""} variant="contained" color="venmo">Venmo</Button>
+          </Tooltip>
         </div>
+        { renderSettleForm() }
       </div>
     </OutlinedCard>
   )

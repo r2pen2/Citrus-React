@@ -178,19 +178,47 @@ export function TransactionCard({transactionManager}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    function getFractionTooltip() {
-      const amtString = formatter.format(Math.abs(context.currentBalance));
-      if (context.initialBalance >= 0 ) {
-        return `You are still owed ${amtString}`;
-      } else {
+    function getFraction() {
+
+      function getFractionColor() {
+        if (context.currentBalance > 0) {
+          return "primary";
+        }
+        return "error"; // Not actually an error— error color
+      }
+
+      function getFractionTooltip() {
+        const amtString = formatter.format(Math.abs(context.currentBalance));
+        if (context.currentBalance > 0 ) {
+          return `You are still owed ${amtString}`;
+        } 
         return `You still owe ${amtString}`;
       }
+
+      if (context.currentBalance === 0) {
+        return (
+          <Tooltip title="You're settled!" placement="right">
+            <div className="d-flex flex-row justify-content-end align-items-center gap-10 transaction-preview-fraction">
+              <Typography align="right" variant="h2">Paid</Typography>
+              <Typography align="right" variant="h1">✓</Typography>
+            </div>
+          </Tooltip>
+        )
+      }
+      return (
+        <Tooltip title={getFractionTooltip()} placement="right">
+          <div>
+            <Typography align="right" variant="h5" component="div" color={getFractionColor()}>{formatter.format(Math.abs(context.currentBalance))}</Typography>
+            <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
+          </div>
+        </Tooltip>
+      )
     }
 
     return (
         <OutlinedCard key={transactionManager.getDocumentId()}>
             <CardActionArea onClick={() => window.location = "/dashboard/transactions?id=" + transactionManager.getDocumentId()}>
-                <CardContent>
+                <CardContent className={context.currentBalance === 0 ? "bg-green" : ""}>
                     <div className="transaction-card-content d-flex flex-row align-items-center">
                         <div className="side">
                           <AvatarStack ids={context.allUsers} checked={context.settledUsers}/>
@@ -202,12 +230,7 @@ export function TransactionCard({transactionManager}) {
                             </div>
                         </div>
                         <div className="side">
-                            <Tooltip title={getFractionTooltip()}>
-                                <div>
-                                   <Typography align="right" variant="h5" component="div" color={context.initialBalance < 0 ? "#ec6a60" : "#bfd679"}>{formatter.format(Math.abs(context.currentBalance))}</Typography>
-                                   <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
-                                </div>
-                            </Tooltip>
+                          { getFraction() }
                         </div>
                     </div>
                 </CardContent>

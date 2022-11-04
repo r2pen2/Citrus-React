@@ -98,7 +98,7 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
     async function fetchFriendDetails(friendsList) {
         for (var i = 0; i < friendsList.length; i++) {
             const currentFriend = friendsList[i];
-            const friendManager = DBManager.getCurrentUserManager(currentFriend.id)
+            const friendManager = DBManager.getUserManager(currentFriend.id)
             let displayName = await friendManager.getDisplayName();
             currentFriend.displayName = displayName;
             let url = await friendManager.getPhotoUrl();
@@ -394,30 +394,35 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
      * @returns {Component} list of user icons
      */
     function populateGroupUserPreview() {
+
+        function renderUserToggles() {
+            return currentGroupUsers.map((user, index) => {
+                return (
+                    <div 
+                        className="friend-container" 
+                        key={index} 
+                        onClick={() => { 
+                            toggleSelectedGroupUser(user.id);
+                        }
+                    }>
+                        <AvatarToggle 
+                            outlined={user.selected} 
+                            id={user.id} 
+                            src={user.pfpUrl}
+                            displayName={user.displayName}
+                        />
+                    </div> 
+                )
+            })
+        }
+
         if (currentGroupLoaded && currentGroup.length > 0) {
             if (currentGroupUsers.length > 0) {
-                <div className="user-preview"> 
-                { 
-                currentGroupUsers.map((user, index) => {
-                    return (
-                        <div 
-                            className="friend-container" 
-                            key={index} 
-                            onClick={() => { 
-                                toggleSelectedGroupUser(user.id);
-                            }
-                        }>
-                            <AvatarToggle 
-                                outlined={user.selected} 
-                                id={user.id} 
-                                src={user.pfpUrl}
-                                displayName={user.displayName}
-                            />
-                        </div> 
-                    )
-                })
-                }
-                </div>
+                return (
+                    <div className="user-preview"> 
+                        { renderUserToggles() }
+                    </div>
+                )
             } else {
                 return (
                     <div className="d-flex flex-column justify-content-end align-items-center h-100 w-100">

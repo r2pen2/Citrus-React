@@ -57,19 +57,20 @@ export function GroupNew() {
       <Breadcrumbs path="Dashboard/Groups/New" />
       <div className="d-flex flex-column align-items-center justify-content-center w-100 gap-10">
           <Typography variant="h1">Create a Group</Typography>
-          <FormControl className="gap-10">
+          <FormControl className="gap-10 w-50">
               <TextField
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                  inputProps={{min: 0, style: { textAlign: 'center' }}}
-                  label="Group Title"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                inputProps={{min: 0, style: { textAlign: 'center' }}}
+                label="Group Title"
               >
               </TextField>
               <TextField
-                  value={groupDescription}
-                  onChange={(e) => setGroupDescription(e.target.value)}
-                  inputProps={{min: 0, style: { textAlign: 'center' }}}
-                  label="Description (Optional)"
+                value={groupDescription}
+                onChange={(e) => setGroupDescription(e.target.value)}
+                inputProps={{min: 0, style: { textAlign: 'center' }}}
+                label="Description (Optional)"
+                multiline={true}
               >
               </TextField>
           </FormControl>
