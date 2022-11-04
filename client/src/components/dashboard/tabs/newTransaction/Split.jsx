@@ -71,7 +71,7 @@ export default function Split(props) {
     }
 
     return (
-        <div className="split-page-wrapper">
+        <div className="d-flex flex-column align-items-center justify-content-start w-100 h-100">
             { renderSplitPage() }
         </div>
     )
@@ -446,7 +446,7 @@ function AddPeoplePage({weightedUsers, setWeightedUsers, setSplitPage, groupPick
     }
 
     return (
-        <div className="split-page-content">
+        <div className="d-flex flex-column justify-content-center align-items-center padding-10 w-100 h-100">
             <div className={"search-bar " + (groupsExpanded ? "hidden" : "")}>
                 <Typography variant="h6">Select Friends</Typography>
                 <FormControl className="friend-search-box">
@@ -551,35 +551,33 @@ function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup
     }
 
     return (
-        <div className="split-page-content">
-            <div className="transaction-detail-page" onLoad={() => checkSubmitEnable()}>
-                <div className="header">
-                    { renderHeader() }
+        <div className="transaction-detail-page d-flex flex-column justify-content-center align-items-center padding-10 w-100 h-100" onLoad={() => checkSubmitEnable()}>
+            <section className="header">
+                { renderHeader() }
+            </section>
+            <div className="transaction-detail-form">
+                <div className="d-flex flex-column justify-content-center align-items-center w-100">
+                    <Typography variant="subtitle1" style={{marginBottom: "10px"}}>Transaction Title:</Typography>
+                    <FormControl className="title-text-field">
+                        <TextField
+                            value={newTitle}
+                            onChange={handleTitleChange}
+                            onBlur={checkSubmitEnable}
+                            onFocus={checkSubmitEnable}
+                            label="ex. My Transaction"
+                        >
+                        </TextField>
+                    </FormControl>
                 </div>
-                <div className="transaction-detail-form">
-                    <div className="d-flex flex-column justify-content-center align-items-center w-100">
-                        <Typography variant="subtitle1" style={{marginBottom: "10px"}}>Transaction Title:</Typography>
-                        <FormControl className="title-text-field">
-                            <TextField
-                                value={newTitle}
-                                onChange={handleTitleChange}
-                                onBlur={checkSubmitEnable}
-                                onFocus={checkSubmitEnable}
-                                label="ex. My Transaction"
-                            >
-                            </TextField>
-                        </FormControl>
-                    </div>
+            </div>
+            <div className="split-section">                
+                <div className="w-100 d-flex flex-row align-items-center justify-content-center">
+                    <Button variant="contained" disabled={!checkSubmitEnable()} className="w-25" onClick={() => {setTransactionDetails(); setSplitPage("amount-table")}}>Next</Button>
                 </div>
-                <div className="split-section">                
-                    <div className="w-100 d-flex flex-row align-items-center justify-content-center">
-                        <Button variant="contained" disabled={!checkSubmitEnable()} className="w-25" onClick={() => {setTransactionDetails(); setSplitPage("amount-table")}}>Next</Button>
-                    </div>
-                </div>
-                <div className="back-button" onClick={() => setSplitPage("add-people")}>
-                    <ArrowBackIcon />
-                    <Typography marginLeft="5px" variant="subtitle1">Go Back</Typography>
-                </div>
+            </div>
+            <div className="hover-underline d-flex flex-row justify-content-center align-items-center p-3" onClick={() => setSplitPage("add-people")}>
+                <ArrowBackIcon />
+                <Typography marginLeft="5px" variant="subtitle1">Go Back</Typography>
             </div>
         </div>
     )
@@ -677,83 +675,79 @@ function AmountTable({weightedUsers, setWeightedUsers, transactionTitle, setSpli
         }
     }
     return (
-        <div className="split-page-content">
-            <div className="transaction-summary-page">
-                <div className="header d-flex flex-column justify-content-center align-items-center">
-                    <Typography variant="h1">{transactionTitle}</Typography>
-                    <Typography variant="subtitle1">1. Select tax and tip (if applicable)</Typography>
-                    <Typography variant="subtitle1">2. Enter how much everyone paid and should have paid.</Typography>
-                </div>
-                <div className="table">
-                    <TableContainer component={Paper}>
-                      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                        <caption>Total $ Paid and $ Should Pay must be equal.</caption>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>User</TableCell>
-                            <TableCell align="right">$ Paid</TableCell>
-                            <TableCell align="right">$ Should Pay</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {tableRows.map((row) => (
-                                <TableRow key={row.displayName} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} >
-                                    <TableCell component="th" scope="row">
-                                        <div className="d-flex flex-row align-items-center gap-10">
-                                            {renderAvatar(row.userId)}
-                                            <div className="d-flex flex-column justify-content-start">        
-                                                <div className="d-flex flex-row align-items-center">
-                                                    <Typography variant="subtitle1">{row.displayName}</Typography>
-                                                    <Typography variant="subtitle2" color="primary" style={{marginLeft: "10px"}}>
-                                                        {getYouString(row.userId)}
-                                                    </Typography>
-                                                </div>                                
-                                                <Typography variant="subtitle1" color={getOweColor(row.userId)}>{getOweString(row.userId)}</Typography>
-                                            </div>
+        <div className="transaction-summary-page d-flex flex-column justify-content-between">
+            <section className="header">
+                <Typography variant="h1">{transactionTitle}</Typography>
+                <Typography variant="subtitle1">1. Select tax and tip (if applicable)</Typography>
+                <Typography variant="subtitle1">2. Enter how much everyone paid and should have paid.</Typography>
+            </section>
+            <div className="table">
+                <TableContainer component={Paper}>
+                  <Table size="small" aria-label="a dense table">
+                    <caption>Total $ Paid and $ Should Pay must be equal.</caption>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>User</TableCell>
+                        <TableCell align="right">$ Paid</TableCell>
+                        <TableCell align="right">$ Should Pay</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {tableRows.map((row) => (
+                            <TableRow key={row.displayName} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} >
+                                <TableCell component="th" scope="row">
+                                    <div className="d-flex flex-row align-items-center gap-10">
+                                        {renderAvatar(row.userId)}
+                                        <div className="d-flex flex-column justify-content-start">        
+                                            <div className="d-flex flex-row align-items-center">
+                                                <Typography variant="subtitle1" >{row.displayName}</Typography>
+                                                <Typography variant="subtitle2" color="primary" style={{marginLeft: "10px"}}>
+                                                    {getYouString(row.userId)}
+                                                </Typography>
+                                            </div>                                
+                                            <Typography variant="subtitle1" color={getOweColor(row.userId)}>{getOweString(row.userId)}</Typography>
                                         </div>
-                                    </TableCell>
-                                    <TableCell align="right">
-                                            <FormControl className="table-field">
-                                                <TextField
-                                                    value={row.amountPaid}
-                                                    onChange={(e) => handleCellChange(e, row.userId, "paid")}
-                                                    inputProps={{min: 0, style: { textAlign: 'center' }}}
-                                                    label="$ Paid"
-                                                    type="number"
-                                                >
-                                                </TextField>
-                                            </FormControl>
-                                    </TableCell>
-                                    <TableCell align="right">
-                                            <FormControl className="table-field">
-                                                <TextField
-                                                    value={row.amountShouldHavePaid}
-                                                    onChange={(e) => handleCellChange(e, row.userId, "should-have-paid")}
-                                                    inputProps={{min: 0,  style: { textAlign: 'center' }}}
-                                                    type="number"
-                                                    label="$ Should Pay"
-                                                >
-                                                </TextField>
-                                            </FormControl>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            <TableRow>
-                                <TableCell colSpan={1} align="right">Totals</TableCell>
-                                <TableCell align="right">{totalPaid}</TableCell>
-                                <TableCell align="right">{totalShouldHavePaid}</TableCell>
+                                    </div>
+                                </TableCell>
+                                <TableCell align="right">
+                                        <FormControl>
+                                            <TextField
+                                                value={row.amountPaid}
+                                                onChange={(e) => handleCellChange(e, row.userId, "paid")}
+                                                inputProps={{min: 0, style: { textAlign: 'center' }}}
+                                                label="$ Paid"
+                                                type="number"
+                                            >
+                                            </TextField>
+                                        </FormControl>
+                                </TableCell>
+                                <TableCell align="right">
+                                        <FormControl>
+                                            <TextField
+                                                value={row.amountShouldHavePaid}
+                                                onChange={(e) => handleCellChange(e, row.userId, "should-have-paid")}
+                                                inputProps={{min: 0,  style: { textAlign: 'center' }}}
+                                                type="number"
+                                                label="$ Should Pay"
+                                            >
+                                            </TextField>
+                                        </FormControl>
+                                </TableCell>
                             </TableRow>
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                </div>
-                <div className="next-button">
-                    <Button variant="contained" disabled={(totalPaid !== totalShouldHavePaid || totalPaid === 0 || totalShouldHavePaid === 0)} onClick={() => {handleSubmit()}}>Submit</Button>
-                </div>
-                <div className="back-button" onClick={() => setSplitPage("transaction-details")}>
-                    <ArrowBackIcon />
-                    <Typography marginLeft="5px" variant="subtitle1">Cancel</Typography>
-                </div>
+                        ))}
+                        <TableRow>
+                            <TableCell colSpan={1} align="right">Totals</TableCell>
+                            <TableCell align="right">{totalPaid}</TableCell>
+                            <TableCell align="right">{totalShouldHavePaid}</TableCell>
+                        </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+            </div>
+            <Button variant="contained" disabled={(totalPaid !== totalShouldHavePaid || totalPaid === 0 || totalShouldHavePaid === 0)} onClick={() => {handleSubmit()}}>Submit</Button>
+            <div className="hover-underline d-flex flex-row justify-content-center align-items-center p-3" onClick={() => setSplitPage("transaction-details")}>
+                <ArrowBackIcon />
+                <Typography marginLeft="5px" variant="subtitle1">Cancel</Typography>
             </div>
         </div>
     )
@@ -917,20 +911,16 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
     }
 
     return (
-        <div className="split-page-content">
-            <div className="transaction-summary-page">
-                <div className="header">
-                    <Typography variant="h6">{transactionTitle}</Typography>
-                    <Typography variant="h6">Total Paid: ${transactionTotal}</Typography>
-                </div>
-                <TransactionRelationList relations={relations} />
-                <div className="next-button">
-                    <Button variant="contained" onClick={() => {handleSubmit()}}>Submit</Button>
-                </div>
-                <div className="back-button" onClick={() => setSplitPage("transaction-details")}>
-                    <ArrowBackIcon />
-                    <Typography marginLeft="5px" variant="subtitle1">Cancel</Typography>
-                </div>
+        <div className="transaction-summary-page d-flex flex-column justify-content-between align-items-center w-100 h-100">
+            <section className="header">
+                <Typography variant="h1">Title: {transactionTitle}</Typography>
+                <Typography variant="h1">Total Paid: ${transactionTotal}</Typography>
+            </section>
+            <TransactionRelationList relations={relations} />
+            <Button variant="contained" onClick={() => {handleSubmit()}}>Submit</Button>
+            <div className="hover-underline d-flex flex-row justify-content-center align-items-center p-3" onClick={() => setSplitPage("transaction-details")}>
+                <ArrowBackIcon />
+                <Typography marginLeft="5px" variant="subtitle1">Edit</Typography>
             </div>
         </div>
     )

@@ -18,24 +18,46 @@
     }
 }
 
-.red-card {
-    background-color: red;
-}
+.transaction-card {
+    transition: all 0.5s ease;
 
-.relation-card-content-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
+    .transcation-card-content-wrapper {
+        width: 100%;
+    }
 
-    .relation-content {
-        gap: 10px;
-        display: flex;
-        flex-direction: row;
-        height: 100%;
-        justify-content: center;
-        align-items: center;
+    .transaction-actions {
+        height: 75%;
+        opacity: 0;
+        width: 0%;
+        transition: all 0.5s ease;
+    }
+
+    .settle-actions {
+        width: 0%;
+        opacity: 0;
+    }
+
+    &:hover {
+        .transcation-card-content-wrapper {
+            width: auto;
+        }
+        
+        .transaction-actions {
+            opacity: 1;
+            width: 10%;
+        }
+
+        .settle-actions {
+            transition: all 0.5s ease;
+            width: 30%;
+            opacity: 1;
+            margin-right: 10px;
+            
+            &.hidden {
+                opacity: 0;
+                width: 0%;
+            }
+        }
     }
 }
 

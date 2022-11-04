@@ -82,6 +82,7 @@ export default function Shortcut({ bookmarksDeployed, setBookmarksDeployed }) {
         return iouBookmarks.map((bookmark, idx) => {
           return (
             <div
+              key={idx}
               className={"mark " + type}
               onMouseUp={(e) => {
                 handleMouseUp(e, bookmark);

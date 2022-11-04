@@ -45,7 +45,7 @@ export default function NewTransaction() {
             <Tab className="tab-item" label="IOU"/>
           </Tabs>
         </div>  
-        <div className="tab-content">
+        <div className="tab-content w-100 d-flex flex-column align-items-center justify-content-start">
           { renderTab() }
         </div>
       </Paper>

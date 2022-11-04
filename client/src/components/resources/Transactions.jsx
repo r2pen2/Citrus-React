@@ -2,9 +2,12 @@
 import "./style/transactions.scss";
 
 // Library imports
-import { CircularProgress, Typography, CardContent, CardActionArea, Tooltip, Button } from '@mui/material';
+import { CircularProgress, Typography, MenuItem, InputLabel, Select, CardContent, CardActionArea, Tooltip, Button, IconButton, FormControl, TextField } from '@mui/material';
 import { useState, useEffect} from 'react';
 import { OutlinedCard } from "./Surfaces";
+import CampaignIcon from '@mui/icons-material/Campaign';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import SendIcon from '@mui/icons-material/Send';
 
 // Component imports
 import { AvatarStack, AvatarIcon } from "./Avatars";
@@ -139,6 +142,12 @@ export function TransactionCard({transactionManager}) {
       createdAt: null,
       dateString: "",
     });
+    const [settleState, setSettleState] = useState({
+      menuOpen: false,
+      amount: 0,
+      userSelected: null
+    });
+    const settleInputId = "settle-amount-input-" + transactionManager.getDocumentId();
 
 
     useEffect(() => {
@@ -153,9 +162,14 @@ export function TransactionCard({transactionManager}) {
         let settledUsers = [];
         // Go through tranasctions and pick out all users that aren't current user
         // Also populate "settled" array
+        const newPicklistContent = [];
         const transactionUsers = await transactionManager.getUsers();
         for (const transactionUser of transactionUsers) {
+          let userDisplayName = null;
           if (transactionUser.id !== SessionManager.getUserId()) {
+            const userManager = DBManager.getUserManager(transactionUser.id);
+            userDisplayName = await userManager.getDisplayName();
+            newPicklistContent.push({id: transactionUser.id, displayName: userDisplayName });
             allUsers.push(transactionUser.id);
           }
           if (transactionUser.getSettled()) {
@@ -171,6 +185,13 @@ export function TransactionCard({transactionManager}) {
           settledUsers: settledUsers,
           createdAt: createdAt,
           dateString: getDateString(createdAt ? createdAt.toDate() : new Date())
+        });
+        setSettleState({
+          menuOpen: settleState.menuOpen,
+          amount: 0,
+          userSelected: settleState.userSelected,
+          userPicklistContent: newPicklistContent,
+          maxSettleAmount: 0
         });
       }
 
@@ -215,27 +236,134 @@ export function TransactionCard({transactionManager}) {
       )
     }
 
+    function handleAmountChange(e) {
+      const newAmount = parseInt(e.target.value);
+      if (newAmount <= settleState.maxSettleAmount) {
+        setSettleState({
+          menuOpen: settleState.menuOpen,
+          amount: newAmount,
+          userSelected: settleState.userSelected,
+          userPicklistContent: settleState.userPicklistContent,
+          maxSettleAmount: settleState.maxSettleAmount
+        })
+      }
+    }
+
+    function toggleSettleMenu() {
+      setSettleState({
+        menuOpen: !settleState.menuOpen,
+        amount: settleState.amount,
+        userSelected: settleState.userSelected,
+        userPicklistContent: settleState.userPicklistContent,
+        maxSettleAmount: settleState.maxSettleAmount
+      })
+    }
+
+    async function handleSettleSend() {
+      const amt = document.getElementById(settleInputId).value;
+      await currentUserManager.settleWithUserInTransaction(settleState.userSelected, transactionManager.getDocumentId(), parseInt(amt));
+      window.location.reload();
+    }
+
+    async function handleUserChange(e) {
+      let newAmount = 0;
+      let newSelected = "";
+      if (e.target.value !== "") {
+        // This is a user, so we need to dig up some information
+        newSelected = e.target.value;
+        // Go into this transaction and find how much we owe this user
+        const relation = await transactionManager.getRelationForUsers(newSelected, SessionManager.getUserId());
+        newAmount = relation.amount;
+      }
+      setSettleState({
+        menuOpen: settleState.menuOpen,
+        amount: newAmount,
+        userSelected: newSelected,
+        userPicklistContent: settleState.userPicklistContent,
+        maxSettleAmount: newAmount
+      });
+    }
+
+    function populateUserSelect() {
+      if (settleState.userPicklistContent) {
+        return settleState.userPicklistContent.map((user, index) => {
+            return (
+                <MenuItem key={index} value={user.id}>{user.displayName}</MenuItem>
+            )
+        });
+      }
+    }
+
     return (
-        <OutlinedCard key={transactionManager.getDocumentId()}>
-            <CardActionArea onClick={() => window.location = "/dashboard/transactions?id=" + transactionManager.getDocumentId()}>
-                <CardContent className={context.currentBalance === 0 ? "bg-green" : ""}>
-                    <div className="transaction-card-content d-flex flex-row align-items-center">
-                        <div className="side">
-                          <AvatarStack ids={context.allUsers} checked={context.settledUsers}/>
-                        </div>
-                        <div className="center d-flex flex-row overflow-hidden justify-content-center">
-                            <div className="d-flex flex-column align-items-center">
-                                <Typography variant="h1">{context.title}</Typography>
-                                <Typography variant="subtitle1" sx={{ color: "gray "}}>{context.dateString}</Typography>
-                            </div>
-                        </div>
-                        <div className="side">
-                          { getFraction() }
-                        </div>
-                    </div>
-                </CardContent>
-            </CardActionArea>
-        </OutlinedCard>
+      <div className="transaction-card d-flex flex-row align-items-center justify-content-center">
+        <section className="transaction-actions d-flex flex-column align-items-center justify-content-center">
+          <Tooltip title="Settle" placement="left">
+            <IconButton onClick={() => toggleSettleMenu()}>
+              <LocalAtmIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Remind" placement="left">
+            <IconButton>
+              <CampaignIcon />
+            </IconButton>
+          </Tooltip>
+        </section>
+        <section className={"settle-actions d-flex flex-row align-items-center justify-content-between gap-10 " + (!settleState.menuOpen ? "hidden" : "")}>
+          <FormControl>
+            <InputLabel id="user-select-label">User</InputLabel>
+            <Select 
+              style={{minWidth: 150}}
+              labelId="user-select-label" 
+              value={settleState.userSelected} 
+              onChange={handleUserChange} 
+              label="User"
+            >
+                <MenuItem value=""><em>None</em></MenuItem>
+                { populateUserSelect() }
+            </Select>
+          </FormControl>
+        </section>
+        <section className={"settle-actions d-flex flex-row align-items-center justify-content-between gap-10 " + (!settleState.userSelected ? "hidden" : "")}>
+          <FormControl>
+            <TextField
+              value={settleState.amount}
+              onChange={(e) => handleAmountChange(e)}
+              inputProps={{min: 0, style: { textAlign: 'center' }}}
+              label="Settle Value"
+              type="number"
+              id={settleInputId}
+            >
+            </TextField>
+          </FormControl>
+          <Tooltip title="Send">
+            <IconButton onClick={() => handleSettleSend()}>
+              <SendIcon />
+            </IconButton>
+          </Tooltip>
+        </section>
+        <section className="transaction-card-content-wrapper w-100">
+          <OutlinedCard key={transactionManager.getDocumentId()} disableMarginBottom={true}>
+              <CardActionArea onClick={() => window.location = "/dashboard/transactions?id=" + transactionManager.getDocumentId()}>
+                  <CardContent className={context.currentBalance === 0 ? "bg-green" : ""}>
+                      <div className="transaction-card-content d-flex flex-row align-items-center w-100">
+                          <div className="side">
+                            <AvatarStack ids={context.allUsers} checked={context.settledUsers}/>
+                          </div>
+                          <div className="center d-flex flex-row overflow-hidden justify-content-center">
+                              <div className="d-flex flex-column align-items-center">
+                                  <Typography variant="h1">{context.title}</Typography>
+                                  <Typography variant="subtitle1" sx={{ color: "gray "}}>{context.dateString}</Typography>
+                              </div>
+                          </div>
+                          <div className="side">
+                            { getFraction() }
+                          </div>
+                      </div>
+                  </CardContent>
+              </CardActionArea>
+          </OutlinedCard>
+        </section>
+      </div>
     )
 }
 
@@ -311,8 +439,9 @@ export function TransactionDetail() {
     }
   }
 
-  function handleDelete() {
-    transactionData.manager.cleanDelete();
+  async function handleDelete() {
+    await transactionData.manager.cleanDelete();
+    RouteManager.redirect("/dashboard");
   }
 
   return (
@@ -366,16 +495,14 @@ export function TransactionRelationCard({relation}) {
   return (
       <OutlinedCard>
           <CardContent>
-              <div className="relation-card-content-container">
-                  <div className="relation-content">
+              <div className="d-flex flex-column align-items-center justify-content-between gap-10">
+                  <div className="d-flex flex-row justify-content-center align-items-center gap-10">
                       <AvatarIcon src={relation.from.pfpUrl} alt={"From user photo"}/>
                       <Typography variant="subtitle1" color="primary">${relation.amount}</Typography>
                       <Typography variant="subtitle1" color="primary">⟹</Typography>
                       <AvatarIcon src={relation.to.pfpUrl} alt={"To user photo"}/>
                   </div>
-                  <div className="relation-content">
-                      <Typography>{cutAtSpace(relation.from.displayName)} owes {cutAtSpace(relation.to.displayName)} ${relation.amount}</Typography>
-                  </div>
+                  <Typography>{cutAtSpace(relation.from.displayName)} owes {cutAtSpace(relation.to.displayName)} ${relation.amount}</Typography>
               </div>
           </CardContent>
       </OutlinedCard>

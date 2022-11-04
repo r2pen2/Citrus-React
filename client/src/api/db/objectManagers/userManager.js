@@ -692,20 +692,23 @@ export class UserManager extends ObjectManager {
                 otherUserManager.removeRelation(fulfilledRelation.id);
                 // Remove this relation from its transaction
                 const relationTransactionManager = DBManager.getTransactionManager(fulfilledRelation.transaction.id);
-                relationTransactionManager.removeRelation(fulfilledRelation.id);
-                // Also update user debts in the transaction to reflect this payment
-                const transactionFromUser = await relationTransactionManager.getUser(this.getDocumentId());
-                const transactionToUser = await relationTransactionManager.getUser(userId);
-                transactionFromUser.setCurrentBalance(0);                           // Update user balances
-                transactionToUser.setCurrentBalance(0);                             // 
-                transactionFromUser.setSettled(true);                               // Update user settled statuses
-                transactionToUser.setSettled(true);                                 // 
-                relationTransactionManager.removeUser(transactionFromUser.id);      // Remove old version of users
-                relationTransactionManager.removeUser(transactionToUser.id);        // 
-                relationTransactionManager.addUser(transactionFromUser);            // Add new versions of users
-                relationTransactionManager.addUser(transactionToUser);              //
-                relationTransactionManager.removeRelation(fulfilledRelation.id);    // Remove relation from transaction
-                await relationTransactionManager.push();                            // Push changes 
+                const transactionExists = await relationTransactionManager.documentExists();
+                if (transactionExists) {                
+                    relationTransactionManager.removeRelation(fulfilledRelation.id);
+                    // Also update user debts in the transaction to reflect this payment
+                    const transactionFromUser = await relationTransactionManager.getUser(this.getDocumentId());
+                    const transactionToUser = await relationTransactionManager.getUser(userId);
+                    transactionFromUser.setCurrentBalance(0);                           // Update user balances
+                    transactionToUser.setCurrentBalance(0);                             // 
+                    transactionFromUser.setSettled(true);                               // Update user settled statuses
+                    transactionToUser.setSettled(true);                                 // 
+                    relationTransactionManager.removeUser(transactionFromUser.id);      // Remove old version of users
+                    relationTransactionManager.removeUser(transactionToUser.id);        // 
+                    relationTransactionManager.addUser(transactionFromUser);            // Add new versions of users
+                    relationTransactionManager.addUser(transactionToUser);              //
+                    relationTransactionManager.removeRelation(fulfilledRelation.id);    // Remove relation from transaction
+                    await relationTransactionManager.push();                            // Push changes 
+                }
             }
             // If there's a "lastRelation", replace it on both users and the transaction
             if (lastRelation) {
@@ -717,25 +720,90 @@ export class UserManager extends ObjectManager {
                 otherUserManager.addRelation(newRelation)           // 
                 // Apply changes on transaction
                 const relationTransactionManager = DBManager.getTransactionManager(lastRelation.transaction.id);
-                const transactionFromUser = await relationTransactionManager.getUser(this.getDocumentId());
-                const transactionToUser = await relationTransactionManager.getUser(userId);
-                transactionFromUser.setCurrentBalance(transactionFromUser.currentBalance + moneyLeft); 
-                transactionToUser.setCurrentBalance(transactionToUser.currentBalance - moneyLeft);
-                transactionFromUser.setSettled(transactionFromUser.currentBalance > 0);         // Update user settled statuses
-                transactionToUser.setSettled(transactionToUser.currentBalance < 0);           // 
-                relationTransactionManager.removeUser(transactionFromUser.id);                  // Remove old version of users
-                relationTransactionManager.removeUser(transactionToUser.id);                    // 
-                relationTransactionManager.addUser(transactionFromUser);                        // Add new versions of users
-                relationTransactionManager.addUser(transactionToUser);                          //
-                relationTransactionManager.removeRelation(lastRelation.id);                     // Remove old relation from transcation
-                relationTransactionManager.addRelation(newRelation);                            // Add new version of relation to transaction
-                await relationTransactionManager.push();                                        // Push changes to transaction
+                const transactionExists = await relationTransactionManager.documentExists();
+                if (transactionExists) {
+                    const transactionFromUser = await relationTransactionManager.getUser(this.getDocumentId());
+                    const transactionToUser = await relationTransactionManager.getUser(userId);
+                    transactionFromUser.setCurrentBalance(transactionFromUser.currentBalance + moneyLeft); 
+                    transactionToUser.setCurrentBalance(transactionToUser.currentBalance - moneyLeft);
+                    transactionFromUser.setSettled(transactionFromUser.currentBalance > 0);         // Update user settled statuses
+                    transactionToUser.setSettled(transactionToUser.currentBalance < 0);           // 
+                    relationTransactionManager.removeUser(transactionFromUser.id);                  // Remove old version of users
+                    relationTransactionManager.removeUser(transactionToUser.id);                    // 
+                    relationTransactionManager.addUser(transactionFromUser);                        // Add new versions of users
+                    relationTransactionManager.addUser(transactionToUser);                          //
+                    relationTransactionManager.removeRelation(lastRelation.id);                     // Remove old relation from transcation
+                    relationTransactionManager.addRelation(newRelation);                            // Add new version of relation to transaction
+                    await relationTransactionManager.push();                                        // Push changes to transaction
+                }
             }
             // If there's a "positiveRelation", add it to both users
             if (positiveRelation) {
                 // Handle on users
                 this.addRelation(positiveRelation);
                 otherUserManager.addRelation(positiveRelation);
+            }
+            // push changes to users
+            await this.push();
+            await otherUserManager.push();
+            resolve(true);
+        })
+    }
+
+    /**
+     * Send money to another user in the context of a transaction
+     * @param {string} userId id of user to settle with
+     * @param {string} transactionId of transaction to settle in
+     * @param {number} settleAmount amount of money to send other user 
+     */
+    async settleWithUserInTransaction(userId, transactionId, settleAmount) {
+        return new Promise(async (resolve, reject) => {
+            const otherUserManager = DBManager.getUserManager(userId);
+            const transactionManager = DBManager.getTransactionManager(transactionId);
+            const relation = await transactionManager.getRelationForUsers(userId, SessionManager.getUserId());
+            // Check whether or not this amount will fully settle these two users:
+            if (settleAmount >= relation.amount) {
+                // This is enough to close these two users out in this transaction!
+                // Remove this relation from both users
+                this.removeRelation(relation.id);
+                otherUserManager.removeRelation(relation.id);
+                // Remove this relation from its transaction
+                transactionManager.removeRelation(relation.id);
+                // Also update user debts in the transaction to reflect this payment
+                const transactionFromUser = await transactionManager.getUser(this.getDocumentId());
+                const transactionToUser = await transactionManager.getUser(userId);
+                transactionFromUser.setCurrentBalance(0);                           // Update user balances
+                transactionToUser.setCurrentBalance(0);                             // 
+                transactionFromUser.setSettled(true);                               // Update user settled statuses
+                transactionToUser.setSettled(true);                                 // 
+                transactionManager.removeUser(transactionFromUser.id);      // Remove old version of users
+                transactionManager.removeUser(transactionToUser.id);        // 
+                transactionManager.addUser(transactionFromUser);            // Add new versions of users
+                transactionManager.addUser(transactionToUser);              //
+                transactionManager.removeRelation(relation.id);    // Remove relation from transaction
+                await transactionManager.push();                            // Push changes 
+            } else {
+                // This isn't enough money to close these two users out, but we'll update their counts
+                // Handle on users
+                const newRelation = new TransactionRelation(relation.from.id, relation.to.id, relation.amount - settleAmount, relation.id, relation.from, relation.to, relation.transaction, relation.createdAt);
+                this.removeRelation(relation.id)                    // Remove old version of relation
+                otherUserManager.removeRelation(relation.id)        //
+                this.addRelation(newRelation)                       // Add new version of relation
+                otherUserManager.addRelation(newRelation)           // 
+                // Apply changes on transaction
+                const transactionFromUser = await transactionManager.getUser(this.getDocumentId());
+                const transactionToUser = await transactionManager.getUser(userId);
+                transactionFromUser.setCurrentBalance(transactionFromUser.currentBalance + settleAmount); 
+                transactionToUser.setCurrentBalance(transactionToUser.currentBalance - settleAmount);
+                transactionFromUser.setSettled(transactionFromUser.currentBalance > 0);         // Update user settled statuses
+                transactionToUser.setSettled(transactionToUser.currentBalance < 0);           // 
+                transactionManager.removeUser(transactionFromUser.id);                  // Remove old version of users
+                transactionManager.removeUser(transactionToUser.id);                    // 
+                transactionManager.addUser(transactionFromUser);                        // Add new versions of users
+                transactionManager.addUser(transactionToUser);                          //
+                transactionManager.removeRelation(relation.id);                     // Remove old relation from transcation
+                transactionManager.addRelation(newRelation);                            // Add new version of relation to transaction
+                await transactionManager.push();                                        // Push changes to transaction
             }
             // push changes to users
             await this.push();

@@ -399,12 +399,30 @@ export class TransactionManager extends ObjectManager {
      */
     async cleanDelete() {
         return new Promise(async (resolve, reject) => {
-            const usersDeleted = this.removeFromAllUsers();
-            if (usersDeleted) {
-                this.deleteDocument();
-            }
+            await this.removeFromAllUsers();
+            await this.deleteDocument();
             // If we made it this far, we succeeded
             resolve(true);
+        })
+    }
+
+    /**
+     * Get this transaction's relation between two users
+     * @param {string} user1 id of first user 
+     * @param {string} user2 id of second user 
+     * @returns a promise resolved with either true or false when the pushes are complete
+     */
+    async getRelationForUsers(user1, user2) {
+        return new Promise(async (resolve, reject) => {
+            const transactionRelations = await this.getRelations();
+            let returnRelation = null;
+            for (const r of transactionRelations) {
+                if (r.hasUser(user1) && r.hasUser(user2)) {
+                    returnRelation = r;
+                    break;
+                }
+            }
+            resolve(returnRelation);
         })
     }
 }
@@ -582,5 +600,9 @@ export class TransactionRelation {
      */
     setToDisplayName(name) {
         this.to.displayName = name;
+    }
+
+    hasUser(userId) {
+        return (this.to.id === userId || this.from.id === userId);
     }
 }
