@@ -870,6 +870,9 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
                     toCurrentBalance -= settleAmount;
                     fromCurrentBalance += settleAmount;
                     relation.setAmount(relation.amount - settleAmount);
+                    if (relation.amount - settleAmount === 0) {
+                        relation.setSettled(true);
+                    }
                     /**
                      * Pausing here for the night. I'm clearly too tired to keep working.
                      * I think this is right, though! I spent nearly three and a half hours after

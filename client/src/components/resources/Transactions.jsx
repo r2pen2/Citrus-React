@@ -269,7 +269,10 @@ export function TransactionCard({transactionManager}) {
 
     async function handleSettleSend() {
       const amt = document.getElementById(settleInputId).value;
-      await currentUserManager.settleWithUserInTransaction(settleState.userSelected, transactionManager.getDocumentId(), parseInt(amt));
+      // If the initialBalance is positive, this user owes money. The one sending the settlement should be the one who owes money.
+      const fromUser = context.initialBalance > 0 ? currentUserManager : DBManager.getUserManager(settleState.userSelected);
+      const toUser = context.initialBalance > 0 ? settleState.userSelected : SessionManager.getUserId();
+      await fromUser.settleWithUserInTransaction(toUser, transactionManager.getDocumentId(), parseInt(amt));
       window.location.reload();
     }
 
