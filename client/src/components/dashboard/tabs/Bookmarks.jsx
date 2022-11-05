@@ -23,8 +23,12 @@ export default function Bookmarks() {
    * Fetch bookmark list for current user
    */
   async function fetchBookmarks() {
+    await currentUserManager.fetchData();
     const userBookmarks = await currentUserManager.getBookmarks();
     setUserBookmarks(userBookmarks);
+    setTimeout(() => {
+      fetchBookmarks();
+    }, 1000);
   }
 
   /**
