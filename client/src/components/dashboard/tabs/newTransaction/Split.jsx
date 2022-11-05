@@ -829,10 +829,12 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
     }, [weightedUsers, peopleInvolved])
 
     async function handleSubmit() {
+        // Create a new transction manager for this transaction
         const transactionManager = DBManager.getTransactionManager();
         let newTransactionUsers = [];
         let userRelationsMap = new Map();
         const newTransactionBalances = new Map();
+        const newTransactionCurrentBalances = new Map();
         for (const relation of relations) {
             // Get toUser and fromUser if they already exist
             let toBal = newTransactionBalances.get(relation.to.id) ? newTransactionBalances.get(relation.to.id) : 0;
@@ -842,13 +844,31 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             fromBal -= relation.amount;
             let toUserRelationsArray = userRelationsMap.get(relation.to.id) ? userRelationsMap.get(relation.to.id) : [];
             let fromUserRelationsArray = userRelationsMap.get(relation.from.id) ? userRelationsMap.get(relation.from.id) : [];
+            // Update maps
+            newTransactionBalances.set(relation.to.id, toBal);
+            newTransactionBalances.set(relation.from.id, fromBal);
+            // Initial balance is always going to be bal, but we have to do some investigative work to figure out
+            // What the current balance should be (this user may have credit towards them from somewhere else)
+            const toUserManager = DBManager.getUserManager(relation.to.id);
+            const toRelation = await toUserManager.getRelationWithUser(relation.from.id);
+            let toCurrentBalance = toBal;
+            let fromCurrentBalance = fromBal;
+            relation.setInitialAmount(relation.amount);
+            if (toRelation) {
+                if (toRelation.amount < 0) {
+                    const settleAmount = Math.abs(toRelation.amount) > relation.amount ? relation.amount : Math.abs(toRelation.amount);
+                    await toUserManager.settleWithUser(relation.from.id, settleAmount)
+                    toCurrentBalance -= settleAmount;
+                    fromCurrentBalance += settleAmount;
+                    relation.setAmount(relation.amount - settleAmount);
+                }
+            }
             toUserRelationsArray.push(relation);
             fromUserRelationsArray.push(relation);
             userRelationsMap.set(relation.to.id, toUserRelationsArray);
             userRelationsMap.set(relation.from.id, fromUserRelationsArray);
-            // Update maps
-            newTransactionBalances.set(relation.to.id, toBal);
-            newTransactionBalances.set(relation.from.id, fromBal);
+            newTransactionCurrentBalances.set(relation.to.id, toCurrentBalance);
+            newTransactionCurrentBalances.set(relation.from.id, fromCurrentBalance);
             if (!newTransactionUsers.includes(relation.to.id)) {
                 newTransactionUsers.push(relation.to.id);
             }
@@ -857,13 +877,15 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             }
             // Add relation to transaction
             transactionManager.addRelation(relation);
+            console.log(transactionManager)
         }
         // Now that map is populated, we loop through it and add those transactionUsers to the transcationManager
         for (const userId of newTransactionUsers) {
             const transactionUser = new TransactionUser(userId);
-            const bal = newTransactionBalances.get(userId);
-            transactionUser.setInitialBalance(bal);
-            transactionUser.setCurrentBalance(bal);
+            const initialBalance = newTransactionBalances.get(userId);
+            const currentBalance = newTransactionCurrentBalances.get(userId);
+            transactionUser.setInitialBalance(initialBalance);
+            transactionUser.setCurrentBalance(currentBalance);
             transactionUser.setSettled(false);
             transactionManager.addUser(transactionUser);
         }

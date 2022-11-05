@@ -136,7 +136,7 @@ export function TransactionCard({transactionManager}) {
     const [context, setContext] = useState({
       title: "",
       initialBalance: 0,
-      currentBanalce: 0,
+      currentBalance: 0,
       allUsers: [],
       settledUsers: [],
       createdAt: null,
@@ -207,7 +207,10 @@ export function TransactionCard({transactionManager}) {
         if (context.currentBalance > 0) {
           return "primary";
         }
-        return "error"; // Not actually an error— error color
+        if (context.currentBalance < 0) {        
+          return "error"; // Not actually an error— error color
+        }
+        return "";
       }
 
       function getFractionTooltip() {
@@ -215,19 +218,12 @@ export function TransactionCard({transactionManager}) {
         if (context.currentBalance > 0 ) {
           return `You are still owed ${amtString}`;
         } 
-        return `You still owe ${amtString}`;
+        if (context.currentBalance < 0) {
+          return `You still owe ${amtString}`;
+        }
+        return "You're settled!";
       }
 
-      if (context.currentBalance === 0) {
-        return (
-          <Tooltip title="You're settled!" placement="right">
-            <div className="d-flex flex-row justify-content-end align-items-center gap-10 transaction-preview-fraction">
-              <Typography align="right" variant="h2">Paid</Typography>
-              <Typography align="right" variant="h1">✓</Typography>
-            </div>
-          </Tooltip>
-        )
-      }
       return (
         <Tooltip title={getFractionTooltip()} placement="right">
           <div>
@@ -492,17 +488,18 @@ export function TransactionConversation() {
  * @param {TransactionRelation} relation TransactionRelation object to render
  */
 export function TransactionRelationCard({relation}) {
+
   return (
       <OutlinedCard>
           <CardContent>
               <div className="d-flex flex-column align-items-center justify-content-between gap-10">
                   <div className="d-flex flex-row justify-content-center align-items-center gap-10">
                       <AvatarIcon src={relation.from.pfpUrl} alt={"From user photo"}/>
-                      <Typography variant="subtitle1" color="primary">${relation.amount}</Typography>
+                      <Typography variant="subtitle1" color="primary">${relation.initialAmount}</Typography>
                       <Typography variant="subtitle1" color="primary">⟹</Typography>
                       <AvatarIcon src={relation.to.pfpUrl} alt={"To user photo"}/>
                   </div>
-                  <Typography>{cutAtSpace(relation.from.displayName)} owes {cutAtSpace(relation.to.displayName)} ${relation.amount}</Typography>
+                  <Typography>{cutAtSpace(relation.from.displayName)} owes {cutAtSpace(relation.to.displayName)} ${relation.initialAmount}</Typography>
               </div>
           </CardContent>
       </OutlinedCard>

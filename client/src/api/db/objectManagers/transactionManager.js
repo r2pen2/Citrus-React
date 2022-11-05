@@ -260,7 +260,7 @@ export class TransactionManager extends ObjectManager {
                 // Process list of relations (in JSON format) and spit out a list of TransactionRelation objects
                 let transactionRelations = [];
                 for (const jsonRelation of val) {
-                    transactionRelations.push(new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to));
+                    transactionRelations.push(new TransactionRelation(jsonRelation.from.id, jsonRelation.to.id, jsonRelation.amount, jsonRelation.id, jsonRelation.from, jsonRelation.to, jsonRelation.initialAmount));
                 }
                 resolve(transactionRelations);
             })
@@ -332,11 +332,16 @@ export class TransactionManager extends ObjectManager {
 
     /**
      * Get group manager for this transaction
+     * @returns a promise resolved with the GroupManager or null if there's no group attached to this transaction
      */
     async getGroupManager() {
         return new Promise(async (resolve, reject) => {
             const group = await this.getGroup();
-            resolve(DBManager.getGroupManager(group));
+            if (group) {
+                resolve(DBManager.getGroupManager(group));
+            } else {
+                resolve(null);
+            }
         })
     }
 
@@ -393,7 +398,8 @@ export class TransactionManager extends ObjectManager {
                 // Get a user manager and remove the transaction
                 const transactionUserManager = SessionManager.getUserManagerById(transactionUser.id);
                 transactionUserManager.removeTransaction(this.getDocumentId());
-                await transactionUserManager.removeRelationsByTransaction(this.getDocumentId(), userIds);
+                // todo: maybe find a better way to log deletions in history? 
+                await transactionUserManager.removeRelationsByTransaction(this.getDocumentId(), userIds); 
                 // Push changes to userManager
                 const pushSuccessful = await transactionUserManager.push();
                 // Make sure pushes to userManager worked
@@ -407,10 +413,20 @@ export class TransactionManager extends ObjectManager {
         })
     }
 
+    /**
+     * Get wheteher or not the relation between two users is settled in this transaction
+     * @param {string} user1 id of first user
+     * @param {string} user2 id of second user 
+     * @returns a promise resolved with a boolean whether or not the two users are settled in this transction (or null if a relation does not exist)
+     */
     async areUsersSettled(user1, user2) {
         return new Promise(async (resolve, reject) => {
             const relation = await this.getRelationForUsers(user1, user2);
-            resolve(relation.amount === 0);
+            if (relation) {
+                resolve(relation.amount === 0);
+            } else {
+                resolve(null)
+            }
         })
     }
 
@@ -420,6 +436,7 @@ export class TransactionManager extends ObjectManager {
      * @returns a promise resolved with either true or false when the pushes are complete
      */
     async cleanDelete() {
+        console.log("cd")
         return new Promise(async (resolve, reject) => {
             await this.removeFromAllUsers();
             await this.deleteDocument();
@@ -445,6 +462,30 @@ export class TransactionManager extends ObjectManager {
                 }
             }
             resolve(returnRelation);
+        })
+    }
+
+    /**
+     * Find out whether a user initially paid for a transcation
+     * @param {string} userId id of user to check
+     * @returns a promise resolve with a boolean whether or not this user iniaially paid for a transcation
+     */
+    async userIsPayer(userId) {
+        return new Promise(async (resolve, reject) => {
+            const user = await this.getUser(userId);
+            resolve(user.initialBalance < 0);
+        })
+    }
+
+    /**
+     * Find out whether a user initially paid for a transcation
+     * @param {string} userId id of user to check
+     * @returns a promise resolve with a boolean whether or not this user iniaially paid for a transcation
+     */
+    async userIsFronter(userId) {
+        return new Promise(async (resolve, reject) => {
+            const user = await this.getUser(userId);
+            resolve(user.initialBalance > 0);
         })
     }
 }
@@ -525,8 +566,9 @@ export class TransactionRelation {
      * @param {string} _id id of this TransactionRelation (null to create a new one)
      * @param {Object} _fromData any possible existing data for fromUser (displayName and pfpUrl)
      * @param {Object} _toData any possible existing data for toUser (displayName and pfpUrl)
+     * @param {Object} _initialAmount any possible initial amount
      */
-    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData) {
+    constructor(_fromUserId, _toUserId, _amount, _id, _fromData, _toData, _initialAmount) {
         this.id = _id ? _id : DBManager.generateId(16);
         this.from = {
             id: _fromUserId,
@@ -539,10 +581,19 @@ export class TransactionRelation {
             pfpUrl: _toData ? _toData.pfpUrl: null,
         };
         this.amount = _amount;
+        this.initialAmount = _initialAmount ? _initialAmount : _amount;
     }
 
-    setAmount(amt) {
-        this.amount = amt;
+    /**
+     * Set the value of the "amount" field of this TransctionRelation
+     * @param {number} newAmount new amount value
+     */
+    setAmount(newAmount) {
+        this.amount = newAmount;
+    }
+
+    setInitialAmount(newInitialAmount) {
+        this.initialAmount = newInitialAmount;
     }
 
     /**
@@ -555,49 +606,63 @@ export class TransactionRelation {
             from: this.from,
             to: this.to,
             amount: this.amount,
+            initialAmount: this.initialAmount
         }
     }
 
     /**
      * Set photo reference for "from" user
-     * @param {string} url pfpUrl of "from" user
+     * @param {string} newPfpUrl pfpUrl of "from" user
      */
-    setFromPfpUrl(url) {
-        this.from.pfpUrl = url;
+    setFromPfpUrl(newPfpUrl) {
+        this.from.pfpUrl = newPfpUrl;
     }
 
     /**
      * Set photo reference for "to" user
-     * @param {string} url pfpUrl of "to" user
+     * @param {string} newPfpUrl pfpUrl of "to" user
      */
-    setToPfpUrl(url) {
-        this.to.pfpUrl = url;
+    setToPfpUrl(newPfpUrl) {
+        this.to.pfpUrl = newPfpUrl;
     }
 
     /**
      * Set displayName for "from" user
-     * @param {string} name displayName of "from" user
+     * @param {string} newDisplayName displayName of "from" user
      */
-    setFromDisplayName(name) {
-        this.from.displayName = name;
+    setFromDisplayName(newDisplayName) {
+        this.from.displayName = newDisplayName;
     }
 
     /**
      * Set displayName for "to" user
-     * @param {string} name displayName of "to" user
+     * @param {string} newDisplayName displayName of "to" user
      */
-    setToDisplayName(name) {
-        this.to.displayName = name;
+    setToDisplayName(newDisplayName) {
+        this.to.displayName = newDisplayName;
     }
 
+    /**
+     * Check if a user is in this TransactionRelation
+     * @param {string} userId id of user
+     * @returns boolean whether or not user is in this TransacitonRelation
+     */
     hasUser(userId) {
         return (this.to.id === userId || this.from.id === userId);
     }
 
+    /**
+     * Get a UserManager for the "to" user in this TransactionRelation
+     * @returns UserManager for "to" user (the one being sent money)
+     */
     getToUserManager() {
         return this.to.id === SessionManager.getUserId() ? SessionManager.getCurrentUserManager() : DBManager.getUserManager(this.to.id);
     }
     
+    /**
+     * Get a UserManager for the "from" user in thsi TranscationRelation
+     * @returns UserManager for "from" user (the one sending money)
+     */
     getFromUserManager() {
         return this.from.id === SessionManager.getUserId() ? SessionManager.getCurrentUserManager() : DBManager.getUserManager(this.from.id);
     }

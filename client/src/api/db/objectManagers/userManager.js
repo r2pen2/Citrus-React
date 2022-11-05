@@ -561,14 +561,27 @@ export class UserManager extends ObjectManager {
         super.addChange(relationRemoval);
     }
 
+    /**
+     * Delete all relation history associated with a transaction
+     * @param {string} transactionId id of transction to remove relations for`
+     * @param {array<string>} userIds ids of all users involved in the transaction that we're deleting
+     * @returns a promise resolved true when pushes are complete
+     */
     async removeRelationsByTransaction(transactionId, userIds) {
         return new Promise(async (resolve, reject) => {
             const relations  = await this.getRelations();
+            const transactionManager = DBManager.getTransactionManager(transactionId);
             for (const relation of relations) {
                 // Check if this relation has one of the users from this transaction
                 if (userIds.includes(relation.user)) {
                     // We have a relation with this user! Edit history.
-                    relation.removeHistory(transactionId);
+                    const transactionRelation = await transactionManager.getRelationForUsers(relation.user, SessionManager.getUserId());
+                    const amtChange = transactionRelation.to.is === SessionManager.getUserId() ? transactionRelation.amount * -1 : transactionRelation.amount;
+                    const newHistory = new UserRelationHistory();
+                    newHistory.setAmountChange(amtChange);
+                    newHistory.setTransactionTitle("Deleted transaction");
+                    newHistory.setTranscationId("Deleted transaction");
+                    relation.addHistory(newHistory);
                     this.updateUserRelation(relation);
                 }
             }
@@ -579,7 +592,7 @@ export class UserManager extends ObjectManager {
     // ================= Misc. Methods ================= //
     /**
      * Get a user's initials by displayName
-     * @returns User's initials
+     * @returns a promise resolved with the user's initials
      */
     async getInitials() {
         return new Promise(async (resolve, reject) => {
@@ -593,9 +606,10 @@ export class UserManager extends ObjectManager {
     }
 
     /**
-     * Send money to another user...
+     * Send money to another user and handle all transctions that are caught in the cross-fire
      * @param {string} userId id of user to settle with
      * @param {number} settleAmount amount of money to send other user 
+     * @returns a promise resolved true when the pushes are complete
      */
     async settleWithUser(userId, settleAmount) {
         //todo : this isn't working with positive relations on the doc
@@ -614,10 +628,12 @@ export class UserManager extends ObjectManager {
             for (const entry of history) {
                 const entryTransactionManager = DBManager.getTransactionManager(entry.transactionId);
                 const usersSettled = await entryTransactionManager.areUsersSettled(SessionManager.getUserId(), userId);
-                if (!usersSettled) {
+                const userIsPayer = await entryTransactionManager.userIsPayer(SessionManager.getUserId());
+                if (!usersSettled && userIsPayer) {
                     unsettledHistory.push(entryTransactionManager);
                 }
             }
+            console.log(unsettledHistory);
             // Start fulfilling these relations in their respective transactions until there's no money left (transactions left)
             let fulfilledEntries = [];
             let lastEntry = null;
@@ -652,13 +668,15 @@ export class UserManager extends ObjectManager {
             }
             // handle all fulfilled entries
             for (const fulfilledTransaction of fulfilledEntries) {
+                console.log(fulfilledTransaction);
                 // Completely settle users on this transaction
-                const transactionRelation = fulfilledTransaction.getRelationForUsers(userId, SessionManager.getUserId());
+                const transactionRelation = await fulfilledTransaction.getRelationForUsers(userId, SessionManager.getUserId());
                 await this.settleWithUserInTransaction(userId, fulfilledTransaction.getDocumentId(), transactionRelation.amount);
             }
-            // If there's a "lastRelation", replace it on both users and the transaction
+            // If there's a "lastEntry", replace it on both users and the transaction
             if (lastEntry) {
                 // Handle on users
+                console.log(moneyLeft)
                 await this.settleWithUserInTransaction(userId, lastEntry.getDocumentId(), moneyLeft);
             }
             // push changes to users
@@ -699,8 +717,10 @@ export class UserManager extends ObjectManager {
                 toUserHistory.setAmountChange(settleAmount);
                 relationWithCurrentUser.addHistory(toUserHistory);
                 otherUserManager.updateUserRelation(relationWithCurrentUser);
-                // Remove this relation from its transaction
+                // Update this transaction's relation amt
+                transactionRelation.setAmount(0);
                 transactionManager.removeRelation(transactionRelation);
+                transactionManager.addRelation(transactionRelation);
                 // Also update user debts in the transaction to reflect this payment
                 const transactionFromUser = await transactionManager.getUser(this.getDocumentId());
                 const transactionToUser = await transactionManager.getUser(userId);
@@ -729,14 +749,14 @@ export class UserManager extends ObjectManager {
                 toUserHistory.setAmountChange(settleAmount * -1);
                 relationWithCurrentUser.addHistory(toUserHistory);
                 otherUserManager.updateUserRelation(relationWithCurrentUser);
-                const newTransactionRelation = new TransactionRelation(transactionRelation.from.id, transactionRelation.to.id, transactionRelation.amount - settleAmount, transactionRelation.id, transactionRelation.from, transactionRelation.to);
+                const newTransactionRelation = new TransactionRelation(transactionRelation.from.id, transactionRelation.to.id, transactionRelation.amount - settleAmount, transactionRelation.id, transactionRelation.from, transactionRelation.to, transactionRelation.initialAmount);
                 // Apply changes on transaction
                 const transactionFromUser = await transactionManager.getUser(this.getDocumentId());
                 const transactionToUser = await transactionManager.getUser(userId);
                 transactionFromUser.setCurrentBalance(transactionFromUser.currentBalance + settleAmount); 
                 transactionToUser.setCurrentBalance(transactionToUser.currentBalance - settleAmount);
-                transactionFromUser.setSettled(transactionFromUser.currentBalance > 0);         // Update user settled statuses
-                transactionToUser.setSettled(transactionToUser.currentBalance < 0);           // 
+                transactionFromUser.setSettled(transactionFromUser.currentBalance === 0);         // Update user settled statuses
+                transactionToUser.setSettled(transactionToUser.currentBalance === 0);           // 
                 transactionManager.removeUser(transactionFromUser.id);                  // Remove old version of users
                 transactionManager.removeUser(transactionToUser.id);                    // 
                 transactionManager.addUser(transactionFromUser);                        // Add new versions of users
