@@ -149,3 +149,7 @@ export function cutAtSpace(string) {
 export function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+function showDollars(string) {
+    return `$${string}`;
+}

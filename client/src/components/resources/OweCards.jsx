@@ -7,7 +7,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import { useState, useEffect } from 'react';
 
 // API imports
-import formatter from "../../api/formatter";
+import { showDollars } from "../../api/strings";
 import { DBManager } from "../../api/db/dbManager";
 import { RouteManager } from "../../api/routeManager";
 import { SessionManager } from "../../api/sessionManager";
@@ -126,7 +126,7 @@ function DashboardOweCard({direction, relations, negativeRelations}) {
               <CardActionArea>
                 <CardContent onClick={() => handleOweCardClick()}>
                   <Typography variant="h5" component="div">
-                    {formatter.format(Math.abs(amountOwed))}
+                    {showDollars(Math.abs(amountOwed))}
                   </Typography>
                   <div className="d-flex align-items-center">
                     <GroupsIcon fontSize="large" />
@@ -159,7 +159,7 @@ export function OweOneDirectionHeader({positive, relations}) {
   return (
     <div className="owe-one-direction-header">
       <Typography variant="h1">{positive ? "Owe Me" : "I Owe"}</Typography>
-      <Typography variant="h2">{formatter.format(getRelationTotal())}</Typography>
+      <Typography variant="h2">{showDollars(getRelationTotal())}</Typography>
     </div>
   )
 }
@@ -244,7 +244,7 @@ export function OweOneDirectionPerson({relation, positive}) {
   }
 
   function getSettleTooltip() {
-    return settleState.menuOpen ? `Send ${formatter.format(settleState.settleAmount)} to ${userData.displayName}` : "";
+    return settleState.menuOpen ? `Send ${showDollars(settleState.settleAmount)} to ${userData.displayName}` : "";
   }
 
   function getVenmoTooltip() {
@@ -269,9 +269,9 @@ export function OweOneDirectionPerson({relation, positive}) {
 
     return (
       <div className="d-flex flex-row justify-content-center gap-10">
-        <Typography variant="subtitle1" color={getStartingColor()}>{formatter.format(Math.abs(relation.amount))}</Typography>
+        <Typography variant="subtitle1" color={getStartingColor()}>{showDollars(Math.abs(relation.amount))}</Typography>
         <Typography variant="subtitle1"> → </Typography>
-        <Typography variant="subtitle1" color={getEndingColor()}>{formatter.format(Math.abs(Math.abs(relation.amount) - settleState.settleAmount))}</Typography>
+        <Typography variant="subtitle1" color={getEndingColor()}>{showDollars(Math.abs(Math.abs(relation.amount) - settleState.settleAmount))}</Typography>
       </div>
     );
   }
@@ -282,7 +282,7 @@ export function OweOneDirectionPerson({relation, positive}) {
         <div className="row">
           <AvatarIcon id={relation.user} size={100}/>
           <Typography variant="h1">{userData.displayName}</Typography>
-          <Typography variant="h1">{formatter.format(Math.abs(relation.amount))}</Typography>
+          <Typography variant="h1">{showDollars(Math.abs(relation.amount))}</Typography>
         </div>
         <div className="row buttons">
           <Button className={settleState.menuOpen ? "hidden" : ""} variant="contained" color={settleState.buttonColor}>Remind</Button>

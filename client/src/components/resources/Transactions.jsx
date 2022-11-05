@@ -15,8 +15,7 @@ import { SectionTitle } from "./Labels";
 import { Breadcrumbs } from "./Navigation";
 
 // API imports
-import { getDateString, cutAtSpace } from "../../api/strings";
-import formatter from "../../api/formatter";
+import { getDateString, cutAtSpace, showDollars } from "../../api/strings";
 import { sortByDataCreatedAt } from "../../api/sorting";
 import { DBManager } from "../../api/db/dbManager";
 import { SessionManager } from "../../api/sessionManager";
@@ -226,7 +225,7 @@ export function TransactionCard({transactionManager}) {
       }
 
       function getFractionTooltip() {
-        const amtString = formatter.format(Math.abs(context.currentBalance));
+        const amtString = showDollars(Math.abs(context.currentBalance));
         if (context.currentBalance > 0 ) {
           return `You are still owed ${amtString}`;
         } 
@@ -239,8 +238,8 @@ export function TransactionCard({transactionManager}) {
       return (
         <Tooltip title={getFractionTooltip()} placement="right">
           <div>
-            <Typography align="right" variant="h5" component="div" color={getFractionColor()}>{formatter.format(Math.abs(context.currentBalance))}</Typography>
-            <Typography align="right" variant="subtitle2" component="div" color={getDenominatorColor()}>/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
+            <Typography align="right" variant="h5" component="div" color={getFractionColor()}>{showDollars(Math.abs(context.currentBalance))}</Typography>
+            <Typography align="right" variant="subtitle2" component="div" color={getDenominatorColor()}>/ {showDollars(Math.abs(context.initialBalance))}</Typography>
           </div>
         </Tooltip>
       )
@@ -565,10 +564,10 @@ function TransactionDetailHeader({title, users}) {
         // Then we check if we're owed money or owe money
         if (user.initialBalance > 0) {
           // Initial balance was positive, so we're owed money
-          return <Typography variant="subtitle1">You are still owed {formatter.format(user.currentBalance)}</Typography>
+          return <Typography variant="subtitle1">You are still owed {showDollars(user.currentBalance)}</Typography>
         } else {
           // Otherwise we ove money
-          return <Typography variant="subtitle1">You still owe {formatter.format(Math.abs(user.currentBalance))}</Typography>
+          return <Typography variant="subtitle1">You still owe {showDollars(Math.abs(user.currentBalance))}</Typography>
         }
       }
     }

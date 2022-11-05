@@ -13,7 +13,7 @@ import { OutlinedCard } from "./Surfaces";
 
 // API Imports
 import { RouteManager } from "../../api/routeManager";
-import formatter from "../../api/formatter";
+import { showDollars } from "../../api/strings";
 import { SessionManager } from "../../api/sessionManager";
 import { DBManager } from "../../api/db/dbManager";
 
@@ -342,9 +342,9 @@ export function GroupPreviewCard({name, users, userDebt}) {
   
   function getOweString() {
     if (userDebt > 0) {
-      return `+${formatter.format(Math.abs(userDebt))}`;
+      return `+${showDollars(Math.abs(userDebt))}`;
     } else if (userDebt < 0) {
-      return `-${formatter.format(Math.abs(userDebt))}`;
+      return `-${showDollars(Math.abs(userDebt))}`;
     } else {
       return "±$0.00"
     }
@@ -352,9 +352,9 @@ export function GroupPreviewCard({name, users, userDebt}) {
 
   function getDebtTooltip() {
     if (userDebt > 0) {
-      return `You are owed ${formatter.format(Math.abs(userDebt))}`;
+      return `You are owed ${showDollars(Math.abs(userDebt))}`;
     } else if (userDebt < 0) {
-      return `You owe ${formatter.format(Math.abs(userDebt))}`;
+      return `You owe ${showDollars(Math.abs(userDebt))}`;
     } else {
       return "You're settled!"
     }

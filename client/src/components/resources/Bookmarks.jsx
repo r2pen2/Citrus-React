@@ -8,10 +8,9 @@ import { ColoredCard } from "./Surfaces";
 
 // API Imports
 import { DBManager } from '../../api/db/dbManager';
-import formatter from '../../api/formatter';
 import { Debugger } from "../../api/debugger";
 import { SessionManager } from "../../api/sessionManager";
-import { getSlashDateString } from '../../api/strings';
+import { getSlashDateString, showDollars } from '../../api/strings';
 
 /**
  * A card displaying data for one of a user's bookmarks
@@ -130,7 +129,7 @@ export function BookmarkCard({bookmarkId, fetchBookmarks}) {
               </div>
               <div className="right">
                 <div className="amount">
-                  {blankIfNull(formatter.format(total))}
+                  {blankIfNull(showDollars(total))}
                 </div>
               </div>
             </div>
