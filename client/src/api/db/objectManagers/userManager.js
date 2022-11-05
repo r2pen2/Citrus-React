@@ -563,7 +563,7 @@ export class UserManager extends ObjectManager {
 
     /**
      * Delete all relation history associated with a transaction
-     * @param {string} transactionId id of transction to remove relations for`
+     * @param {string} transactionId id of transction to remove relations for
      * @param {array<string>} userIds ids of all users involved in the transaction that we're deleting
      * @returns a promise resolved true when pushes are complete
      */
