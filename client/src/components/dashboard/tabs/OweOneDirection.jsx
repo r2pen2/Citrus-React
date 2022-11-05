@@ -20,10 +20,14 @@ export default function OweOneDirection({positive}) {
   useEffect(() => {
 
     async function fetchOweData() {
+      await currentUserManager.fetchData();
       const relationsFromDB = await currentUserManager.getSortedRelations();
       setUserRelations({
         relevantRelations: positive ? relationsFromDB.positive : relationsFromDB.negative,
       });
+      setTimeout(() => {
+        fetchOweData();
+      }, 1000);
     }
 
     fetchOweData();

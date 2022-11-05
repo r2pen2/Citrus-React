@@ -31,11 +31,15 @@ export function DashboardOweCards() {
 
         async function fetchUserRelations() {
             // Get all transactions for current user
+            await currentUserManager.fetchData();
             const userRelations = await currentUserManager.getSortedRelations();
             setRelations({
                 positive: userRelations.positive,
                 negative: userRelations.negative
             })
+            setTimeout(() => {
+              fetchUserRelations();
+            }, 1000)
         }
 
         fetchUserRelations();
@@ -202,7 +206,9 @@ export function OweOneDirectionPerson({relation, positive}) {
 
   async function submitSettleAmount() {
     const amt = document.getElementById("settle-amount-input").value;
-    await currentUserManager.settleWithUser(relation.user, parseInt(amt));
+    const fromUser = positive ? DBManager.getUserManager(relation.user) : currentUserManager;
+    const toUser = positive ? SessionManager.getUserId() : relation.user;
+    await fromUser.settleWithUser(toUser, parseInt(amt));
     window.location.reload();
   }
 
@@ -274,7 +280,7 @@ export function OweOneDirectionPerson({relation, positive}) {
     <OutlinedCard borderWeight="4px" borderColor={positive ? "rgba(176, 200, 86, 0.8)" : "rgba(234, 66, 54, 0.5)"} >
       <div className="personal-owe-card">
         <div className="row">
-          <AvatarIcon src={userData.pfpUrl} displayName={userData.displayName} size={100}/>
+          <AvatarIcon id={relation.user} size={100}/>
           <Typography variant="h1">{userData.displayName}</Typography>
           <Typography variant="h1">{formatter.format(Math.abs(relation.amount))}</Typography>
         </div>

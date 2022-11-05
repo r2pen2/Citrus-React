@@ -20,7 +20,6 @@ import LogoBlack from "../../assets/images/LogoBlack.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 // API Imports
 import { SessionManager } from "../../api/sessionManager";
@@ -95,7 +94,6 @@ export function UserTopbar() {
   function handleClose() {
     setAnchorElement(null);
   }
-
 
   useEffect(() => {
     // Fetch user details on mount
@@ -225,16 +223,6 @@ export function UserTopbar() {
                   >
                     <BookmarksIcon />
                   </IconButton>
-                </Tooltip>
-                <Tooltip title="Reload">
-                  <IconButton
-                    size="medium"
-                    color="inherit"
-                    aria-label="reload-icon"
-                    onClick={() => SessionManager.reloadUser()}
-                    >
-                      <ReplayIcon />
-                    </IconButton>
                 </Tooltip>
                 <Tooltip title="Log-Out">
                   <IconButton

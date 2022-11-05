@@ -221,9 +221,11 @@ export class SessionManager {
     }
 
     static async reloadUser() {
-        const newUserManager = DBManager.getUserManager(this.getUserId());
-        await newUserManager.fetchData();
-        this.setCurrentUserManager(newUserManager);
-        window.location.reload();
+        return new Promise(async (resolve, reject) => {
+            const newUserManager = DBManager.getUserManager(this.getUserId());
+            await newUserManager.fetchData();
+            this.setCurrentUserManager(newUserManager);
+            resolve(newUserManager);
+        })
     }
 }

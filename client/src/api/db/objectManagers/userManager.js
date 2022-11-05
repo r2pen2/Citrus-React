@@ -571,18 +571,23 @@ export class UserManager extends ObjectManager {
         return new Promise(async (resolve, reject) => {
             const relations  = await this.getRelations();
             const transactionManager = DBManager.getTransactionManager(transactionId);
+            console.log(userIds);
+            console.log(transactionId);
             for (const relation of relations) {
                 // Check if this relation has one of the users from this transaction
                 if (userIds.includes(relation.user)) {
                     // We have a relation with this user! Edit history.
-                    const transactionRelation = await transactionManager.getRelationForUsers(relation.user, SessionManager.getUserId());
-                    const amtChange = transactionRelation.to.is === SessionManager.getUserId() ? transactionRelation.amount * -1 : transactionRelation.amount;
-                    const newHistory = new UserRelationHistory();
-                    newHistory.setAmountChange(amtChange);
-                    newHistory.setTransactionTitle("Deleted transaction");
-                    newHistory.setTranscationId(null);
-                    relation.addHistory(newHistory);
-                    this.updateUserRelation(relation);
+                    const transactionRelation = await transactionManager.getRelationForUsers(relation.user, this.getDocumentId());
+                    if (transactionRelation)  {
+                        // Not null, meaning that there is a relation between these two users
+                        const amtChange = transactionRelation.to.id === this.getDocumentId() ? transactionRelation.amount * -1 : transactionRelation.amount;
+                        const newHistory = new UserRelationHistory();
+                        newHistory.setAmountChange(amtChange);
+                        newHistory.setTransactionTitle("Deleted transaction");
+                        newHistory.setTranscationId(null);
+                        relation.addHistory(newHistory);
+                        this.updateUserRelation(relation);
+                    }
                 }
             }
             resolve(true);

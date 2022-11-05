@@ -10,7 +10,7 @@ import "./assets/style/colors.css";
 import { ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { NotificationContainer } from 'react-notifications';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // Component Imports
 import Login from "./components/login/Login";
@@ -24,8 +24,7 @@ import InviteHandler from "./components/inviteHandler/InviteHandler";
 import { SessionManager } from "./api/sessionManager";
 import { auth } from "./api/firebase";
 
-// Get user manager from LS
-const userManager = SessionManager.getCurrentUserManager();
+const currentUserManager = SessionManager.getCurrentUserManager();
 
 function App() {
 
@@ -39,7 +38,7 @@ function App() {
         SessionManager.setDisplayName(authUser.displayName);
 
         // Sync user's DB doc
-        const userAlreadyExists = await userManager.documentExists();
+        const userAlreadyExists = await currentUserManager.documentExists();
         if (userAlreadyExists) {
           // User already exists on DB
         } else {

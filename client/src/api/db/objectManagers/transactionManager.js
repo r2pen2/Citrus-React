@@ -414,6 +414,24 @@ export class TransactionManager extends ObjectManager {
     }
 
     /**
+     * Remove this transaction from the group that it references (if applicable)
+     * @returns a promise resolved true if the transaction had a group and false if not
+     */
+    async removeFromGroup() {
+        return new Promise(async (resolve, reject) => {
+            const groupManager = await this.getGroupManager();
+            if (groupManager) {
+                // This transcation was part of a group
+                await groupManager.removeTransaction(this.getDocumentId());
+                await groupManager.push();
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        })
+    }
+
+    /**
      * Get wheteher or not the relation between two users is settled in this transaction
      * @param {string} user1 id of first user
      * @param {string} user2 id of second user 
@@ -439,6 +457,7 @@ export class TransactionManager extends ObjectManager {
         console.log("cd")
         return new Promise(async (resolve, reject) => {
             await this.removeFromAllUsers();
+            await this.removeFromGroup();
             await this.deleteDocument();
             // If we made it this far, we succeeded
             resolve(true);
@@ -452,6 +471,8 @@ export class TransactionManager extends ObjectManager {
      * @returns a promise resolved with either true or false when the pushes are complete
      */
     async getRelationForUsers(user1, user2) {
+        console.log(user1)
+        console.log(user2)
         return new Promise(async (resolve, reject) => {
             const transactionRelations = await this.getRelations();
             let returnRelation = null;

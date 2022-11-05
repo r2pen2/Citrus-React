@@ -22,12 +22,10 @@ import { DBManager } from "../../api/db/dbManager";
 import { SessionManager } from "../../api/sessionManager";
 import { RouteManager } from "../../api/routeManager";
 
-// Get user manager from LS
-const currentUserManager = SessionManager.getCurrentUserManager();
+const currentUserManager = SessionManager.getCurrentUserManager()
 
 export function TransactionList(props) {
-  
-    
+
   const bracketNames = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Older"];
   const [listState, setListState] = useState({
     numFetched: -1,
@@ -38,6 +36,7 @@ export function TransactionList(props) {
   useEffect(() => {
     async function fetchUserTransactions() {
         // Get all transaction IDs that user is in
+        await currentUserManager.fetchData();
         let transactionIds = await currentUserManager.getTransactions();
         let newTransactionManagers = [];
         for (const transactionId of transactionIds) {
@@ -73,6 +72,9 @@ export function TransactionList(props) {
           numFetched: newTransactionManagers.length,
           brackets: newBrackets
         })
+        setTimeout(() => {
+          fetchUserTransactions()
+        }, 1000);
     }
 
     fetchUserTransactions();

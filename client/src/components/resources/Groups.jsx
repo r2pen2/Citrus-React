@@ -283,27 +283,31 @@ export function HomeGroupList() {
     });
 
     useEffect(() => {
-        async function fetchFriendData() {
-            const groupIds = await currentUserManager.getGroups();
-            let groupsList = [];
-            for (const groupId of groupIds) {
-                const groupManager = DBManager.getGroupManager(groupId);
-                const name = await groupManager.getName();
-                const users = await groupManager.getUsers();
-                const userDebt = await groupManager.getUserDebt(SessionManager.getUserId());
-                groupsList.push({
-                  name: name,
-                  users: users,
-                  userDebt: userDebt
-                });
-            }
-            setGroupsData({
-                fetched: true,
-                groups: groupsList,
-            });
+        async function fetchGroupData() {
+          currentUserManager.fetchData();
+          const groupIds = await currentUserManager.getGroups();
+          let groupsList = [];
+          for (const groupId of groupIds) {
+              const groupManager = DBManager.getGroupManager(groupId);
+              const name = await groupManager.getName();
+              const users = await groupManager.getUsers();
+              const userDebt = await groupManager.getUserDebt(SessionManager.getUserId());
+              groupsList.push({
+                name: name,
+                users: users,
+                userDebt: userDebt
+              });
+          }
+          setGroupsData({
+              fetched: true,
+              groups: groupsList,
+          });
+          setTimeout(() => {
+            fetchGroupData();
+          }, 1000);
         }
 
-        fetchFriendData();
+        fetchGroupData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
