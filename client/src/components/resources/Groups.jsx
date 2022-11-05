@@ -346,7 +346,7 @@ export function GroupPreviewCard({name, users, userDebt}) {
     } else if (userDebt < 0) {
       return `-${showDollars(Math.abs(userDebt))}`;
     } else {
-      return "±$0.00"
+      return "±$0"
     }
   }
 
