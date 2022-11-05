@@ -40,13 +40,15 @@ export default function Split(props) {
     useEffect(() => {
         async function fetchUserData() {
             // Get user manager
+            currentUserManager.fetchData();
             const groups = await currentUserManager.getGroups();
+            console.log(groups);
             // Also get the names of each group
             var groupObjects = [];
             for (const groupId of groups) {
                 const groupManager = DBManager.getGroupManager(groupId);
                 const groupName = await groupManager.getName();
-                groupObjects.push({id: groupId, name: groupName })
+                groupObjects.push({id: groupId, name: groupName})
             }
             setGroupPicklistContent(groupObjects);
         }
@@ -547,7 +549,17 @@ function TransactionDetailsPage({setSplitPage, setTransactionTitle, currentGroup
     }
 
     function setTransactionDetails() {
-        setTransactionTitle(newTitle);
+        let finalTitle = newTitle;
+        if (currentGroup) {
+            if (currentGroup.length > 0) {
+                for (const group of groupPicklistContent) {
+                    if (group.id === currentGroup) {
+                        finalTitle = `${group.name}: ${newTitle}`;
+                    }
+                }
+            }
+        }
+        setTransactionTitle(finalTitle);
     }
 
     return (
@@ -619,13 +631,15 @@ function AmountTable({weightedUsers, setWeightedUsers, transactionTitle, setSpli
         let newTableData = [];
         for (const key of weightedUsers) {
             const user = key[1];
-            let displayName = "";
+            let displayName = null;
             for (const p of peopleInvolved) {
                 if (p.id === key[0]) {
                     displayName = p.displayName;
                 }
             }
-            newTableData.push(createData(displayName, user.paid, user.shouldHavePaid, key[0]));
+            if (displayName) {
+                newTableData.push(createData(displayName, user.paid, user.shouldHavePaid, key[0]));
+            }
         }
         setTableRows(newTableData);
 
