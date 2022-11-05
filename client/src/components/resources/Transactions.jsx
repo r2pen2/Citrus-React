@@ -213,6 +213,16 @@ export function TransactionCard({transactionManager}) {
         return "";
       }
 
+      function getDenominatorColor() {
+        if (context.initialBalance > 0) {
+          return "primary";
+        }
+        if (context.initialBalance < 0) {
+          return "error"
+        }
+        return "";
+      }
+
       function getFractionTooltip() {
         const amtString = formatter.format(Math.abs(context.currentBalance));
         if (context.currentBalance > 0 ) {
@@ -228,7 +238,7 @@ export function TransactionCard({transactionManager}) {
         <Tooltip title={getFractionTooltip()} placement="right">
           <div>
             <Typography align="right" variant="h5" component="div" color={getFractionColor()}>{formatter.format(Math.abs(context.currentBalance))}</Typography>
-            <Typography align="right" variant="subtitle2" component="div" color="lightgrey">/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
+            <Typography align="right" variant="subtitle2" component="div" color={getDenominatorColor()}>/ {formatter.format(Math.abs(context.initialBalance))}</Typography>
           </div>
         </Tooltip>
       )

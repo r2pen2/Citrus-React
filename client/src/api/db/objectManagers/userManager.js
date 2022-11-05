@@ -580,7 +580,7 @@ export class UserManager extends ObjectManager {
                     const newHistory = new UserRelationHistory();
                     newHistory.setAmountChange(amtChange);
                     newHistory.setTransactionTitle("Deleted transaction");
-                    newHistory.setTranscationId("Deleted transaction");
+                    newHistory.setTranscationId(null);
                     relation.addHistory(newHistory);
                     this.updateUserRelation(relation);
                 }
@@ -612,7 +612,7 @@ export class UserManager extends ObjectManager {
      * @returns a promise resolved true when the pushes are complete
      */
     async settleWithUser(userId, settleAmount) {
-        //todo : this isn't working with positive relations on the doc
+        console.log("Settle")
         return new Promise(async (resolve, reject) => {
             // We'll go down the list of transaction history to find the oldest unsettled payments
             // Iterate through the list until we are out of money or out of transactions
@@ -626,11 +626,13 @@ export class UserManager extends ObjectManager {
             const history = sortByDate(relation.getHistory());
             // Find the unsettled histories in order of age (oldest first)
             for (const entry of history) {
-                const entryTransactionManager = DBManager.getTransactionManager(entry.transactionId);
-                const usersSettled = await entryTransactionManager.areUsersSettled(SessionManager.getUserId(), userId);
-                const userIsPayer = await entryTransactionManager.userIsPayer(SessionManager.getUserId());
-                if (!usersSettled && userIsPayer) {
-                    unsettledHistory.push(entryTransactionManager);
+                if (entry.transactionId) {
+                    const entryTransactionManager = DBManager.getTransactionManager(entry.transactionId);
+                    const usersSettled = await entryTransactionManager.areUsersSettled(SessionManager.getUserId(), userId);
+                    const userIsPayer = await entryTransactionManager.userIsPayer(SessionManager.getUserId());
+                    if (!usersSettled && userIsPayer) {
+                        unsettledHistory.push(entryTransactionManager);
+                    }
                 }
             }
             console.log(unsettledHistory);
@@ -676,7 +678,6 @@ export class UserManager extends ObjectManager {
             // If there's a "lastEntry", replace it on both users and the transaction
             if (lastEntry) {
                 // Handle on users
-                console.log(moneyLeft)
                 await this.settleWithUserInTransaction(userId, lastEntry.getDocumentId(), moneyLeft);
             }
             // push changes to users

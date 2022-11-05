@@ -473,7 +473,7 @@ export class TransactionManager extends ObjectManager {
     async userIsPayer(userId) {
         return new Promise(async (resolve, reject) => {
             const user = await this.getUser(userId);
-            resolve(user.initialBalance < 0);
+            resolve(user ? user.initialBalance < 0 : false);
         })
     }
 

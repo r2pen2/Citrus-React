@@ -855,12 +855,30 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             let fromCurrentBalance = fromBal;
             relation.setInitialAmount(relation.amount);
             if (toRelation) {
+                // If there's an outstanding relation between these two users
+                // Find out how much needs to be settled to combine them
+                const settleAmount = Math.abs(toRelation.amount) > relation.amount ? relation.amount : Math.abs(toRelation.amount);
                 if (toRelation.amount < 0) {
-                    const settleAmount = Math.abs(toRelation.amount) > relation.amount ? relation.amount : Math.abs(toRelation.amount);
-                    await toUserManager.settleWithUser(relation.from.id, settleAmount)
+                    // If the user receiving money aleady owes money
+                    await toUserManager.settleWithUser(relation.from.id, settleAmount); // They need to settle their debt first
                     toCurrentBalance -= settleAmount;
                     fromCurrentBalance += settleAmount;
                     relation.setAmount(relation.amount - settleAmount);
+                } else if (toRelation.amount > 0) {
+                    //! WHAT THE FUCK
+                    // No money gets sent here, but we have to cancel out the existing red with the new green
+                    toCurrentBalance -= settleAmount;
+                    fromCurrentBalance += settleAmount;
+                    relation.setAmount(relation.amount - settleAmount);
+                    /**
+                     * Pausing here for the night. I'm clearly too tired to keep working.
+                     * I think this is right, though! I spent nearly three and a half hours after
+                     * dinner getting the transactions to compound correctly. This SHOULD
+                     * be what I needed.
+                     * - Joe 11/5/22 @ 3:25am — First On-Site meeting tomorrow at 10!
+                     */
+                    
+                    
                 }
             }
             toUserRelationsArray.push(relation);
@@ -877,7 +895,6 @@ function TransactionSummaryPage({weightedUsers, transactionTitle, setSplitPage, 
             }
             // Add relation to transaction
             transactionManager.addRelation(relation);
-            console.log(transactionManager)
         }
         // Now that map is populated, we loop through it and add those transactionUsers to the transcationManager
         for (const userId of newTransactionUsers) {
